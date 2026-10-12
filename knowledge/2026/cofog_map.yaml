@@ -1,0 +1,79 @@
+# Words naming a building or an activity, to the function code (oddiel trieda) of the
+# budget position. Terms are matched without diacritics or case, word by word; a trailing
+# * matches any ending. Abbreviations keep their case, because "VO", "PO" or "CO" are also
+# ordinary Slovak words.
+
+default: "01 110"   # obecný úrad, when the invoice names nothing else
+
+functions:
+  - function: "01 110"
+    name: obecný úrad
+    terms: ["obecny urad", "obecneho uradu", "obecnom urade"]
+    abbreviations: ["OcU", "OCU", "OU"]
+  - function: "01 600"
+    name: voľby, sčítanie
+    terms: ["volb*", "volieb", "referend*", "scitani*"]
+  - function: "02 200"
+    name: civilná ochrana
+    terms: ["civiln* ochran*"]
+    abbreviations: ["CO"]
+  - function: "03 100"
+    name: odchyt psov, bezpečnostná služba
+    terms: ["odchyt*", "psik*", "psov", "tulav*", "bezpecnostn* sluzb*"]
+    abbreviations: ["SBS"]
+  - function: "03 200"
+    name: požiarna ochrana
+    terms: ["poziarn*", "hasic*", "hasiac*"]
+    abbreviations: ["PO", "DHZ"]
+  - function: "04 510"
+    name: miestne komunikácie
+    terms: ["miestn* komunikac*", "cesta", "cesty", "ceste", "cestu", "ciest", "chodnik*", "dopravn* znack*", "zimn* udrzb*"]
+    abbreviations: ["MK"]
+  - function: "04 600"
+    name: obecný časopis, wifi
+    terms: ["casopis*", "redakci*", "wifi4eu"]
+  - function: "05 100"
+    name: odpadové hospodárstvo
+    terms: ["odpad*", "zbern* dvor*", "separovan*", "kontajner*", "smeti"]
+  - function: "05 400"
+    name: ochrana prírody
+    terms: ["oddychov* zon*"]
+  - function: "06 200"
+    name: rozvoj obce, zeleň
+    terms: ["zelen*", "park", "parku", "parkov", "kosenie", "kosenia", "sadenic*", "strom*", "lesopark*"]
+  - function: "06 300"
+    name: zásobovanie vodou
+    terms: ["vodovod*", "studn*"]
+  - function: "06 400"
+    name: verejné osvetlenie
+    terms: ["verejn* osvetlen*", "svietid*"]
+    abbreviations: ["VO"]
+  - function: "08 100"
+    name: šport
+    terms: ["sport*", "futbal*", "ihrisk*"]
+  - function: "08 200"
+    name: kultúrny dom, knižnica
+    terms: ["kulturn* dom*", "kniznic*"]
+    abbreviations: ["KD"]
+  - function: "08 300"
+    name: miestny rozhlas
+    terms: ["rozhlas*", "soza"]
+  - function: "08 400"
+    name: cintorín, dom smútku
+    terms: ["cintorin*", "dom smutku", "domu smutku", "hrob*"]
+    abbreviations: ["DS"]
+  - function: "09 111"
+    name: materská škola
+    terms: ["matersk* skol*", "skolk*"]
+    abbreviations: ["MS"]
+  - function: "09 601"
+    name: školská jedáleň
+    terms: ["skolsk* jedal*", "jedalen", "jedalne"]
+    abbreviations: ["SJ"]
+  - function: "10 200"
+    name: dôchodcovia, opatrovateľská služba
+    terms: ["dochodc*", "senior*", "opatrovatel*"]
+    abbreviations: ["OS"]
+  - function: "10 400"
+    name: rodina a deti
+    terms: ["novorodenc*"]

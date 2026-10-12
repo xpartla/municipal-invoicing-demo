@@ -1,12 +1,12 @@
-"""S6, validation: the invariants of plan section 4.
-
-The dictionary checks are built: they hold the anchor cases and the seeded supplier memory to
-the reference data. The proposal-level checks come with the rest of the engine in M1."""
+"""S6, validation: the invariants of plan section 4. The dictionary checks (check_coding,
+check_codes) fail a proposal; the proposal-level checks of `validate` warn and send it to
+review. `riso check` uses the dictionary checks on the committed data too."""
 
 from decimal import Decimal
 
 from riso.contracts import Coding, Validation
 from riso.engine.models import NormalisedInvoice, ResolvedContext
+from riso.knowledge import KnowledgeBase
 from riso.reference import ReferenceIndex, parse_number
 
 SUPPLIER_SU = "321"
@@ -51,11 +51,64 @@ def check_coding(
 
 
 def validate(
-    invoice: NormalisedInvoice, context: ResolvedContext, coding: Coding, index: ReferenceIndex
+    invoice: NormalisedInvoice,
+    context: ResolvedContext,
+    coding: Coding,
+    index: ReferenceIndex,
+    knowledge: KnowledgeBase,
 ) -> Validation:
-    """check_coding plus period sanity, duplicates by supplier and variable symbol and by
-    document number, transfer expectations and split coverage."""
-    raise NotImplementedError("S6 beyond the dictionary checks is built in M1")
+    """check_coding, which also holds split amounts to the gross, plus checks that warn and
+    send the proposal to review: a grant source without a transfer, a document number
+    already used, this supplier's invoice with the same variable symbol already booked, and a
+    booking date outside the budget year or before the invoice was issued."""
+    base = check_coding(coding, index, gross=invoice.gross)
+    grant_sources = frozenset(t.zdroj for t in index.bundle.transfers)
+    number = coding.document.number
+    results = {
+        "transfers present": [
+            f"zdroj {line.zdroj} expects a transfer, and none was found for {line.key}"
+            for line in coding.budget
+            if line.transfer is None and knowledge.expects_transfer(line.zdroj, grant_sources)
+        ],
+        "number not used": [f"{number} is already used"] if number in context.used_numbers else [],
+        "not booked twice": _booked_twice(invoice, context),
+        "booking period": _period_errors(invoice, context, coding),
+    }
+    return Validation(
+        ok=base.ok,
+        checks=base.checks + [name for name, found in results.items() if not found],
+        errors=base.errors,
+        warnings=[warning for found in results.values() for warning in found],
+    )
+
+
+def _booked_twice(invoice: NormalisedInvoice, context: ResolvedContext) -> list[str]:
+    symbol = invoice.document.invoice.variable_symbol
+    if context.supplier is None or not symbol:
+        return []
+    return [
+        f"this supplier's invoice with variable symbol {symbol} is already booked as "
+        f"{p.document_number or 'an earlier document'}"
+        for p in context.supplier.precedents
+        if p.variable_symbol == symbol
+    ]
+
+
+def _period_errors(
+    invoice: NormalisedInvoice, context: ResolvedContext, coding: Coding
+) -> list[str]:
+    booking = coding.document.booking_date
+    if booking is None:
+        return []
+    errors = []
+    if booking.year != context.entity.budget_year:
+        errors.append(
+            f"booking date {booking} is outside the budget year {context.entity.budget_year}"
+        )
+    issued = invoice.document.invoice.issue_date
+    if issued is not None and booking < issued:
+        errors.append(f"booking date {booking} is before the invoice was issued on {issued}")
+    return errors
 
 
 def _missing_codes(md: str, dal: str, budget_key: str, index: ReferenceIndex) -> list[str]:

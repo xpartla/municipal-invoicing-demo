@@ -14,7 +14,7 @@ from riso.contracts import CodeRequest, CodingProposal, Feedback, InvoiceDocumen
 from riso.contracts.base import Amount
 from riso.dataset import load_cases
 from riso.engine import code_invoice
-from riso.knowledge import load_knowledge
+from riso.knowledge import UnknownKnowledge, load_knowledge
 from riso.reference import LocalReferenceSource, UnknownEntity
 from riso.store import StateStore
 
@@ -102,19 +102,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             entity = references.context(ico)
             bundle = references.bundle(ico, entity.reference_period)
-        except UnknownEntity as exc:
+            knowledge = load_knowledge(entity.budget_year)
+        except (UnknownEntity, UnknownKnowledge) as exc:
             raise HTTPException(404, str(exc)) from exc
-        try:
-            return code_invoice(
-                request.invoice,
-                entity=entity,
-                bundle=bundle,
-                memory=state.supplier_memory(ico),
-                counters=state.counters(ico),
-                knowledge=load_knowledge(entity.budget_year),
-            )
-        except NotImplementedError as exc:
-            raise HTTPException(501, str(exc)) from exc
+        return code_invoice(
+            request.invoice,
+            entity=entity,
+            bundle=bundle,
+            memory=state.supplier_memory(ico),
+            counters=state.counters(ico),
+            knowledge=knowledge,
+        )
 
     @app.post("/api/feedback", status_code=204)
     def feedback(feedback: Feedback) -> None:

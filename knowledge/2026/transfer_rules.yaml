@@ -1,0 +1,6 @@
+# Which zdroj codes expect a transfer on the budget line (plan section 3.2). A demo
+# assumption until the accountant confirms it: grant sources do, own funds do not.
+
+zdroj_prefixes: ["1"]          # state budget and EU sources: 111, 11H, 131x, 1AD1, 1BAx, ...
+from_income_grants: true       # and every zdroj on a grant row of the income side (45, 71)
+never: ["41", "43", "52", "72f"]

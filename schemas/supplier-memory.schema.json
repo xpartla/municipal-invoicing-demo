@@ -43,6 +43,19 @@
           "default": null,
           "title": "Amount"
         },
+        "variable_symbol": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Of the supplier's invoice; catches booking it twice",
+          "title": "Variable Symbol"
+        },
         "lines": {
           "items": {
             "$ref": "#/$defs/PrecedentLine"

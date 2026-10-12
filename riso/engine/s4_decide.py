@@ -1,12 +1,159 @@
-"""S4, decision: a precedent with a compatible description wins outright, then a single
-rule-consistent candidate. Otherwise the best candidate is proposed for review with up to about
-fifteen ranked alternatives. Also decides the per-entry split. The full version adds a ranking
-model at this point."""
+"""S4, decision. In order: a precedent with a compatible description wins outright; the canteen
+food rule fixes its position; a single rule-consistent candidate wins; otherwise the best
+candidate is proposed for review with up to fifteen ranked alternatives. An invoice is split
+only when its entries name different budget positions, and a split always goes to review.
+The full version adds a ranking model where this stage now asks for review."""
 
-from riso.engine.models import Candidate, Decision, NormalisedInvoice, ResolvedContext
+from decimal import Decimal
+
+from riso.engine.models import (
+    Candidate,
+    CandidateSet,
+    ChosenLine,
+    Decision,
+    NormalisedInvoice,
+    ResolvedContext,
+)
+from riso.engine.s3_candidates import canteen_key, position_function
+from riso.knowledge import STRONG, KnowledgeBase
+from riso.reference import ReferenceIndex
+
+MAX_ALTERNATIVES = 15
+SINGLE_CANDIDATE_FLOOR = {2: 0.85, 1: 0.8}  # by tier
 
 
 def decide(
-    invoice: NormalisedInvoice, context: ResolvedContext, candidates: list[Candidate]
+    invoice: NormalisedInvoice,
+    context: ResolvedContext,
+    candidates: CandidateSet,
+    index: ReferenceIndex,
+    knowledge: KnowledgeBase,
 ) -> Decision:
-    raise NotImplementedError("S4, decision, is built in M1")
+    ranked = candidates.invoice
+    if invoice.gross is None:
+        return Decision(
+            rule="none",
+            lines=(),
+            alternatives=ranked[:MAX_ALTERNATIVES],
+            reasons=("without the invoice total there is no amount to book",),
+        )
+    split = _split(invoice, candidates)
+    if split is not None:
+        return split
+
+    precedent = next((c for c in ranked if c.precedent is not None), None)
+    if precedent is not None and _compatible(precedent, invoice, index, knowledge):
+        return _one("precedent", precedent, invoice, ranked)
+    if context.canteen_food:
+        canteen = next((c for c in ranked if c.budget_key == canteen_key(knowledge)), None)
+        if canteen is not None:
+            return _one("canteen_rule", canteen, invoice, ranked)
+    single = _single_consistent(ranked)
+    if single is not None:
+        # Being the only candidate that fits every rule is evidence in itself.
+        floor = SINGLE_CANDIDATE_FLOOR.get(single.tier, 0.0)
+        return _one(
+            "single_candidate", single, invoice, ranked, confidence=max(single.score, floor)
+        )
+    if not ranked:
+        return Decision(
+            rule="none", lines=(), alternatives=(), reasons=("no budget position fits the invoice",)
+        )
+    reasons = []
+    if precedent is not None:
+        reasons.append("the invoice names another activity than this supplier's earlier invoices")
+    reasons.append(
+        "several budget positions fit; the best is proposed"
+        if len(ranked) > 1
+        else "only one weak match"
+    )
+    return _one("best_candidate", ranked[0], invoice, ranked, tuple(reasons))
+
+
+def _one(
+    rule: str,
+    chosen: Candidate,
+    invoice: NormalisedInvoice,
+    ranked: tuple[Candidate, ...],
+    reasons: tuple[str, ...] = (),
+    confidence: float | None = None,
+) -> Decision:
+    assert invoice.gross is not None
+    line = ChosenLine(
+        candidate=chosen,
+        amount=invoice.gross,
+        confidence=chosen.score if confidence is None else confidence,
+    )
+    return Decision(
+        rule=rule,
+        lines=(line,),
+        alternatives=tuple(c for c in ranked if c.budget_key != chosen.budget_key)[
+            :MAX_ALTERNATIVES
+        ],
+        reasons=reasons,
+    )
+
+
+def _compatible(
+    precedent: Candidate,
+    invoice: NormalisedInvoice,
+    index: ReferenceIndex,
+    knowledge: KnowledgeBase,
+) -> bool:
+    """The invoice names no other building or activity than the precedent's position, and
+    its concepts, if any, include the precedent's economic code."""
+    position = index.expense[precedent.budget_key]
+    named = set(invoice.named_functions())
+    if named and named != {position_function(position)}:
+        return False
+    eks = {
+        ek
+        for name in invoice.concept_names()
+        if knowledge.lexicon.concepts[name].weight >= STRONG
+        for ek in knowledge.lexicon.concepts[name].ek
+    }
+    return not eks or position.ek in eks
+
+
+def _single_consistent(ranked: tuple[Candidate, ...]) -> Candidate | None:
+    """The one rule-consistent candidate in the best tier: a description that names what the
+    invoice names beats one about the same concept, which beats a generic position."""
+    consistent = [c for c in ranked if c.consistent]
+    if not consistent:
+        return None
+    best_tier = max(c.tier for c in consistent)
+    top = [c for c in consistent if c.tier == best_tier]
+    return top[0] if len(top) == 1 else None
+
+
+def _split(invoice: NormalisedInvoice, candidates: CandidateSet) -> Decision | None:
+    """One line per entry, merging entries that land on the same position, when entries name
+    different positions and every entry has an amount."""
+    entries = invoice.document.lines
+    choices = {
+        i: chosen
+        for i, line in enumerate(candidates.lines)
+        if (chosen := next((c for c in line if c.consistent), None)) is not None
+    }
+    if len(entries) < 2 or len({c.budget_key for c in choices.values()}) < 2:
+        return None
+    if any(amount is None for amount in invoice.line_amounts) or not candidates.invoice:
+        return None
+    grouped: dict[str, tuple[Candidate, Decimal, int]] = {}
+    for i, amount in enumerate(invoice.line_amounts):
+        assert amount is not None
+        candidate = choices.get(i, candidates.invoice[0])
+        kept = grouped.get(candidate.budget_key)
+        grouped[candidate.budget_key] = (
+            (candidate, amount, i) if kept is None else (kept[0], kept[1] + amount, kept[2])
+        )
+    lines = tuple(
+        ChosenLine(candidate=c, amount=amount, confidence=c.score, invoice_line=i)
+        for c, amount, i in grouped.values()
+    )
+    return Decision(
+        rule="split",
+        lines=lines,
+        alternatives=candidates.invoice[:MAX_ALTERNATIVES],
+        reasons=(f"split per invoice entry into {len(lines)} lines",),
+    )

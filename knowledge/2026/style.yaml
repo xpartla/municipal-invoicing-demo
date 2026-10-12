@@ -1,0 +1,7 @@
+# How the accountant writes the text of a line: short, lower case, abbreviations kept.
+# Precedent texts are reused as written, with the month of service updated.
+
+max_length: 40
+
+# A flat monthly fee says which month it is for: "spracovanie účtovníctva 4/2026".
+month_for: [flat_fee]

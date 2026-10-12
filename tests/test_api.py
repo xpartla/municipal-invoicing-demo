@@ -60,11 +60,29 @@ def test_one_invoice_is_served_without_its_expected_coding(client):
     assert client.get("/api/invoices/nothing").status_code == 404
 
 
-def test_coding_answers_not_implemented_until_m1(client):
+def test_coding_returns_a_proposal(client):
     response = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")})
 
-    assert response.status_code == 501
-    assert "M1" in response.json()["detail"]
+    assert response.status_code == 200
+    proposal = response.json()
+    assert proposal["document"]["number"] == "FD/144/26"
+    assert proposal["budget"][0]["key"] == "632005 41 01 110 000"
+    assert proposal["posting"][0]["md"] == "518 003"
+    assert proposal["needs_review"] is False
+
+
+def test_feedback_and_evaluation_answer_not_implemented_yet(client):
+    proposal = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")}).json()
+    feedback = {
+        "invoice_id": proposal["invoice_id"],
+        "bundle_id": proposal["bundle_id"],
+        "action": "accepted",
+        "proposal": proposal,
+        "final": {k: proposal[k] for k in ("document", "posting", "budget")},
+    }
+
+    assert client.post("/api/feedback", json=feedback).status_code == 501
+    assert client.get("/api/eval").status_code == 501
 
 
 def test_coding_rejects_a_malformed_invoice(client):

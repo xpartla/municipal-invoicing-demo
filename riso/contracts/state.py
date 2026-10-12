@@ -27,6 +27,9 @@ class Precedent(Contract):
     document_number: str | None = None
     booking_date: dt.date | None = None
     amount: BookingAmount | None = None
+    variable_symbol: str | None = Field(
+        default=None, description="Of the supplier's invoice; catches booking it twice"
+    )
     lines: list[PrecedentLine] = Field(min_length=1)
     source: Literal["screenshot", "feedback"]
 

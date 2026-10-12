@@ -1,0 +1,39 @@
+# Economic classification (EK) to the synthetic account debited by a supplier invoice.
+# The longest matching EK prefix wins; the analytic account comes from au_rules.yaml.
+# Derived from the four precedents, the chart of accounts and the accounting procedures
+# for municipalities (Opatrenie MF SR č. MF/014454/2022-36). Positions whose EK has no
+# rule here are never proposed, because no debit account could be derived for them.
+
+- {ek: "631", su: "512", note: "cestovné"}
+- {ek: "632001", su: "502", note: "energie"}
+- {ek: "632002", su: "502", note: "vodné, stočné"}
+- {ek: "632003", su: "518", note: "poštové a telekomunikačné služby"}
+- {ek: "632004", su: "518", note: "komunikačná infraštruktúra"}
+- {ek: "632005", su: "518", note: "telekomunikačné služby"}
+- {ek: "632006", su: "502", note: "elektrická energia"}
+- {ek: "632007", su: "502", note: "plyn"}
+- {ek: "633", su: "501", note: "materiál, drobné vybavenie"}
+- {ek: "633013", su: "518", note: "softvér"}
+- {ek: "633016", su: "513", note: "reprezentačné"}
+- {ek: "633018", su: "518", note: "licencie"}
+- {ek: "634001", su: "501", note: "palivo, mazivá, oleje"}
+- {ek: "634002", su: "511", note: "servis, údržba a opravy vozidiel"}
+- {ek: "634003", su: "548", note: "poistenie vozidiel"}
+- {ek: "634004", su: "518", note: "prepravné, nájom dopravných prostriedkov"}
+- {ek: "634005", su: "538", note: "známky a poplatky"}
+- {ek: "635", su: "511", note: "rutinná a štandardná údržba"}
+- {ek: "636", su: "518", note: "nájomné"}
+- {ek: "637", su: "518", note: "služby"}
+- {ek: "637012", su: "568", note: "poplatky a odvody"}
+- {ek: "637014", su: "527", note: "stravovanie zamestnancov"}
+- {ek: "637015", su: "548", note: "poistné"}
+- {ek: "637031", su: "545", note: "pokuty a penále"}
+- {ek: "642006", su: "548", note: "členské príspevky"}
+- {ek: "651", su: "562", note: "úroky"}
+- {ek: "711", su: "041", note: "nehmotné aktíva, webová stránka"}
+- {ek: "713", su: "042", note: "nákup strojov, prístrojov a zariadení"}
+- {ek: "714", su: "042", note: "nákup dopravných prostriedkov"}
+- {ek: "716", su: "042", note: "projektová dokumentácia"}
+- {ek: "717", su: "042", note: "realizácia stavieb"}
+- {ek: "719", su: "042", note: "ostatné kapitálové výdavky"}
+- {ek: "821", su: "461", note: "splácanie istiny úveru"}

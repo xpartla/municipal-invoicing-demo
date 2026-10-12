@@ -1,0 +1,64 @@
+# Which analytic account (AU) to use within a synthetic account. The first rule whose
+# conditions all hold wins, otherwise the default. Conditions, each matching any of its
+# items: concepts found in the invoice (lexicon.yaml), the budget line's function
+# (oddiel trieda), its EK prefix, its zdroj, and terms found in the invoice or in the
+# budget position's description.
+
+debit:
+  "501":
+    default: "000"
+    rules:
+      - {au: "080", function: ["09 601"], note: "školská jedáleň"}
+      - {au: "002", concepts: [office_supplies, cleaning], note: "kancelárske a čistiace potreby"}
+  "502":
+    default: "000"
+    rules:
+      - {au: "001", concepts: [electricity]}
+      - {au: "001", ek: ["632006"]}
+      - {au: "002", concepts: [gas]}
+      - {au: "002", ek: ["632007"]}
+      - {au: "003", concepts: [water]}
+      - {au: "003", ek: ["632002"]}
+  "518":
+    default: "000"
+    rules:
+      - {au: "003", concepts: [telecom, postal, internet]}
+      - {au: "003", ek: ["632003", "632004", "632005"]}
+      - {au: "004", concepts: [waste]}
+      - {au: "002", concepts: [software]}
+      - {au: "002", ek: ["633013", "633018", "637040"]}
+      - {au: "005", concepts: [training, books]}
+      - {au: "005", ek: ["637001"]}
+      - {au: "010", concepts: [municipal_company], note: "obecné služby Boldog"}
+      - {au: "001", concepts: [flat_fee, accounting, dpo, dogs, security], note: "paušálne služby na zmluvu"}
+  "527":
+    default: "000"
+    rules:
+      - {au: "001", ek: ["637014"], note: "stravovanie"}
+  "548":
+    default: "000"
+    rules:
+      - {au: "002", ek: ["642006"], note: "členské"}
+      - {au: "003", ek: ["634003", "637015"], note: "poistné"}
+  "042":
+    default: "000"
+    rules:
+      - {au: "002", terms: ["upn", "uzemn* plan*"]}
+      - {au: "003", terms: ["ms", "matersk* skol*"]}
+      - {au: "004", terms: ["cyklotras*"]}
+      - {au: "005", terms: ["jazer*"]}
+      - {au: "006", terms: ["chodnik*"]}
+      - {au: "007", terms: ["lesik*", "lesopark*"]}
+      - {au: "008", terms: ["kanalizac*"]}
+      - {au: "009", terms: ["stromoradi*"]}
+      - {au: "010", terms: ["malotraktor*"]}
+      - {au: "011", terms: ["recsk*"]}
+      - {au: "012", terms: ["szilvas*"]}
+      - {au: "013", terms: ["komunitn*"]}
+      - {au: "015", terms: ["ocu", "ou", "obecn* urad*"], note: "prestavba OcÚ"}
+
+credit:
+  "321":
+    default: "000"
+    rules:
+      - {au: "001", zdroj: ["1BA1", "1BA2"], note: "energetická obnova budovy OÚ"}

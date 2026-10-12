@@ -9,7 +9,9 @@ from riso import paths
 from riso.contracts import Counters, DatasetCase, EntityContext, SupplierMemory
 from riso.contracts.schemas import stale_schemas
 from riso.dataset import load_cases
+from riso.engine.s3_candidates import canteen_key
 from riso.engine.s6_validate import SUPPLIER_SU, check_codes, check_coding
+from riso.knowledge import KnowledgeBase, UnknownKnowledge, load_knowledge
 from riso.reference import LocalReferenceSource, ReferenceIndex, UnknownEntity, parse_number
 from riso.store import COUNTERS_FILE, MEMORY_FILE
 
@@ -39,10 +41,15 @@ def run_checks(
         context = source.context(ico)
         memory = SupplierMemory.model_validate_json((initial_dir / ico / MEMORY_FILE).read_bytes())
         counters = Counters.model_validate_json((initial_dir / ico / COUNTERS_FILE).read_bytes())
+        try:
+            knowledge_found = knowledge_errors(load_knowledge(context.budget_year), index)
+        except UnknownKnowledge as exc:
+            knowledge_found = [str(exc)]
         results += [
             CheckResult(f"{ico} entity settings", context_errors(context, index)),
             CheckResult(f"{ico} supplier memory", memory_errors(memory, index)),
             CheckResult(f"{ico} counters", counter_errors(counters, index)),
+            CheckResult(f"{ico} knowledge base {context.budget_year}", knowledge_found),
         ]
     for case in load_cases(invoices_dir):
         results.append(CheckResult(f"case {case.id}", case_errors(case, source)))
@@ -86,6 +93,29 @@ def counter_errors(counters: Counters, index: ReferenceIndex) -> list[str]:
     ]
     for number in counters.used_numbers:
         errors += _number_errors(number, index, "used number")
+    return errors
+
+
+def knowledge_errors(knowledge: KnowledgeBase, index: ReferenceIndex) -> list[str]:
+    """Accounts and positions the knowledge base names must exist in the entity's
+    dictionaries. Economic codes and functions it names may be missing: the knowledge base
+    serves a budget year, not one municipality."""
+    errors = [
+        f"bridge: SU {rule.su} for EK {rule.ek} is not in the chart of accounts"
+        for rule in knowledge.bridge
+        if rule.su not in index.accounts_by_su
+    ]
+    for side, table in (("debit", knowledge.au_rules.debit), ("credit", knowledge.au_rules.credit)):
+        for su, rules in table.items():
+            for au in dict.fromkeys([rules.default, *(rule.au for rule in rules.rules)]):
+                if f"{su} {au}" not in index.accounts:
+                    errors.append(f"AU rules: {side} account {su} {au} is not in the chart")
+    canteen = knowledge.canteen
+    for analytika in [canteen.analytika, *canteen.alternatives]:
+        if (key := canteen_key(knowledge, analytika)) not in index.expense:
+            errors.append(f"canteen rule: {key} is not in the approved budget")
+    if canteen.md not in index.accounts:
+        errors.append(f"canteen rule: MD {canteen.md} is not in the chart of accounts")
     return errors
 
 

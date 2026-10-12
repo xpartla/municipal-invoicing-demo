@@ -4,8 +4,12 @@ import argparse
 import sys
 from collections.abc import Callable
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from riso import paths
+
+if TYPE_CHECKING:
+    from riso.contracts import CodingProposal
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -33,8 +37,11 @@ def main(argv: list[str] | None = None) -> int:
     serve.add_argument("--port", type=int, default=8000)
     serve.add_argument("--reload", action="store_true")
 
-    code = commands.add_parser("code", help="propose the coding of one InvoiceDocument")
-    code.add_argument("invoice", type=Path, help="InvoiceDocument or DatasetCase JSON")
+    code = commands.add_parser("code", help="propose the coding of invoices")
+    code.add_argument(
+        "invoices", type=Path, nargs="+", help="InvoiceDocument or dataset case JSON files"
+    )
+    code.add_argument("--json", action="store_true", help="print the full CodingProposal")
 
     commands.add_parser("eval", help="evaluate the held-out set")
 
@@ -123,37 +130,71 @@ def _serve(args: argparse.Namespace) -> int:
 
 
 def _code(args: argparse.Namespace) -> int:
+    """Codes each file with the current runtime state. For a dataset case it also says
+    whether the codes match the expected ones, and exits with 1 when any does not."""
     import json
 
     from riso.contracts import DatasetCase, InvoiceDocument
     from riso.engine import code_invoice
+    from riso.eval import compare
     from riso.knowledge import load_knowledge
     from riso.reference import LocalReferenceSource
     from riso.store import StateStore
 
-    data = json.loads(args.invoice.read_text(encoding="utf-8"))
-    document = (
-        DatasetCase.model_validate(data).invoice
-        if "expected" in data
-        else InvoiceDocument.model_validate(data)
-    )
-    ico = "".join((document.customer.ico or "").split())
     references, state = LocalReferenceSource(), StateStore()
-    try:
-        entity = references.context(ico)
-        proposal = code_invoice(
-            document,
-            entity=entity,
-            bundle=references.bundle(ico, entity.reference_period),
-            memory=state.supplier_memory(ico),
-            counters=state.counters(ico),
-            knowledge=load_knowledge(entity.budget_year),
+    mismatches = 0
+    for path in args.invoices:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        case = DatasetCase.model_validate(data) if "expected" in data else None
+        document = case.invoice if case else InvoiceDocument.model_validate(data)
+        ico = "".join((document.customer.ico or "").split())
+        try:
+            entity = references.context(ico)
+            proposal = code_invoice(
+                document,
+                entity=entity,
+                bundle=references.bundle(ico, entity.reference_period),
+                memory=state.supplier_memory(ico),
+                counters=state.counters(ico),
+                knowledge=load_knowledge(entity.budget_year),
+            )
+        except LookupError as exc:
+            print(f"riso code: {path}: {exc}", file=sys.stderr)
+            return 2
+        if args.json:
+            print(proposal.model_dump_json(indent=2))
+            continue
+        print(_summary(proposal))
+        if case is not None:
+            expected = compare(proposal, case)
+            print(
+                f"  expected: {'matches' if expected is None else 'differs, expected ' + expected}"
+            )
+            mismatches += expected is not None
+    return 1 if mismatches else 0
+
+
+def _summary(proposal: "CodingProposal") -> str:
+    """The proposal as the accountant would type it in, one line per budget line."""
+    gross = proposal.invoice.gross
+    document = proposal.document
+    lines = [
+        f"{proposal.invoice_id}  {proposal.supplier.name or '?'}  "
+        f"{'—' if gross is None else f'{gross:.2f} €'}",
+        f"  {document.number or '—'}, booking date {document.booking_date or '—'}",
+    ]
+    for post, budget in zip(proposal.posting, proposal.budget, strict=False):
+        lines.append(
+            f"  MD {post.md}  DAL {post.dal}  {budget.key}  {budget.amount:.2f}  "
+            f"{post.text} | {budget.text}"
         )
-    except (LookupError, NotImplementedError) as exc:
-        print(f"riso code: {exc}", file=sys.stderr)
-        return 2
-    print(proposal.model_dump_json(indent=2))
-    return 0
+    review = (
+        "needs review: " + "; ".join(proposal.review_reasons)
+        if proposal.needs_review
+        else "no review needed"
+    )
+    lines.append(f"  confidence {proposal.confidence.overall:.2f}, {review}")
+    return "\n".join(lines)
 
 
 def _eval(args: argparse.Namespace) -> int:

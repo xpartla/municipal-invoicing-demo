@@ -15,7 +15,7 @@ from riso.engine.s3_candidates import generate_candidates
 from riso.engine.s4_decide import decide
 from riso.engine.s5_posting import derive_coding
 from riso.engine.s6_validate import validate
-from riso.engine.s7_explain import explain, manual_entry
+from riso.engine.s7_explain import explain, without_coding
 from riso.knowledge import KnowledgeBase
 from riso.reference import ReferenceIndex
 
@@ -31,13 +31,19 @@ def code_invoice(
     counters: Counters,
     knowledge: KnowledgeBase,
 ) -> CodingProposal:
-    invoice = normalise(document)
-    context = resolve(invoice, entity=entity, bundle=bundle, memory=memory, counters=counters)
-    if invoice.is_credit_note:
-        return manual_entry(invoice, context, CREDIT_NOTE_REASON)
     index = ReferenceIndex(bundle)
+    invoice = normalise(document, knowledge)
+    context = resolve(
+        invoice, entity=entity, index=index, memory=memory, counters=counters, knowledge=knowledge
+    )
+    if invoice.is_credit_note:
+        return without_coding(invoice, context, (CREDIT_NOTE_REASON,))
     candidates = generate_candidates(invoice, context, index, knowledge)
-    decision = decide(invoice, context, candidates)
-    coding = derive_coding(invoice, context, decision, index, knowledge)
-    validation = validate(invoice, context, coding, index)
-    return explain(invoice, context, decision, coding, validation)
+    decision = decide(invoice, context, candidates, index, knowledge)
+    if not decision.lines:
+        return without_coding(
+            invoice, context, decision.reasons, decision.alternatives, index, knowledge
+        )
+    derivation = derive_coding(invoice, context, decision, index, knowledge)
+    validation = validate(invoice, context, derivation.coding, index, knowledge)
+    return explain(invoice, context, candidates, decision, derivation, validation, index, knowledge)

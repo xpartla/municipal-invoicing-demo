@@ -1,0 +1,186 @@
+# Slovak terms, abbreviations and spelling variants mapped to concepts. Matched without
+# diacritics or case, word by word; a trailing * matches any ending. A concept proposes
+# economic classification codes (ek), the most likely first, and a short posting text.
+# Concepts below weight 0.5 only add alternatives; concepts without ek steer analytic
+# accounts (au_rules.yaml) and texts.
+
+# Words too common to count when comparing an invoice with budget descriptions.
+stopwords: [a, aj, alebo, na, za, do, od, po, pre, pri, so, s, v, vo, z, zo, k, ku, o, u,
+  cislo, dph, eur, spolu, suma, sluzby, sluzba, sluzieb, ostatne, ostatny, vseobecne,
+  vseobecny, poplatok, poplatky, faktura, fakturujem, fakturujeme, vam, zmysle, zmluvy,
+  zmluva, zmluve, zaklade, obdobie, mesiac, polozka, celkom]
+
+# A credit note is entered by hand (decision 12), so these send an invoice to manual entry.
+credit_note_markers: ["dobropis*", "opravn* faktur*", "opravn* danov* doklad*", "storn* faktur*"]
+
+concepts:
+  telecom:
+    terms: ["telekom*", "telefon*", "mobiln*", "hlasov*", "volani*", "sms", "fax", "pevn* link*", "orange", "o2", "4ka"]
+    ek: ["632005", "632003", "632004"]
+    text: "tel.poplatky"
+  postal:
+    terms: ["posta", "postov*", "postovn*", "balik*", "zasielk*", "frankovan*"]
+    ek: ["632003"]
+    text: "poštovné"
+  internet:
+    terms: ["internet*", "pripojeni*", "wifi", "datov* sluzb*", "webhosting*", "domen*"]
+    ek: ["632004", "632003"]
+    text: "internet"
+  electricity:
+    terms: ["elektrin*", "elektrick* energi*", "elektrick* en", "el energi*", "elektromer*", "kwh", "zse", "sse"]
+    ek: ["632006", "632001"]
+    text: "el.energia"
+  gas:
+    terms: ["plyn*", "spp"]
+    ek: ["632007", "632001"]
+    text: "plyn"
+  water:
+    terms: ["vodne", "stocne", "pitn* vod*", "vodomer*", "vodarensk*", "bvs"]
+    ek: ["632002"]
+    text: "vodné, stočné"
+  accounting:
+    terms: ["uctovnictv*", "uctovn*", "ucto", "rozpoctov*", "rozpocetovn*", "audit*", "mzdov* agend*"]
+    ek: ["637005"]
+    text: "spracovanie účtovníctva"
+  dpo:
+    terms: ["zodp* osob*", "osobn* udaj*", "gdpr", "ochran* osobn*"]
+    ek: ["637004"]
+    text: "výkon zodpovednej osoby"
+  dogs:
+    terms: ["psik*", "psov", "psa", "odchyt*", "utulok", "utulku", "tulav*"]
+    ek: ["637005", "637004"]
+    text: "odchyt psov"
+  security:
+    terms: ["bezpecnostn* sluzb*", "sbs", "strazn*", "ochran* objekt*"]
+    ek: ["637005"]
+    text: "bezpečnostná služba"
+  waste:
+    terms: ["odpad*", "smeti", "kontajner*", "vyvoz*", "separovan*", "skladk*", "zber*"]
+    ek: ["637004"]
+    text: "vývoz odpadu"
+  chimney:
+    terms: ["kominar*", "komin*"]
+    ek: ["637004"]
+    text: "kominárske práce"
+  inspection:
+    terms: ["reviz*", "kontrol*", "odborn* prehliadk*", "odborn* skusk*"]
+    ek: ["637004"]
+    text: "revízia"
+  training:
+    terms: ["skoleni*", "kurz*", "seminar*", "konferenci*", "webinar*"]
+    ek: ["637001"]
+    text: "školenie"
+  advertising:
+    terms: ["reklam*", "propagac*", "inzerc*", "inzerat*"]
+    ek: ["637003"]
+    text: "propagácia"
+  events:
+    terms: ["podujati*", "koncert*", "vystupeni*", "kulturn* program*", "ozvucen*", "hudobn*"]
+    ek: ["637004", "637003"]
+    text: "kultúrne podujatie"
+  copyright:
+    terms: ["soza", "autorsk* odmen*", "autorsk* prav*"]
+    ek: ["637004"]
+    text: "poplatky SOZA"
+  software:
+    terms: ["softver*", "licenci*", "aplikaci*", "programov* vybaven*", "aktualizaci* programu"]
+    ek: ["633013", "633018", "637040"]
+    text: "softvér"
+  it_services:
+    terms: ["it sluzb*", "sprav* siet*", "spravc* siet*"]
+    ek: ["637040", "635002"]
+    text: "IT služby"
+  office_supplies:
+    terms: ["kancelarsk*", "papier*", "toner*", "obalk*", "sanon*", "pero", "pera"]
+    ek: ["633006"]
+    text: "kancelárske potreby"
+  cleaning:
+    terms: ["cistiac*", "upratov*", "dezinfekc*", "hygienick*", "mydl*"]
+    ek: ["633006"]
+    text: "čistiace potreby"
+  material:
+    terms: ["material*", "naradi*", "farb*", "spojovac*"]
+    ek: ["633006"]
+    text: "materiál"
+  fuel:
+    terms: ["phm", "nafta", "nafty", "benzin*", "pohonn* hmot*", "palivo", "paliva", "mazivo", "maziva"]
+    ek: ["634001"]
+    text: "PHM"
+  vehicle_repair:
+    terms: ["oprav* vozidl*", "servis* vozidl*", "pneumatik*", "stk", "emisn* kontrol*"]
+    ek: ["634002"]
+    text: "oprava vozidla"
+  repair:
+    terms: ["oprav*", "udrzb*", "servis*", "maliarsk*", "vymen*"]
+    ek: ["635006", "635004", "635002"]
+    weight: 0.6
+    text: "oprava"
+  rent:
+    terms: ["najom*", "najomn*", "prenajom*", "prenajm*"]
+    ek: ["636001", "636002"]
+    text: "nájomné"
+  insurance:
+    terms: ["poisteni*", "poistn*", "poistk*", "pzp", "havarijn*"]
+    ek: ["637015", "634003"]
+    text: "poistenie"
+  meal_vouchers:
+    terms: ["stravn* listk*", "stravovac* poukaz*", "stravenk*", "gastro*"]
+    ek: ["637014"]
+    text: "stravné lístky"
+  food:
+    terms: ["potravin*", "mliek*", "mliecn*", "maso", "masa", "pecivo", "chlieb", "zelenin*", "ovoci*", "mrazen*", "cestovin*", "vajc*", "jogurt*", "syr", "syry"]
+    ek: ["633011"]
+    text: "potraviny"
+  books:
+    terms: ["knih*", "casopis*", "noviny", "novin", "predplatn*", "zbierk* zakon*"]
+    ek: ["633009"]
+    text: "knihy, časopisy"
+  work_clothes:
+    terms: ["pracovn* odev*", "pracovn* obuv*", "rukavic*", "ochrann* pomock*", "reflexn*"]
+    ek: ["633010"]
+    text: "pracovné odevy"
+  furniture:
+    terms: ["nabyt*", "stol", "stoly", "stolick*", "skrin*", "kresl*", "interier*"]
+    ek: ["633001"]
+    text: "interiérové vybavenie"
+  computers:
+    terms: ["pocitac*", "notebook*", "laptop*", "tlaciaren*", "monitor*", "pc"]
+    ek: ["633002"]
+    text: "výpočtová technika"
+  machines:
+    terms: ["kosack*", "krovinorez*", "motorov* pil*", "stroj*", "zariadeni*", "kompresor*", "veza", "veze"]
+    ek: ["633004"]
+    weight: 0.7
+    text: "stroje a zariadenia"
+  representation:
+    terms: ["reprezentac*", "obcerstveni*", "darcek*", "kytic*", "venc*", "kvetin*"]
+    ek: ["633016", "633006"]
+    text: "reprezentačné"
+  membership:
+    terms: ["clensk* prispev*", "clensk*", "zmos", "zdruzeni* obci", "mikroregion*"]
+    ek: ["642006"]
+    text: "členský príspevok"
+  construction:
+    terms: ["stavb*", "stavieb", "stavebn* prac*", "rekonstrukci*", "modernizaci*", "vystavb*", "vybudovani*", "revitalizac*", "spevneni*"]
+    ek: ["717001", "717002", "717003"]
+    text: "stavebné práce"
+  project_documentation:
+    terms: ["projektov* dokumentaci*", "projekt* stavb*", "uzemn* plan*", "studi*"]
+    ek: ["716000", "637011"]
+    text: "projektová dokumentácia"
+  municipal_company:
+    terms: ["obecn* podnik*", "obecn* sluzb*"]
+  flat_fee:
+    terms: ["pausal*", "mesacn* poplat*", "za mesiac", "mesacne"]
+  grant:
+    terms: ["dotaci*", "grant*", "bsk", "nenavratn* financn* prispev*", "nfp", "envirofond*", "environmentaln* fond*", "plan obnovy"]
+  fees:
+    terms: ["poplatk*", "poplatok"]
+    ek: ["637012"]
+    weight: 0.3
+    text: "poplatky"
+  services:
+    terms: ["sluzb*", "sluzieb"]
+    ek: ["637004"]
+    weight: 0.3
+    text: "služby"

@@ -1,0 +1,11 @@
+# Food for the school canteen (decision 12): debit 501 080 and zdroj 72f, on the canteen's
+# series and supplier account from the entity settings (FDŠJ, 321 080). In the full version
+# the category comes from prior records, or the accountant enters it.
+
+concepts: [food]
+function: "09 601"
+zdroj: "72f"
+ek: "633011"
+analytika: "008"
+alternatives: ["098"]
+md: "501 080"

@@ -14,7 +14,7 @@
      "trieda": "110", "analytika": "000", "amount": 93.71, "text": "telefon,fax",
      "stredisko": null, "transfer": null}
   ],
-  "confidence": {"overall": 0.96, "ek": 0.98, "cofog": 0.95, "zdroj": 0.99, "analytika": 0.9,
+  "confidence": {"overall": 0.9, "ek": 0.98, "cofog": 0.95, "zdroj": 0.99, "analytika": 0.9,
                  "md": 0.97, "dal": 0.99, "booking_date": 0.92, "document_number": 0.9},
   "evidence": [
     {"field": "ek", "source": "supplier_memory", "detail": "FD/213/26 coded 632005 for this IČO"},
