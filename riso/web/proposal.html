@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Návrh · riso</title>
+  <link rel="stylesheet" href="/app.css">
+  <script defer src="/app.js"></script>
+  <script defer src="/vendor/alpine-3.17.4.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">riso</span>
+    <nav>
+      <a href="/">Faktúry</a>
+      <a href="/proposal.html" aria-current="page">Návrh</a>
+      <a href="/reference.html">Číselníky</a>
+      <a href="/eval.html">Vyhodnotenie</a>
+    </nav>
+  </header>
+  <main x-data="proposalPage()" x-init="load()">
+    <h1>Návrh kódovania</h1>
+    <p class="error" x-show="error" x-text="error"></p>
+
+    <template x-if="invoice">
+      <section class="card">
+        <h2 x-text="invoice.supplier.name ?? 'Neznámy dodávateľ'"></h2>
+        <dl class="facts">
+          <dt>IČO dodávateľa</dt><dd x-text="invoice.supplier.ico ?? '—'"></dd>
+          <dt>Číslo faktúry</dt><dd x-text="invoice.invoice.number ?? '—'"></dd>
+          <dt>Variabilný symbol</dt><dd x-text="invoice.invoice.variable_symbol ?? '—'"></dd>
+          <dt>Dátum vystavenia</dt><dd x-text="formatDate(invoice.invoice.issue_date)"></dd>
+          <dt>Dátum dodania</dt><dd x-text="formatDate(invoice.invoice.delivery_date)"></dd>
+          <dt>Dátum splatnosti</dt><dd x-text="formatDate(invoice.invoice.due_date)"></dd>
+          <dt>Fakturovaná suma</dt><dd x-text="formatAmount(invoice.totals.gross)"></dd>
+          <dt>Dátum zaúčtovania (rukou)</dt><dd x-text="formatDate(invoice.handwritten.date)"></dd>
+          <dt>Číslo dokladu (rukou)</dt><dd x-text="invoice.handwritten.number ?? '—'"></dd>
+        </dl>
+      </section>
+    </template>
+
+    <div class="cards" style="margin-top: 16px">
+      <section class="card">
+        <h2>Zaúčtovanie záväzku</h2>
+        <div class="scroll">
+          <table class="grid">
+            <thead>
+              <tr><th>Účet MD</th><th>Účet DAL</th><th class="num">Suma</th><th>Popis</th></tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="4" class="placeholder">Návrh pribudne v ďalšej etape.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Rozpočet záväzku</h2>
+        <div class="scroll">
+          <table class="grid">
+            <thead>
+              <tr><th>Položka</th><th class="num">Suma</th><th>Popis</th></tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="3" class="placeholder">Návrh pribudne v ďalšej etape.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

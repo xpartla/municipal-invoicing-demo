@@ -1,0 +1,15 @@
+# Python and tooling
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Runtime state; `riso reset` rebuilds it from data/initial_state
+var/
+
+# Windows download markers
+*:Zone.Identifier

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "ico": {
+      "pattern": "^\\d{8}$",
+      "title": "Ico",
+      "type": "string"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "vat_payer": {
+      "description": "When false, the gross is booked as one amount",
+      "title": "Vat Payer",
+      "type": "boolean"
+    },
+    "budget_year": {
+      "title": "Budget Year",
+      "type": "integer"
+    },
+    "reference_period": {
+      "description": "Period of the bundle the engine reads",
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+      "title": "Reference Period",
+      "type": "string"
+    },
+    "default_zdroj": {
+      "pattern": "^\\d[0-9A-Za-z]{1,3}$",
+      "title": "Default Zdroj",
+      "type": "string"
+    },
+    "default_series": {
+      "title": "Default Series",
+      "type": "string"
+    },
+    "default_dal": {
+      "pattern": "^\\d{3} \\d{3}$",
+      "title": "Default Dal",
+      "type": "string"
+    },
+    "canteen_series": {
+      "title": "Canteen Series",
+      "type": "string"
+    },
+    "canteen_dal": {
+      "pattern": "^\\d{3} \\d{3}$",
+      "title": "Canteen Dal",
+      "type": "string"
+    }
+  },
+  "required": [
+    "ico",
+    "name",
+    "vat_payer",
+    "budget_year",
+    "reference_period",
+    "default_zdroj",
+    "default_series",
+    "default_dal",
+    "canteen_series",
+    "canteen_dal"
+  ],
+  "title": "EntityContext",
+  "type": "object"
+}

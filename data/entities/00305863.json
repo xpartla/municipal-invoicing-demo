@@ -1,0 +1,12 @@
+{
+  "ico": "00305863",
+  "name": "Obec Boldog",
+  "vat_payer": false,
+  "budget_year": 2026,
+  "reference_period": "2026-08",
+  "default_zdroj": "41",
+  "default_series": "FD",
+  "default_dal": "321 000",
+  "canteen_series": "FDŠJ",
+  "canteen_dal": "321 080"
+}

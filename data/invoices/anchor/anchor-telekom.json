@@ -1,0 +1,99 @@
+{
+  "id": "anchor-telekom",
+  "split": "anchor",
+  "invoice": {
+    "id": "anchor-telekom",
+    "supplier": {
+      "name": "Slovak Telekom, a.s.",
+      "ico": "35763469",
+      "dic": "2020273893",
+      "ic_dph": "SK2020273893",
+      "iban": "SK20 0200 0000 0023 1409 3958",
+      "address": "Bajkalská 28, 817 62 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "8390051427",
+      "issue_date": "2026-06-22",
+      "delivery_date": "2026-06-21",
+      "due_date": "2026-07-07",
+      "variable_symbol": "8390051427",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-06-23",
+      "number": "144"
+    },
+    "totals": {
+      "net": 78.0570,
+      "vat": 15.65,
+      "gross": 93.71,
+      "vat_rates": [23]
+    },
+    "lines": [
+      {
+        "description": "Poplatky s DPH 23 %",
+        "net": 68.0570,
+        "vat_rate": 23,
+        "vat": 15.65,
+        "gross": 83.7070
+      },
+      {
+        "description": "Poplatky, na ktoré sa neuplatňuje DPH",
+        "net": 10.0000,
+        "vat": 0.00,
+        "gross": 10.0000
+      }
+    ],
+    "free_text": [
+      "Za obdobie 22.05.2026 - 21.06.2026",
+      "Adresát 1010461504"
+    ],
+    "ocr_meta": {
+      "source_file": "FA.xlsx, sheet 'Telekom'",
+      "page_count": 1,
+      "synthetic": false,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/144/26",
+        "booking_date": "2026-06-23"
+      },
+      "posting": [
+        {
+          "md": "518 003",
+          "dal": "321 000",
+          "amount": 93.71,
+          "text": "tel.poplatky"
+        }
+      ],
+      "budget": [
+        {
+          "key": "632005 41 01 110 000",
+          "ek": "632005",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 93.71,
+          "text": "telefon,fax"
+        }
+      ]
+    }
+  },
+  "notes": [
+    "Transcribed from the scan in FA.xlsx. The invoice was addressed to Obec Štefanová (IČO 00305111) and is re-addressed to Obec Boldog, whose dictionaries the demo has.",
+    "The lines are the invoice's summary rows; their gross amounts add up to 93,7070 against a total of 93,71, which a per-entry split would have to round.",
+    "Expected codes follow Boldog's FD/213/26 for this supplier (screenshot)."
+  ]
+}

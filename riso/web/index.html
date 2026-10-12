@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Faktúry · riso</title>
+  <link rel="stylesheet" href="/app.css">
+  <script defer src="/app.js"></script>
+  <script defer src="/vendor/alpine-3.17.4.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">riso</span>
+    <nav>
+      <a href="/" aria-current="page">Faktúry</a>
+      <a href="/proposal.html">Návrh</a>
+      <a href="/reference.html">Číselníky</a>
+      <a href="/eval.html">Vyhodnotenie</a>
+    </nav>
+  </header>
+  <main x-data="invoicePicker()" x-init="load()">
+    <h1>Dodávateľské faktúry</h1>
+    <p class="muted">Vyberte faktúru, pre ktorú sa navrhne zaúčtovanie a rozpočet.</p>
+    <p class="error" x-show="error" x-text="error"></p>
+    <div class="scroll">
+      <table class="grid">
+        <thead>
+          <tr>
+            <th>Dodávateľ</th>
+            <th>Číslo faktúry</th>
+            <th>Vystavená</th>
+            <th class="num">Suma</th>
+            <th>Sada</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="item in items" :key="item.id">
+            <tr>
+              <td>
+                <a :href="'/proposal.html?id=' + encodeURIComponent(item.id)"
+                   x-text="item.supplier ?? '—'"></a>
+              </td>
+              <td x-text="item.number ?? '—'"></td>
+              <td x-text="formatDate(item.issue_date)"></td>
+              <td class="num" x-text="formatAmount(item.gross)"></td>
+              <td><span class="tag" x-text="splitLabel(item.split)"></span></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <section class="card">
+      <h2>Vložiť InvoiceDocument JSON</h2>
+      <textarea rows="6" disabled
+                placeholder="Vkladanie vlastnej faktúry pribudne spolu s návrhom kódovania."></textarea>
+    </section>
+  </main>
+</body>
+</html>

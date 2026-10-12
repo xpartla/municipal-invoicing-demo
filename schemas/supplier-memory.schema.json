@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Precedent": {
+      "additionalProperties": false,
+      "description": "One past coding of a supplier's invoice.",
+      "properties": {
+        "document_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Number"
+        },
+        "booking_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Booking Date"
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "description": "EUR, at most two decimals",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Amount"
+        },
+        "lines": {
+          "items": {
+            "$ref": "#/$defs/PrecedentLine"
+          },
+          "minItems": 1,
+          "title": "Lines",
+          "type": "array"
+        },
+        "source": {
+          "enum": [
+            "screenshot",
+            "feedback"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "lines",
+        "source"
+      ],
+      "title": "Precedent",
+      "type": "object"
+    },
+    "PrecedentLine": {
+      "additionalProperties": false,
+      "properties": {
+        "budget_key": {
+          "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
+          "title": "Budget Key",
+          "type": "string"
+        },
+        "md": {
+          "pattern": "^\\d{3} \\d{3}$",
+          "title": "Md",
+          "type": "string"
+        },
+        "dal": {
+          "pattern": "^\\d{3} \\d{3}$",
+          "title": "Dal",
+          "type": "string"
+        },
+        "budget_text": {
+          "title": "Budget Text",
+          "type": "string"
+        },
+        "posting_text": {
+          "title": "Posting Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "budget_key",
+        "md",
+        "dal",
+        "budget_text",
+        "posting_text"
+      ],
+      "title": "PrecedentLine",
+      "type": "object"
+    },
+    "SupplierRecord": {
+      "additionalProperties": false,
+      "properties": {
+        "ico": {
+          "pattern": "^\\d{8}$",
+          "title": "Ico",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "precedents": {
+          "items": {
+            "$ref": "#/$defs/Precedent"
+          },
+          "minItems": 1,
+          "title": "Precedents",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ico",
+        "name",
+        "precedents"
+      ],
+      "title": "SupplierRecord",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "entity_ico": {
+      "pattern": "^\\d{8}$",
+      "title": "Entity Ico",
+      "type": "string"
+    },
+    "suppliers": {
+      "items": {
+        "$ref": "#/$defs/SupplierRecord"
+      },
+      "title": "Suppliers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "entity_ico"
+  ],
+  "title": "SupplierMemory",
+  "type": "object"
+}

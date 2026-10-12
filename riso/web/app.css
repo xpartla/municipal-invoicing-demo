@@ -1,0 +1,85 @@
+:root {
+  --bg: #f4f5f7;
+  --panel: #ffffff;
+  --text: #1f2328;
+  --muted: #5b6370;
+  --line: #d9dde3;
+  --head: #eef0f3;
+  --accent: #0b5ed7;
+  --accent-soft: #e7f0ff;
+  --warn: #8a5300;
+  --warn-soft: #fff4e0;
+  --error: #b42318;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 24px;
+  min-height: 52px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.brand { font-weight: 700; letter-spacing: 0.02em; }
+.topbar nav { display: flex; gap: 4px; flex-wrap: wrap; }
+.topbar nav a {
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: var(--muted);
+  text-decoration: none;
+}
+.topbar nav a[aria-current="page"] { color: var(--accent); background: var(--accent-soft); }
+
+main { max-width: 1100px; margin: 0 auto; padding: 24px; }
+h1 { font-size: 1.4rem; margin: 0 0 4px; }
+h2 { font-size: 1.05rem; margin: 0 0 12px; }
+.muted { color: var(--muted); }
+.error { color: var(--error); }
+.placeholder { color: var(--muted); font-style: italic; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+}
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cards .card { margin-top: 0; }
+
+.scroll { overflow-x: auto; }
+.grid { width: 100%; border-collapse: collapse; background: var(--panel); }
+.grid th, .grid td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.grid th { font-weight: 600; background: var(--head); }
+.grid .num { text-align: right; font-variant-numeric: tabular-nums; }
+.code { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; white-space: nowrap; }
+
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+.warning { color: var(--warn); background: var(--warn-soft); }
+
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+
+textarea { width: 100%; font-family: ui-monospace, monospace; }
+
+@media (max-width: 800px) {
+  main { padding: 16px; }
+  .topbar { padding: 8px 16px; }
+  .cards { grid-template-columns: 1fr; }
+}

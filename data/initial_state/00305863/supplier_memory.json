@@ -1,0 +1,89 @@
+{
+  "entity_ico": "00305863",
+  "suppliers": [
+    {
+      "ico": "12345679",
+      "name": "Mária Vzorová",
+      "precedents": [
+        {
+          "document_number": "FD/215/26",
+          "booking_date": "2026-07-24",
+          "amount": 1000.00,
+          "lines": [
+            {
+              "budget_key": "637005 41 01 110 000",
+              "md": "518 001",
+              "dal": "321 000",
+              "budget_text": "špeciálne služby -",
+              "posting_text": "spracovanie účt.a rozpočtovníctva 5/2026"
+            }
+          ],
+          "source": "screenshot"
+        }
+      ]
+    },
+    {
+      "ico": "35763469",
+      "name": "Slovak Telekom, a.s.",
+      "precedents": [
+        {
+          "document_number": "FD/213/26",
+          "booking_date": "2026-07-22",
+          "amount": 57.09,
+          "lines": [
+            {
+              "budget_key": "632005 41 01 110 000",
+              "md": "518 003",
+              "dal": "321 000",
+              "budget_text": "telefon,fax",
+              "posting_text": "tel.poplatky"
+            }
+          ],
+          "source": "screenshot"
+        }
+      ]
+    },
+    {
+      "ico": "50528041",
+      "name": "osobnyudaj.sk, s.r.o.",
+      "precedents": [
+        {
+          "document_number": "FD/183/26",
+          "booking_date": "2026-07-03",
+          "amount": 36.90,
+          "lines": [
+            {
+              "budget_key": "637004 41 01 110 006",
+              "md": "518 001",
+              "dal": "321 000",
+              "budget_text": "výkon zodp.osoby",
+              "posting_text": "výkon zodpovednej osoby"
+            }
+          ],
+          "source": "screenshot"
+        }
+      ]
+    },
+    {
+      "ico": "52823831",
+      "name": "OZ Pomoc psíkom",
+      "precedents": [
+        {
+          "document_number": "FD/222/26",
+          "booking_date": "2026-08-14",
+          "amount": 65.00,
+          "lines": [
+            {
+              "budget_key": "637005 41 03 100 001",
+              "md": "518 001",
+              "dal": "321 000",
+              "budget_text": "odchyt psov",
+              "posting_text": "pomoc psíkom paušál"
+            }
+          ],
+          "source": "screenshot"
+        }
+      ]
+    }
+  ]
+}

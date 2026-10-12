@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Fallback numbering for scans whose handwritten number the OCR could not read, and the\nnumbers already taken, for duplicate detection.",
+  "properties": {
+    "entity_ico": {
+      "pattern": "^\\d{8}$",
+      "title": "Entity Ico",
+      "type": "string"
+    },
+    "last_used": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "description": "Last sequence number per '<series>/<year>', e.g. 'FD/2026': 222",
+      "title": "Last Used",
+      "type": "object"
+    },
+    "used_numbers": {
+      "description": "Document numbers already taken, e.g. 'FD/183/26'",
+      "items": {
+        "type": "string"
+      },
+      "title": "Used Numbers",
+      "type": "array"
+    }
+  },
+  "required": [
+    "entity_ico",
+    "last_used"
+  ],
+  "title": "Counters",
+  "type": "object"
+}

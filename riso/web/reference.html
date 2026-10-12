@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Číselníky · riso</title>
+  <link rel="stylesheet" href="/app.css">
+  <script defer src="/app.js"></script>
+  <script defer src="/vendor/alpine-3.17.4.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">riso</span>
+    <nav>
+      <a href="/">Faktúry</a>
+      <a href="/proposal.html">Návrh</a>
+      <a href="/reference.html" aria-current="page">Číselníky</a>
+      <a href="/eval.html">Vyhodnotenie</a>
+    </nav>
+  </header>
+  <main x-data="referencePage()" x-init="load()">
+    <h1>Číselníky obce</h1>
+    <p class="error" x-show="error" x-text="error"></p>
+
+    <template x-if="bundle">
+      <div>
+        <p class="muted">
+          <span x-text="bundle.entity.name"></span>, IČO <span x-text="bundle.entity.ico"></span>,
+          obdobie <span x-text="bundle.period"></span>
+        </p>
+        <section class="card">
+          <h2>Rozsah</h2>
+          <div class="scroll">
+            <table class="grid">
+              <tbody>
+                <template x-for="[label, count] in counts" :key="label">
+                  <tr><td x-text="label"></td><td class="num" x-text="count"></td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="card">
+          <h2>Upozornenia z načítania</h2>
+          <div class="scroll">
+            <table class="grid">
+              <thead><tr><th>Súbor</th><th>Riadky</th><th>Hlásenie</th></tr></thead>
+              <tbody>
+                <template x-for="warning in bundle.warnings" :key="warning.source + warning.rows.join()">
+                  <tr class="warning">
+                    <td x-text="warning.source"></td>
+                    <td x-text="warning.rows.join(', ')"></td>
+                    <td x-text="warning.message"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <p class="placeholder">Prehliadač celých číselníkov pribudne v ďalšej etape.</p>
+      </div>
+    </template>
+  </main>
+</body>
+</html>

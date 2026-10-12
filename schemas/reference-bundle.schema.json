@@ -1,0 +1,437 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Account": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "description": "'SU AU', e.g. '518 001'",
+          "pattern": "^\\d{3} \\d{3}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "su": {
+          "pattern": "^\\d{3}$",
+          "title": "Su",
+          "type": "string"
+        },
+        "au": {
+          "pattern": "^\\d{3}$",
+          "title": "Au",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "active",
+            "passive",
+            "cost",
+            "revenue"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "activity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Activity"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "row": {
+          "description": "Row in the exported sheet",
+          "title": "Row",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "key",
+        "su",
+        "au",
+        "type",
+        "row"
+      ],
+      "title": "Account",
+      "type": "object"
+    },
+    "BudgetPosition": {
+      "additionalProperties": false,
+      "properties": {
+        "key": {
+          "description": "'EK zdroj oddiel trieda analytika', or 'EK zdroj analytika' for income",
+          "title": "Key",
+          "type": "string"
+        },
+        "ek": {
+          "pattern": "^\\d{6}$",
+          "title": "Ek",
+          "type": "string"
+        },
+        "zdroj": {
+          "pattern": "^\\d[0-9A-Za-z]{1,3}$",
+          "title": "Zdroj",
+          "type": "string"
+        },
+        "oddiel": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oddiel"
+        },
+        "trieda": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trieda"
+        },
+        "analytika": {
+          "pattern": "^\\d{3}$",
+          "title": "Analytika",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "aliases": {
+          "description": "Descriptions of further rows merged into this one because they share the key",
+          "items": {
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        },
+        "rows": {
+          "description": "Rows in the exported sheet",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1,
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "key",
+        "ek",
+        "zdroj",
+        "analytika",
+        "rows"
+      ],
+      "title": "BudgetPosition",
+      "type": "object"
+    },
+    "CostCentre": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "name"
+      ],
+      "title": "CostCentre",
+      "type": "object"
+    },
+    "DocumentSeries": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "description": "Prefix of the pattern, e.g. 'FD' or 'FDŠJ'",
+          "title": "Code",
+          "type": "string"
+        },
+        "series_id": {
+          "description": "'Evidenčné číslo' in the software",
+          "title": "Series Id",
+          "type": "string"
+        },
+        "pattern": {
+          "description": "e.g. 'FD/XXX/RR': X the sequence, RR the year, MM the month",
+          "title": "Pattern",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "bank_account": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bank Account"
+        }
+      },
+      "required": [
+        "code",
+        "series_id",
+        "pattern",
+        "description"
+      ],
+      "title": "DocumentSeries",
+      "type": "object"
+    },
+    "Entity": {
+      "additionalProperties": false,
+      "properties": {
+        "ico": {
+          "pattern": "^\\d{8}$",
+          "title": "Ico",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address"
+        }
+      },
+      "required": [
+        "ico",
+        "name"
+      ],
+      "title": "Entity",
+      "type": "object"
+    },
+    "IngestWarning": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "duplicate_key",
+            "missing_description",
+            "skipped_row"
+          ],
+          "title": "Code",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "rows": {
+          "items": {
+            "type": "integer"
+          },
+          "title": "Rows",
+          "type": "array"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "source",
+        "rows",
+        "message"
+      ],
+      "title": "IngestWarning",
+      "type": "object"
+    },
+    "SourceFile": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "data_rows": {
+          "title": "Data Rows",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "sha256",
+        "data_rows"
+      ],
+      "title": "SourceFile",
+      "type": "object"
+    },
+    "Transfer": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Income-side key the transfer comes from, e.g. '312001 11H 012'",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "zdroj": {
+          "pattern": "^\\d[0-9A-Za-z]{1,3}$",
+          "title": "Zdroj",
+          "type": "string"
+        },
+        "mock": {
+          "default": true,
+          "description": "Derived from the income side; the real list was not exported",
+          "title": "Mock",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "zdroj"
+      ],
+      "title": "Transfer",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "bundle_id": {
+      "description": "'<IČO>/<period>', e.g. '00305863/2026-08'",
+      "title": "Bundle Id",
+      "type": "string"
+    },
+    "entity": {
+      "$ref": "#/$defs/Entity"
+    },
+    "period": {
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+      "title": "Period",
+      "type": "string"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/SourceFile"
+      },
+      "title": "Sources",
+      "type": "array"
+    },
+    "accounts": {
+      "items": {
+        "$ref": "#/$defs/Account"
+      },
+      "title": "Accounts",
+      "type": "array"
+    },
+    "budget_positions_expense": {
+      "items": {
+        "$ref": "#/$defs/BudgetPosition"
+      },
+      "title": "Budget Positions Expense",
+      "type": "array"
+    },
+    "budget_positions_income": {
+      "items": {
+        "$ref": "#/$defs/BudgetPosition"
+      },
+      "title": "Budget Positions Income",
+      "type": "array"
+    },
+    "document_series": {
+      "items": {
+        "$ref": "#/$defs/DocumentSeries"
+      },
+      "title": "Document Series",
+      "type": "array"
+    },
+    "transfers": {
+      "items": {
+        "$ref": "#/$defs/Transfer"
+      },
+      "title": "Transfers",
+      "type": "array"
+    },
+    "cost_centres": {
+      "description": "The stredisko list; not exported, so empty in the demo",
+      "items": {
+        "$ref": "#/$defs/CostCentre"
+      },
+      "title": "Cost Centres",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "$ref": "#/$defs/IngestWarning"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "bundle_id",
+    "entity",
+    "period",
+    "sources",
+    "accounts",
+    "budget_positions_expense",
+    "budget_positions_income",
+    "document_series",
+    "transfers"
+  ],
+  "title": "ReferenceBundle",
+  "type": "object"
+}

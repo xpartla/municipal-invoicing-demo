@@ -1,0 +1,95 @@
+{
+  "id": "anchor-dpo",
+  "split": "anchor",
+  "invoice": {
+    "id": "anchor-dpo",
+    "supplier": {
+      "name": "osobnyudaj.sk, s.r.o.",
+      "ico": "50528041",
+      "dic": "2120357041",
+      "ic_dph": "SK7120001878",
+      "iban": "SK93 8330 0000 0026 0250 3472",
+      "address": "Mlynské Nivy 5, 821 09 Bratislava - mestská časť Ružinov, Slovensko",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "202621979",
+      "issue_date": "2026-07-01",
+      "delivery_date": "2026-07-01",
+      "due_date": "2026-07-08",
+      "variable_symbol": "202621979",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-07-01",
+      "number": "146"
+    },
+    "totals": {
+      "net": 25.00,
+      "vat": 5.75,
+      "gross": 30.75,
+      "vat_rates": [23]
+    },
+    "lines": [
+      {
+        "description": "Výkon zodpovednej osoby",
+        "quantity": 1.00,
+        "unit": "krát",
+        "unit_price": 25.00,
+        "net": 25.00,
+        "vat_rate": 23
+      }
+    ],
+    "free_text": [
+      "Fakturujeme Vám na základe zmluvy č. ZO/2018A9106 o zabezpečení výkonu činnosti zodpovednej osoby pri ochrane osobných údajov dotknutých osôb spracovávaných u prevádzkovateľa",
+      "Fakturačné obdobie: júl 2026",
+      "Spôsob úhrady: Bankový prevod",
+      "Doklad obsahuje ISDOC prílohu"
+    ],
+    "ocr_meta": {
+      "source_file": "FA.xlsx, sheet 'Osobný údaj'",
+      "page_count": 1,
+      "synthetic": false,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/146/26",
+        "booking_date": "2026-07-01"
+      },
+      "posting": [
+        {
+          "md": "518 001",
+          "dal": "321 000",
+          "amount": 30.75,
+          "text": "výkon zodpovednej osoby"
+        }
+      ],
+      "budget": [
+        {
+          "key": "637004 41 01 110 006",
+          "ek": "637004",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "006",
+          "amount": 30.75,
+          "text": "výkon zodp.osoby"
+        }
+      ]
+    }
+  },
+  "notes": [
+    "Transcribed from the scan in FA.xlsx. The invoice was addressed to Obec Štefanová (IČO 00305111) and is re-addressed to Obec Boldog, whose dictionaries the demo has.",
+    "Expected codes follow Boldog's FD/183/26 for this supplier (screenshot)."
+  ]
+}

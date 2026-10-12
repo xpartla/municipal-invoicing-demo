@@ -1,0 +1,90 @@
+{
+  "id": "anchor-accounting",
+  "split": "anchor",
+  "invoice": {
+    "id": "anchor-accounting",
+    "supplier": {
+      "name": "Mária Vzorová",
+      "ico": "12345679",
+      "dic": null,
+      "ic_dph": null,
+      "iban": null,
+      "address": "Hlavná 1, 900 01 Modra",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "16/2026",
+      "issue_date": "2026-06-10",
+      "delivery_date": "2026-05-15",
+      "due_date": "2026-06-17",
+      "variable_symbol": null,
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-06-11",
+      "number": "135"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 700.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Fakturujem Vám v zmysle uzatvorenej Zmluvy o vedení účtovníctva - spracovanie účtovnej a rozpočtovej agendy za mesiac apríl 2026",
+        "gross": 700.00
+      }
+    ],
+    "free_text": [
+      "Nie som platca DPH.",
+      "Forma úhrady: PP"
+    ],
+    "ocr_meta": {
+      "source_file": "FA.xlsx, sheet 'ZM faktúra'",
+      "page_count": 1,
+      "synthetic": false,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/135/26",
+        "booking_date": "2026-06-11"
+      },
+      "posting": [
+        {
+          "md": "518 001",
+          "dal": "321 000",
+          "amount": 700.00,
+          "text": "spracovanie účt.a rozpočtovníctva 4/2026"
+        }
+      ],
+      "budget": [
+        {
+          "key": "637005 41 01 110 000",
+          "ek": "637005",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 700.00,
+          "text": "špeciálne služby -"
+        }
+      ]
+    }
+  },
+  "notes": [
+    "Transcribed from the scan in FA.xlsx. The invoice was addressed to Obec Štefanová (IČO 00305111) and is re-addressed to Obec Boldog, whose dictionaries the demo has.",
+    "The supplier is a natural person: name, IČO and address are made up, and DIČ, IBAN and phone are left out. Dates, amounts, text and the handwritten note are as scanned.",
+    "Expected codes follow Boldog's FD/215/26 for this supplier (screenshot); the posting text carries this invoice's month, April."
+  ]
+}

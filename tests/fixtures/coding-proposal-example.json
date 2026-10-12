@@ -1,0 +1,32 @@
+{
+  "invoice_id": "anchor-telekom",
+  "bundle_id": "00305863/2026-08",
+  "document": {"series": "FD", "number": "FD/144/26", "booking_date": "2026-06-23"},
+  "supplier": {"name": "Slovak Telekom, a.s.", "ico": "35763469", "known": true},
+  "invoice": {"number": "8390051427", "issued": "2026-06-22", "delivered": "2026-06-21",
+              "due": "2026-07-07", "vs": "8390051427", "gross": 93.71, "vat": 15.65},
+  "posting": [
+    {"md": "518 003", "dal": "321 000", "amount": 93.71, "text": "tel.poplatky",
+     "stredisko": null, "transfer": null}
+  ],
+  "budget": [
+    {"key": "632005 41 01 110 000", "ek": "632005", "zdroj": "41", "oddiel": "01",
+     "trieda": "110", "analytika": "000", "amount": 93.71, "text": "telefon,fax",
+     "stredisko": null, "transfer": null}
+  ],
+  "confidence": {"overall": 0.96, "ek": 0.98, "cofog": 0.95, "zdroj": 0.99, "analytika": 0.9,
+                 "md": 0.97, "dal": 0.99, "booking_date": 0.92, "document_number": 0.9},
+  "evidence": [
+    {"field": "ek", "source": "supplier_memory", "detail": "FD/213/26 coded 632005 for this IČO"},
+    {"field": "cofog", "source": "rule", "detail": "no building or activity named, default OcÚ 01 110"},
+    {"field": "booking_date", "source": "handwritten", "detail": "23.6.26 written on the scan"},
+    {"field": "document_number", "source": "handwritten", "detail": "144 written on the scan"}
+  ],
+  "alternatives": [
+    {"budget_key": "632003 41 01 110 000", "md": "518 003", "score": 0.3, "why": "postal services"}
+  ],
+  "validation": {"ok": true, "checks": ["keys exist", "sums match", "account types"],
+                 "errors": [], "warnings": []},
+  "needs_review": false,
+  "review_reasons": []
+}

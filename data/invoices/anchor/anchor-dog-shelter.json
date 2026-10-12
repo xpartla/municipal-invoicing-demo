@@ -1,0 +1,93 @@
+{
+  "id": "anchor-dog-shelter",
+  "split": "anchor",
+  "invoice": {
+    "id": "anchor-dog-shelter",
+    "supplier": {
+      "name": "OZ Pomoc psíkom",
+      "ico": "52823831",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK02 1100 0000 0029 4511 2334",
+      "address": "Moyzesova 6065/4A, 90201 Pezinok, Slovensko",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "20260935",
+      "issue_date": "2026-07-01",
+      "delivery_date": "2026-06-30",
+      "due_date": "2026-07-15",
+      "variable_symbol": "20260935",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-07-01",
+      "number": "147"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 35.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Mesačný paušálny poplatok V zmysle zmluvy č. 2024116",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 35.00,
+        "gross": 35.00
+      }
+    ],
+    "free_text": [
+      "Fakturujeme Vám poskytnuté služby za obdobie: Jún",
+      "Poznámka: Nie sme platiteľmi DPH.",
+      "Forma úhrady: Bankový prevod"
+    ],
+    "ocr_meta": {
+      "source_file": "FA.xlsx, sheet 'OZ pomoc psíkom'",
+      "page_count": 1,
+      "synthetic": false,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/147/26",
+        "booking_date": "2026-07-01"
+      },
+      "posting": [
+        {
+          "md": "518 001",
+          "dal": "321 000",
+          "amount": 35.00,
+          "text": "pomoc psíkom paušál"
+        }
+      ],
+      "budget": [
+        {
+          "key": "637005 41 03 100 001",
+          "ek": "637005",
+          "zdroj": "41",
+          "oddiel": "03",
+          "trieda": "100",
+          "analytika": "001",
+          "amount": 35.00,
+          "text": "odchyt psov"
+        }
+      ]
+    }
+  },
+  "notes": [
+    "Transcribed from the scan in FA.xlsx. The invoice was addressed to Obec Štefanová (IČO 00305111) and is re-addressed to Obec Boldog, whose dictionaries the demo has. The issuer's name and contact details are left out.",
+    "Expected codes follow Boldog's FD/222/26 for this supplier (screenshot). The budget also has 637004 41 01 110 004 'odchyt psov'; the accountant uses 637005 41 03 100 001."
+  ]
+}

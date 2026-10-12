@@ -1,0 +1,513 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Handwritten": {
+      "additionalProperties": false,
+      "description": "Written by hand on the scan when the invoice arrives; the position varies per scan.",
+      "properties": {
+        "date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The booking date",
+          "title": "Date"
+        },
+        "number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Sequence number of the FD document: '144' becomes FD/144/26",
+          "title": "Number"
+        }
+      },
+      "title": "Handwritten",
+      "type": "object"
+    },
+    "InvoiceCustomer": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "ico": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Picks the entity's reference data",
+          "title": "Ico"
+        }
+      },
+      "title": "InvoiceCustomer",
+      "type": "object"
+    },
+    "InvoiceHeader": {
+      "additionalProperties": false,
+      "properties": {
+        "number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Number"
+        },
+        "issue_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Issue Date"
+        },
+        "delivery_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delivery Date"
+        },
+        "due_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Due Date"
+        },
+        "variable_symbol": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Variable Symbol"
+        },
+        "currency": {
+          "default": "EUR",
+          "title": "Currency",
+          "type": "string"
+        },
+        "document_type": {
+          "anyOf": [
+            {
+              "enum": [
+                "invoice",
+                "credit_note"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only when printed",
+          "title": "Document Type"
+        }
+      },
+      "title": "InvoiceHeader",
+      "type": "object"
+    },
+    "InvoiceLine": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quantity"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "unit_price": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit Price"
+        },
+        "net": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Net"
+        },
+        "vat_rate": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vat Rate"
+        },
+        "vat": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vat"
+        },
+        "gross": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gross"
+        }
+      },
+      "required": [
+        "description"
+      ],
+      "title": "InvoiceLine",
+      "type": "object"
+    },
+    "InvoiceSupplier": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "ico": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "As read; S1 normalises it",
+          "title": "Ico"
+        },
+        "dic": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dic"
+        },
+        "ic_dph": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ic Dph"
+        },
+        "iban": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Iban"
+        },
+        "address": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Address"
+        },
+        "vat_payer": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only when printed, e.g. 'nie som platca DPH' or an IČ DPH",
+          "title": "Vat Payer"
+        }
+      },
+      "title": "InvoiceSupplier",
+      "type": "object"
+    },
+    "OcrMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "source_file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source File"
+        },
+        "page_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Count"
+        },
+        "synthetic": {
+          "default": false,
+          "description": "Generated for the mock dataset",
+          "title": "Synthetic",
+          "type": "boolean"
+        },
+        "confidence": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "description": "OCR confidence per field, keyed by path: 'handwritten.date', 'lines[0].gross'",
+          "title": "Confidence",
+          "type": "object"
+        }
+      },
+      "title": "OcrMeta",
+      "type": "object"
+    },
+    "Totals": {
+      "additionalProperties": false,
+      "properties": {
+        "net": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Net"
+        },
+        "vat": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vat"
+        },
+        "gross": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gross"
+        },
+        "vat_rates": {
+          "items": {
+            "description": "EUR, as printed on the invoice",
+            "type": "number"
+          },
+          "title": "Vat Rates",
+          "type": "array"
+        }
+      },
+      "title": "Totals",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "description": "Stable identifier, e.g. the dataset case id",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "supplier": {
+      "$ref": "#/$defs/InvoiceSupplier"
+    },
+    "customer": {
+      "$ref": "#/$defs/InvoiceCustomer"
+    },
+    "invoice": {
+      "$ref": "#/$defs/InvoiceHeader"
+    },
+    "handwritten": {
+      "$ref": "#/$defs/Handwritten"
+    },
+    "totals": {
+      "$ref": "#/$defs/Totals"
+    },
+    "lines": {
+      "items": {
+        "$ref": "#/$defs/InvoiceLine"
+      },
+      "title": "Lines",
+      "type": "array"
+    },
+    "free_text": {
+      "description": "Anything else the OCR captured: contract references, period served",
+      "items": {
+        "type": "string"
+      },
+      "title": "Free Text",
+      "type": "array"
+    },
+    "ocr_meta": {
+      "$ref": "#/$defs/OcrMeta"
+    }
+  },
+  "required": [
+    "id",
+    "supplier",
+    "customer",
+    "invoice",
+    "handwritten",
+    "totals",
+    "ocr_meta"
+  ],
+  "title": "InvoiceDocument",
+  "type": "object"
+}

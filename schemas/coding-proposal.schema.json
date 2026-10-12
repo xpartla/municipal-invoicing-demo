@@ -1,0 +1,642 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Alternative": {
+      "additionalProperties": false,
+      "properties": {
+        "budget_key": {
+          "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
+          "title": "Budget Key",
+          "type": "string"
+        },
+        "md": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{3} \\d{3}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Debit account it would bring, so the UI can swap the whole line",
+          "title": "Md"
+        },
+        "score": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "why": {
+          "title": "Why",
+          "type": "string"
+        }
+      },
+      "required": [
+        "budget_key",
+        "score",
+        "why"
+      ],
+      "title": "Alternative",
+      "type": "object"
+    },
+    "BudgetLine": {
+      "additionalProperties": false,
+      "description": "One line of Rozpočet záväzku: the key in the software's format and its five parts,\nwhich must agree.",
+      "properties": {
+        "key": {
+          "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
+          "title": "Key",
+          "type": "string"
+        },
+        "ek": {
+          "pattern": "^\\d{6}$",
+          "title": "Ek",
+          "type": "string"
+        },
+        "zdroj": {
+          "pattern": "^\\d[0-9A-Za-z]{1,3}$",
+          "title": "Zdroj",
+          "type": "string"
+        },
+        "oddiel": {
+          "pattern": "^\\d{2}$",
+          "title": "Oddiel",
+          "type": "string"
+        },
+        "trieda": {
+          "pattern": "^\\d{3}$",
+          "title": "Trieda",
+          "type": "string"
+        },
+        "analytika": {
+          "pattern": "^\\d{3}$",
+          "title": "Analytika",
+          "type": "string"
+        },
+        "amount": {
+          "description": "EUR, at most two decimals",
+          "title": "Amount",
+          "type": "number"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "stredisko": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stredisko"
+        },
+        "transfer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transfer"
+        }
+      },
+      "required": [
+        "key",
+        "ek",
+        "zdroj",
+        "oddiel",
+        "trieda",
+        "analytika",
+        "amount",
+        "text"
+      ],
+      "title": "BudgetLine",
+      "type": "object"
+    },
+    "Confidence": {
+      "additionalProperties": false,
+      "properties": {
+        "overall": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Overall",
+          "type": "number"
+        },
+        "ek": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ek"
+        },
+        "cofog": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cofog"
+        },
+        "zdroj": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Zdroj"
+        },
+        "analytika": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Analytika"
+        },
+        "md": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Md"
+        },
+        "dal": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dal"
+        },
+        "booking_date": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Booking Date"
+        },
+        "document_number": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Number"
+        }
+      },
+      "required": [
+        "overall"
+      ],
+      "title": "Confidence",
+      "type": "object"
+    },
+    "DocumentRef": {
+      "additionalProperties": false,
+      "description": "Header of the accounting document.",
+      "properties": {
+        "series": {
+          "description": "'FD', or 'FDŠJ' for the school canteen",
+          "title": "Series",
+          "type": "string"
+        },
+        "number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "e.g. 'FD/144/26'",
+          "title": "Number"
+        },
+        "booking_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Booking Date"
+        }
+      },
+      "required": [
+        "series"
+      ],
+      "title": "DocumentRef",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "source": {
+          "enum": [
+            "supplier_memory",
+            "rule",
+            "lexicon",
+            "similarity",
+            "handwritten",
+            "counter",
+            "invoice"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "source",
+        "detail"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "InvoiceSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Number"
+        },
+        "issued": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Issued"
+        },
+        "delivered": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Delivered"
+        },
+        "due": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Due"
+        },
+        "vs": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vs"
+        },
+        "gross": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gross"
+        },
+        "vat": {
+          "anyOf": [
+            {
+              "description": "EUR, as printed on the invoice",
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vat"
+        }
+      },
+      "title": "InvoiceSummary",
+      "type": "object"
+    },
+    "PostingLine": {
+      "additionalProperties": false,
+      "description": "One line of Zaúčtovanie záväzku.",
+      "properties": {
+        "md": {
+          "pattern": "^\\d{3} \\d{3}$",
+          "title": "Md",
+          "type": "string"
+        },
+        "dal": {
+          "pattern": "^\\d{3} \\d{3}$",
+          "title": "Dal",
+          "type": "string"
+        },
+        "amount": {
+          "description": "EUR, at most two decimals",
+          "title": "Amount",
+          "type": "number"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "stredisko": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stredisko"
+        },
+        "transfer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transfer"
+        }
+      },
+      "required": [
+        "md",
+        "dal",
+        "amount",
+        "text"
+      ],
+      "title": "PostingLine",
+      "type": "object"
+    },
+    "SupplierRef": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "ico": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{8}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ico"
+        },
+        "known": {
+          "description": "The supplier has precedents in supplier memory",
+          "title": "Known",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "known"
+      ],
+      "title": "SupplierRef",
+      "type": "object"
+    },
+    "Validation": {
+      "additionalProperties": false,
+      "properties": {
+        "ok": {
+          "title": "Ok",
+          "type": "boolean"
+        },
+        "checks": {
+          "description": "Checks that passed",
+          "items": {
+            "type": "string"
+          },
+          "title": "Checks",
+          "type": "array"
+        },
+        "errors": {
+          "description": "Broken invariants; ok is false",
+          "items": {
+            "type": "string"
+          },
+          "title": "Errors",
+          "type": "array"
+        },
+        "warnings": {
+          "description": "Set needs_review without failing validation",
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "required": [
+        "ok"
+      ],
+      "title": "Validation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "invoice_id": {
+      "description": "id of the InvoiceDocument",
+      "title": "Invoice Id",
+      "type": "string"
+    },
+    "bundle_id": {
+      "description": "Reference bundle the codes were checked against",
+      "title": "Bundle Id",
+      "type": "string"
+    },
+    "document": {
+      "$ref": "#/$defs/DocumentRef"
+    },
+    "supplier": {
+      "$ref": "#/$defs/SupplierRef"
+    },
+    "invoice": {
+      "$ref": "#/$defs/InvoiceSummary"
+    },
+    "posting": {
+      "description": "Empty when the invoice goes to manual entry",
+      "items": {
+        "$ref": "#/$defs/PostingLine"
+      },
+      "title": "Posting",
+      "type": "array"
+    },
+    "budget": {
+      "items": {
+        "$ref": "#/$defs/BudgetLine"
+      },
+      "title": "Budget",
+      "type": "array"
+    },
+    "confidence": {
+      "$ref": "#/$defs/Confidence"
+    },
+    "evidence": {
+      "items": {
+        "$ref": "#/$defs/Evidence"
+      },
+      "title": "Evidence",
+      "type": "array"
+    },
+    "alternatives": {
+      "items": {
+        "$ref": "#/$defs/Alternative"
+      },
+      "title": "Alternatives",
+      "type": "array"
+    },
+    "validation": {
+      "$ref": "#/$defs/Validation"
+    },
+    "needs_review": {
+      "title": "Needs Review",
+      "type": "boolean"
+    },
+    "review_reasons": {
+      "description": "Why it needs review, e.g. 'credit note, manual entry'",
+      "items": {
+        "type": "string"
+      },
+      "title": "Review Reasons",
+      "type": "array"
+    }
+  },
+  "required": [
+    "invoice_id",
+    "bundle_id",
+    "document",
+    "supplier",
+    "invoice",
+    "confidence",
+    "validation",
+    "needs_review"
+  ],
+  "title": "CodingProposal",
+  "type": "object"
+}
