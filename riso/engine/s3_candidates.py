@@ -5,8 +5,8 @@
   map, the expected zdroj and the descriptions narrow them to budget positions;
 - similarity: budget positions whose description shares words with the invoice.
 
-An entry that names its own building, activity or concept gets candidates of its own, for
-the per-entry split in S4."""
+An entry that names its own building or activity gets candidates of its own, for the
+per-entry split in S4."""
 
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -24,6 +24,7 @@ SIMILARITY_SCORE = 0.5
 AGREEMENT_BONUS = 0.03
 MAX_SCORE = 0.98
 SIMILAR = 0.6  # share of a description's words found in the invoice that counts as naming it
+FULL = 1.0  # every word of the description: the invoice names the position itself
 SIMILARITY_FLOOR = 0.5
 SIMILARITY_KEEP = 10
 
@@ -36,6 +37,7 @@ class _EkOption:
     weight: float
     rank: int
     evidence: Evidence
+    consistent: bool = True  # False: a supplier habit the invoice's concepts contradict
 
 
 @dataclass(frozen=True)
@@ -45,6 +47,8 @@ class _Focus:
     function: str
     explicit: bool
     concepts: frozenset[str]
+    concept_eks: frozenset[str]  # what the strong concepts propose
+    named_functions: frozenset[str]  # every building or activity the invoice names
     stems: frozenset[str]
     grant: bool
 
@@ -66,14 +70,18 @@ def generate_candidates(
     knowledge: KnowledgeBase,
 ) -> CandidateSet:
     function, explicit, function_evidence = _invoice_function(invoice, context, knowledge)
+    concepts = _strong(invoice.concept_names(), knowledge)
     focus = _Focus(
         function=function,
         explicit=explicit,
-        concepts=_strong(invoice.concept_names(), knowledge),
+        concepts=concepts,
+        concept_eks=_concept_eks(concepts, knowledge),
+        named_functions=frozenset(invoice.named_functions()),
         stems=stems(invoice.all_words(), knowledge.stopwords),
         grant="grant" in invoice.concept_names(),
     )
-    options = _concept_options(invoice.concepts, knowledge) + _precedent_options(context)
+    options = _concept_options(invoice.concepts, knowledge)
+    options += _precedent_options(context, focus.concept_eks)
     found = _precedent_candidates(context, index)
     found += _rule_candidates(options, focus, context, index, knowledge)
     if context.canteen_food:
@@ -107,7 +115,7 @@ def _invoice_function(
     if context.canteen:
         function = knowledge.canteen.function
         return function, True, Evidence(field="cofog", source="rule", detail=f"canteen, {function}")
-    named = invoice.named_functions()
+    named = invoice.invoice_functions()
     if named:
         hit = next(h for h in invoice.functions if h.meaning == named[0])
         detail = f"'{hit.term}' in {hit.source} names {named[0]}"
@@ -122,6 +130,10 @@ def _invoice_function(
 
 def _strong(concepts: Iterable[str], knowledge: KnowledgeBase) -> frozenset[str]:
     return frozenset(c for c in concepts if knowledge.lexicon.concepts[c].weight >= STRONG)
+
+
+def _concept_eks(concepts: Iterable[str], knowledge: KnowledgeBase) -> frozenset[str]:
+    return frozenset(ek for name in concepts for ek in knowledge.lexicon.concepts[name].ek)
 
 
 def _concept_options(hits: Iterable[Hit], knowledge: KnowledgeBase) -> list[_EkOption]:
@@ -144,8 +156,10 @@ def _concept_options(hits: Iterable[Hit], knowledge: KnowledgeBase) -> list[_EkO
     ]
 
 
-def _precedent_options(context: ResolvedContext) -> list[_EkOption]:
-    """This supplier's usual economic codes, searched under the invoice's own function."""
+def _precedent_options(context: ResolvedContext, concept_eks: frozenset[str]) -> list[_EkOption]:
+    """This supplier's usual economic codes, searched under the invoice's own function. Where
+    the invoice's strong concepts propose other codes, they stay alternatives: a road
+    builder's repairs say nothing about its construction invoice."""
     if context.supplier is None:
         return []
     eks = dict.fromkeys(
@@ -161,6 +175,7 @@ def _precedent_options(context: ResolvedContext) -> list[_EkOption]:
                 source="supplier_memory",
                 detail=f"this supplier's earlier invoices used EK {ek}",
             ),
+            consistent=not concept_eks or ek in concept_eks,
         )
         for ek in eks
     ]
@@ -229,7 +244,7 @@ def _rule_candidates(
                     score=round(min(0.95, score), 3),
                     sources=(option.evidence.source,),
                     evidence=(option.evidence, *fit.evidence),
-                    consistent=fit.consistent and option.weight >= STRONG,
+                    consistent=fit.consistent and option.weight >= STRONG and option.consistent,
                     tier=fit.tier,
                 )
             )
@@ -293,7 +308,11 @@ def _similarity_candidates(
                     ),
                     *fit.evidence,
                 ),
-                consistent=fit.consistent and fit.tier == 2,
+                # Words alone do not outvote the concepts: "odvod ... dane" in an insurance
+                # invoice's small print does not make it a tax.
+                consistent=fit.consistent
+                and fit.tier >= 2
+                and (not focus.concept_eks or position.ek in focus.concept_eks),
                 tier=fit.tier,
             )
         )
@@ -308,24 +327,27 @@ def _line_candidates(
     knowledge: KnowledgeBase,
     invoice_focus: _Focus,
 ) -> tuple[Candidate, ...]:
-    """Candidates for one entry, when it names its own function or concept."""
+    """Candidates for one entry, when it names its own building or activity. Entries that
+    only name another kind of purchase stay on the invoice's line (decision 12)."""
     source = f"lines[{i}].description"
     functions = invoice.named_functions(source)
-    concepts = _strong(invoice.concept_names(source), knowledge)
-    if not functions and not concepts:
+    if not functions:
         return ()
+    concepts = _strong(invoice.concept_names(source), knowledge) or invoice_focus.concepts
     line_words = next(t.words for t in invoice.texts if t.source == source)
     focus = _Focus(
-        function=functions[0] if functions else invoice_focus.function,
-        explicit=bool(functions) or invoice_focus.explicit,
-        concepts=concepts or invoice_focus.concepts,
+        function=functions[0],
+        explicit=True,
+        concepts=concepts,
+        concept_eks=_concept_eks(concepts, knowledge),
+        named_functions=invoice_focus.named_functions,
         stems=stems(line_words, knowledge.stopwords),
         grant=invoice_focus.grant,
     )
     hits = [h for h in invoice.concepts if h.source == source and h.meaning in concepts]
     if not hits:
         hits = [h for h in invoice.concepts if h.meaning in invoice_focus.concepts]
-    options = _concept_options(hits, knowledge) + _precedent_options(context)
+    options = _concept_options(hits, knowledge) + _precedent_options(context, focus.concept_eks)
     found = _precedent_candidates(context, index, focus.function)
     found += _rule_candidates(options, focus, context, index, knowledge)
     return _merge(found)
@@ -338,19 +360,30 @@ def _fit(
     index: ReferenceIndex,
     knowledge: KnowledgeBase,
 ) -> _Fit:
-    """How well a position fits: its function, its zdroj, and whether its description names
-    what the invoice names (tier 2: most of its words and at least two of them), is about the
-    same concept (tier 1), or neither."""
+    """How well a position fits: its function, its zdroj, and whether the invoice names its
+    whole description (tier 3), names what it names (tier 2: most of its words and at least
+    two of them), is about the same concept (tier 1), or neither. A position the invoice
+    names in full fits whatever building the text mentions: the construction of the road to
+    Szilvášok is budgeted under the office, not under roads. Naming in full includes the
+    buildings the description names, so 'MŠ - elekt.energia' is not named by the office's
+    electricity invoice."""
     description = _description_words(position)
     description_stems = stems(description, knowledge.stopwords)
-    names_it = (
-        coverage(description_stems, focus.stems) >= SIMILAR
-        and len(description_stems & focus.stems) >= 2
-    )
+    named = coverage(description_stems, focus.stems)
+    enough = len(description_stems & focus.stems) >= 2
     shared = knowledge.concepts_in(description) & focus.concepts
-    tier = 2 if names_it else 1 if shared else 0
+    buildings = knowledge.functions_in(" ".join([position.description or "", *position.aliases]))
+    if enough and named >= FULL and buildings <= focus.named_functions:
+        tier = 3
+    elif enough and named >= SIMILAR:
+        tier = 2
+    else:
+        tier = 1 if shared else 0
     evidence: tuple[Evidence, ...] = ()
-    if tier == 2:
+    if tier == 3:
+        detail = f"the invoice names '{position.description}'"
+        evidence = (Evidence(field="analytika", source="similarity", detail=detail),)
+    elif tier == 2:
         detail = f"'{position.description}' names what the invoice names"
         evidence = (Evidence(field="analytika", source="similarity", detail=detail),)
     elif tier == 1:
@@ -358,14 +391,14 @@ def _fit(
         evidence = (Evidence(field="analytika", source="lexicon", detail=detail),)
 
     function_ok = position_function(position) == focus.function
-    zdroj_ok, zdroj_factor = _zdroj_fit(position.zdroj, focus, context, index, knowledge)
+    zdroj_ok, zdroj_factor = _zdroj_fit(position, focus, context, index, knowledge)
     generic = position.analytika == "000" or _only_analytika(position, index)
     return _Fit(
-        function_factor=1.0 if function_ok else 0.55 if focus.explicit else 0.85,
+        function_factor=1.0 if function_ok or tier == 3 else 0.55 if focus.explicit else 0.85,
         zdroj_factor=zdroj_factor,
-        analytika_factor=1.15 if tier == 2 else 1.1 if tier == 1 else 1.0 if generic else 0.8,
+        analytika_factor=1.15 if tier >= 2 else 1.1 if tier == 1 else 1.0 if generic else 0.8,
         tier=tier,
-        consistent=(function_ok or (tier == 2 and not focus.explicit))
+        consistent=(function_ok or tier == 3 or (tier == 2 and not focus.explicit))
         and zdroj_ok
         and (tier > 0 or generic),
         evidence=evidence,
@@ -373,13 +406,16 @@ def _fit(
 
 
 def _zdroj_fit(
-    zdroj: str,
+    position: BudgetPosition,
     focus: _Focus,
     context: ResolvedContext,
     index: ReferenceIndex,
     knowledge: KnowledgeBase,
 ) -> tuple[bool, float]:
-    """Own funds are expected, unless the invoice speaks of a grant; then a grant source."""
+    """Own funds are expected, unless the invoice speaks of a grant; then a grant source.
+    Where the budget funds an economic code and function only from another source, as the
+    kindergarten's energy from the state's transfer, that source is the expected one."""
+    zdroj = position.zdroj
     grant_source = knowledge.expects_transfer(
         zdroj, frozenset(t.zdroj for t in index.bundle.transfers)
     )
@@ -387,7 +423,17 @@ def _zdroj_fit(
         if grant_source:
             return True, 1.0
         return False, 0.85 if zdroj == context.zdroj else 0.5
-    return (True, 1.0) if zdroj == context.zdroj else (False, 0.5)
+    if zdroj == context.zdroj or not _has_zdroj(position, context.zdroj, index):
+        return True, 1.0
+    return False, 0.5
+
+
+def _has_zdroj(position: BudgetPosition, zdroj: str, index: ReferenceIndex) -> bool:
+    """The budget has the position's economic code and function from this source."""
+    return any(
+        other.zdroj == zdroj and position_function(other) == position_function(position)
+        for other in index.expense_by_ek.get(position.ek, ())
+    )
 
 
 def _only_analytika(position: BudgetPosition, index: ReferenceIndex) -> bool:

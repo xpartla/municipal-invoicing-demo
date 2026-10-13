@@ -1,0 +1,144 @@
+{
+  "id": "seed-08-tauris-canteen",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-08-tauris-canteen",
+    "supplier": {
+      "name": "TAURIS, a.s.",
+      "ico": "36773123",
+      "dic": "2022402633",
+      "ic_dph": "SK2022402633",
+      "iban": "SK37 0900 0000 0005 6612 0981",
+      "address": "Potravinárska 6, 979 01 Rimavská Sobota",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2610001284",
+      "issue_date": "2026-01-26",
+      "delivery_date": "2026-01-23",
+      "due_date": "2026-02-09",
+      "variable_symbol": "2610001284",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-01-28",
+      "number": "002"
+    },
+    "totals": {
+      "net": 496.49,
+      "vat": 24.82,
+      "gross": 521.31,
+      "vat_rates": [
+        5
+      ]
+    },
+    "lines": [
+      {
+        "description": "Bravčové stehno bez kosti, chladené",
+        "quantity": 18.40,
+        "unit": "kg",
+        "unit_price": 6.29,
+        "net": 115.74,
+        "vat_rate": 5,
+        "vat": 5.79,
+        "gross": 121.53
+      },
+      {
+        "description": "Kuracie prsné rezne, chladené",
+        "quantity": 22.60,
+        "unit": "kg",
+        "unit_price": 6.85,
+        "net": 154.81,
+        "vat_rate": 5,
+        "vat": 7.74,
+        "gross": 162.55
+      },
+      {
+        "description": "Hovädzie zadné bez kosti, chladené",
+        "quantity": 8.20,
+        "unit": "kg",
+        "unit_price": 11.90,
+        "net": 97.58,
+        "vat_rate": 5,
+        "vat": 4.88,
+        "gross": 102.46
+      },
+      {
+        "description": "Bravčové mäso mleté",
+        "quantity": 12.00,
+        "unit": "kg",
+        "unit_price": 5.49,
+        "net": 65.88,
+        "vat_rate": 5,
+        "vat": 3.29,
+        "gross": 69.17
+      },
+      {
+        "description": "Kuracie stehná horné bez kosti",
+        "quantity": 10.50,
+        "unit": "kg",
+        "unit_price": 5.95,
+        "net": 62.48,
+        "vat_rate": 5,
+        "vat": 3.12,
+        "gross": 65.60
+      }
+    ],
+    "free_text": [
+      "Miesto dodania: Školská jedáleň, Boldog",
+      "Dodacie listy č. 26DL00412, 26DL00698",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FDŠJ",
+        "number": "FDŠJ/002/26",
+        "booking_date": "2026-01-28"
+      },
+      "posting": [
+        {
+          "md": "501 080",
+          "dal": "321 080",
+          "amount": 521.31,
+          "text": "mäso ŠJ",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633011 72f 09 601 008",
+          "ek": "633011",
+          "zdroj": "72f",
+          "oddiel": "09",
+          "trieda": "601",
+          "analytika": "008",
+          "amount": 521.31,
+          "text": "Popl. za potraviny",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "canteen"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Canteen food by the accountant's rule: series FDŠJ, 501 080 / 321 080, 633011 72f 09 601 008 'Popl. za potraviny', no transfer for 72f. The budget also has 633011 72f 09 601 098 with the same description; 008 vs 098 is an open question for the accountant, 008 is used per her rule."
+  ]
+}

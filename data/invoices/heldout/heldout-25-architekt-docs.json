@@ -1,0 +1,98 @@
+{
+  "id": "heldout-25-architekt-docs",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-25-architekt-docs",
+    "supplier": {
+      "name": "Ing. arch. Eva Ukážková",
+      "ico": "89012348",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK44 0200 0000 0041 2290 8813",
+      "address": "Kollárova 17, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/07",
+      "issue_date": "2026-09-21",
+      "delivery_date": "2026-09-18",
+      "due_date": "2026-10-05",
+      "variable_symbol": "202607",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-25",
+      "number": "261"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 7400.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Vypracovanie projektovej dokumentácie stavby „Komunitné centrum Boldog“ pre konanie o stavebnom zámere – architektonicko-stavebné riešenie, statika, technické zariadenia budovy",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 7400.00,
+        "gross": 7400.00
+      }
+    ],
+    "free_text": [
+      "Zmluva o dielo č. 07/2026",
+      "Nie som platiteľ DPH."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/261/26",
+        "booking_date": "2026-09-25"
+      },
+      "posting": [
+        {
+          "md": "042 013",
+          "dal": "321 000",
+          "amount": 7400.00,
+          "text": "PD komunitné centrum",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "716000 41 01 110 000",
+          "ek": "716000",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 7400.00,
+          "text": "Prípravná projektová dokumentácia",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "capital"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "Project documentation for a new building is capital: 716000 41 01 110 000 'Prípravná projektová dokumentácia', debit 042 013 'Komunitné centrum'. Runner-up 717001 41 01 110 001 'Realizácia nových stavieb'."
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "id": "seed-05-websupport-hosting",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-05-websupport-hosting",
+    "supplier": {
+      "name": "Websupport s. r. o.",
+      "ico": "36421928",
+      "dic": "2022174321",
+      "ic_dph": "SK2022174321",
+      "iban": "SK31 1100 0000 0026 2510 3304",
+      "address": "Karadžičova 7608/12, 821 08 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2600104582",
+      "issue_date": "2026-01-16",
+      "delivery_date": "2026-01-16",
+      "due_date": "2026-01-30",
+      "variable_symbol": "2600104582",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-01-20",
+      "number": "014"
+    },
+    "totals": {
+      "net": 110.78,
+      "vat": 25.48,
+      "gross": 136.26,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Webhosting Profi – boldog.sk, predĺženie 17.01.2026 – 16.01.2027",
+        "quantity": 12,
+        "unit": "mes.",
+        "unit_price": 7.99,
+        "net": 95.88,
+        "vat_rate": 23,
+        "vat": 22.05,
+        "gross": 117.93
+      },
+      {
+        "description": "Doména boldog.sk – predĺženie registrácie na 1 rok",
+        "quantity": 1,
+        "unit": "rok",
+        "unit_price": 14.90,
+        "net": 14.90,
+        "vat_rate": 23,
+        "vat": 3.43,
+        "gross": 18.33
+      }
+    ],
+    "free_text": [
+      "Zákazník ID: 104477",
+      "Faktúra za predĺženie služieb",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/014/26",
+        "booking_date": "2026-01-20"
+      },
+      "posting": [
+        {
+          "md": "518 003",
+          "dal": "321 000",
+          "amount": 136.26,
+          "text": "webhosting, doména boldog.sk 2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637040 41 01 110 000",
+          "ek": "637040",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 136.26,
+          "text": "Služby v oblasti informačno-komunikačných technológií",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "it"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Hosting and domain renewal are ICT services: 637040 41 01 110 000 'Služby v oblasti informačno-komunikačných technológií'. Runner-up 632004 41 01 110 000 'Komunikačná infraštruktúra-internet'. Debit 518 003 (internet services). Not capital: 711003 'Web stránka' is for building a new site."
+  ]
+}

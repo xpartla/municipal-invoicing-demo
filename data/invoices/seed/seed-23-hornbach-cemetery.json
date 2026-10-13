@@ -1,0 +1,174 @@
+{
+  "id": "seed-23-hornbach-cemetery",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-23-hornbach-cemetery",
+    "supplier": {
+      "name": "HORNBACH - Baumarkt SK spol. s r.o.",
+      "ico": "35838949",
+      "dic": "2020224976",
+      "ic_dph": "SK2020224976",
+      "iban": "SK24 1111 0000 0066 1288 4003",
+      "address": "Galvaniho 9, 821 04 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026-418-007712",
+      "issue_date": "2026-04-10",
+      "delivery_date": "2026-04-10",
+      "due_date": "2026-04-24",
+      "variable_symbol": "6418007712",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-04-14",
+      "number": "076"
+    },
+    "totals": {
+      "net": 464.19,
+      "vat": 106.77,
+      "gross": 570.96,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Zámková dlažba sivá 20 × 16,5 × 6 cm",
+        "quantity": 18,
+        "unit": "m²",
+        "unit_price": 13.99,
+        "net": 251.82,
+        "vat_rate": 23,
+        "vat": 57.92,
+        "gross": 309.74
+      },
+      {
+        "description": "Cement CEM II/B-M 32,5 R, 25 kg",
+        "quantity": 12,
+        "unit": "ks",
+        "unit_price": 5.29,
+        "net": 63.48,
+        "vat_rate": 23,
+        "vat": 14.60,
+        "gross": 78.08
+      },
+      {
+        "description": "Piesok kremičitý 0–4 mm, 25 kg",
+        "quantity": 10,
+        "unit": "ks",
+        "unit_price": 2.99,
+        "net": 29.90,
+        "vat_rate": 23,
+        "vat": 6.88,
+        "gross": 36.78
+      },
+      {
+        "description": "Farba na kov Industrol, čierna, 0,75 l",
+        "quantity": 4,
+        "unit": "ks",
+        "unit_price": 12.49,
+        "net": 49.96,
+        "vat_rate": 23,
+        "vat": 11.49,
+        "gross": 61.45
+      },
+      {
+        "description": "Riedidlo S 6006, 0,7 l",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 3.79,
+        "net": 7.58,
+        "vat_rate": 23,
+        "vat": 1.74,
+        "gross": 9.32
+      },
+      {
+        "description": "Hrable kovové 16-zubé",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 11.99,
+        "net": 23.98,
+        "vat_rate": 23,
+        "vat": 5.52,
+        "gross": 29.50
+      },
+      {
+        "description": "Lopata špicatá s násadou",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 14.99,
+        "net": 29.98,
+        "vat_rate": 23,
+        "vat": 6.90,
+        "gross": 36.88
+      },
+      {
+        "description": "Sada štetcov, 5 ks",
+        "quantity": 1,
+        "unit": "bal",
+        "unit_price": 7.49,
+        "net": 7.49,
+        "vat_rate": 23,
+        "vat": 1.72,
+        "gross": 9.21
+      }
+    ],
+    "free_text": [
+      "Profi karta č. 7004 1188 2231",
+      "Text zákazníka: cintorín",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/076/26",
+        "booking_date": "2026-04-14"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 570.96,
+          "text": "materiál cintorín",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 41 08 400 000",
+          "ek": "633006",
+          "zdroj": "41",
+          "oddiel": "08",
+          "trieda": "400",
+          "analytika": "000",
+          "amount": 570.96,
+          "text": "Materiál - cintorín",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "materials"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "All items are material for the cemetery, one entry on 633006 41 08 400 000 'Materiál - cintorín'; nothing is near the 1 700 EUR asset threshold. Debit 501 003 Spotreba materiálu-iné."
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "id": "heldout-06-telekom-fees",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-06-telekom-fees",
+    "supplier": {
+      "name": "Slovak Telekom, a.s.",
+      "ico": "35763469",
+      "dic": "2020273893",
+      "ic_dph": "SK2020273893",
+      "iban": "SK20 0200 0000 0023 1409 3958",
+      "address": "Bajkalská 28, 817 62 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "8390061852",
+      "issue_date": "2026-08-22",
+      "delivery_date": "2026-08-21",
+      "due_date": "2026-09-06",
+      "variable_symbol": "8390061852",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-25",
+      "number": "231"
+    },
+    "totals": {
+      "net": 74.56,
+      "vat": 14.85,
+      "gross": 89.41,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Poplatky s DPH 23 %",
+        "net": 64.56,
+        "vat_rate": 23,
+        "vat": 14.85,
+        "gross": 79.41
+      },
+      {
+        "description": "Poplatky, na ktoré sa neuplatňuje DPH",
+        "net": 10.00,
+        "vat": 0.00,
+        "gross": 10.00
+      }
+    ],
+    "free_text": [
+      "Za obdobie 22.07.2026 - 21.08.2026",
+      "Adresát 1010461504"
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/231/26",
+        "booking_date": "2026-08-25"
+      },
+      "posting": [
+        {
+          "md": "518 003",
+          "dal": "321 000",
+          "amount": 89.41,
+          "text": "tel.poplatky",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "632005 41 01 110 000",
+          "ek": "632005",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 89.41,
+          "text": "telefon,fax",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "telecom"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN as in anchor-telekom.",
+    "Same supplier and purpose as the precedent FD/213/26 and anchor-telekom: 632005 41 01 110 000 'telefon,fax', 518 003 / 321 000, text 'tel.poplatky'."
+  ]
+}

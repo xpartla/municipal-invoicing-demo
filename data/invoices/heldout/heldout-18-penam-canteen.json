@@ -1,0 +1,144 @@
+{
+  "id": "heldout-18-penam-canteen",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-18-penam-canteen",
+    "supplier": {
+      "name": "PENAM SLOVAKIA, a.s.",
+      "ico": "36283576",
+      "dic": "2022171307",
+      "ic_dph": "SK2022171307",
+      "iban": "SK58 1100 0000 0026 2850 6614",
+      "address": "Štúrova 74/138, 949 35 Nitra",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "3126051877",
+      "issue_date": "2026-09-14",
+      "delivery_date": "2026-09-11",
+      "due_date": "2026-09-28",
+      "variable_symbol": "3126051877",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-16",
+      "number": "044"
+    },
+    "totals": {
+      "net": 84.42,
+      "vat": 4.22,
+      "gross": 88.64,
+      "vat_rates": [
+        5
+      ]
+    },
+    "lines": [
+      {
+        "description": "Chlieb Konzumný kmeňový 1 kg",
+        "quantity": 12,
+        "unit": "ks",
+        "unit_price": 1.29,
+        "net": 15.48,
+        "vat_rate": 5,
+        "vat": 0.77,
+        "gross": 16.25
+      },
+      {
+        "description": "Rožok biely 40 g",
+        "quantity": 240,
+        "unit": "ks",
+        "unit_price": 0.09,
+        "net": 21.60,
+        "vat_rate": 5,
+        "vat": 1.08,
+        "gross": 22.68
+      },
+      {
+        "description": "Kaiserka 60 g",
+        "quantity": 120,
+        "unit": "ks",
+        "unit_price": 0.14,
+        "net": 16.80,
+        "vat_rate": 5,
+        "vat": 0.84,
+        "gross": 17.64
+      },
+      {
+        "description": "Chlieb toastový 500 g",
+        "quantity": 6,
+        "unit": "ks",
+        "unit_price": 1.19,
+        "net": 7.14,
+        "vat_rate": 5,
+        "vat": 0.36,
+        "gross": 7.50
+      },
+      {
+        "description": "Koláč tvarohový 80 g",
+        "quantity": 60,
+        "unit": "ks",
+        "unit_price": 0.39,
+        "net": 23.40,
+        "vat_rate": 5,
+        "vat": 1.17,
+        "gross": 24.57
+      }
+    ],
+    "free_text": [
+      "Miesto dodania: Školská jedáleň, Boldog",
+      "Dodacie listy č. 09-11204, 09-11388, 09-11519",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FDŠJ",
+        "number": "FDŠJ/044/26",
+        "booking_date": "2026-09-16"
+      },
+      "posting": [
+        {
+          "md": "501 080",
+          "dal": "321 080",
+          "amount": 88.64,
+          "text": "pečivo ŠJ",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633011 72f 09 601 008",
+          "ek": "633011",
+          "zdroj": "72f",
+          "oddiel": "09",
+          "trieda": "601",
+          "analytika": "008",
+          "amount": 88.64,
+          "text": "Popl. za potraviny",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "canteen"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Canteen food by the accountant's rule: series FDŠJ, 501 080 / 321 080, 633011 72f 09 601 008 'Popl. za potraviny', no transfer for 72f. The budget also has 633011 72f 09 601 098 with the same description; 008 vs 098 is an open question for the accountant, 008 is used per her rule."
+  ]
+}

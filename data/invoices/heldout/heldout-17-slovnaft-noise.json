@@ -1,0 +1,129 @@
+{
+  "id": "heldout-17-slovnaft-noise",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-17-slovnaft-noise",
+    "supplier": {
+      "name": "SLOVNAFT, a.s.",
+      "ico": null,
+      "dic": "2020372640",
+      "ic_dph": "SK2020372640",
+      "iban": "SK40 0200 0000 0000 0230 5512",
+      "address": "Vlčie hrdlo 1, 824 12 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "8260342218",
+      "issue_date": "2026-09-10",
+      "delivery_date": "2026-09-09",
+      "due_date": "2026-09-24",
+      "variable_symbol": "8260342218",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-15",
+      "number": "249"
+    },
+    "totals": {
+      "net": 101.20,
+      "vat": 23.28,
+      "gross": 124.48,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "02.09.2026 ČS Senec – NATURAL 95",
+        "quantity": 35.60,
+        "unit": "l",
+        "unit_price": 1.4472,
+        "net": 51.52,
+        "vat_rate": 23,
+        "vat": 11.85,
+        "gross": 63.37
+      },
+      {
+        "description": "02.09.2026 ČS Senec – MOL Dynamic Garden 2T, 1 l",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 8.94,
+        "net": 8.94,
+        "vat_rate": 23,
+        "vat": 2.06,
+        "gross": 11.00
+      },
+      {
+        "description": "09.09.2026 ČS Senec – NATURAL 95",
+        "quantity": 28.15,
+        "unit": "l",
+        "unit_price": 1.4472,
+        "net": 40.74,
+        "vat_rate": 23,
+        "vat": 9.37,
+        "gross": 50.11
+      }
+    ],
+    "free_text": [
+      "Faktúra k palivovej karte za obdobie 01.09.2026 – 09.09.2026",
+      "Karta č. 7081 23** **** 4471 – text na karte: KOSAČKY",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {
+        "supplier.ico": 0.1
+      }
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/249/26",
+        "booking_date": "2026-09-15"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 124.48,
+          "text": "benzín, olej - kosačky",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "634001 41 06 200 000",
+          "ek": "634001",
+          "zdroj": "41",
+          "oddiel": "06",
+          "trieda": "200",
+          "analytika": "000",
+          "amount": 124.48,
+          "text": "kosenie materiál,phm",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    },
+    "needs_review": true
+  },
+  "tags": [
+    "fuel",
+    "ocr-noise"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Coding as seed-27: 634001 41 06 200 000 'kosenie materiál,phm', 501 003.",
+    "OCR noise: the supplier IČO was not read (null, confidence 0.1). Name, IČ DPH and the fuel card text identify SLOVNAFT, a.s.; the accountant codes it as usual."
+  ]
+}

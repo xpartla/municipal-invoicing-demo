@@ -1,0 +1,105 @@
+{
+  "id": "seed-29-kosenie-greenery",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-29-kosenie-greenery",
+    "supplier": {
+      "name": "Tomáš Ukážkový - kosenie a údržba zelene",
+      "ico": "11223341",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK84 0200 0000 0035 4417 0059",
+      "address": "Nitrianska 12, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "05/2026",
+      "issue_date": "2026-05-22",
+      "delivery_date": "2026-05-20",
+      "due_date": "2026-06-05",
+      "variable_symbol": "052026",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-05-26",
+      "number": "113"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 812.50,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Kosenie verejných priestranstiev a zelených plôch v obci Boldog – máj 2026",
+        "quantity": 21500,
+        "unit": "m²",
+        "unit_price": 0.035,
+        "gross": 752.50
+      },
+      {
+        "description": "Zhrabanie a odvoz pokosenej trávy",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 60.00,
+        "gross": 60.00
+      }
+    ],
+    "free_text": [
+      "Podľa zmluvy o dielo č. 2/2026 – kosenie verejnej zelene",
+      "Nie som platiteľ DPH."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/113/26",
+        "booking_date": "2026-05-26"
+      },
+      "posting": [
+        {
+          "md": "511 000",
+          "dal": "321 000",
+          "amount": 812.50,
+          "text": "kosenie verejnej zelene 5/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "635006 41 06 200 000",
+          "ek": "635006",
+          "zdroj": "41",
+          "oddiel": "06",
+          "trieda": "200",
+          "analytika": "000",
+          "amount": 812.50,
+          "text": "údržba verejnej zelene",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "services"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "Contracted mowing of public greenery: 635006 41 06 200 000 'údržba verejnej zelene'; runner-up 637004 41 01 110 000 'Všeobecné služby' (637027 41 06 200 000 is for work agreements). Debit 511 000 (runner-up 518 000)."
+  ]
+}

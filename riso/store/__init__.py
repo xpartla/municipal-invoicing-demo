@@ -1,15 +1,20 @@
-"""Runtime state under var/<IČO>/: supplier memory, document counters and the feedback log.
-`riso reset` copies data/initial_state over it, so every demo starts from the same state."""
+"""Runtime state under var/<IČO>/: supplier memory, document counters, the feedback log and the
+latest evaluation reports. `riso reset` copies data/initial_state over the first three, so
+every demo starts from the same state; the evaluation does not depend on them."""
 
 import shutil
 from pathlib import Path
 
 from riso import paths
-from riso.contracts import Counters, Feedback, SupplierMemory
+from riso.contracts import Counters, EvalReport, Feedback, SupplierMemory
 
 MEMORY_FILE = "supplier_memory.json"
 COUNTERS_FILE = "counters.json"
 FEEDBACK_FILE = "feedback.jsonl"
+
+
+def eval_file(split: str) -> str:
+    return f"eval-{split}.json"
 
 
 class StateStore:
@@ -52,6 +57,16 @@ class StateStore:
         path.parent.mkdir(parents=True, exist_ok=True)
         with path.open("a", encoding="utf-8") as log:
             log.write(feedback.model_dump_json() + "\n")
+
+    def save_eval(self, report: EvalReport) -> Path:
+        name = eval_file(report.split)
+        self._write(report.entity_ico, name, report.model_dump_json(indent=2) + "\n")
+        return self.var_dir / report.entity_ico / name
+
+    def eval_report(self, ico: str, split: str) -> EvalReport | None:
+        """The latest stored report of the split, or None before the first run."""
+        path = self.var_dir / ico / eval_file(split)
+        return EvalReport.model_validate_json(path.read_bytes()) if path.is_file() else None
 
     def _read(self, ico: str, name: str) -> bytes:
         """The runtime file, or the initial one before the first write or reset."""

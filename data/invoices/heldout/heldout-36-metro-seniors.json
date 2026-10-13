@@ -1,0 +1,166 @@
+{
+  "id": "heldout-36-metro-seniors",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-36-metro-seniors",
+    "supplier": {
+      "name": "METRO Cash & Carry SR s. r. o.",
+      "ico": "45952671",
+      "dic": "2023165208",
+      "ic_dph": "SK2023165208",
+      "iban": "SK18 1100 0000 0029 2786 1154",
+      "address": "Senecká cesta 1881, 900 28 Ivanka pri Dunaji",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "112/0026/030118",
+      "issue_date": "2026-10-03",
+      "delivery_date": "2026-10-03",
+      "due_date": "2026-10-17",
+      "variable_symbol": "0026030118",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-07",
+      "number": "278"
+    },
+    "totals": {
+      "net": 254.42,
+      "vat": 52.15,
+      "gross": 306.57,
+      "vat_rates": [
+        19,
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Obložené chlebíčky, tácka 12 ks",
+        "quantity": 6,
+        "unit": "ks",
+        "unit_price": 13.90,
+        "net": 83.40,
+        "vat_rate": 19,
+        "vat": 15.85,
+        "gross": 99.25
+      },
+      {
+        "description": "Zákusky mix, tácka 20 ks",
+        "quantity": 4,
+        "unit": "ks",
+        "unit_price": 18.90,
+        "net": 75.60,
+        "vat_rate": 19,
+        "vat": 14.36,
+        "gross": 89.96
+      },
+      {
+        "description": "Káva mletá 1 kg",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 14.90,
+        "net": 14.90,
+        "vat_rate": 23,
+        "vat": 3.43,
+        "gross": 18.33
+      },
+      {
+        "description": "Minerálna voda jemne perlivá 1,5 l",
+        "quantity": 24,
+        "unit": "ks",
+        "unit_price": 0.45,
+        "net": 10.80,
+        "vat_rate": 23,
+        "vat": 2.48,
+        "gross": 13.28
+      },
+      {
+        "description": "Víno biele suché 0,75 l",
+        "quantity": 12,
+        "unit": "ks",
+        "unit_price": 4.29,
+        "net": 51.48,
+        "vat_rate": 23,
+        "vat": 11.84,
+        "gross": 63.32
+      },
+      {
+        "description": "Džús jablko 100 % 1 l",
+        "quantity": 12,
+        "unit": "ks",
+        "unit_price": 1.19,
+        "net": 14.28,
+        "vat_rate": 23,
+        "vat": 3.28,
+        "gross": 17.56
+      },
+      {
+        "description": "Servítky 3-vrstvové, 20 ks",
+        "quantity": 4,
+        "unit": "bal",
+        "unit_price": 0.99,
+        "net": 3.96,
+        "vat_rate": 23,
+        "vat": 0.91,
+        "gross": 4.87
+      }
+    ],
+    "free_text": [
+      "Číslo zákazníka: 41/005218",
+      "Faktúra je zároveň daňovým dokladom.",
+      "Poznámka rukou na doklade: Úcta k starším 10.10."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/278/26",
+        "booking_date": "2026-10-07"
+      },
+      "posting": [
+        {
+          "md": "513 000",
+          "dal": "321 000",
+          "amount": 306.57,
+          "text": "občerstvenie úcta k starším",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633016 41 10 200 000",
+          "ek": "633016",
+          "zdroj": "41",
+          "oddiel": "10",
+          "trieda": "200",
+          "analytika": "000",
+          "amount": 306.57,
+          "text": "Dôchodcovia reprezn.výdv.",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "events",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Refreshments for the pensioners' event: 633016 41 10 200 000 'Dôchodcovia reprezn.výdv.' (function 10 200 old age), not the Mother's Day position of the seed Metro invoice. Debit 513 000. The event name is the mayor's handwritten note."
+  ]
+}

@@ -147,7 +147,7 @@ def _field_confidence(
         else:
             analytika.append(
                 0.9
-                if tier == 2
+                if tier >= 2
                 else 0.85
                 if tier == 1
                 else 0.8

@@ -1,0 +1,131 @@
+{
+  "id": "heldout-10-bvs-water-ocu-noise",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-10-bvs-water-ocu-noise",
+    "supplier": {
+      "name": "Bratislavská vodárenská spoločnosť, a.s.",
+      "ico": "35850370",
+      "dic": "2020263432",
+      "ic_dph": "SK2020263432",
+      "iban": "SK12 0200 0000 0001 0052 6232",
+      "address": "Prešovská 48, 826 46 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026188214",
+      "issue_date": "2026-08-31",
+      "delivery_date": "2026-08-28",
+      "due_date": "2026-09-14",
+      "variable_symbol": "2026188214",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": null,
+      "number": "239"
+    },
+    "totals": {
+      "net": 120.57,
+      "vat": 27.73,
+      "gross": 148.30,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Vodné",
+        "quantity": 31,
+        "unit": "m³",
+        "unit_price": 1.6152,
+        "net": 50.07,
+        "vat_rate": 23,
+        "vat": 11.52,
+        "gross": 61.59
+      },
+      {
+        "description": "Stočné",
+        "quantity": 31,
+        "unit": "m³",
+        "unit_price": 1.6807,
+        "net": 52.10,
+        "vat_rate": 23,
+        "vat": 11.98,
+        "gross": 64.08
+      },
+      {
+        "description": "Odvádzanie zrážkových vôd z povrchového odtoku",
+        "quantity": 1,
+        "unit": "obd.",
+        "unit_price": 18.40,
+        "net": 18.40,
+        "vat_rate": 23,
+        "vat": 4.23,
+        "gross": 22.63
+      }
+    ],
+    "free_text": [
+      "Faktúra za vodné a stočné",
+      "Fakturačné obdobie: 29.05.2026 – 28.08.2026 (odpočet vodomeru)",
+      "Odberné miesto: Obecný úrad, Boldog 135, číslo OM 2000412345",
+      "Číslo zmluvy: 0412/2014",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {
+        "handwritten.date": 0.2
+      }
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/239/26",
+        "booking_date": null
+      },
+      "posting": [
+        {
+          "md": "502 003",
+          "dal": "321 000",
+          "amount": 148.30,
+          "text": "vodné, stočné OcÚ 6-8/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "632002 41 01 110 000",
+          "ek": "632002",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 148.30,
+          "text": "Vodné, stočné",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    },
+    "needs_review": true
+  },
+  "tags": [
+    "water",
+    "ocr-noise"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Coding as seed-10: 632002 41 01 110 000 'Vodné, stočné', 502 003.",
+    "OCR noise: the handwritten booking date is smudged (null, confidence 0.2; the matrix has it on 2026-09-03). The booking date cannot be taken from the scan, so the expected booking_date is null and the accountant fills it in on review."
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "id": "seed-24-strabag-potholes",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-24-strabag-potholes",
+    "supplier": {
+      "name": "STRABAG s.r.o.",
+      "ico": "17317282",
+      "dic": "2020347923",
+      "ic_dph": "SK2020347923",
+      "iban": "SK92 0200 0000 0000 0390 4152",
+      "address": "Mlynské Nivy 61/A, 825 18 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "1026004415",
+      "issue_date": "2026-04-16",
+      "delivery_date": "2026-04-14",
+      "due_date": "2026-05-16",
+      "variable_symbol": "1026004415",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-04-21",
+      "number": "082"
+    },
+    "totals": {
+      "net": 4016.10,
+      "vat": 923.71,
+      "gross": 4939.81,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Oprava výtlkov tryskovou metódou (asfaltová emulzia + drvené kamenivo)",
+        "quantity": 145,
+        "unit": "m²",
+        "unit_price": 18.50,
+        "net": 2682.50,
+        "vat_rate": 23,
+        "vat": 616.98,
+        "gross": 3299.48
+      },
+      {
+        "description": "Oprava výtlkov s vyrezaním a pokládkou asfaltového betónu AC 11",
+        "quantity": 32,
+        "unit": "m²",
+        "unit_price": 34.80,
+        "net": 1113.60,
+        "vat_rate": 23,
+        "vat": 256.13,
+        "gross": 1369.73
+      },
+      {
+        "description": "Presun hmôt a doprava mechanizmov",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 220.00,
+        "net": 220.00,
+        "vat_rate": 23,
+        "vat": 50.60,
+        "gross": 270.60
+      }
+    ],
+    "free_text": [
+      "Objednávka č. 12/2026 zo dňa 23.03.2026",
+      "Miesto: miestne komunikácie obce Boldog",
+      "Súpis vykonaných prác v prílohe",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/082/26",
+        "booking_date": "2026-04-21"
+      },
+      "posting": [
+        {
+          "md": "511 000",
+          "dal": "321 000",
+          "amount": 4939.81,
+          "text": "oprava výtlkov MK",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "635006 41 04 510 000",
+          "ek": "635006",
+          "zdroj": "41",
+          "oddiel": "04",
+          "trieda": "510",
+          "analytika": "000",
+          "amount": 4939.81,
+          "text": "údržba ciest, chodníkov",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "repairs"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Repair of existing local roads is maintenance, not capital: 635006 41 04 510 000 'údržba ciest, chodníkov', debit 511 000 Opravy a udržovanie. The 111 twin 635006 111 04 510 001 is not used without a state transfer."
+  ]
+}

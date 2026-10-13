@@ -1,0 +1,116 @@
+{
+  "id": "seed-30-strabag-szilvasok",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-30-strabag-szilvasok",
+    "supplier": {
+      "name": "STRABAG s.r.o.",
+      "ico": "17317282",
+      "dic": "2020347923",
+      "ic_dph": "SK2020347923",
+      "iban": "SK92 0200 0000 0000 0390 4152",
+      "address": "Mlynské Nivy 61/A, 825 18 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "1026006120",
+      "issue_date": "2026-05-29",
+      "delivery_date": "2026-05-29",
+      "due_date": "2026-06-28",
+      "variable_symbol": "1026006120",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-06-03",
+      "number": "121"
+    },
+    "totals": {
+      "net": 35876.40,
+      "vat": 8251.57,
+      "gross": 44127.97,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Spevnenie príjazdovej cesty na Szilvášok – zemné práce",
+        "net": 8420.00,
+        "vat_rate": 23,
+        "vat": 1936.60,
+        "gross": 10356.60
+      },
+      {
+        "description": "Spevnenie príjazdovej cesty na Szilvášok – podkladné vrstvy z drveného kameniva",
+        "net": 21340.60,
+        "vat_rate": 23,
+        "vat": 4908.34,
+        "gross": 26248.94
+      },
+      {
+        "description": "Spevnenie príjazdovej cesty na Szilvášok – odvodnenie, priekopy a priepusty",
+        "net": 6115.80,
+        "vat_rate": 23,
+        "vat": 1406.63,
+        "gross": 7522.43
+      }
+    ],
+    "free_text": [
+      "1. čiastková faktúra za stavbu „Spevnenie príjazdovej cesty na Szilvášok“",
+      "Zmluva o dielo č. ZoD 2026/017 zo dňa 10.03.2026",
+      "Súpis vykonaných prác č. 1 za obdobie 13.04.2026 – 29.05.2026 – príloha",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/121/26",
+        "booking_date": "2026-06-03"
+      },
+      "posting": [
+        {
+          "md": "042 012",
+          "dal": "321 000",
+          "amount": 44127.97,
+          "text": "Szilvášok - 1.čiastková fa",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "717001 41 01 110 016",
+          "ek": "717001",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "016",
+          "amount": 44127.97,
+          "text": "Spevnenie príjazdovej cesty na Szilvášok",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "capital"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Construction works are capital: the project position 717001 41 01 110 016 'Spevnenie príjazdovej cesty na Szilvášok' (own funds) and acquisition account 042 012 'Szilvášok'. Runner-ups 717002 71 04 510 000 'cesta na Szilvášok' (zdroj 71, not own funds) and the current 633006 41 04 510 002."
+  ]
+}

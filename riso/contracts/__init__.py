@@ -3,6 +3,7 @@ behind them."""
 
 from riso.contracts.context import EntityContext
 from riso.contracts.dataset import DatasetCase, ExpectedOutcome
+from riso.contracts.eval import CaseResult, EvalReport, LineCodes, Rate, Target
 from riso.contracts.feedback import Feedback
 from riso.contracts.invoice import (
     Handwritten,
@@ -53,6 +54,7 @@ __all__ = [
     "Alternative",
     "BudgetLine",
     "BudgetPosition",
+    "CaseResult",
     "CodeRequest",
     "Coding",
     "CodingProposal",
@@ -64,6 +66,7 @@ __all__ = [
     "DocumentSeries",
     "Entity",
     "EntityContext",
+    "EvalReport",
     "Evidence",
     "ExpectedOutcome",
     "Feedback",
@@ -75,15 +78,18 @@ __all__ = [
     "InvoiceLine",
     "InvoiceSummary",
     "InvoiceSupplier",
+    "LineCodes",
     "OcrMeta",
     "PostingLine",
     "Precedent",
     "PrecedentLine",
+    "Rate",
     "ReferenceBundle",
     "SourceFile",
     "SupplierMemory",
     "SupplierRecord",
     "SupplierRef",
+    "Target",
     "Totals",
     "Transfer",
     "Validation",

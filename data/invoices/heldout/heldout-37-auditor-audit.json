@@ -1,0 +1,98 @@
+{
+  "id": "heldout-37-auditor-audit",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-37-auditor-audit",
+    "supplier": {
+      "name": "Ing. Zuzana Fiktívna, štatutárna audítorka",
+      "ico": "90123450",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK97 0900 0000 0051 6604 2210",
+      "address": "Svätoplukova 30, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/009",
+      "issue_date": "2026-10-02",
+      "delivery_date": "2026-09-30",
+      "due_date": "2026-10-16",
+      "variable_symbol": "2026009",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-07",
+      "number": "279"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 1450.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Overenie individuálnej účtovnej závierky obce Boldog za rok 2025 a overenie súladu výročnej správy s účtovnou závierkou podľa zákona č. 423/2015 Z. z. o štatutárnom audite",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 1450.00,
+        "gross": 1450.00
+      }
+    ],
+    "free_text": [
+      "Zmluva o poskytnutí audítorských služieb č. 2/2026",
+      "Nie som platiteľ DPH."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/279/26",
+        "booking_date": "2026-10-07"
+      },
+      "posting": [
+        {
+          "md": "518 000",
+          "dal": "321 000",
+          "amount": 1450.00,
+          "text": "audit úč.závierky 2025",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637005 41 01 110 000",
+          "ek": "637005",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 1450.00,
+          "text": "špeciálne služby -",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "services"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "637005 41 01 110 000 covers accounting, budgeting and audit ('špeciálne služby - účto,rozpočetovníctvo a audit'), budget text as in the accountant's precedent. Debit 518 000 (one-off; the monthly accounting fee goes to 518 001)."
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "id": "heldout-33-omv-fuel-car",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-33-omv-fuel-car",
+    "supplier": {
+      "name": "OMV Slovensko, s.r.o.",
+      "ico": "00604381",
+      "dic": "2020313516",
+      "ic_dph": "SK2020313516",
+      "iban": "SK95 1100 0000 0026 2504 7716",
+      "address": "Einsteinova 25, 851 01 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "9126100877",
+      "issue_date": "2026-10-01",
+      "delivery_date": "2026-09-30",
+      "due_date": "2026-10-15",
+      "variable_symbol": "9126100877",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-05",
+      "number": "273"
+    },
+    "totals": {
+      "net": 155.94,
+      "vat": 35.87,
+      "gross": 191.81,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "03.09.2026 OMV Senec – Diesel",
+        "quantity": 42.18,
+        "unit": "l",
+        "unit_price": 1.2927,
+        "net": 54.53,
+        "vat_rate": 23,
+        "vat": 12.54,
+        "gross": 67.07
+      },
+      {
+        "description": "12.09.2026 OMV Senec – Diesel",
+        "quantity": 38.40,
+        "unit": "l",
+        "unit_price": 1.2927,
+        "net": 49.64,
+        "vat_rate": 23,
+        "vat": 11.42,
+        "gross": 61.06
+      },
+      {
+        "description": "24.09.2026 OMV Senec – Diesel",
+        "quantity": 40.05,
+        "unit": "l",
+        "unit_price": 1.2927,
+        "net": 51.77,
+        "vat_rate": 23,
+        "vat": 11.91,
+        "gross": 63.68
+      }
+    ],
+    "free_text": [
+      "Faktúra k výpisu transakcií palivovej karty za obdobie 01.09.2026 – 30.09.2026",
+      "Karta č. 7005 77** **** 3108, EČV SC482BH",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/273/26",
+        "booking_date": "2026-10-05"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 191.81,
+          "text": "nafta os.auto 9/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "634001 41 01 110 000",
+          "ek": "634001",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 191.81,
+          "text": "Palivo, mazivá, oleje, špec. kvapaliny",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "fuel"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Diesel for the municipal car (office): 634001 41 01 110 000 'Palivo, mazivá, oleje, špec. kvapaliny'; the mowers' fuel goes to 634001 41 06 200 000. Debit 501 003."
+  ]
+}

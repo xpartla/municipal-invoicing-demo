@@ -1,0 +1,104 @@
+{
+  "id": "heldout-01-soza-village-day",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-01-soza-village-day",
+    "supplier": {
+      "name": "Slovenský ochranný zväz autorský pre práva k hudobným dielam",
+      "ico": "00178454",
+      "dic": "2020911357",
+      "ic_dph": "SK2020911357",
+      "iban": "SK74 0200 0000 0000 0612 3012",
+      "address": "Rastislavova 3, 821 08 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2610458812",
+      "issue_date": "2026-08-12",
+      "delivery_date": "2026-08-08",
+      "due_date": "2026-08-26",
+      "variable_symbol": "2610458812",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-17",
+      "number": "223"
+    },
+    "totals": {
+      "net": 78.00,
+      "vat": 17.94,
+      "gross": 95.94,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Licenčná odmena za verejné vykonanie hudobných diel – podujatie Deň obce Boldog, 08.08.2026, živá hudba, vstup voľný",
+        "quantity": 1,
+        "unit": "podujatie",
+        "unit_price": 78.00,
+        "net": 78.00,
+        "vat_rate": 23,
+        "vat": 17.94,
+        "gross": 95.94
+      }
+    ],
+    "free_text": [
+      "Licenčná zmluva č. L-2026-118742",
+      "Hlásenie o použitých hudobných dielach doručené 10.08.2026",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/223/26",
+        "booking_date": "2026-08-17"
+      },
+      "posting": [
+        {
+          "md": "518 000",
+          "dal": "321 000",
+          "amount": 95.94,
+          "text": "SOZA deň obce 2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637004 41 08 300 000",
+          "ek": "637004",
+          "zdroj": "41",
+          "oddiel": "08",
+          "trieda": "300",
+          "analytika": "000",
+          "amount": 95.94,
+          "text": "poplatky SOZA",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "events"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "The budget has a dedicated position for SOZA licence fees, 637004 41 08 300 000 'poplatky SOZA', used whatever the music was played at. Close call with 637003 41 01 110 001 'Deň obce'. Debit 518 000."
+  ]
+}

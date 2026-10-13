@@ -1,0 +1,134 @@
+{
+  "id": "seed-04-fcc-waste",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-04-fcc-waste",
+    "supplier": {
+      "name": "FCC Slovensko, s.r.o.",
+      "ico": "31318762",
+      "dic": "2020318492",
+      "ic_dph": "SK2020318492",
+      "iban": "SK29 1100 0000 0026 2203 4417",
+      "address": "Bratislavská 18, 900 51 Zohor",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2601000417",
+      "issue_date": "2026-01-12",
+      "delivery_date": "2025-12-31",
+      "due_date": "2026-01-26",
+      "variable_symbol": "2601000417",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-01-16",
+      "number": "011"
+    },
+    "totals": {
+      "net": 1593.12,
+      "vat": 366.41,
+      "gross": 1959.53,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Zber a preprava zmesového komunálneho odpadu 20 03 01 – nádoby 110/120 l",
+        "quantity": 520,
+        "unit": "výsyp",
+        "unit_price": 0.64,
+        "net": 332.80,
+        "vat_rate": 23,
+        "vat": 76.54,
+        "gross": 409.34
+      },
+      {
+        "description": "Zber a preprava zmesového komunálneho odpadu 20 03 01 – kontajnery 1 100 l",
+        "quantity": 12,
+        "unit": "výsyp",
+        "unit_price": 6.90,
+        "net": 82.80,
+        "vat_rate": 23,
+        "vat": 19.04,
+        "gross": 101.84
+      },
+      {
+        "description": "Zneškodnenie odpadu 20 03 01 skládkovaním",
+        "quantity": 14.36,
+        "unit": "t",
+        "unit_price": 52.00,
+        "net": 746.72,
+        "vat_rate": 23,
+        "vat": 171.75,
+        "gross": 918.47
+      },
+      {
+        "description": "Poplatok za uloženie odpadov na skládku podľa zákona č. 329/2018 Z. z.",
+        "quantity": 14.36,
+        "unit": "t",
+        "unit_price": 30.00,
+        "net": 430.80,
+        "vat_rate": 23,
+        "vat": 99.08,
+        "gross": 529.88
+      }
+    ],
+    "free_text": [
+      "Fakturujeme Vám zber, prepravu a zneškodnenie zmesového komunálneho odpadu v obci Boldog za obdobie 12/2025 podľa Zmluvy o poskytovaní služieb č. 0412/2019 v znení dodatkov.",
+      "Prílohy: vážne lístky, súpis výsypov",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/011/26",
+        "booking_date": "2026-01-16"
+      },
+      "posting": [
+        {
+          "md": "518 004",
+          "dal": "321 000",
+          "amount": 1959.53,
+          "text": "odvoz odpadu 12/2025",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637004 41 05 100 001",
+          "ek": "637004",
+          "zdroj": "41",
+          "oddiel": "05",
+          "trieda": "100",
+          "analytika": "001",
+          "amount": 1959.53,
+          "text": "odvoz odpadu",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "waste"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Waste is coded to function 05 100 (nakladanie s odpadmi), where the budget has 'odvoz odpadu'; the runner-up is the older 637004 41 04 510 000 'odvoz odpadu' under 04 510. Debit 518 004 Ostatné služby-vývoz odpadu. Collection, landfill and the landfill fee are one service, one entry."
+  ]
+}

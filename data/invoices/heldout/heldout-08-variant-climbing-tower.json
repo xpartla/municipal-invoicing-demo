@@ -1,0 +1,145 @@
+{
+  "id": "heldout-08-variant-climbing-tower",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-08-variant-climbing-tower",
+    "supplier": {
+      "name": "Variant - detské ihriská a športoviská s. r. o.",
+      "ico": "44708025",
+      "dic": "2022806337",
+      "ic_dph": "SK2022806337",
+      "iban": "SK69 8330 0000 0029 0011 4426",
+      "address": "Boženy Němcovej 13, 811 04 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "VF2026-0318",
+      "issue_date": "2026-08-26",
+      "delivery_date": "2026-08-25",
+      "due_date": "2026-09-09",
+      "variable_symbol": "20260318",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-31",
+      "number": "236"
+    },
+    "totals": {
+      "net": 2417.00,
+      "vat": 555.91,
+      "gross": 2972.91,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Lezecká sieť náhradná – oceľové lano s PP opletom 16 mm, 3,0 × 2,5 m",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 640.00,
+        "net": 1280.00,
+        "vat_rate": 23,
+        "vat": 294.40,
+        "gross": 1574.40
+      },
+      {
+        "description": "Lanový rebrík 2,5 m",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 385.00,
+        "net": 385.00,
+        "vat_rate": 23,
+        "vat": 88.55,
+        "gross": 473.55
+      },
+      {
+        "description": "Hliníkové X-spojky lán, bal. 20 ks",
+        "quantity": 2,
+        "unit": "bal",
+        "unit_price": 92.00,
+        "net": 184.00,
+        "vat_rate": 23,
+        "vat": 42.32,
+        "gross": 226.32
+      },
+      {
+        "description": "Kotviaca sada – kotvy a úchyty lán",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 148.00,
+        "net": 148.00,
+        "vat_rate": 23,
+        "vat": 34.04,
+        "gross": 182.04
+      },
+      {
+        "description": "Montáž náhradných dielov na lanovej lezeckej veži vrátane dopravy",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 420.00,
+        "net": 420.00,
+        "vat_rate": 23,
+        "vat": 96.60,
+        "gross": 516.60
+      }
+    ],
+    "free_text": [
+      "Projekt: Lanová lezecká veža v parku Boldog – financované z dotácie Bratislavského samosprávneho kraja",
+      "Zmluva o poskytnutí dotácie BSK č. 2026/BRDS/0587",
+      "Objednávka č. 41/2026",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/236/26",
+        "booking_date": "2026-08-31"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 2972.91,
+          "text": "lezecká veža - siete, diely, dot.BSK",
+          "stredisko": null,
+          "transfer": "322002 11H 004"
+        }
+      ],
+      "budget": [
+        {
+          "key": "633004 11H 06 200 000",
+          "ek": "633004",
+          "zdroj": "11H",
+          "oddiel": "06",
+          "trieda": "200",
+          "analytika": "000",
+          "amount": 2972.91,
+          "text": "lezecká veža",
+          "stredisko": null,
+          "transfer": "322002 11H 004"
+        }
+      ]
+    }
+  },
+  "tags": [
+    "grant"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Parts for the existing climbing tower, each under 1 700 EUR, so a running cost on the budget's BSK position 633004 11H 06 200 000 'lezecká veža' (own-funds twin 633004 41 06 200 001 is the runner-up). Transfer 322002 11H 004 'BSK ľanová lezecká veža', which names the project (runner-up 312008 11H 000 'BSK'). Debit 501 003."
+  ]
+}

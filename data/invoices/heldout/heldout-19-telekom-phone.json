@@ -1,0 +1,115 @@
+{
+  "id": "heldout-19-telekom-phone",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-19-telekom-phone",
+    "supplier": {
+      "name": "Slovak Telekom, a.s.",
+      "ico": "35763469",
+      "dic": "2020273893",
+      "ic_dph": "SK2020273893",
+      "iban": "SK20 0200 0000 0023 1409 3958",
+      "address": "Bajkalská 28, 817 62 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "8390070414",
+      "issue_date": "2026-09-14",
+      "delivery_date": "2026-09-12",
+      "due_date": "2026-09-28",
+      "variable_symbol": "8390070414",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-17",
+      "number": "252"
+    },
+    "totals": {
+      "net": 677.80,
+      "vat": 155.89,
+      "gross": 833.69,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Samsung Galaxy A56 5G 8/256 GB, čierny – predaj bez viazanosti",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 329.00,
+        "net": 658.00,
+        "vat_rate": 23,
+        "vat": 151.34,
+        "gross": 809.34
+      },
+      {
+        "description": "Ochranné sklo na displej Samsung Galaxy A56",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 9.90,
+        "net": 19.80,
+        "vat_rate": 23,
+        "vat": 4.55,
+        "gross": 24.35
+      }
+    ],
+    "free_text": [
+      "Objednávka č. 1-2914477120",
+      "Adresát 1010461504",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/252/26",
+        "booking_date": "2026-09-17"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 833.69,
+          "text": "mobilné telefóny 2 ks",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633003 41 01 110 000",
+          "ek": "633003",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 833.69,
+          "text": "Telekomunikačná technika",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "telecom",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN as in anchor-telekom.",
+    "Purchase of two phones (goods, each under 1 700 EUR), not phone fees: 633003 41 01 110 000 'Telekomunikačná technika', debit 501 003. The Telekom precedent (632005, 518 003) does not apply."
+  ]
+}

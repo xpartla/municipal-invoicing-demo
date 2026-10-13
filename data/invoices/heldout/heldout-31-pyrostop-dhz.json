@@ -1,0 +1,124 @@
+{
+  "id": "heldout-31-pyrostop-dhz",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-31-pyrostop-dhz",
+    "supplier": {
+      "name": "PYROSTOP SLOVAKIA s. r. o.",
+      "ico": "45445184",
+      "dic": "2022979011",
+      "ic_dph": "SK2022979011",
+      "iban": "SK13 0900 0000 0005 1144 7782",
+      "address": "Višňová 5403/12A, 903 01 Senec",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "FA2026-1184",
+      "issue_date": "2026-09-29",
+      "delivery_date": "2026-09-28",
+      "due_date": "2026-10-13",
+      "variable_symbol": "20261184",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-02",
+      "number": "270"
+    },
+    "totals": {
+      "net": 2286.00,
+      "vat": 525.78,
+      "gross": 2811.78,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Zásahový odev 2-dielny (blúza + nohavice), EN 469",
+        "quantity": 4,
+        "unit": "kpl",
+        "unit_price": 398.00,
+        "net": 1592.00,
+        "vat_rate": 23,
+        "vat": 366.16,
+        "gross": 1958.16
+      },
+      {
+        "description": "Zásahová obuv kožená, EN 15090",
+        "quantity": 4,
+        "unit": "pár",
+        "unit_price": 139.00,
+        "net": 556.00,
+        "vat_rate": 23,
+        "vat": 127.88,
+        "gross": 683.88
+      },
+      {
+        "description": "Zásahové rukavice, EN 659",
+        "quantity": 4,
+        "unit": "pár",
+        "unit_price": 34.50,
+        "net": 138.00,
+        "vat_rate": 23,
+        "vat": 31.74,
+        "gross": 169.74
+      }
+    ],
+    "free_text": [
+      "Pre: DHZ obce Boldog",
+      "Hradené z dotácie DPO SR na podporu DHZO v roku 2026",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/270/26",
+        "booking_date": "2026-10-02"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 2811.78,
+          "text": "zásahové odevy, obuv DHZ - dot.DPO",
+          "stredisko": null,
+          "transfer": "315000 71 000"
+        }
+      ],
+      "budget": [
+        {
+          "key": "633010 71 03 200 000",
+          "ek": "633010",
+          "zdroj": "71",
+          "oddiel": "03",
+          "trieda": "200",
+          "analytika": "000",
+          "amount": 2811.78,
+          "text": "Pracovné odevy, obuv a pracovné pomôcky-DHZ dotácia",
+          "stredisko": null,
+          "transfer": "315000 71 000"
+        }
+      ]
+    }
+  },
+  "tags": [
+    "grant"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Protective clothing paid from the DPO SR grant: 633010 71 03 200 000 'Pracovné odevy, obuv a pracovné pomôcky-DHZ dotácia', transfer 315000 71 000 'DHZ DPO'. Close call: 633010 111 03 200 001 'PO - dotácia' with transfer 312001 111 014 'DPO SR'. Each set is under 1 700 EUR. Debit 501 003."
+  ]
+}

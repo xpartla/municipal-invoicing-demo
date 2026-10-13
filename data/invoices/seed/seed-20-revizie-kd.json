@@ -1,0 +1,105 @@
+{
+  "id": "seed-20-revizie-kd",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-20-revizie-kd",
+    "supplier": {
+      "name": "Ing. Marek Príkladný - revízie elektrických zariadení",
+      "ico": "24680249",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK17 1100 0000 0029 8765 1203",
+      "address": "Hurbanova 22, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "012/2026",
+      "issue_date": "2026-03-20",
+      "delivery_date": "2026-03-18",
+      "due_date": "2026-04-03",
+      "variable_symbol": "0122026",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-03-24",
+      "number": "058"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 278.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Periodická odborná prehliadka a odborná skúška elektrickej inštalácie – Kultúrny dom Boldog, vrátane správy o OPaOS",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 260.00,
+        "gross": 260.00
+      },
+      {
+        "description": "Doprava",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 18.00,
+        "gross": 18.00
+      }
+    ],
+    "free_text": [
+      "Objednávka č. 9/2026",
+      "Nie som platiteľ DPH."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/058/26",
+        "booking_date": "2026-03-24"
+      },
+      "posting": [
+        {
+          "md": "518 000",
+          "dal": "321 000",
+          "amount": 278.00,
+          "text": "revízia el.inštalácie KD",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637004 41 08 200 000",
+          "ek": "637004",
+          "zdroj": "41",
+          "oddiel": "08",
+          "trieda": "200",
+          "analytika": "000",
+          "amount": 278.00,
+          "text": "KD revízia",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "services"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "The budget has 'KD revízia' (637004 41 08 200 000) for the cultural house; runner-up 637004 41 01 110 001 'revízie a kontroly' (office function). Debit 518 000."
+  ]
+}

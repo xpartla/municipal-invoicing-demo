@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_vali
 
 from riso.contracts.base import AccountKey, Analytika, Au, Ek, Su, Zdroj
 from riso.knowledge.terms import TermIndex
-from riso.text import fold
+from riso.text import cased_words, fold, words
 
 FunctionCode = Annotated[str, StringConstraints(pattern=r"^\d{2} \d{3}$")]
 EkPrefix = Annotated[str, StringConstraints(pattern=r"^\d{1,6}$")]
@@ -176,6 +176,20 @@ class KnowledgeBase(Authored):
         if found is None:
             found = frozenset(meaning for _, meaning in self.concept_terms.search(tokens))
             self.remembered_concepts[tokens] = found
+        return found
+
+    @cached_property
+    def remembered_functions(self) -> dict[str, frozenset[str]]:
+        return {}
+
+    def functions_in(self, text: str) -> frozenset[str]:
+        """Function codes a text names, by word or by abbreviation: 'MŠ - elekt.energia'
+        names the kindergarten. Remembered, like concepts_in."""
+        found = self.remembered_functions.get(text)
+        if found is None:
+            found = frozenset(meaning for _, meaning in self.function_terms.search(words(text)))
+            found |= {self.abbreviations[w] for w in cased_words(text) if w in self.abbreviations}
+            self.remembered_functions[text] = found
         return found
 
     def is_strong(self, concept: str) -> bool:

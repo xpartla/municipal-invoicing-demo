@@ -1,0 +1,119 @@
+{
+  "id": "heldout-02-ozvucenie-village-day",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-02-ozvucenie-village-day",
+    "supplier": {
+      "name": "Dávid Fiktívny - ozvučenie a pódiá",
+      "ico": "12121215",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK39 8330 0000 0021 0055 6631",
+      "address": "Lichnerova 41, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026012",
+      "issue_date": "2026-08-13",
+      "delivery_date": "2026-08-08",
+      "due_date": "2026-08-27",
+      "variable_symbol": "2026012",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-18",
+      "number": "225"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 1410.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Prenájom pódia 8 × 6 m so zastrešením vrátane montáže a demontáže",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 650.00,
+        "gross": 650.00
+      },
+      {
+        "description": "Ozvučenie podujatia (PA systém, mixážny pult, mikrofóny) vrátane zvukára",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 480.00,
+        "gross": 480.00
+      },
+      {
+        "description": "Osvetlenie pódia vrátane obsluhy",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 220.00,
+        "gross": 220.00
+      },
+      {
+        "description": "Doprava techniky",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 60.00,
+        "gross": 60.00
+      }
+    ],
+    "free_text": [
+      "Podujatie: Deň obce Boldog, 08.08.2026",
+      "Nie som platiteľ DPH."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/225/26",
+        "booking_date": "2026-08-18"
+      },
+      "posting": [
+        {
+          "md": "518 000",
+          "dal": "321 000",
+          "amount": 1410.00,
+          "text": "pódium, ozvučenie deň obce",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637003 41 01 110 001",
+          "ek": "637003",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "001",
+          "amount": 1410.00,
+          "text": "Deň obce",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "events"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "The budget has its own position for the village day, 637003 41 01 110 001 'Deň obce' (own funds; the 111 twin 637003 111 01 110 002 has no state transfer behind it). Runner-up 637004 41 08 200 002 'Kultúrne akcie'. Debit 518 000."
+  ]
+}

@@ -64,6 +64,19 @@ class NormalisedInvoice(StageResult):
         hits = [h.meaning for h in self.functions if source in (None, h.source)]
         return tuple(sorted(dict.fromkeys(hits), key=lambda f: -hits.count(f)))
 
+    def invoice_functions(self) -> tuple[str, ...]:
+        """Function codes named for the invoice as a whole: anywhere outside the entries, or
+        in at least half of them. Bin bags among cleaning supplies do not make the invoice
+        one about waste management."""
+        entries = len(self.document.lines)
+        named = []
+        for function in self.named_functions():
+            sources = {h.source for h in self.functions if h.meaning == function}
+            in_entries = {s for s in sources if s.startswith("lines[")}
+            if sources - in_entries or 2 * len(in_entries) >= entries:
+                named.append(function)
+        return tuple(named)
+
     def all_words(self) -> tuple[str, ...]:
         return tuple(word for text in self.texts for word in text.words)
 

@@ -1,0 +1,112 @@
+{
+  "id": "heldout-12-orange-mobile-ocu",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-12-orange-mobile-ocu",
+    "supplier": {
+      "name": "Orange Slovensko, a.s.",
+      "ico": "35697270",
+      "dic": "2020310578",
+      "ic_dph": "SK2020310578",
+      "iban": "SK72 1100 0000 0026 2181 7047",
+      "address": "Metodova 8, 821 08 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "4107988120",
+      "issue_date": "2026-09-03",
+      "delivery_date": "2026-08-31",
+      "due_date": "2026-09-17",
+      "variable_symbol": "4107988120",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-08",
+      "number": "242"
+    },
+    "totals": {
+      "net": 75.87,
+      "vat": 17.45,
+      "gross": 93.32,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Mesačné poplatky za programy služieb (Biznis Paušál, 5 SIM)",
+        "quantity": 5,
+        "unit": "SIM",
+        "unit_price": 13.99,
+        "net": 69.95,
+        "vat_rate": 23,
+        "vat": 16.09,
+        "gross": 86.04
+      },
+      {
+        "description": "Hovory, SMS a dáta mimo programu služieb",
+        "net": 5.92,
+        "vat_rate": 23,
+        "vat": 1.36,
+        "gross": 7.28
+      }
+    ],
+    "free_text": [
+      "Vyúčtovanie služieb za obdobie 01.08.2026 – 31.08.2026",
+      "Číslo zákazníka: 1.12345678",
+      "Rozpis podľa SIM: Starosta, Kancelária 1, Kancelária 2, Kancelária 3, Údržba",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/242/26",
+        "booking_date": "2026-09-08"
+      },
+      "posting": [
+        {
+          "md": "518 003",
+          "dal": "321 000",
+          "amount": 93.32,
+          "text": "tel.poplatky mobil 8/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "632005 41 01 110 000",
+          "ek": "632005",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 93.32,
+          "text": "telefon,fax",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "telecom"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "As seed-03: 632005 41 01 110 000 'telefon,fax', 518 003."
+  ]
+}

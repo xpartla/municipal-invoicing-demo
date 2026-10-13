@@ -1,0 +1,112 @@
+{
+  "id": "seed-13-kominar-ocu",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-13-kominar-ocu",
+    "supplier": {
+      "name": "Jozef Vzorný - KOMINÁR",
+      "ico": "23456787",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK61 0900 0000 0051 2233 4455",
+      "address": "Slnečná 14, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/014",
+      "issue_date": "2026-02-13",
+      "delivery_date": "2026-02-12",
+      "due_date": "2026-02-27",
+      "variable_symbol": "2026014",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-02-17",
+      "number": "034"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 72.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Kontrola a čistenie komína – plynový spotrebič do 50 kW, objekt Obecný úrad Boldog",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 45.00,
+        "gross": 45.00
+      },
+      {
+        "description": "Vypracovanie písomnej správy o kontrole komína",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 15.00,
+        "gross": 15.00
+      },
+      {
+        "description": "Doprava",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 12.00,
+        "gross": 12.00
+      }
+    ],
+    "free_text": [
+      "Nie som platiteľ DPH.",
+      "Forma úhrady: prevodom"
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/034/26",
+        "booking_date": "2026-02-17"
+      },
+      "posting": [
+        {
+          "md": "518 000",
+          "dal": "321 000",
+          "amount": 72.00,
+          "text": "kominárske práce OcÚ",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637004 41 01 110 003",
+          "ek": "637004",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "003",
+          "amount": 72.00,
+          "text": "kominárkse práce",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "services"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "The budget's own position 'kominárkse práce' (637004 41 01 110 003) for the office; debit 518 000 Ostatné služby (a one-off service, not the flat-fee 518 001)."
+  ]
+}

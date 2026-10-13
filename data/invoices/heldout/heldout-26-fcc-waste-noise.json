@@ -1,0 +1,139 @@
+{
+  "id": "heldout-26-fcc-waste-noise",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-26-fcc-waste-noise",
+    "supplier": {
+      "name": "FCC Slovensko, s.r.o.",
+      "ico": "31318762",
+      "dic": "2020318492",
+      "ic_dph": "SK2020318492",
+      "iban": "SK29 1100 0000 0026 2203 4417",
+      "address": "Bratislavská 18, 900 51 Zohor",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2608002291",
+      "issue_date": "2026-09-22",
+      "delivery_date": "2026-08-31",
+      "due_date": "2026-10-06",
+      "variable_symbol": "2608002291",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-28",
+      "number": "263"
+    },
+    "totals": {
+      "net": 1741.06,
+      "vat": 400.44,
+      "gross": 2114.50,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Zber a preprava zmesového komunálneho odpadu 20 03 01 – nádoby 110/120 l",
+        "quantity": 520,
+        "unit": "výsyp",
+        "unit_price": 0.64,
+        "net": 332.80,
+        "vat_rate": 23,
+        "vat": 76.54,
+        "gross": 409.34
+      },
+      {
+        "description": "Zber a preprava zmesového komunálneho odpadu 20 03 01 – kontajnery 1 100 l",
+        "quantity": 13,
+        "unit": "výsyp",
+        "unit_price": 6.90,
+        "net": 89.70,
+        "vat_rate": 23,
+        "vat": 20.63,
+        "gross": 110.33
+      },
+      {
+        "description": "Zneškodnenie odpadu 20 03 01 skládkovaním",
+        "quantity": 16.08,
+        "unit": "t",
+        "unit_price": 52.00,
+        "net": 836.16,
+        "vat_rate": 23,
+        "vat": 192.32,
+        "gross": 1028.48
+      },
+      {
+        "description": "Poplatok za uloženie odpadov na skládku podľa zákona č. 329/2018 Z. z.",
+        "quantity": 16.08,
+        "unit": "t",
+        "unit_price": 30.00,
+        "net": 482.40,
+        "vat_rate": 23,
+        "vat": 110.95,
+        "gross": 593.35
+      }
+    ],
+    "free_text": [
+      "Fakturujeme Vám zber, prepravu a zneškodnenie zmesového komunálneho odpadu v obci Boldog za obdobie 08/2026 podľa Zmluvy o poskytovaní služieb č. 0412/2019 v znení dodatkov.",
+      "Prílohy: vážne lístky, súpis výsypov",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {
+        "totals.gross": 0.3
+      }
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/263/26",
+        "booking_date": "2026-09-28"
+      },
+      "posting": [
+        {
+          "md": "518 004",
+          "dal": "321 000",
+          "amount": 2141.50,
+          "text": "odvoz odpadu 8/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637004 41 05 100 001",
+          "ek": "637004",
+          "zdroj": "41",
+          "oddiel": "05",
+          "trieda": "100",
+          "analytika": "001",
+          "amount": 2141.50,
+          "text": "odvoz odpadu",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    },
+    "needs_review": true
+  },
+  "tags": [
+    "waste",
+    "ocr-noise"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Waste is coded to function 05 100 (nakladanie s odpadmi), where the budget has 'odvoz odpadu'; the runner-up is the older 637004 41 04 510 000 'odvoz odpadu' under 04 510. Debit 518 004 Ostatné služby-vývoz odpadu. Coding as seed-04.",
+    "OCR noise: the total gross is mistyped (2114.50, two digits swapped) and does not equal the sum of the entries (2141.50) nor net + VAT; the accountant books the sum of the entries and checks it with the supplier."
+  ]
+}

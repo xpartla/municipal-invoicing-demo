@@ -1,0 +1,83 @@
+{
+  "id": "heldout-35-metro-credit-note",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-35-metro-credit-note",
+    "supplier": {
+      "name": "METRO Cash & Carry SR s. r. o.",
+      "ico": "45952671",
+      "dic": "2023165208",
+      "ic_dph": "SK2023165208",
+      "iban": "SK18 1100 0000 0029 2786 1154",
+      "address": "Senecká cesta 1881, 900 28 Ivanka pri Dunaji",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "112/0026/029914",
+      "issue_date": "2026-10-02",
+      "delivery_date": "2026-10-02",
+      "due_date": null,
+      "variable_symbol": "0026029914",
+      "currency": "EUR",
+      "document_type": "credit_note"
+    },
+    "handwritten": {
+      "date": "2026-10-06",
+      "number": "276"
+    },
+    "totals": {
+      "net": -36.54,
+      "vat": -8.40,
+      "gross": -44.94,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Vrátenie tovaru – Minerálna voda jemne perlivá 1,5 l",
+        "quantity": -24,
+        "unit": "ks",
+        "unit_price": 0.45,
+        "net": -10.80,
+        "vat_rate": 23,
+        "vat": -2.48,
+        "gross": -13.28
+      },
+      {
+        "description": "Vrátenie tovaru – Víno biele suché 0,75 l",
+        "quantity": -6,
+        "unit": "ks",
+        "unit_price": 4.29,
+        "net": -25.74,
+        "vat_rate": 23,
+        "vat": -5.92,
+        "gross": -31.66
+      }
+    ],
+    "free_text": [
+      "Dobropis k faktúre č. 112/0026/028871 – vrátenie neotvoreného tovaru",
+      "Číslo zákazníka: 41/005218",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "manual_entry"
+  },
+  "tags": [
+    "credit-note"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Credit note for returned goods; the accountant enters credit notes by hand, so the expected outcome is manual entry with no coding."
+  ]
+}

@@ -1,0 +1,217 @@
+{
+  "id": "seed-16-spp-gas-ocu-kd",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-16-spp-gas-ocu-kd",
+    "supplier": {
+      "name": "Slovenský plynárenský priemysel, a.s.",
+      "ico": "35815256",
+      "dic": "2020317068",
+      "ic_dph": "SK2020317068",
+      "iban": "SK47 0900 0000 0001 7612 4588",
+      "address": "Mlynské nivy 44/a, 825 11 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "1101622390",
+      "issue_date": "2026-03-02",
+      "delivery_date": "2026-02-28",
+      "due_date": "2026-03-16",
+      "variable_symbol": "1101622390",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-03-05",
+      "number": "043"
+    },
+    "totals": {
+      "net": 918.46,
+      "vat": 211.26,
+      "gross": 1129.72,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "OM Obecný úrad: Zemný plyn – odobraté množstvo",
+        "quantity": 8120,
+        "unit": "kWh",
+        "unit_price": 0.0548,
+        "net": 444.98,
+        "vat_rate": 23,
+        "vat": 102.35,
+        "gross": 547.33
+      },
+      {
+        "description": "OM Obecný úrad: Fixná mesačná platba za odberné miesto",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 4.90,
+        "net": 4.90,
+        "vat_rate": 23,
+        "vat": 1.13,
+        "gross": 6.03
+      },
+      {
+        "description": "OM Obecný úrad: Distribúcia plynu – fixná mesačná platba (tarifa D4)",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 22.31,
+        "net": 22.31,
+        "vat_rate": 23,
+        "vat": 5.13,
+        "gross": 27.44
+      },
+      {
+        "description": "OM Obecný úrad: Distribúcia plynu – variabilná zložka",
+        "quantity": 8120,
+        "unit": "kWh",
+        "unit_price": 0.01362,
+        "net": 110.59,
+        "vat_rate": 23,
+        "vat": 25.44,
+        "gross": 136.03
+      },
+      {
+        "description": "OM Obecný úrad: Spotrebná daň zo zemného plynu",
+        "quantity": 8120,
+        "unit": "kWh",
+        "unit_price": 0.00132,
+        "net": 10.72,
+        "vat_rate": 23,
+        "vat": 2.47,
+        "gross": 13.19
+      },
+      {
+        "description": "OM Kultúrny dom: Zemný plyn – odobraté množstvo",
+        "quantity": 4380,
+        "unit": "kWh",
+        "unit_price": 0.0548,
+        "net": 240.02,
+        "vat_rate": 23,
+        "vat": 55.20,
+        "gross": 295.22
+      },
+      {
+        "description": "OM Kultúrny dom: Fixná mesačná platba za odberné miesto",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 4.90,
+        "net": 4.90,
+        "vat_rate": 23,
+        "vat": 1.13,
+        "gross": 6.03
+      },
+      {
+        "description": "OM Kultúrny dom: Distribúcia plynu – fixná mesačná platba (tarifa D3)",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 14.60,
+        "net": 14.60,
+        "vat_rate": 23,
+        "vat": 3.36,
+        "gross": 17.96
+      },
+      {
+        "description": "OM Kultúrny dom: Distribúcia plynu – variabilná zložka",
+        "quantity": 4380,
+        "unit": "kWh",
+        "unit_price": 0.01362,
+        "net": 59.66,
+        "vat_rate": 23,
+        "vat": 13.72,
+        "gross": 73.38
+      },
+      {
+        "description": "OM Kultúrny dom: Spotrebná daň zo zemného plynu",
+        "quantity": 4380,
+        "unit": "kWh",
+        "unit_price": 0.00132,
+        "net": 5.78,
+        "vat_rate": 23,
+        "vat": 1.33,
+        "gross": 7.11
+      }
+    ],
+    "free_text": [
+      "Súhrnná faktúra za dodávku a distribúciu plynu za obdobie 01.02.2026 – 28.02.2026",
+      "OM Obecný úrad, Boldog 135 – POD SKSPPDIS000410078341",
+      "OM Kultúrny dom, Boldog 61 – POD SKSPPDIS000410078352",
+      "Zmluvný účet: 6000234517",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/043/26",
+        "booking_date": "2026-03-05"
+      },
+      "posting": [
+        {
+          "md": "502 002",
+          "dal": "321 000",
+          "amount": 730.02,
+          "text": "plyn OcÚ 2/2026",
+          "stredisko": null,
+          "transfer": null
+        },
+        {
+          "md": "502 002",
+          "dal": "321 000",
+          "amount": 399.70,
+          "text": "plyn KD 2/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "632007 41 01 110 001",
+          "ek": "632007",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "001",
+          "amount": 730.02,
+          "text": "Plyn OU",
+          "stredisko": null,
+          "transfer": null
+        },
+        {
+          "key": "632007 41 08 200 002",
+          "ek": "632007",
+          "zdroj": "41",
+          "oddiel": "08",
+          "trieda": "200",
+          "analytika": "002",
+          "amount": 399.70,
+          "text": "KD plyn",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "energy",
+    "split"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Gas in 2026 goes to EK 632007 Plyn (amendment 22, in force since 15 Dec 2025), which the approved budget has per building; the older 632001 positions are the runner-up and are not used in 2026. Debit 502 002 Spotreba energie-plyn. One entry per supply point: the office on 632007 41 01 110 001 'Plyn OU', the cultural house on 632007 41 08 200 002 'KD plyn'; each entry is the gross of its supply point's lines."
+  ]
+}

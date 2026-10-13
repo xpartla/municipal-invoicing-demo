@@ -43,7 +43,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     code.add_argument("--json", action="store_true", help="print the full CodingProposal")
 
-    commands.add_parser("eval", help="evaluate the held-out set")
+    evaluation = commands.add_parser("eval", help="evaluate the held-out set")
+    evaluation.add_argument(
+        "--split",
+        choices=("heldout", "seed", "anchor"),
+        default="heldout",
+        help="cases to evaluate; seed and anchor cases are coded online (default heldout)",
+    )
+    evaluation.add_argument("--json", action="store_true", help="print the full EvalReport")
+    evaluation.add_argument("--all", action="store_true", help="list every case, not only misses")
+    evaluation.add_argument(
+        "--strict", action="store_true", help="exit with 1 when a target of section 9 is missed"
+    )
 
     args = parser.parse_args(argv)
     handlers: dict[str, Callable[[argparse.Namespace], int]] = {
@@ -198,17 +209,28 @@ def _summary(proposal: "CodingProposal") -> str:
 
 
 def _eval(args: argparse.Namespace) -> int:
-    from riso.dataset import load_cases
+    """Codes the split, prints the metrics and stores the report in var/<IČO>/, where
+    GET /api/eval finds it."""
     from riso.eval import evaluate
+    from riso.eval.report import render
+    from riso.store import StateStore
 
     try:
-        metrics = evaluate([c for c in load_cases() if c.split == "heldout"])
-    except NotImplementedError as exc:
+        report = evaluate(args.split)
+    except (LookupError, ValueError) as exc:
         print(f"riso eval: {exc}", file=sys.stderr)
         return 2
-    for name, value in metrics.items():
-        print(f"{name:32} {value:.3f}")
-    return 0
+    if not report.cases:
+        print(f"riso eval: no {args.split} cases", file=sys.stderr)
+        return 2
+    path = StateStore().save_eval(report)
+    if args.json:
+        print(report.model_dump_json(indent=2))
+    else:
+        print(render(report, all_cases=args.all))
+        print(f"\nwrote {_shown(path)}")
+    missed = [t for t in report.targets if not t.met]
+    return 1 if args.strict and missed else 0
 
 
 def _shown(path: Path) -> str:

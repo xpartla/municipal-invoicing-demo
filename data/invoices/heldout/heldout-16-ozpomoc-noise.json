@@ -1,0 +1,104 @@
+{
+  "id": "heldout-16-ozpomoc-noise",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-16-ozpomoc-noise",
+    "supplier": {
+      "name": "OZ Pomoc psíkom",
+      "ico": "52823832",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK02 1100 0000 0029 4511 2334",
+      "address": "Moyzesova 6065/4A, 90201 Pezinok, Slovensko",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "20261204",
+      "issue_date": "2026-09-01",
+      "delivery_date": "2026-08-31",
+      "due_date": "2026-09-15",
+      "variable_symbol": "20261204",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-14",
+      "number": "248"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 35.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Mesačný paušálny poplatok V zmysle zmluvy č. 2024116",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 35.00,
+        "gross": 35.00
+      }
+    ],
+    "free_text": [
+      "Fakturujeme Vám poskytnuté služby za obdobie: August",
+      "Poznámka: Nie sme platiteľmi DPH.",
+      "Forma úhrady: Bankový prevod"
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {
+        "supplier.ico": 0.45
+      }
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/248/26",
+        "booking_date": "2026-09-14"
+      },
+      "posting": [
+        {
+          "md": "518 001",
+          "dal": "321 000",
+          "amount": 35.00,
+          "text": "pomoc psíkom paušál",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637005 41 03 100 001",
+          "ek": "637005",
+          "zdroj": "41",
+          "oddiel": "03",
+          "trieda": "100",
+          "analytika": "001",
+          "amount": 35.00,
+          "text": "odchyt psov",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    },
+    "needs_review": true
+  },
+  "tags": [
+    "services",
+    "ocr-noise"
+  ],
+  "notes": [
+    "Supplier block as in anchor-dog-shelter (real civic association, IČO 52823831 from the RPO registry).",
+    "Coding as the precedent FD/222/26: 637005 41 03 100 001 'odchyt psov', 518 001.",
+    "OCR noise: the IČO was read as 52823832, which fails the mod-11 check digit. Name, address, IBAN and contract number match OZ Pomoc psíkom (52823831), so the accountant books it as usual and corrects the supplier."
+  ]
+}

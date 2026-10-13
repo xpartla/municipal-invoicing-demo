@@ -1,0 +1,95 @@
+{
+  "id": "heldout-04-vzorova-accounting",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-04-vzorova-accounting",
+    "supplier": {
+      "name": "Mária Vzorová",
+      "ico": "12345679",
+      "dic": null,
+      "ic_dph": null,
+      "iban": null,
+      "address": "Hlavná 1, 900 01 Modra",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "21/2026",
+      "issue_date": "2026-08-18",
+      "delivery_date": "2026-07-31",
+      "due_date": "2026-08-25",
+      "variable_symbol": null,
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-20",
+      "number": "228"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 700.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Fakturujem Vám v zmysle uzatvorenej Zmluvy o vedení účtovníctva - spracovanie účtovnej a rozpočtovej agendy za mesiac júl 2026",
+        "gross": 700.00
+      }
+    ],
+    "free_text": [
+      "Nie som platca DPH.",
+      "Forma úhrady: PP"
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/228/26",
+        "booking_date": "2026-08-20"
+      },
+      "posting": [
+        {
+          "md": "518 001",
+          "dal": "321 000",
+          "amount": 700.00,
+          "text": "spracovanie účt.a rozpočtovníctva 7/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637005 41 01 110 000",
+          "ek": "637005",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 700.00,
+          "text": "špeciálne služby -",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "services"
+  ],
+  "notes": [
+    "Made-up natural person, placeholder IČO; supplier block as in anchor-accounting.",
+    "Same supplier and purpose as the precedent FD/215/26 and anchor-accounting: 637005 41 01 110 000, 518 001 / 321 000, posting text with the month 7/2026."
+  ]
+}

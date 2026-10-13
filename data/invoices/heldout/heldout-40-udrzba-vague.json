@@ -1,0 +1,101 @@
+{
+  "id": "heldout-40-udrzba-vague",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-40-udrzba-vague",
+    "supplier": {
+      "name": "Martin Vzorný - stavebné a údržbárske práce",
+      "ico": "13579134",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK35 1100 0000 0029 1122 7765",
+      "address": "Nová 9, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/034",
+      "issue_date": "2026-10-06",
+      "delivery_date": "2026-10-02",
+      "due_date": "2026-10-20",
+      "variable_symbol": "2026034",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-09",
+      "number": "284"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 640.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Fakturujeme Vám práce podľa objednávky č. 34/2026.",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 640.00,
+        "gross": 640.00
+      }
+    ],
+    "free_text": [
+      "Nie som platiteľ DPH.",
+      "Forma úhrady: prevodom"
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/284/26",
+        "booking_date": "2026-10-09"
+      },
+      "posting": [
+        {
+          "md": "511 000",
+          "dal": "321 000",
+          "amount": 640.00,
+          "text": "údržba cintorína obj.34/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "635006 41 08 400 000",
+          "ek": "635006",
+          "zdroj": "41",
+          "oddiel": "08",
+          "trieda": "400",
+          "analytika": "000",
+          "amount": 640.00,
+          "text": "Údržba cintorínov",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    },
+    "needs_review": true
+  },
+  "tags": [
+    "services",
+    "ambiguous"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "The accountant knows from order 34/2026 that it was cleaning and upkeep of the cemetery: 635006 41 08 400 000 'Údržba cintorínov', debit 511 000. Runner-up 637004 41 01 110 000 'Všeobecné služby'.",
+    "Ambiguous: the invoice text names no object or kind of work; the coding cannot be derived from the invoice alone, so it needs review."
+  ]
+}

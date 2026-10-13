@@ -1,0 +1,134 @@
+{
+  "id": "seed-28-ramirent-plate",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-28-ramirent-plate",
+    "supplier": {
+      "name": "RAMIRENT spol. s r. o.",
+      "ico": "17321484",
+      "dic": "2020291021",
+      "ic_dph": "SK2020291021",
+      "iban": "SK10 1100 0000 0026 2711 9008",
+      "address": "Opletalova 65, 841 07 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "50261847",
+      "issue_date": "2026-05-15",
+      "delivery_date": "2026-05-13",
+      "due_date": "2026-05-29",
+      "variable_symbol": "50261847",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-05-19",
+      "number": "107"
+    },
+    "totals": {
+      "net": 156.14,
+      "vat": 35.92,
+      "gross": 192.06,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Vibračná doska 90 kg, benzínová – prenájom 11.05.2026 – 13.05.2026",
+        "quantity": 3,
+        "unit": "deň",
+        "unit_price": 32.00,
+        "net": 96.00,
+        "vat_rate": 23,
+        "vat": 22.08,
+        "gross": 118.08
+      },
+      {
+        "description": "Ramirent Safe – zníženie zodpovednosti za škodu",
+        "quantity": 3,
+        "unit": "deň",
+        "unit_price": 2.88,
+        "net": 8.64,
+        "vat_rate": 23,
+        "vat": 1.99,
+        "gross": 10.63
+      },
+      {
+        "description": "Doprava – dovoz a odvoz stroja",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 45.00,
+        "net": 45.00,
+        "vat_rate": 23,
+        "vat": 10.35,
+        "gross": 55.35
+      },
+      {
+        "description": "Palivo – doplnenie",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 6.50,
+        "net": 6.50,
+        "vat_rate": 23,
+        "vat": 1.50,
+        "gross": 8.00
+      }
+    ],
+    "free_text": [
+      "Nájomná zmluva č. 50-117742",
+      "Pobočka: Bratislava",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/107/26",
+        "booking_date": "2026-05-19"
+      },
+      "posting": [
+        {
+          "md": "518 000",
+          "dal": "321 000",
+          "amount": 192.06,
+          "text": "prenájom vibračnej dosky",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "636002 41 01 110 000",
+          "ek": "636002",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 192.06,
+          "text": "Nájomné za prenájom prevádz strojov",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "rent"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Machine rental: 636002 41 01 110 000 'Nájomné za prenájom prevádz strojov', the budget's general position for it; transport, waiver and fuel are part of the rental. Debit 518 000."
+  ]
+}

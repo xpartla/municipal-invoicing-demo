@@ -1,0 +1,175 @@
+{
+  "id": "seed-26-metro-mothers-day",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-26-metro-mothers-day",
+    "supplier": {
+      "name": "METRO Cash & Carry SR s. r. o.",
+      "ico": "45952671",
+      "dic": "2023165208",
+      "ic_dph": "SK2023165208",
+      "iban": "SK18 1100 0000 0029 2786 1154",
+      "address": "Senecká cesta 1881, 900 28 Ivanka pri Dunaji",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "112/0026/011834",
+      "issue_date": "2026-05-04",
+      "delivery_date": "2026-05-04",
+      "due_date": "2026-05-18",
+      "variable_symbol": "0026011834",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-05-05",
+      "number": "094"
+    },
+    "totals": {
+      "net": 207.18,
+      "vat": 44.15,
+      "gross": 251.33,
+      "vat_rates": [
+        19,
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Ruže rezané 50 cm, mix farieb",
+        "quantity": 40,
+        "unit": "ks",
+        "unit_price": 0.99,
+        "net": 39.60,
+        "vat_rate": 23,
+        "vat": 9.11,
+        "gross": 48.71
+      },
+      {
+        "description": "Minerálna voda jemne perlivá 1,5 l",
+        "quantity": 24,
+        "unit": "ks",
+        "unit_price": 0.45,
+        "net": 10.80,
+        "vat_rate": 23,
+        "vat": 2.48,
+        "gross": 13.28
+      },
+      {
+        "description": "Džús pomaranč 100 % 1 l",
+        "quantity": 12,
+        "unit": "ks",
+        "unit_price": 1.29,
+        "net": 15.48,
+        "vat_rate": 23,
+        "vat": 3.56,
+        "gross": 19.04
+      },
+      {
+        "description": "Šumivé víno demi-sec 0,75 l",
+        "quantity": 6,
+        "unit": "ks",
+        "unit_price": 5.49,
+        "net": 32.94,
+        "vat_rate": 23,
+        "vat": 7.58,
+        "gross": 40.52
+      },
+      {
+        "description": "Zákusky mix, tácka 20 ks",
+        "quantity": 4,
+        "unit": "ks",
+        "unit_price": 18.90,
+        "net": 75.60,
+        "vat_rate": 19,
+        "vat": 14.36,
+        "gross": 89.96
+      },
+      {
+        "description": "Slané tyčinky 200 g",
+        "quantity": 10,
+        "unit": "ks",
+        "unit_price": 1.19,
+        "net": 11.90,
+        "vat_rate": 19,
+        "vat": 2.26,
+        "gross": 14.16
+      },
+      {
+        "description": "Káva zrnková 1 kg",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 16.90,
+        "net": 16.90,
+        "vat_rate": 23,
+        "vat": 3.89,
+        "gross": 20.79
+      },
+      {
+        "description": "Servítky 3-vrstvové, 20 ks",
+        "quantity": 4,
+        "unit": "bal",
+        "unit_price": 0.99,
+        "net": 3.96,
+        "vat_rate": 23,
+        "vat": 0.91,
+        "gross": 4.87
+      }
+    ],
+    "free_text": [
+      "Číslo zákazníka: 41/005218",
+      "Faktúra je zároveň daňovým dokladom.",
+      "Poznámka rukou na doklade: Deň matiek"
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/094/26",
+        "booking_date": "2026-05-05"
+      },
+      "posting": [
+        {
+          "md": "513 000",
+          "dal": "321 000",
+          "amount": 251.33,
+          "text": "občerstvenie, kvety deň matiek",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633016 41 08 200 000",
+          "ek": "633016",
+          "zdroj": "41",
+          "oddiel": "08",
+          "trieda": "200",
+          "analytika": "000",
+          "amount": 251.33,
+          "text": "Deň matiek",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "events"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "The budget has a position for the event: 633016 41 08 200 000 'Deň matiek' (representation); flowers and refreshments are one entry. Debit 513 000 Náklady na reprezentáciu (runner-up 501 003). The event name is the mayor's handwritten note."
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "id": "seed-21-zse-credit-note",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-21-zse-credit-note",
+    "supplier": {
+      "name": "Západoslovenská energetika, a.s.",
+      "ico": "35823551",
+      "dic": "2020285512",
+      "ic_dph": "SK2020285512",
+      "iban": "SK38 1100 0000 0026 2410 5532",
+      "address": "Čulenova 6, 816 47 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "7201004418",
+      "issue_date": "2026-03-30",
+      "delivery_date": "2026-03-30",
+      "due_date": "2026-04-13",
+      "variable_symbol": "7201004418",
+      "currency": "EUR",
+      "document_type": "credit_note"
+    },
+    "handwritten": {
+      "date": "2026-04-02",
+      "number": "066"
+    },
+    "totals": {
+      "net": -42.49,
+      "vat": -9.78,
+      "gross": -52.27,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Silová elektrina – jednotarif (oprava)",
+        "quantity": -210,
+        "unit": "kWh",
+        "unit_price": 0.1389,
+        "net": -29.17,
+        "vat_rate": 23,
+        "vat": -6.71,
+        "gross": -35.88
+      },
+      {
+        "description": "Distribúcia – variabilná zložka (oprava)",
+        "quantity": -210,
+        "unit": "kWh",
+        "unit_price": 0.03104,
+        "net": -6.52,
+        "vat_rate": 23,
+        "vat": -1.50,
+        "gross": -8.02
+      },
+      {
+        "description": "Tarifa za prevádzkovanie systému (oprava)",
+        "quantity": -210,
+        "unit": "kWh",
+        "unit_price": 0.02018,
+        "net": -4.24,
+        "vat_rate": 23,
+        "vat": -0.98,
+        "gross": -5.22
+      },
+      {
+        "description": "Tarifa za systémové služby (oprava)",
+        "quantity": -210,
+        "unit": "kWh",
+        "unit_price": 0.00756,
+        "net": -1.59,
+        "vat_rate": 23,
+        "vat": -0.37,
+        "gross": -1.96
+      },
+      {
+        "description": "Odvod do Národného jadrového fondu (oprava)",
+        "quantity": -210,
+        "unit": "kWh",
+        "unit_price": 0.00327,
+        "net": -0.69,
+        "vat_rate": 23,
+        "vat": -0.16,
+        "gross": -0.85
+      },
+      {
+        "description": "Spotrebná daň z elektriny (oprava)",
+        "quantity": -210,
+        "unit": "kWh",
+        "unit_price": 0.00132,
+        "net": -0.28,
+        "vat_rate": 23,
+        "vat": -0.06,
+        "gross": -0.34
+      }
+    ],
+    "free_text": [
+      "Dobropis – opravný doklad k faktúre č. 7101934120 zo dňa 03.03.2026",
+      "Dôvod opravy: chybne zadaný stav meradla, opravený odpočet za obdobie 01.02.2026 – 28.02.2026",
+      "Odberné miesto: Obecný úrad, Boldog 135, EIC 24ZZS7010048213K",
+      "Preplatok Vám vrátime na účet do 14 dní.",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "manual_entry"
+  },
+  "tags": [
+    "energy",
+    "credit-note"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Credit note to an earlier office electricity invoice; the accountant enters credit notes by hand, so the expected outcome is manual entry with no coding."
+  ]
+}

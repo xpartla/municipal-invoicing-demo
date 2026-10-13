@@ -30,6 +30,10 @@ class DatasetCase(Contract):
     )
     invoice: InvoiceDocument
     expected: ExpectedOutcome
+    tags: list[Slug] = Field(
+        default_factory=list,
+        description="Family and edge-case tags for the per-tag metrics, from riso.dataset.TAGS",
+    )
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="after")

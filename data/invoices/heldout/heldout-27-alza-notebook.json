@@ -1,0 +1,115 @@
+{
+  "id": "heldout-27-alza-notebook",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-27-alza-notebook",
+    "supplier": {
+      "name": "Alza.sk s. r. o.",
+      "ico": "36562939",
+      "dic": "2022049129",
+      "ic_dph": "SK2022049129",
+      "iban": "SK63 1100 0000 0029 4412 8810",
+      "address": "Karadžičova 8, 821 08 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "1726088412",
+      "issue_date": "2026-09-25",
+      "delivery_date": "2026-09-25",
+      "due_date": "2026-10-09",
+      "variable_symbol": "1726088412",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-29",
+      "number": "264"
+    },
+    "totals": {
+      "net": 901.99,
+      "vat": 207.46,
+      "gross": 1109.45,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Notebook Lenovo ThinkPad E16 Gen 2 – Intel Core i5, 16 GB RAM, 512 GB SSD, Windows 11 Pro",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 889.00,
+        "net": 889.00,
+        "vat_rate": 23,
+        "vat": 204.47,
+        "gross": 1093.47
+      },
+      {
+        "description": "Bezdrôtová myš Logitech M185",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 12.99,
+        "net": 12.99,
+        "vat_rate": 23,
+        "vat": 2.99,
+        "gross": 15.98
+      }
+    ],
+    "free_text": [
+      "Číslo objednávky: 391877120",
+      "Spôsob platby: bankový prevod",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/264/26",
+        "booking_date": "2026-09-29"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 1109.45,
+          "text": "notebook OcÚ",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633002 41 01 110 000",
+          "ek": "633002",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 1109.45,
+          "text": "Výpočtová technika",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "materials",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "A notebook at 1 093,47 EUR is under the 1 700 EUR asset threshold, so a running cost: 633002 41 01 110 000 'Výpočtová technika', debit 501 003. Not the office supplies position of the seed Alza invoice; 713002 'Nákup výpočtovej techniky' would apply only above the threshold."
+  ]
+}

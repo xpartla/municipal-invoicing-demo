@@ -1,0 +1,104 @@
+{
+  "id": "seed-19-dashofer-seminar",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-19-dashofer-seminar",
+    "supplier": {
+      "name": "Verlag Dashöfer, vydavateľstvo, s.r.o.",
+      "ico": "35730129",
+      "dic": "2020218222",
+      "ic_dph": "SK2020218222",
+      "iban": "SK48 1100 0000 0026 2100 4471",
+      "address": "Železničiarska 13, 811 04 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2610322",
+      "issue_date": "2026-03-12",
+      "delivery_date": "2026-03-25",
+      "due_date": "2026-03-24",
+      "variable_symbol": "2610322",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-03-17",
+      "number": "053"
+    },
+    "totals": {
+      "net": 119.00,
+      "vat": 27.37,
+      "gross": 146.37,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Seminár Účtovná závierka obce za rok 2025 a rozpočet 2026 – účastnícky poplatok, 25.03.2026, Bratislava",
+        "quantity": 1,
+        "unit": "os.",
+        "unit_price": 119.00,
+        "net": 119.00,
+        "vat_rate": 23,
+        "vat": 27.37,
+        "gross": 146.37
+      }
+    ],
+    "free_text": [
+      "Prihláška č. 2026-SEM-0418",
+      "Počet účastníkov: 1",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/053/26",
+        "booking_date": "2026-03-17"
+      },
+      "posting": [
+        {
+          "md": "518 005",
+          "dal": "321 000",
+          "amount": 146.37,
+          "text": "seminár účt.závierka",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637001 41 01 110 000",
+          "ek": "637001",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 146.37,
+          "text": "Školenia, kurzy, semináre",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "training"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Seminar fee: 637001 41 01 110 000 'Školenia, kurzy, semináre'; debit 518 005 Ostatné služby-predplatné, školenia."
+  ]
+}

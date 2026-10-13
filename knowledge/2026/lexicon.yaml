@@ -87,7 +87,7 @@ concepts:
     ek: ["633013", "633018", "637040"]
     text: "softvér"
   it_services:
-    terms: ["it sluzb*", "sprav* siet*", "spravc* siet*"]
+    terms: ["it sluzb*", "sprav* siet*", "spravc* siet*", "informacn* system*"]
     ek: ["637040", "635002"]
     text: "IT služby"
   office_supplies:
@@ -99,11 +99,12 @@ concepts:
     ek: ["633006"]
     text: "čistiace potreby"
   material:
-    terms: ["material*", "naradi*", "farb*", "spojovac*"]
+    terms: ["material*", "naradi*", "farb*", "spojovac*", "didaktick*", "stavebnic*"]
     ek: ["633006"]
     text: "materiál"
   fuel:
-    terms: ["phm", "nafta", "nafty", "benzin*", "pohonn* hmot*", "palivo", "paliva", "mazivo", "maziva"]
+    terms: ["phm", "nafta", "nafty", "benzin*", "pohonn* hmot*", "palivo", "paliva", "mazivo", "maziva",
+      "palivov* kart*", "natural 95"]
     ek: ["634001"]
     text: "PHM"
   vehicle_repair:
@@ -123,6 +124,10 @@ concepts:
     terms: ["poisteni*", "poistn*", "poistk*", "pzp", "havarijn*"]
     ek: ["637015", "634003"]
     text: "poistenie"
+  vehicle_insurance:
+    terms: ["povinn* zmluvn* poisten*", "pzp", "havarijn* poisten*"]
+    ek: ["634003"]
+    text: "PZP"
   meal_vouchers:
     terms: ["stravn* listk*", "stravovac* poukaz*", "stravenk*", "gastro*"]
     ek: ["637014"]

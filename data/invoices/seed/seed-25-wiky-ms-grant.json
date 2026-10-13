@@ -1,0 +1,165 @@
+{
+  "id": "seed-25-wiky-ms-grant",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-25-wiky-ms-grant",
+    "supplier": {
+      "name": "WIKY, s.r.o.",
+      "ico": "35795531",
+      "dic": "2020254005",
+      "ic_dph": "SK2020254005",
+      "iban": "SK90 0900 0000 0001 8834 5521",
+      "address": "Bratislavská 905, 900 45 Malinovo",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026100587",
+      "issue_date": "2026-04-23",
+      "delivery_date": "2026-04-22",
+      "due_date": "2026-05-07",
+      "variable_symbol": "2026100587",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-04-28",
+      "number": "088"
+    },
+    "totals": {
+      "net": 752.10,
+      "vat": 172.98,
+      "gross": 925.08,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Montessori didaktická sada – geometrické tvary",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 64.90,
+        "net": 129.80,
+        "vat_rate": 23,
+        "vat": 29.85,
+        "gross": 159.65
+      },
+      {
+        "description": "Drevená stavebnica, 100 dielov",
+        "quantity": 3,
+        "unit": "ks",
+        "unit_price": 39.90,
+        "net": 119.70,
+        "vat_rate": 23,
+        "vat": 27.53,
+        "gross": 147.23
+      },
+      {
+        "description": "Kinetický piesok 5 kg",
+        "quantity": 4,
+        "unit": "ks",
+        "unit_price": 24.90,
+        "net": 99.60,
+        "vat_rate": 23,
+        "vat": 22.91,
+        "gross": 122.51
+      },
+      {
+        "description": "Súprava detských hudobných nástrojov (Orffov inštrumentár)",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 89.90,
+        "net": 179.80,
+        "vat_rate": 23,
+        "vat": 41.35,
+        "gross": 221.15
+      },
+      {
+        "description": "Magnetická tabuľa s písmenami a číslicami",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 74.90,
+        "net": 74.90,
+        "vat_rate": 23,
+        "vat": 17.23,
+        "gross": 92.13
+      },
+      {
+        "description": "Podlahové puzzle – zvieratká",
+        "quantity": 4,
+        "unit": "ks",
+        "unit_price": 19.90,
+        "net": 79.60,
+        "vat_rate": 23,
+        "vat": 18.31,
+        "gross": 97.91
+      },
+      {
+        "description": "Edukačná hra – počítanie do 20",
+        "quantity": 3,
+        "unit": "ks",
+        "unit_price": 22.90,
+        "net": 68.70,
+        "vat_rate": 23,
+        "vat": 15.80,
+        "gross": 84.50
+      }
+    ],
+    "free_text": [
+      "Objednávateľ: Obec Boldog – Materská škola Boldog",
+      "Projekt „Učíme sa hrou v MŠ Boldog“ – financované z dotácie Bratislavského samosprávneho kraja (Bratislavská regionálna dotačná schéma 2026), Zmluva o poskytnutí dotácie č. 2026/BRDS/0412",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/088/26",
+        "booking_date": "2026-04-28"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 925.08,
+          "text": "didakt.pomôcky MŠ - dotácia BSK",
+          "stredisko": null,
+          "transfer": "312008 11H 000"
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 11H 09 111 004",
+          "ek": "633006",
+          "zdroj": "11H",
+          "oddiel": "09",
+          "trieda": "111",
+          "analytika": "004",
+          "amount": 925.08,
+          "text": "MŠ - materiál",
+          "stredisko": null,
+          "transfer": "312008 11H 000"
+        }
+      ]
+    }
+  },
+  "tags": [
+    "kindergarten",
+    "grant"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "BSK grants run on zdroj 11H in this budget; the kindergarten material position is 633006 11H 09 111 004 'MŠ - materiál'. Transfer 312008 11H 000 'BSK' (current transfer from the region); runner-up 312001 11H 012 'Rekonštrukcia strechy na MŠ BSK', which is the roof grant. Debit 501 003."
+  ]
+}

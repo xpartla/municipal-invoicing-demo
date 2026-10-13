@@ -1,0 +1,101 @@
+{
+  "id": "heldout-21-allianz-vehicle",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-21-allianz-vehicle",
+    "supplier": {
+      "name": "Allianz - Slovenská poisťovňa, a.s.",
+      "ico": "00151700",
+      "dic": "2020374659",
+      "ic_dph": "SK2020374659",
+      "iban": "SK73 0900 0000 0000 1166 0533",
+      "address": "Pribinova 19, 811 09 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026477812",
+      "issue_date": "2026-09-15",
+      "delivery_date": null,
+      "due_date": "2026-10-01",
+      "variable_symbol": "8044129931",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-21",
+      "number": "255"
+    },
+    "totals": {
+      "net": 62.30,
+      "vat": 0.00,
+      "gross": 62.30,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Povinné zmluvné poistenie motorového vozidla – malotraktor, EČV SC778YB, poistné obdobie 01.10.2026 – 30.09.2027",
+        "quantity": 1,
+        "unit": "rok",
+        "unit_price": 62.30,
+        "net": 62.30,
+        "vat": 0.00,
+        "gross": 62.30
+      }
+    ],
+    "free_text": [
+      "Poistná zmluva č. 8044129931",
+      "Poistné je oslobodené od dane podľa § 37 zákona č. 222/2004 Z. z. o DPH.",
+      "Poistné obsahuje odvod z poistného podľa zákona č. 213/2018 Z. z."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/255/26",
+        "booking_date": "2026-09-21"
+      },
+      "posting": [
+        {
+          "md": "548 003",
+          "dal": "321 000",
+          "amount": 62.30,
+          "text": "PZP malotraktor 2026/2027",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "634003 41 01 110 000",
+          "ek": "634003",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 62.30,
+          "text": "Poistenie",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "insurance"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Vehicle insurance as the seed Kooperativa PZP: 634003 41 01 110 000 'Poistenie', debit 548 003. Runner-up 637015 41 03 200 000 'PO poistenie majetku a PZP', which is for the fire brigade."
+  ]
+}

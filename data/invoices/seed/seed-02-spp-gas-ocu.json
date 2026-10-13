@@ -1,0 +1,147 @@
+{
+  "id": "seed-02-spp-gas-ocu",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-02-spp-gas-ocu",
+    "supplier": {
+      "name": "Slovenský plynárenský priemysel, a.s.",
+      "ico": "35815256",
+      "dic": "2020317068",
+      "ic_dph": "SK2020317068",
+      "iban": "SK47 0900 0000 0001 7612 4588",
+      "address": "Mlynské nivy 44/a, 825 11 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "1101546873",
+      "issue_date": "2026-01-07",
+      "delivery_date": "2025-12-31",
+      "due_date": "2026-01-21",
+      "variable_symbol": "1101546873",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-01-12",
+      "number": "007"
+    },
+    "totals": {
+      "net": 715.55,
+      "vat": 164.58,
+      "gross": 880.13,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Zemný plyn – odobraté množstvo",
+        "quantity": 9870,
+        "unit": "kWh",
+        "unit_price": 0.0548,
+        "net": 540.88,
+        "vat_rate": 23,
+        "vat": 124.40,
+        "gross": 665.28
+      },
+      {
+        "description": "Fixná mesačná platba za odberné miesto",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 4.90,
+        "net": 4.90,
+        "vat_rate": 23,
+        "vat": 1.13,
+        "gross": 6.03
+      },
+      {
+        "description": "Distribúcia plynu – fixná mesačná platba (tarifa D4)",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 22.31,
+        "net": 22.31,
+        "vat_rate": 23,
+        "vat": 5.13,
+        "gross": 27.44
+      },
+      {
+        "description": "Distribúcia plynu – variabilná zložka",
+        "quantity": 9870,
+        "unit": "kWh",
+        "unit_price": 0.01362,
+        "net": 134.43,
+        "vat_rate": 23,
+        "vat": 30.92,
+        "gross": 165.35
+      },
+      {
+        "description": "Spotrebná daň zo zemného plynu",
+        "quantity": 9870,
+        "unit": "kWh",
+        "unit_price": 0.00132,
+        "net": 13.03,
+        "vat_rate": 23,
+        "vat": 3.00,
+        "gross": 16.03
+      }
+    ],
+    "free_text": [
+      "Faktúra za dodávku plynu a distribúciu plynu za obdobie 01.12.2025 – 31.12.2025",
+      "Odberné miesto: Obecný úrad, Boldog 135",
+      "POD: SKSPPDIS000410078341",
+      "Zmluvný účet: 6000234517",
+      "Distribúciu zabezpečuje SPP - distribúcia, a.s.",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/007/26",
+        "booking_date": "2026-01-12"
+      },
+      "posting": [
+        {
+          "md": "502 002",
+          "dal": "321 000",
+          "amount": 880.13,
+          "text": "plyn OcÚ 12/2025",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "632007 41 01 110 001",
+          "ek": "632007",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "001",
+          "amount": 880.13,
+          "text": "Plyn OU",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "energy"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Gas in 2026 goes to EK 632007 Plyn (amendment 22, in force since 15 Dec 2025), which the approved budget has per building; the older 632001 positions are the runner-up and are not used in 2026. Debit 502 002 Spotreba energie-plyn. The office has its own gas position, 632007 41 01 110 001 'Plyn OU'; the odd 632002 'plyn' positions (EK of water) are not used."
+  ]
+}

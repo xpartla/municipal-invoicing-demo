@@ -1,0 +1,138 @@
+{
+  "id": "seed-17-posta-postage",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-17-posta-postage",
+    "supplier": {
+      "name": "Slovenská pošta, a.s.",
+      "ico": "36631124",
+      "dic": "2021782473",
+      "ic_dph": "SK2021782473",
+      "iban": "SK83 0200 0000 0012 3456 7890",
+      "address": "Partizánska cesta 9, 975 99 Banská Bystrica",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "5126003318",
+      "issue_date": "2026-03-04",
+      "delivery_date": "2026-02-28",
+      "due_date": "2026-03-18",
+      "variable_symbol": "5126003318",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-03-10",
+      "number": "047"
+    },
+    "totals": {
+      "net": 242.20,
+      "vat": 0.00,
+      "gross": 242.20,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Doporučený list 1. trieda do 50 g",
+        "quantity": 34,
+        "unit": "ks",
+        "unit_price": 2.60,
+        "net": 88.40,
+        "vat": 0.00,
+        "gross": 88.40
+      },
+      {
+        "description": "Doporučený list 2. trieda do 50 g",
+        "quantity": 41,
+        "unit": "ks",
+        "unit_price": 2.30,
+        "net": 94.30,
+        "vat": 0.00,
+        "gross": 94.30
+      },
+      {
+        "description": "Úradná zásielka 1. trieda – do vlastných rúk",
+        "quantity": 12,
+        "unit": "ks",
+        "unit_price": 3.30,
+        "net": 39.60,
+        "vat": 0.00,
+        "gross": 39.60
+      },
+      {
+        "description": "Doporučený list do zahraničia do 50 g",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 6.10,
+        "net": 6.10,
+        "vat": 0.00,
+        "gross": 6.10
+      },
+      {
+        "description": "Balík – doručenie na adresu do 5 kg",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 6.90,
+        "net": 13.80,
+        "vat": 0.00,
+        "gross": 13.80
+      }
+    ],
+    "free_text": [
+      "Poštovné úverované za obdobie 02/2026",
+      "Zmluva o podaní poštových zásielok č. 512/2019/BA",
+      "Podacia pošta: 903 01 Senec 1",
+      "Plnenie je oslobodené od dane podľa § 29 zákona č. 222/2004 Z. z. o DPH."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/047/26",
+        "booking_date": "2026-03-10"
+      },
+      "posting": [
+        {
+          "md": "518 003",
+          "dal": "321 000",
+          "amount": 242.20,
+          "text": "poštovné 2/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "632003 41 01 110 000",
+          "ek": "632003",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 242.20,
+          "text": "Poštové a telekomunikačné služby",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "post"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Postage: 632003 41 01 110 000 'Poštové a telekomunikačné služby' (its twin 632003 41 01 110 001 'telefon,fax' is for phones); debit 518 003."
+  ]
+}

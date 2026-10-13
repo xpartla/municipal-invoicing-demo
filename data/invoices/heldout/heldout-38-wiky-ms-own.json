@@ -1,0 +1,144 @@
+{
+  "id": "heldout-38-wiky-ms-own",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-38-wiky-ms-own",
+    "supplier": {
+      "name": "WIKY, s.r.o.",
+      "ico": "35795531",
+      "dic": "2020254005",
+      "ic_dph": "SK2020254005",
+      "iban": "SK90 0900 0000 0001 8834 5521",
+      "address": "Bratislavská 905, 900 45 Malinovo",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026102214",
+      "issue_date": "2026-10-05",
+      "delivery_date": "2026-10-02",
+      "due_date": "2026-10-19",
+      "variable_symbol": "2026102214",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-08",
+      "number": "281"
+    },
+    "totals": {
+      "net": 302.90,
+      "vat": 69.66,
+      "gross": 372.56,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "LEGO DUPLO Veľký box s kockami",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 54.90,
+        "net": 109.80,
+        "vat_rate": 23,
+        "vat": 25.25,
+        "gross": 135.05
+      },
+      {
+        "description": "Handrová bábika 40 cm",
+        "quantity": 3,
+        "unit": "ks",
+        "unit_price": 14.90,
+        "net": 44.70,
+        "vat_rate": 23,
+        "vat": 10.28,
+        "gross": 54.98
+      },
+      {
+        "description": "Nákladné auto s vyklápačkou, veľké",
+        "quantity": 3,
+        "unit": "ks",
+        "unit_price": 12.90,
+        "net": 38.70,
+        "vat_rate": 23,
+        "vat": 8.90,
+        "gross": 47.60
+      },
+      {
+        "description": "Drevená detská kuchynka",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 89.90,
+        "net": 89.90,
+        "vat_rate": 23,
+        "vat": 20.68,
+        "gross": 110.58
+      },
+      {
+        "description": "Sada detských riadíkov",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 9.90,
+        "net": 19.80,
+        "vat_rate": 23,
+        "vat": 4.55,
+        "gross": 24.35
+      }
+    ],
+    "free_text": [
+      "Objednávateľ: Obec Boldog – Materská škola Boldog",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/281/26",
+        "booking_date": "2026-10-08"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 372.56,
+          "text": "hračky MŠ",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 41 09 111 006",
+          "ek": "633006",
+          "zdroj": "41",
+          "oddiel": "09",
+          "trieda": "111",
+          "analytika": "006",
+          "amount": 372.56,
+          "text": "mš z režie",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "kindergarten",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Toys for the kindergarten from own funds, no grant named: 633006 41 09 111 006 'mš z režie', the budget's own-funds material position for the kindergarten, not the BSK grant position of the seed WIKY invoice. Close call: 633006 111 09 111 001 'MŠ - materiál' (state transfer). Debit 501 003."
+  ]
+}

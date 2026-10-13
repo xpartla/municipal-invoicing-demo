@@ -1,0 +1,104 @@
+{
+  "id": "seed-06-deus-dcom",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-06-deus-dcom",
+    "supplier": {
+      "name": "DataCentrum elektronizácie územnej samosprávy Slovenska",
+      "ico": "45736359",
+      "dic": "2023110523",
+      "ic_dph": "SK2023110523",
+      "iban": "SK05 8180 0000 0070 0055 1023",
+      "address": "Námestie Mateja Korvína 1, 811 07 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "FV2026/0218",
+      "issue_date": "2026-01-15",
+      "delivery_date": "2026-01-15",
+      "due_date": "2026-02-14",
+      "variable_symbol": "20260218",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-01-22",
+      "number": "016"
+    },
+    "totals": {
+      "net": 216.00,
+      "vat": 49.68,
+      "gross": 265.68,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Ročný poplatok za poskytovanie služieb informačného systému DCOM na rok 2026 – obec do 1 000 obyvateľov",
+        "quantity": 1,
+        "unit": "rok",
+        "unit_price": 216.00,
+        "net": 216.00,
+        "vat_rate": 23,
+        "vat": 49.68,
+        "gross": 265.68
+      }
+    ],
+    "free_text": [
+      "Zmluva o poskytovaní služieb DCOM č. DCOM/2017/1234",
+      "Obdobie: 01.01.2026 – 31.12.2026",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/016/26",
+        "booking_date": "2026-01-22"
+      },
+      "posting": [
+        {
+          "md": "518 002",
+          "dal": "321 000",
+          "amount": 265.68,
+          "text": "poplatok DCOM 2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637040 41 01 110 000",
+          "ek": "637040",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 265.68,
+          "text": "Služby v oblasti informačno-komunikačných technológií",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "it"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "DCOM is a hosted e-government service: 637040 41 01 110 000 'Služby v oblasti informačno-komunikačných technológií'; runner-up 633018 41 01 110 000 'Licencie soft'. Debit 518 002 Ostatné služby-softwer."
+  ]
+}

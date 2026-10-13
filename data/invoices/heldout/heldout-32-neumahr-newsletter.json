@@ -1,0 +1,103 @@
+{
+  "id": "heldout-32-neumahr-newsletter",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-32-neumahr-newsletter",
+    "supplier": {
+      "name": "NEUMAHR TLAČIAREŇ, s r.o.",
+      "ico": "35714131",
+      "dic": "2020274575",
+      "ic_dph": "SK2020274575",
+      "iban": "SK52 1100 0000 0026 2390 1145",
+      "address": "Polianky 5952/15A, 841 01 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "26-1418",
+      "issue_date": "2026-09-30",
+      "delivery_date": "2026-09-30",
+      "due_date": "2026-10-14",
+      "variable_symbol": "261418",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-05",
+      "number": "272"
+    },
+    "totals": {
+      "net": 436.00,
+      "vat": 100.28,
+      "gross": 536.28,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Tlač – obecné noviny „Boldog o nás“, jeseň 2026, A4, 16 strán, 4/4, väzba V1",
+        "quantity": 350,
+        "unit": "ks",
+        "unit_price": 1.2457,
+        "net": 436.00,
+        "vat_rate": 23,
+        "vat": 100.28,
+        "gross": 536.28
+      }
+    ],
+    "free_text": [
+      "Objednávka č. 38/2026",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/272/26",
+        "booking_date": "2026-10-05"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 536.28,
+          "text": "tlač Boldog o nás jeseň 2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 41 04 600 000",
+          "ek": "633006",
+          "zdroj": "41",
+          "oddiel": "04",
+          "trieda": "600",
+          "analytika": "000",
+          "amount": 536.28,
+          "text": "Časopis Boldog o nás",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "materials"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "The newsletter has its own position, 633006 41 04 600 000 'Časopis Boldog o nás'; runner-up 633006 41 01 110 006 'tlačivá,tlač.služby'. Debit 501 003 (runner-up 518 000 for printing as a service)."
+  ]
+}

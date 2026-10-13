@@ -1,0 +1,162 @@
+{
+  "id": "heldout-13-o2-ocu-ms",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-13-o2-ocu-ms",
+    "supplier": {
+      "name": "O2 Slovakia, s.r.o.",
+      "ico": "47259116",
+      "dic": "2024004425",
+      "ic_dph": "SK2024004425",
+      "iban": "SK51 0900 0000 0050 2416 0921",
+      "address": "Pribinova 40, 811 09 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "1408827751",
+      "issue_date": "2026-09-04",
+      "delivery_date": "2026-08-31",
+      "due_date": "2026-09-18",
+      "variable_symbol": "1408827751",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-09",
+      "number": "243"
+    },
+    "totals": {
+      "net": 76.28,
+      "vat": 17.55,
+      "gross": 93.83,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Obecný úrad – O2 Biznis paušál, 3 SIM – mesačné poplatky",
+        "quantity": 3,
+        "unit": "SIM",
+        "unit_price": 14.99,
+        "net": 44.97,
+        "vat_rate": 23,
+        "vat": 10.34,
+        "gross": 55.31
+      },
+      {
+        "description": "Obecný úrad – hovory, SMS a dáta nad rámec paušálu",
+        "net": 5.18,
+        "vat_rate": 23,
+        "vat": 1.19,
+        "gross": 6.37
+      },
+      {
+        "description": "Materská škola – O2 Biznis linka (pevná sieť) – mesačný poplatok",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 9.90,
+        "net": 9.90,
+        "vat_rate": 23,
+        "vat": 2.28,
+        "gross": 12.18
+      },
+      {
+        "description": "Materská škola – O2 Biznis paušál, 1 SIM – mesačný poplatok",
+        "quantity": 1,
+        "unit": "SIM",
+        "unit_price": 14.99,
+        "net": 14.99,
+        "vat_rate": 23,
+        "vat": 3.45,
+        "gross": 18.44
+      },
+      {
+        "description": "Materská škola – hovory nad rámec paušálu",
+        "net": 1.24,
+        "vat_rate": 23,
+        "vat": 0.29,
+        "gross": 1.53
+      }
+    ],
+    "free_text": [
+      "Vyúčtovanie za obdobie 01.08.2026 – 31.08.2026",
+      "Zákaznícke číslo: 1.00458821",
+      "Účet 1: Obec Boldog – Obecný úrad; Účet 2: Obec Boldog – Materská škola",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/243/26",
+        "booking_date": "2026-09-09"
+      },
+      "posting": [
+        {
+          "md": "518 003",
+          "dal": "321 000",
+          "amount": 61.68,
+          "text": "tel.poplatky OcÚ 8/2026",
+          "stredisko": null,
+          "transfer": null
+        },
+        {
+          "md": "518 003",
+          "dal": "321 000",
+          "amount": 32.15,
+          "text": "tel.poplatky MŠ 8/2026",
+          "stredisko": null,
+          "transfer": "312001 111 010"
+        }
+      ],
+      "budget": [
+        {
+          "key": "632005 41 01 110 000",
+          "ek": "632005",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 61.68,
+          "text": "telefon,fax",
+          "stredisko": null,
+          "transfer": null
+        },
+        {
+          "key": "632005 111 09 111 000",
+          "ek": "632005",
+          "zdroj": "111",
+          "oddiel": "09",
+          "trieda": "111",
+          "analytika": "000",
+          "amount": 32.15,
+          "text": "telefon,fax",
+          "stredisko": null,
+          "transfer": "312001 111 010"
+        }
+      ]
+    }
+  },
+  "tags": [
+    "telecom",
+    "kindergarten",
+    "split"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "One entry per building. Office: 632005 41 01 110 000 'telefon,fax'. Kindergarten: 632005 111 09 111 000 'telefon,fax' rather than the older 632003 41 09 111 000 'MŠ - telefon' (runner-up), following the accountant's use of 632005 for phone fees. Debit 518 003 for both.",
+    "The approved budget holds the kindergarten's energy only under zdroj 111, and its phone and supplies mainly there, i.e. paid from the state transfer for the kindergarten; transfer 312001 111 010 'mš predškoláci' (runner-up 312012 111 001 'PK MŠ')."
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "id": "heldout-03-securitas-village-day",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-03-securitas-village-day",
+    "supplier": {
+      "name": "SECURITAS SK s. r. o.",
+      "ico": "36768073",
+      "dic": "2022380651",
+      "ic_dph": "SK2022380651",
+      "iban": "SK45 1100 0000 0026 2730 2219",
+      "address": "Mlynské nivy 49, 821 09 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2600871245",
+      "issue_date": "2026-08-14",
+      "delivery_date": "2026-08-08",
+      "due_date": "2026-08-28",
+      "variable_symbol": "2600871245",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-19",
+      "number": "226"
+    },
+    "totals": {
+      "net": 630.00,
+      "vat": 144.90,
+      "gross": 774.90,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Zabezpečenie bezpečnostnej služby – podujatie Deň obce Boldog, 08.08.2026 (4 pracovníci SBS)",
+        "quantity": 36,
+        "unit": "hod",
+        "unit_price": 17.50,
+        "net": 630.00,
+        "vat_rate": 23,
+        "vat": 144.90,
+        "gross": 774.90
+      }
+    ],
+    "free_text": [
+      "Objednávka č. 28/2026",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/226/26",
+        "booking_date": "2026-08-19"
+      },
+      "posting": [
+        {
+          "md": "518 000",
+          "dal": "321 000",
+          "amount": 774.90,
+          "text": "bezpečnostná služba deň obce",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637005 41 03 100 000",
+          "ek": "637005",
+          "zdroj": "41",
+          "oddiel": "03",
+          "trieda": "100",
+          "analytika": "000",
+          "amount": 774.90,
+          "text": "Bezpečnostná služba",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "events"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Security services have a dedicated position, 637005 41 03 100 000 'Bezpečnostná služba' (EK 637005 special services). Close call with 637003 41 01 110 001 'Deň obce', where the stage and sound of the same event go. Debit 518 000."
+  ]
+}

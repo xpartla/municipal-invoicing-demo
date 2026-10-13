@@ -6,10 +6,19 @@ from decimal import Decimal
 
 import pytest
 
-from riso.contracts import CodingProposal, Feedback, InvoiceDocument, SupplierMemory
+from riso.contracts import (
+    BudgetLine,
+    Coding,
+    CodingProposal,
+    DocumentRef,
+    Feedback,
+    InvoiceDocument,
+    PostingLine,
+    SupplierMemory,
+)
 from riso.dataset import load_cases
 from riso.engine import code_invoice
-from riso.engine.s8_feedback import apply_feedback
+from riso.engine.s8_feedback import add_precedent, apply_feedback
 from riso.eval import coded_lines
 from riso.knowledge import load_knowledge
 from riso.reference import ReferenceIndex
@@ -181,10 +190,10 @@ def test_entries_naming_different_buildings_are_split(setting):
 
     proposal = code(telecom, setting)
 
-    assert coded_lines(proposal.posting, proposal.budget) == [
-        ("632005 41 01 110 000", "518 003", "321 000"),
-        ("632003 41 09 111 000", "518 003", "321 000"),
-    ]
+    ocu, ms = coded_lines(proposal.posting, proposal.budget)
+    assert ocu == ("632005 41 01 110 000", "518 003", "321 000")
+    # The kindergarten has two telephone positions; either is the accountant's call.
+    assert ms[0] in ("632003 41 09 111 000", "632005 111 09 111 000")
     assert [line.amount for line in proposal.budget] == [Decimal("50.00"), Decimal("43.71")]
     assert proposal.needs_review
     assert "split per invoice entry into 2 lines" in proposal.review_reasons
@@ -316,3 +325,101 @@ def test_a_counter_number_moves_the_counter(setting):
     )
 
     assert counters.last_used["FD/2026"] == 223
+
+
+# Behaviour added in M2, each found on a seed case of the dataset.
+
+
+def test_entries_of_different_kinds_stay_on_one_line(setting):
+    cleaning = invoice(
+        "cleaning",
+        [
+            ("Toaletný papier 2-vrstvový, 8 ks", "20.00"),
+            ("Tekuté mydlo antibakteriálne 5 l", "15.00"),
+            ("Vrecia na odpad 120 l, 25 ks", "10.00"),
+        ],
+        supplier="Veľkoobchod Vzor, s.r.o.",
+    )
+
+    proposal = code(cleaning, setting)
+
+    # One bag of bin liners does not make the invoice one about waste management.
+    assert len(proposal.budget) == 1
+    assert (proposal.budget[0].oddiel, proposal.budget[0].trieda) == ("01", "110")
+
+
+def test_kindergarten_energy_takes_the_only_source_the_budget_has(setting):
+    def power(case_id: str, place: str):
+        return invoice(
+            case_id,
+            [
+                ("Silová elektrina – jednotarif", "80.00"),
+                ("Distribúcia – variabilná zložka", "20.00"),
+            ],
+            supplier="Západoslovenská energetika, a.s.",
+            ico="35823551",
+            vat_payer=True,
+            free_text=(f"Odberné miesto: {place}, Boldog",),
+        )
+
+    kindergarten = code(power("power-ms", "Materská škola"), setting)
+    office = code(power("power-ocu", "Obecný úrad"), setting)
+
+    assert kindergarten.budget[0].key == "632006 111 09 111 000"  # MŠ energy is state-funded
+    # Many transfers carry zdroj 111 and none names energy, so the accountant picks one.
+    assert kindergarten.needs_review
+    assert any("expects a transfer" in reason for reason in kindergarten.review_reasons)
+    # 'MŠ - elekt.energia' names a building the office's invoice does not.
+    assert office.budget[0].key == "632006 41 01 110 000"
+
+
+def test_a_position_named_in_full_outweighs_a_building_word(setting):
+    road = invoice(
+        "road",
+        [("Spevnenie príjazdovej cesty na Szilvášok – podkladné vrstvy", "12000.00")],
+        supplier="Stavby Vzor, s.r.o.",
+        free_text=("1. čiastková faktúra za stavbu Spevnenie príjazdovej cesty na Szilvášok",),
+    )
+
+    proposal = code(road, setting)
+
+    # 'cesty' names roads (04 510), but the budget has this construction under 01 110.
+    assert coded_lines(proposal.posting, proposal.budget) == [
+        ("717001 41 01 110 016", "042 012", "321 000")
+    ]
+
+
+def test_a_precedent_yields_to_a_position_the_invoice_names(setting):
+    memory = add_precedent(
+        setting["memory"],
+        ico=NEW_SUPPLIER,
+        name="Vzor, s.r.o.",
+        coding=Coding(
+            document=DocumentRef(
+                series="FD", number="FD/029/26", booking_date=dt.date(2026, 2, 10)
+            ),
+            posting=[PostingLine(md="501 002", dal="321 000", amount=Decimal("107.59"), text="x")],
+            budget=[
+                BudgetLine(
+                    key="633006 41 01 110 003",
+                    ek="633006",
+                    zdroj="41",
+                    oddiel="01",
+                    trieda="110",
+                    analytika="003",
+                    amount=Decimal("107.59"),
+                    text="čistiace potreby",
+                )
+            ],
+        ),
+        variable_symbol="1",
+    )
+    refreshments = invoice(
+        "refreshments",
+        [("Minerálna voda 1,5 l", "12.00"), ("Zákusky mix, tácka", "48.00")],
+        free_text=("Poznámka rukou na doklade: Deň matiek",),
+    )
+
+    proposal = code(refreshments, setting, memory=memory)
+
+    assert proposal.budget[0].key == "633016 41 08 200 000"

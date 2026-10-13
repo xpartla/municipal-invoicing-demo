@@ -1,0 +1,104 @@
+{
+  "id": "heldout-29-mountfield-mower",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-29-mountfield-mower",
+    "supplier": {
+      "name": "Mountfield SK, s.r.o.",
+      "ico": "36377147",
+      "dic": "2022129330",
+      "ic_dph": "SK2022129330",
+      "iban": "SK26 0200 0000 0021 0988 4757",
+      "address": "Kollárova 85, 036 01 Martin",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026FV05518",
+      "issue_date": "2026-09-28",
+      "delivery_date": "2026-09-28",
+      "due_date": "2026-10-12",
+      "variable_symbol": "202605518",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-01",
+      "number": "268"
+    },
+    "totals": {
+      "net": 2859.35,
+      "vat": 657.65,
+      "gross": 3517.00,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Záhradný traktor Mountfield MTF 108H – motor 656 cm³, záber 108 cm, hydrostatická prevodovka",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 2859.35,
+        "net": 2859.35,
+        "vat_rate": 23,
+        "vat": 657.65,
+        "gross": 3517.00
+      }
+    ],
+    "free_text": [
+      "Výrobné číslo: 2T2610H0418",
+      "Záruka 24 mesiacov",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/268/26",
+        "booking_date": "2026-10-01"
+      },
+      "posting": [
+        {
+          "md": "042 000",
+          "dal": "321 000",
+          "amount": 3517.00,
+          "text": "záhradný traktor - kosačka",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "714004 41 01 110 000",
+          "ek": "714004",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 3517.00,
+          "text": "Nákup žacieho stroja",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "capital"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "A ride-on mower at 3 517 EUR is above the 1 700 EUR threshold, so capital: the budget's 714004 41 01 110 000 'Nákup žacieho stroja' and acquisition account 042 000 (no project AU for it; 042 010 is the malotraktor). Runner-up 713004 41 01 110 000."
+  ]
+}

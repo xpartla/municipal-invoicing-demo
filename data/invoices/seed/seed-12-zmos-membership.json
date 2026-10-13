@@ -1,0 +1,98 @@
+{
+  "id": "seed-12-zmos-membership",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-12-zmos-membership",
+    "supplier": {
+      "name": "Združenie miest a obcí Slovenska",
+      "ico": "00584614",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK14 0200 0000 0000 1023 4012",
+      "address": "Bezručova 9, 811 09 Bratislava"
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/0612",
+      "issue_date": "2026-02-02",
+      "delivery_date": null,
+      "due_date": "2026-03-31",
+      "variable_symbol": "00305863",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-02-12",
+      "number": "031"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 61.20,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Členský príspevok ZMOS na rok 2026 – 612 obyvateľov × 0,10 €",
+        "quantity": 612,
+        "unit": "obyv.",
+        "unit_price": 0.10,
+        "gross": 61.20
+      }
+    ],
+    "free_text": [
+      "Členský príspevok podľa uznesenia Snemu ZMOS.",
+      "Členský príspevok nie je predmetom DPH.",
+      "Variabilný symbol: IČO obce"
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/031/26",
+        "booking_date": "2026-02-12"
+      },
+      "posting": [
+        {
+          "md": "548 002",
+          "dal": "321 000",
+          "amount": 61.20,
+          "text": "členský príspevok ZMOS 2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "642006 41 01 110 000",
+          "ek": "642006",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 61.20,
+          "text": "Transfery na členské príspevky",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "membership"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; IBAN made up. The membership invoice prints no VAT data.",
+    "A membership fee is a transfer: 642006 41 01 110 000 'Transfery na členské príspevky'; debit 548 002 Ostatné náklady na prevádzkovú činnosť-členské."
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "id": "seed-18-alza-toner",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-18-alza-toner",
+    "supplier": {
+      "name": "Alza.sk s. r. o.",
+      "ico": "36562939",
+      "dic": "2022049129",
+      "ic_dph": "SK2022049129",
+      "iban": "SK63 1100 0000 0029 4412 8810",
+      "address": "Karadžičova 8, 821 08 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "1726014473",
+      "issue_date": "2026-03-09",
+      "delivery_date": "2026-03-09",
+      "due_date": "2026-03-23",
+      "variable_symbol": "1726014473",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-03-12",
+      "number": "049"
+    },
+    "totals": {
+      "net": 261.58,
+      "vat": 60.17,
+      "gross": 321.75,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "HP 59A čierny (CF259A) – originálny toner",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 98.90,
+        "net": 197.80,
+        "vat_rate": 23,
+        "vat": 45.49,
+        "gross": 243.29
+      },
+      {
+        "description": "Kancelársky papier A4 80 g/m², 500 listov, bal. 5 ks",
+        "quantity": 2,
+        "unit": "bal",
+        "unit_price": 17.49,
+        "net": 34.98,
+        "vat_rate": 23,
+        "vat": 8.05,
+        "gross": 43.03
+      },
+      {
+        "description": "Zošívačka Leitz 5502",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 14.90,
+        "net": 14.90,
+        "vat_rate": 23,
+        "vat": 3.43,
+        "gross": 18.33
+      },
+      {
+        "description": "Gélové perá Pilot G-2, modré, 12 ks",
+        "quantity": 1,
+        "unit": "bal",
+        "unit_price": 13.90,
+        "net": 13.90,
+        "vat_rate": 23,
+        "vat": 3.20,
+        "gross": 17.10
+      }
+    ],
+    "free_text": [
+      "Číslo objednávky: 391244781",
+      "Spôsob platby: bankový prevod",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/049/26",
+        "booking_date": "2026-03-12"
+      },
+      "posting": [
+        {
+          "md": "501 002",
+          "dal": "321 000",
+          "amount": 321.75,
+          "text": "tonery, kanc.potreby",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 41 01 110 001",
+          "ek": "633006",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "001",
+          "amount": 321.75,
+          "text": "Kancelárske potreby",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "materials"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Toner and small office items are office supplies: 633006 41 01 110 001 'Kancelárske potreby', one entry (runner-up 633006 41 01 110 005 'papier' for the paper, not split). Debit 501 002."
+  ]
+}

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from riso.contracts.context import EntityContext
 from riso.contracts.dataset import DatasetCase
+from riso.contracts.eval import EvalReport
 from riso.contracts.feedback import Feedback
 from riso.contracts.invoice import InvoiceDocument
 from riso.contracts.proposal import CodeRequest, CodingProposal
@@ -24,6 +25,7 @@ SCHEMAS: dict[str, type[BaseModel]] = {
     "dataset-case": DatasetCase,
     "supplier-memory": SupplierMemory,
     "counters": Counters,
+    "eval-report": EvalReport,
 }
 
 

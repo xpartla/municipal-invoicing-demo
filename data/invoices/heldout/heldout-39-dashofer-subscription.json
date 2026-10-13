@@ -1,0 +1,104 @@
+{
+  "id": "heldout-39-dashofer-subscription",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-39-dashofer-subscription",
+    "supplier": {
+      "name": "Verlag Dashöfer, vydavateľstvo, s.r.o.",
+      "ico": "35730129",
+      "dic": "2020218222",
+      "ic_dph": "SK2020218222",
+      "iban": "SK48 1100 0000 0026 2100 4471",
+      "address": "Železničiarska 13, 811 04 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2610988",
+      "issue_date": "2026-10-02",
+      "delivery_date": "2026-10-02",
+      "due_date": "2026-10-16",
+      "variable_symbol": "2610988",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-08",
+      "number": "282"
+    },
+    "totals": {
+      "net": 109.00,
+      "vat": 5.45,
+      "gross": 114.45,
+      "vat_rates": [
+        5
+      ]
+    },
+    "lines": [
+      {
+        "description": "Ročné predplatné odborného časopisu Samospráva v praxi, tlačená verzia, 12 čísel, obdobie 11/2026 – 10/2027",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 109.00,
+        "net": 109.00,
+        "vat_rate": 5,
+        "vat": 5.45,
+        "gross": 114.45
+      }
+    ],
+    "free_text": [
+      "Číslo predplatiteľa: 300412",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/282/26",
+        "booking_date": "2026-10-08"
+      },
+      "posting": [
+        {
+          "md": "518 005",
+          "dal": "321 000",
+          "amount": 114.45,
+          "text": "predplatné časopisu 2026/2027",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633009 41 01 110 000",
+          "ek": "633009",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 114.45,
+          "text": "Knihy, časopisy, noviny, učebnice",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "training",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "A journal subscription is EK 633009 'Knihy, časopisy, noviny, učebnice', not the seminar position 637001 of the seed Dashöfer invoice; debit 518 005 Ostatné služby-predplatné, školenia (runner-up 501 003)."
+  ]
+}

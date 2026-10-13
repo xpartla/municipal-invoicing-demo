@@ -10,10 +10,19 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from riso import __version__, paths
-from riso.contracts import CodeRequest, CodingProposal, Feedback, InvoiceDocument, ReferenceBundle
+from riso.contracts import (
+    CodeRequest,
+    CodingProposal,
+    EvalReport,
+    Feedback,
+    InvoiceDocument,
+    ReferenceBundle,
+)
 from riso.contracts.base import Amount
+from riso.contracts.eval import Split
 from riso.dataset import load_cases
 from riso.engine import code_invoice
+from riso.eval import evaluate
 from riso.knowledge import UnknownKnowledge, load_knowledge
 from riso.reference import LocalReferenceSource, UnknownEntity
 from riso.store import StateStore
@@ -119,8 +128,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         raise HTTPException(501, "The feedback store is built in M3")
 
     @app.get("/api/eval")
-    def evaluation() -> None:
-        raise HTTPException(501, "The evaluation is built in M2")
+    def evaluation(
+        entity: str = "00305863", split: Split = "heldout", refresh: bool = False
+    ) -> EvalReport:
+        """The latest report of `riso eval`; runs the evaluation when there is none yet, or
+        when asked to refresh it."""
+        report = None if refresh else state.eval_report(entity, split)
+        if report is None:
+            try:
+                report = evaluate(
+                    split,
+                    entity=entity,
+                    invoices_dir=settings.invoices_dir,
+                    initial_dir=settings.initial_state_dir,
+                    source=references,
+                )
+            except (UnknownEntity, UnknownKnowledge, FileNotFoundError) as exc:
+                raise HTTPException(404, str(exc)) from exc
+            state.save_eval(report)
+        return report
 
     app.mount("/", StaticFiles(directory=settings.web_dir, html=True), name="web")
     return app

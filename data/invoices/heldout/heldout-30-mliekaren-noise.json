@@ -1,0 +1,149 @@
+{
+  "id": "heldout-30-mliekaren-noise",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-30-mliekaren-noise",
+    "supplier": {
+      "name": "Tatranská mliekareň a.s.",
+      "ico": "31654363",
+      "dic": "2020428106",
+      "ic_dph": "SK2020428106",
+      "iban": "SK21 0200 0000 0000 0844 1532",
+      "address": "Nad traťou 26, 060 01 Kežmarok",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2600899412",
+      "issue_date": "2026-09-29",
+      "delivery_date": "2026-09-28",
+      "due_date": "2026-10-13",
+      "variable_symbol": "2600899412",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-01",
+      "number": null
+    },
+    "totals": {
+      "net": 124.84,
+      "vat": 6.25,
+      "gross": 131.09,
+      "vat_rates": [
+        5
+      ]
+    },
+    "lines": [
+      {
+        "description": "Mlieko polotučné 1,5 % 1 l",
+        "quantity": 50,
+        "unit": "ks",
+        "unit_price": 0.89,
+        "net": 44.50,
+        "vat_rate": 5,
+        "vat": 2.23,
+        "gross": 46.73
+      },
+      {
+        "description": "Jogurt biely 3 % 150 g",
+        "quantity": 100,
+        "unit": "ks",
+        "unit_price": 0.32,
+        "net": 32.00,
+        "vat_rate": 5,
+        "vat": 1.60,
+        "gross": 33.60
+      },
+      {
+        "description": "Maslo 82 % 250 g",
+        "quantity": 8,
+        "unit": "ks",
+        "unit_price": 2.39,
+        "net": 19.12,
+        "vat_rate": 5,
+        "vat": 0.96,
+        "gross": 20.08
+      },
+      {
+        "description": "Tvaroh hrudkovitý polotučný 250 g",
+        "quantity": 12,
+        "unit": "ks",
+        "unit_price": 1.19,
+        "net": 14.28,
+        "vat_rate": 5,
+        "vat": 0.71,
+        "gross": 14.99
+      },
+      {
+        "description": "Smotana na varenie 12 % 1 l",
+        "quantity": 6,
+        "unit": "ks",
+        "unit_price": 2.49,
+        "net": 14.94,
+        "vat_rate": 5,
+        "vat": 0.75,
+        "gross": 15.69
+      }
+    ],
+    "free_text": [
+      "Miesto dodania: Školská jedáleň, Boldog",
+      "Dodacie listy č. 0926-1874, 0926-2011",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {
+        "handwritten.number": 0.15
+      }
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FDŠJ",
+        "number": null,
+        "booking_date": "2026-10-01"
+      },
+      "posting": [
+        {
+          "md": "501 080",
+          "dal": "321 080",
+          "amount": 131.09,
+          "text": "mliečne výrobky ŠJ",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633011 72f 09 601 008",
+          "ek": "633011",
+          "zdroj": "72f",
+          "oddiel": "09",
+          "trieda": "601",
+          "analytika": "008",
+          "amount": 131.09,
+          "text": "Popl. za potraviny",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    },
+    "needs_review": true
+  },
+  "tags": [
+    "canteen",
+    "ocr-noise"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Canteen food by the accountant's rule: series FDŠJ, 501 080 / 321 080, 633011 72f 09 601 008 'Popl. za potraviny', no transfer for 72f. The budget also has 633011 72f 09 601 098 with the same description; 008 vs 098 is an open question for the accountant, 008 is used per her rule.",
+    "OCR noise: the handwritten FDŠJ number is unreadable (null, confidence 0.15), so the expected document number is null; the accountant assigns the number by hand."
+  ]
+}

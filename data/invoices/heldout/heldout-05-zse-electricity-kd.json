@@ -1,0 +1,167 @@
+{
+  "id": "heldout-05-zse-electricity-kd",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-05-zse-electricity-kd",
+    "supplier": {
+      "name": "Západoslovenská energetika, a.s.",
+      "ico": "35823551",
+      "dic": "2020285512",
+      "ic_dph": "SK2020285512",
+      "iban": "SK38 1100 0000 0026 2410 5532",
+      "address": "Čulenova 6, 816 47 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "7102214478",
+      "issue_date": "2026-08-19",
+      "delivery_date": "2026-07-31",
+      "due_date": "2026-09-02",
+      "variable_symbol": "7102214478",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-24",
+      "number": "230"
+    },
+    "totals": {
+      "net": 86.07,
+      "vat": 19.80,
+      "gross": 105.87,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Silová elektrina – jednotarif",
+        "quantity": 380,
+        "unit": "kWh",
+        "unit_price": 0.1389,
+        "net": 52.78,
+        "vat_rate": 23,
+        "vat": 12.14,
+        "gross": 64.92
+      },
+      {
+        "description": "Distribúcia – mesačná platba za rezervovanú kapacitu",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 9.21,
+        "net": 9.21,
+        "vat_rate": 23,
+        "vat": 2.12,
+        "gross": 11.33
+      },
+      {
+        "description": "Distribúcia – variabilná zložka",
+        "quantity": 380,
+        "unit": "kWh",
+        "unit_price": 0.03104,
+        "net": 11.80,
+        "vat_rate": 23,
+        "vat": 2.71,
+        "gross": 14.51
+      },
+      {
+        "description": "Tarifa za prevádzkovanie systému",
+        "quantity": 380,
+        "unit": "kWh",
+        "unit_price": 0.02018,
+        "net": 7.67,
+        "vat_rate": 23,
+        "vat": 1.76,
+        "gross": 9.43
+      },
+      {
+        "description": "Tarifa za systémové služby",
+        "quantity": 380,
+        "unit": "kWh",
+        "unit_price": 0.00756,
+        "net": 2.87,
+        "vat_rate": 23,
+        "vat": 0.66,
+        "gross": 3.53
+      },
+      {
+        "description": "Odvod do Národného jadrového fondu",
+        "quantity": 380,
+        "unit": "kWh",
+        "unit_price": 0.00327,
+        "net": 1.24,
+        "vat_rate": 23,
+        "vat": 0.29,
+        "gross": 1.53
+      },
+      {
+        "description": "Spotrebná daň z elektriny",
+        "quantity": 380,
+        "unit": "kWh",
+        "unit_price": 0.00132,
+        "net": 0.50,
+        "vat_rate": 23,
+        "vat": 0.12,
+        "gross": 0.62
+      }
+    ],
+    "free_text": [
+      "Faktúra – vyúčtovanie dodávky elektriny za obdobie 01.07.2026 – 31.07.2026",
+      "Odberné miesto: Kultúrny dom, Boldog 61",
+      "EIC: 24ZZS7010048248B",
+      "Zákaznícke číslo: 5100388214, číslo zmluvy: 9000412581",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/230/26",
+        "booking_date": "2026-08-24"
+      },
+      "posting": [
+        {
+          "md": "502 001",
+          "dal": "321 000",
+          "amount": 105.87,
+          "text": "el.energia KD 7/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "632006 41 08 200 002",
+          "ek": "632006",
+          "zdroj": "41",
+          "oddiel": "08",
+          "trieda": "200",
+          "analytika": "002",
+          "amount": 105.87,
+          "text": "KD el.energia",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "energy",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Electricity in 2026 goes to EK 632006 Elektrina (amendment 22 of the economic classification, in force since 15 Dec 2025), for which the approved budget has positions per building; the older 632001 'Energie' positions are the runner-up and are not used in 2026. Debit 502 001 Spotreba energie-el.energia. The supply point is the cultural house: 632006 41 08 200 002 'KD el.energia', not the office position of the seed ZSE invoices."
+  ]
+}

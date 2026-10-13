@@ -1,0 +1,102 @@
+{
+  "id": "heldout-28-kooperativa-property",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-28-kooperativa-property",
+    "supplier": {
+      "name": "KOOPERATIVA poisťovňa, a.s. Vienna Insurance Group",
+      "ico": "00585441",
+      "dic": "2020527300",
+      "ic_dph": "SK2020527300",
+      "iban": "SK86 0200 0000 0000 0410 2512",
+      "address": "Mlynské nivy 7816/16, 821 09 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2610218874",
+      "issue_date": "2026-09-22",
+      "delivery_date": null,
+      "due_date": "2026-10-15",
+      "variable_symbol": "6512004471",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-30",
+      "number": "266"
+    },
+    "totals": {
+      "net": 1184.60,
+      "vat": 0.00,
+      "gross": 1184.60,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Poistenie majetku obce – budovy a hnuteľný majetok (obecný úrad, kultúrny dom, materská škola, dom smútku), poistné obdobie 01.10.2026 – 30.09.2027",
+        "quantity": 1,
+        "unit": "rok",
+        "unit_price": 1184.60,
+        "net": 1184.60,
+        "vat": 0.00,
+        "gross": 1184.60
+      }
+    ],
+    "free_text": [
+      "Poistná zmluva č. 6512004471 – Poistenie majetku obcí",
+      "Poistné je oslobodené od dane podľa § 37 zákona č. 222/2004 Z. z. o DPH.",
+      "Poistné obsahuje odvod z poistného podľa zákona č. 213/2018 Z. z."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/266/26",
+        "booking_date": "2026-09-30"
+      },
+      "posting": [
+        {
+          "md": "548 003",
+          "dal": "321 000",
+          "amount": 1184.60,
+          "text": "poistenie majetku 2026/2027",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637015 41 01 110 000",
+          "ek": "637015",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 1184.60,
+          "text": "Poistné",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "insurance",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Property insurance: 637015 41 01 110 000 'Poistné', not the vehicle position 634003 of the seed Kooperativa PZP; debit 548 003. One entry covers all buildings, so it is not split."
+  ]
+}

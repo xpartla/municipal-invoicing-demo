@@ -1,0 +1,165 @@
+{
+  "id": "heldout-07-hornbach-kd",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-07-hornbach-kd",
+    "supplier": {
+      "name": "HORNBACH - Baumarkt SK spol. s r.o.",
+      "ico": "35838949",
+      "dic": "2020224976",
+      "ic_dph": "SK2020224976",
+      "iban": "SK24 1111 0000 0066 1288 4003",
+      "address": "Galvaniho 9, 821 04 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026-418-019944",
+      "issue_date": "2026-08-24",
+      "delivery_date": "2026-08-24",
+      "due_date": "2026-09-07",
+      "variable_symbol": "6418019944",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-27",
+      "number": "233"
+    },
+    "totals": {
+      "net": 327.97,
+      "vat": 75.45,
+      "gross": 403.42,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Interiérová farba Primalex Plus biela 15 l",
+        "quantity": 3,
+        "unit": "ks",
+        "unit_price": 39.90,
+        "net": 119.70,
+        "vat_rate": 23,
+        "vat": 27.53,
+        "gross": 147.23
+      },
+      {
+        "description": "Sadrová omietka Knauf Rotband 30 kg",
+        "quantity": 4,
+        "unit": "ks",
+        "unit_price": 13.49,
+        "net": 53.96,
+        "vat_rate": 23,
+        "vat": 12.41,
+        "gross": 66.37
+      },
+      {
+        "description": "Penetračný náter Ceresit CT 17, 5 l",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 16.99,
+        "net": 33.98,
+        "vat_rate": 23,
+        "vat": 7.82,
+        "gross": 41.80
+      },
+      {
+        "description": "LED žiarovka E27 10 W teplá biela, bal. 3 ks",
+        "quantity": 6,
+        "unit": "bal",
+        "unit_price": 8.99,
+        "net": 53.94,
+        "vat_rate": 23,
+        "vat": 12.41,
+        "gross": 66.35
+      },
+      {
+        "description": "LED trubica T8 120 cm 18 W",
+        "quantity": 6,
+        "unit": "ks",
+        "unit_price": 6.49,
+        "net": 38.94,
+        "vat_rate": 23,
+        "vat": 8.96,
+        "gross": 47.90
+      },
+      {
+        "description": "Maliarsky valček 25 cm s mriežkou",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 9.99,
+        "net": 19.98,
+        "vat_rate": 23,
+        "vat": 4.60,
+        "gross": 24.58
+      },
+      {
+        "description": "Zakrývacia fólia 4 × 5 m",
+        "quantity": 3,
+        "unit": "ks",
+        "unit_price": 2.49,
+        "net": 7.47,
+        "vat_rate": 23,
+        "vat": 1.72,
+        "gross": 9.19
+      }
+    ],
+    "free_text": [
+      "Profi karta č. 7004 1188 2231",
+      "Text zákazníka: KD Boldog",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/233/26",
+        "booking_date": "2026-08-27"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 403.42,
+          "text": "materiál KD",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 41 08 200 001",
+          "ek": "633006",
+          "zdroj": "41",
+          "oddiel": "08",
+          "trieda": "200",
+          "analytika": "001",
+          "amount": 403.42,
+          "text": "KD materiál",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "materials",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Material for the cultural house: 633006 41 08 200 001 'KD materiál', not the cemetery position of the seed Hornbach invoice. Runner-up 635006 41 08 200 000 'KD údržba' if treated as repair material. Debit 501 003."
+  ]
+}

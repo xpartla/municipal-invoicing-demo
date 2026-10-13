@@ -789,6 +789,15 @@
     "expected": {
       "$ref": "#/$defs/ExpectedOutcome"
     },
+    "tags": {
+      "description": "Family and edge-case tags for the per-tag metrics, from riso.dataset.TAGS",
+      "items": {
+        "pattern": "^[a-z0-9][a-z0-9-]*$",
+        "type": "string"
+      },
+      "title": "Tags",
+      "type": "array"
+    },
     "notes": {
       "items": {
         "type": "string"

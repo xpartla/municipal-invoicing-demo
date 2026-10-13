@@ -1,0 +1,166 @@
+{
+  "id": "heldout-14-kaufland-ms-cleaning",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-14-kaufland-ms-cleaning",
+    "supplier": {
+      "name": "Kaufland Slovenská republika v.o.s.",
+      "ico": "35790164",
+      "dic": "2020234216",
+      "ic_dph": "SK2020234216",
+      "iban": "SK57 0900 0000 0001 9988 2231",
+      "address": "Trnavská cesta 41/A, 831 04 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026-0712-004418",
+      "issue_date": "2026-09-07",
+      "delivery_date": "2026-09-07",
+      "due_date": "2026-09-21",
+      "variable_symbol": "0712004418",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-10",
+      "number": "245"
+    },
+    "totals": {
+      "net": 85.40,
+      "vat": 19.65,
+      "gross": 105.05,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Toaletný papier 3-vrstvový, 16 ks",
+        "quantity": 4,
+        "unit": "bal",
+        "unit_price": 6.99,
+        "net": 27.96,
+        "vat_rate": 23,
+        "vat": 6.43,
+        "gross": 34.39
+      },
+      {
+        "description": "Papierové kuchynské utierky, 2 ks",
+        "quantity": 6,
+        "unit": "bal",
+        "unit_price": 1.99,
+        "net": 11.94,
+        "vat_rate": 23,
+        "vat": 2.75,
+        "gross": 14.69
+      },
+      {
+        "description": "Tekuté mydlo s pumpičkou 1 l",
+        "quantity": 6,
+        "unit": "ks",
+        "unit_price": 1.49,
+        "net": 8.94,
+        "vat_rate": 23,
+        "vat": 2.06,
+        "gross": 11.00
+      },
+      {
+        "description": "SAVO dezinfekcia na povrchy 750 ml",
+        "quantity": 6,
+        "unit": "ks",
+        "unit_price": 2.29,
+        "net": 13.74,
+        "vat_rate": 23,
+        "vat": 3.16,
+        "gross": 16.90
+      },
+      {
+        "description": "Prostriedok na umývanie riadu 1 l",
+        "quantity": 4,
+        "unit": "ks",
+        "unit_price": 1.19,
+        "net": 4.76,
+        "vat_rate": 23,
+        "vat": 1.09,
+        "gross": 5.85
+      },
+      {
+        "description": "Vlhčené utierky, 72 ks",
+        "quantity": 10,
+        "unit": "bal",
+        "unit_price": 1.09,
+        "net": 10.90,
+        "vat_rate": 23,
+        "vat": 2.51,
+        "gross": 13.41
+      },
+      {
+        "description": "Vrecia na odpad 60 l, 20 ks",
+        "quantity": 4,
+        "unit": "bal",
+        "unit_price": 1.79,
+        "net": 7.16,
+        "vat_rate": 23,
+        "vat": 1.65,
+        "gross": 8.81
+      }
+    ],
+    "free_text": [
+      "Faktúra k pokladničnému dokladu č. 0712/2026/88124",
+      "Poznámka: Materská škola Boldog",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/245/26",
+        "booking_date": "2026-09-10"
+      },
+      "posting": [
+        {
+          "md": "501 002",
+          "dal": "321 000",
+          "amount": 105.05,
+          "text": "čistiace potreby MŠ",
+          "stredisko": null,
+          "transfer": "312001 111 010"
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 111 09 111 002",
+          "ek": "633006",
+          "zdroj": "111",
+          "oddiel": "09",
+          "trieda": "111",
+          "analytika": "002",
+          "amount": 105.05,
+          "text": "MŠ - čistiace potreby",
+          "stredisko": null,
+          "transfer": "312001 111 010"
+        }
+      ]
+    }
+  },
+  "tags": [
+    "materials",
+    "kindergarten"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Cleaning supplies for the kindergarten: 633006 111 09 111 002 'MŠ - čistiace potreby', debit 501 002. Close call: the own-funds position 633006 41 09 111 001 'mš čist.potreby' also exists; no own funds are named, so the kindergarten's running costs go on the state transfer like its energy and phone.",
+    "The approved budget holds the kindergarten's energy only under zdroj 111, and its phone and supplies mainly there, i.e. paid from the state transfer for the kindergarten; transfer 312001 111 010 'mš predškoláci' (runner-up 312012 111 001 'PK MŠ')."
+  ]
+}

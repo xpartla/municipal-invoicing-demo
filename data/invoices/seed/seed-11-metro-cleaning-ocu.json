@@ -1,0 +1,164 @@
+{
+  "id": "seed-11-metro-cleaning-ocu",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-11-metro-cleaning-ocu",
+    "supplier": {
+      "name": "METRO Cash & Carry SR s. r. o.",
+      "ico": "45952671",
+      "dic": "2023165208",
+      "ic_dph": "SK2023165208",
+      "iban": "SK18 1100 0000 0029 2786 1154",
+      "address": "Senecká cesta 1881, 900 28 Ivanka pri Dunaji",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "112/0026/004471",
+      "issue_date": "2026-02-06",
+      "delivery_date": "2026-02-06",
+      "due_date": "2026-02-20",
+      "variable_symbol": "0026004471",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-02-10",
+      "number": "029"
+    },
+    "totals": {
+      "net": 87.47,
+      "vat": 20.12,
+      "gross": 107.59,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "TORK toaletný papier 2-vrstvový, 8 ks",
+        "quantity": 3,
+        "unit": "bal",
+        "unit_price": 5.49,
+        "net": 16.47,
+        "vat_rate": 23,
+        "vat": 3.79,
+        "gross": 20.26
+      },
+      {
+        "description": "Papierové utierky ZZ skladané, 4 000 ks",
+        "quantity": 1,
+        "unit": "kart",
+        "unit_price": 21.90,
+        "net": 21.90,
+        "vat_rate": 23,
+        "vat": 5.04,
+        "gross": 26.94
+      },
+      {
+        "description": "JAR prostriedok na riad 5 l",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 12.49,
+        "net": 12.49,
+        "vat_rate": 23,
+        "vat": 2.87,
+        "gross": 15.36
+      },
+      {
+        "description": "SAVO Original 1 l",
+        "quantity": 4,
+        "unit": "ks",
+        "unit_price": 1.89,
+        "net": 7.56,
+        "vat_rate": 23,
+        "vat": 1.74,
+        "gross": 9.30
+      },
+      {
+        "description": "Tekuté mydlo antibakteriálne 5 l",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 7.99,
+        "net": 15.98,
+        "vat_rate": 23,
+        "vat": 3.68,
+        "gross": 19.66
+      },
+      {
+        "description": "Vrecia na odpad 120 l, 25 ks",
+        "quantity": 2,
+        "unit": "bal",
+        "unit_price": 3.29,
+        "net": 6.58,
+        "vat_rate": 23,
+        "vat": 1.51,
+        "gross": 8.09
+      },
+      {
+        "description": "Utierky z mikrovlákna, 10 ks",
+        "quantity": 1,
+        "unit": "bal",
+        "unit_price": 6.49,
+        "net": 6.49,
+        "vat_rate": 23,
+        "vat": 1.49,
+        "gross": 7.98
+      }
+    ],
+    "free_text": [
+      "Číslo zákazníka: 41/005218",
+      "Platba: bankovým prevodom",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/029/26",
+        "booking_date": "2026-02-10"
+      },
+      "posting": [
+        {
+          "md": "501 002",
+          "dal": "321 000",
+          "amount": 107.59,
+          "text": "čistiace potreby OcÚ",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 41 01 110 003",
+          "ek": "633006",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "003",
+          "amount": 107.59,
+          "text": "čistiace potreby",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "materials"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Cleaning supplies of the office: 633006 41 01 110 003 'čistiace potreby', debit 501 002 Spotreba materiálu-kanc.čistiace potreby."
+  ]
+}

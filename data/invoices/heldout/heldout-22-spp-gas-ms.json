@@ -1,0 +1,149 @@
+{
+  "id": "heldout-22-spp-gas-ms",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-22-spp-gas-ms",
+    "supplier": {
+      "name": "Slovenský plynárenský priemysel, a.s.",
+      "ico": "35815256",
+      "dic": "2020317068",
+      "ic_dph": "SK2020317068",
+      "iban": "SK47 0900 0000 0001 7612 4588",
+      "address": "Mlynské nivy 44/a, 825 11 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "1101988214",
+      "issue_date": "2026-09-17",
+      "delivery_date": "2026-08-31",
+      "due_date": "2026-10-01",
+      "variable_symbol": "1101988214",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-22",
+      "number": "256"
+    },
+    "totals": {
+      "net": 97.61,
+      "vat": 22.46,
+      "gross": 120.07,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Zemný plyn – odobraté množstvo",
+        "quantity": 1120,
+        "unit": "kWh",
+        "unit_price": 0.0548,
+        "net": 61.38,
+        "vat_rate": 23,
+        "vat": 14.12,
+        "gross": 75.50
+      },
+      {
+        "description": "Fixná mesačná platba za odberné miesto",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 4.90,
+        "net": 4.90,
+        "vat_rate": 23,
+        "vat": 1.13,
+        "gross": 6.03
+      },
+      {
+        "description": "Distribúcia plynu – fixná mesačná platba (tarifa D3)",
+        "quantity": 1,
+        "unit": "mes.",
+        "unit_price": 14.60,
+        "net": 14.60,
+        "vat_rate": 23,
+        "vat": 3.36,
+        "gross": 17.96
+      },
+      {
+        "description": "Distribúcia plynu – variabilná zložka",
+        "quantity": 1120,
+        "unit": "kWh",
+        "unit_price": 0.01362,
+        "net": 15.25,
+        "vat_rate": 23,
+        "vat": 3.51,
+        "gross": 18.76
+      },
+      {
+        "description": "Spotrebná daň zo zemného plynu",
+        "quantity": 1120,
+        "unit": "kWh",
+        "unit_price": 0.00132,
+        "net": 1.48,
+        "vat_rate": 23,
+        "vat": 0.34,
+        "gross": 1.82
+      }
+    ],
+    "free_text": [
+      "Faktúra za dodávku plynu a distribúciu plynu za obdobie 01.08.2026 – 31.08.2026",
+      "Odberné miesto: Materská škola, Boldog 120",
+      "POD: SKSPPDIS000410078369",
+      "Zmluvný účet: 6000234517",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/256/26",
+        "booking_date": "2026-09-22"
+      },
+      "posting": [
+        {
+          "md": "502 002",
+          "dal": "321 000",
+          "amount": 120.07,
+          "text": "plyn MŠ 8/2026",
+          "stredisko": null,
+          "transfer": "312001 111 010"
+        }
+      ],
+      "budget": [
+        {
+          "key": "632007 111 09 111 004",
+          "ek": "632007",
+          "zdroj": "111",
+          "oddiel": "09",
+          "trieda": "111",
+          "analytika": "004",
+          "amount": 120.07,
+          "text": "MŠ - plyn",
+          "stredisko": null,
+          "transfer": "312001 111 010"
+        }
+      ]
+    }
+  },
+  "tags": [
+    "energy",
+    "kindergarten",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Gas in 2026 goes to EK 632007 Plyn (amendment 22, in force since 15 Dec 2025), which the approved budget has per building; the older 632001 positions are the runner-up and are not used in 2026. Debit 502 002 Spotreba energie-plyn. The supply point is the kindergarten: 632007 111 09 111 004 'MŠ - plyn', not the office position of the seed SPP invoices.",
+    "The approved budget holds the kindergarten's energy only under zdroj 111, and its phone and supplies mainly there, i.e. paid from the state transfer for the kindergarten; transfer 312001 111 010 'mš predškoláci' (runner-up 312012 111 001 'PK MŠ')."
+  ]
+}

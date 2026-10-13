@@ -1,0 +1,126 @@
+{
+  "id": "heldout-15-elektrikar-vo",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-15-elektrikar-vo",
+    "supplier": {
+      "name": "Michal Vzorový - ELEKTRO",
+      "ico": "67890121",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK08 0900 0000 0050 7766 1123",
+      "address": "Šafárikova 8, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/031",
+      "issue_date": "2026-09-08",
+      "delivery_date": "2026-09-05",
+      "due_date": "2026-09-22",
+      "variable_symbol": "2026031",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-11",
+      "number": "246"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 820.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Výmena svietidla verejného osvetlenia za LED 40 W vrátane materiálu (stĺpy č. 12, 17, 23)",
+        "quantity": 3,
+        "unit": "ks",
+        "unit_price": 145.00,
+        "gross": 435.00
+      },
+      {
+        "description": "Oprava stĺpa VO č. 17 – výmena stožiarovej svorkovnice a poistky, oprava dvierok",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 95.00,
+        "gross": 95.00
+      },
+      {
+        "description": "Prenájom montážnej plošiny vrátane obsluhy",
+        "quantity": 4,
+        "unit": "hod",
+        "unit_price": 35.00,
+        "gross": 140.00
+      },
+      {
+        "description": "Práca elektrikára",
+        "quantity": 6,
+        "unit": "hod",
+        "unit_price": 22.00,
+        "gross": 132.00
+      },
+      {
+        "description": "Doprava",
+        "quantity": 1,
+        "unit": "kpl",
+        "unit_price": 18.00,
+        "gross": 18.00
+      }
+    ],
+    "free_text": [
+      "Objednávka č. 31/2026",
+      "Nie som platiteľ DPH."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/246/26",
+        "booking_date": "2026-09-11"
+      },
+      "posting": [
+        {
+          "md": "511 000",
+          "dal": "321 000",
+          "amount": 820.00,
+          "text": "oprava VO, výmena svietidiel",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "635006 41 06 400 000",
+          "ek": "635006",
+          "zdroj": "41",
+          "oddiel": "06",
+          "trieda": "400",
+          "analytika": "000",
+          "amount": 820.00,
+          "text": "Ver.osvetlenie údržba",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "repairs"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "Repair of street lighting including replacement lamps: 635006 41 06 400 000 'Ver.osvetlenie údržba', debit 511 000. The lamps are part of the repair (each well under 1 700 EUR), not split off as material."
+  ]
+}

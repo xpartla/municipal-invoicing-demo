@@ -1,0 +1,124 @@
+{
+  "id": "heldout-34-lesysr-lesik",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-34-lesysr-lesik",
+    "supplier": {
+      "name": "LESY Slovenskej republiky, štátny podnik",
+      "ico": "36038351",
+      "dic": "2020087982",
+      "ic_dph": "SK2020087982",
+      "iban": "SK03 0200 0000 0000 0640 1412",
+      "address": "Námestie SNP 8, 975 66 Banská Bystrica",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2617004418",
+      "issue_date": "2026-10-01",
+      "delivery_date": "2026-09-30",
+      "due_date": "2026-10-31",
+      "variable_symbol": "2617004418",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-10-06",
+      "number": "275"
+    },
+    "totals": {
+      "net": 17034.00,
+      "vat": 3917.82,
+      "gross": 20951.82,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Revitalizácia lesoparku Lesík – výrub a odstránenie náletových drevín, vyčistenie porastu",
+        "quantity": 1.2,
+        "unit": "ha",
+        "unit_price": 3450.00,
+        "net": 4140.00,
+        "vat_rate": 23,
+        "vat": 952.20,
+        "gross": 5092.20
+      },
+      {
+        "description": "Revitalizácia lesoparku Lesík – výsadba drevín vrátane sadeníc (dub, lipa, javor) a ochrany proti ohryzu",
+        "quantity": 180,
+        "unit": "ks",
+        "unit_price": 38.50,
+        "net": 6930.00,
+        "vat_rate": 23,
+        "vat": 1593.90,
+        "gross": 8523.90
+      },
+      {
+        "description": "Revitalizácia lesoparku Lesík – úprava chodníkov s mlatovým povrchom",
+        "quantity": 420,
+        "unit": "m²",
+        "unit_price": 14.20,
+        "net": 5964.00,
+        "vat_rate": 23,
+        "vat": 1371.72,
+        "gross": 7335.72
+      }
+    ],
+    "free_text": [
+      "Zmluva o dielo č. 41/2026 – Revitalizácia Lesíka",
+      "Súpis vykonaných prác za obdobie 08/2026 – 09/2026 – príloha",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/275/26",
+        "booking_date": "2026-10-06"
+      },
+      "posting": [
+        {
+          "md": "042 007",
+          "dal": "321 000",
+          "amount": 20951.82,
+          "text": "revitalizácia Lesíka",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "717001 41 01 110 018",
+          "ek": "717001",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "018",
+          "amount": 20951.82,
+          "text": "Revitaliizácia Lesíka",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "capital"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Capital works on the woodland park from own funds: 717001 41 01 110 018 'Revitaliizácia Lesíka', debit 042 007 'Lesík'. Runner-ups the loan-funded twin 717001 52 01 110 019 and the current 637004 41 06 200 000 'vytvorenie lesoparku'."
+  ]
+}

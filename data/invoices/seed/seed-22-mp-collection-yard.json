@@ -1,0 +1,125 @@
+{
+  "id": "seed-22-mp-collection-yard",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-22-mp-collection-yard",
+    "supplier": {
+      "name": "Marius Pedersen, a.s.",
+      "ico": "34115901",
+      "dic": "2020420781",
+      "ic_dph": "SK2020420781",
+      "iban": "SK66 0200 0000 0000 0281 3302",
+      "address": "Opatovská 1735, 911 01 Trenčín",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "4126011873",
+      "issue_date": "2026-04-02",
+      "delivery_date": "2026-03-31",
+      "due_date": "2026-04-16",
+      "variable_symbol": "4126011873",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-04-08",
+      "number": "071"
+    },
+    "totals": {
+      "net": 436.96,
+      "vat": 100.50,
+      "gross": 537.46,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Prenájom a výmena veľkoobjemového kontajnera 7 m³ – zberný dvor Boldog (pristavenie, výsyp, odvoz)",
+        "quantity": 2,
+        "unit": "výmena",
+        "unit_price": 68.00,
+        "net": 136.00,
+        "vat_rate": 23,
+        "vat": 31.28,
+        "gross": 167.28
+      },
+      {
+        "description": "Zneškodnenie objemného odpadu 20 03 07 skládkovaním",
+        "quantity": 3.42,
+        "unit": "t",
+        "unit_price": 58.00,
+        "net": 198.36,
+        "vat_rate": 23,
+        "vat": 45.62,
+        "gross": 243.98
+      },
+      {
+        "description": "Poplatok za uloženie odpadov na skládku podľa zákona č. 329/2018 Z. z.",
+        "quantity": 3.42,
+        "unit": "t",
+        "unit_price": 30.00,
+        "net": 102.60,
+        "vat_rate": 23,
+        "vat": 23.60,
+        "gross": 126.20
+      }
+    ],
+    "free_text": [
+      "Miesto výkonu: Zberný dvor obce Boldog",
+      "Obdobie: 03/2026",
+      "Vážne lístky č. 2603-1187, 2603-1342",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/071/26",
+        "booking_date": "2026-04-08"
+      },
+      "posting": [
+        {
+          "md": "518 004",
+          "dal": "321 000",
+          "amount": 537.46,
+          "text": "kontajner zberný dvor 3/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637004 41 05 100 002",
+          "ek": "637004",
+          "zdroj": "41",
+          "oddiel": "05",
+          "trieda": "100",
+          "analytika": "002",
+          "amount": 537.46,
+          "text": "Všeobecné služby odpadové hospodárstvo",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "waste"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Container service at the collection yard: 637004 41 05 100 002 'Všeobecné služby odpadové hospodárstvo', function 05 100 where the budget also keeps the yard's material. Close call: runner-ups 637004 41 05 100 001 'odvoz odpadu' and 637004 41 04 510 003 'prev.zb.miesta'. Debit 518 004."
+  ]
+}

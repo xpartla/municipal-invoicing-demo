@@ -1,0 +1,121 @@
+{
+  "id": "heldout-24-kominar-ms",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-24-kominar-ms",
+    "supplier": {
+      "name": "Jozef Vzorný - KOMINÁR",
+      "ico": "23456787",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK61 0900 0000 0051 2233 4455",
+      "address": "Slnečná 14, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/097",
+      "issue_date": "2026-09-21",
+      "delivery_date": "2026-09-18",
+      "due_date": "2026-10-05",
+      "variable_symbol": "2026097",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-24",
+      "number": "259"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 92.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Kontrola komína – plynový kotol do 50 kW, objekt Materská škola Boldog",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 45.00,
+        "gross": 45.00
+      },
+      {
+        "description": "Čistenie dymovodu",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 20.00,
+        "gross": 20.00
+      },
+      {
+        "description": "Vypracovanie písomnej správy o kontrole komína",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 15.00,
+        "gross": 15.00
+      },
+      {
+        "description": "Doprava",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 12.00,
+        "gross": 12.00
+      }
+    ],
+    "free_text": [
+      "Nie som platiteľ DPH.",
+      "Forma úhrady: prevodom"
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/259/26",
+        "booking_date": "2026-09-24"
+      },
+      "posting": [
+        {
+          "md": "518 000",
+          "dal": "321 000",
+          "amount": 92.00,
+          "text": "kominárske práce MŠ",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "637004 41 09 111 000",
+          "ek": "637004",
+          "zdroj": "41",
+          "oddiel": "09",
+          "trieda": "111",
+          "analytika": "000",
+          "amount": 92.00,
+          "text": "MŠ - komiánárske práce",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "services",
+    "kindergarten",
+    "precedent-trap"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "Chimney inspection at the kindergarten: the budget's 'MŠ - komiánárske práce' (637004 41 09 111 000, own funds, the only kindergarten position for it), not the office position of the seed invoice. Debit 518 000."
+  ]
+}

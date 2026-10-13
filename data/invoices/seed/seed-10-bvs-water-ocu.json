@@ -1,0 +1,127 @@
+{
+  "id": "seed-10-bvs-water-ocu",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-10-bvs-water-ocu",
+    "supplier": {
+      "name": "Bratislavská vodárenská spoločnosť, a.s.",
+      "ico": "35850370",
+      "dic": "2020263432",
+      "ic_dph": "SK2020263432",
+      "iban": "SK12 0200 0000 0001 0052 6232",
+      "address": "Prešovská 48, 826 46 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026103377",
+      "issue_date": "2026-02-03",
+      "delivery_date": "2026-01-30",
+      "due_date": "2026-02-17",
+      "variable_symbol": "2026103377",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-02-06",
+      "number": "026"
+    },
+    "totals": {
+      "net": 104.10,
+      "vat": 23.94,
+      "gross": 128.04,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "Vodné",
+        "quantity": 26,
+        "unit": "m³",
+        "unit_price": 1.6152,
+        "net": 42.00,
+        "vat_rate": 23,
+        "vat": 9.66,
+        "gross": 51.66
+      },
+      {
+        "description": "Stočné",
+        "quantity": 26,
+        "unit": "m³",
+        "unit_price": 1.6807,
+        "net": 43.70,
+        "vat_rate": 23,
+        "vat": 10.05,
+        "gross": 53.75
+      },
+      {
+        "description": "Odvádzanie zrážkových vôd z povrchového odtoku",
+        "quantity": 1,
+        "unit": "obd.",
+        "unit_price": 18.40,
+        "net": 18.40,
+        "vat_rate": 23,
+        "vat": 4.23,
+        "gross": 22.63
+      }
+    ],
+    "free_text": [
+      "Faktúra za vodné a stočné",
+      "Fakturačné obdobie: 05.11.2025 – 30.01.2026 (odpočet vodomeru)",
+      "Odberné miesto: Obecný úrad, Boldog 135, číslo OM 2000412345",
+      "Vodomer č. 18774512, stav 1 482 → 1 508 m³",
+      "Číslo zmluvy: 0412/2014",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/026/26",
+        "booking_date": "2026-02-06"
+      },
+      "posting": [
+        {
+          "md": "502 003",
+          "dal": "321 000",
+          "amount": 128.04,
+          "text": "vodné, stočné OcÚ 11/2025-1/2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "632002 41 01 110 000",
+          "ek": "632002",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 128.04,
+          "text": "Vodné, stočné",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "water"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Water and sewage of the office: 632002 41 01 110 000 'Vodné, stočné', debit 502 003 Spotreba energie-voda; the rainwater charge is part of the same bill."
+  ]
+}

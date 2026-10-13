@@ -1,0 +1,124 @@
+{
+  "id": "seed-27-slovnaft-mowing-fuel",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-27-slovnaft-mowing-fuel",
+    "supplier": {
+      "name": "SLOVNAFT, a.s.",
+      "ico": "31322832",
+      "dic": "2020372640",
+      "ic_dph": "SK2020372640",
+      "iban": "SK40 0200 0000 0000 0230 5512",
+      "address": "Vlčie hrdlo 1, 824 12 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "8260117745",
+      "issue_date": "2026-05-08",
+      "delivery_date": "2026-05-07",
+      "due_date": "2026-05-22",
+      "variable_symbol": "8260117745",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-05-12",
+      "number": "101"
+    },
+    "totals": {
+      "net": 105.95,
+      "vat": 24.37,
+      "gross": 130.32,
+      "vat_rates": [
+        23
+      ]
+    },
+    "lines": [
+      {
+        "description": "04.05.2026 ČS Senec – NATURAL 95",
+        "quantity": 38.42,
+        "unit": "l",
+        "unit_price": 1.4553,
+        "net": 55.91,
+        "vat_rate": 23,
+        "vat": 12.86,
+        "gross": 68.77
+      },
+      {
+        "description": "04.05.2026 ČS Senec – MOL Dynamic Garden 2T, 1 l",
+        "quantity": 2,
+        "unit": "ks",
+        "unit_price": 8.94,
+        "net": 17.88,
+        "vat_rate": 23,
+        "vat": 4.11,
+        "gross": 21.99
+      },
+      {
+        "description": "07.05.2026 ČS Senec – NATURAL 95",
+        "quantity": 22.10,
+        "unit": "l",
+        "unit_price": 1.4553,
+        "net": 32.16,
+        "vat_rate": 23,
+        "vat": 7.40,
+        "gross": 39.56
+      }
+    ],
+    "free_text": [
+      "Faktúra k palivovej karte za obdobie 01.05.2026 – 07.05.2026",
+      "Karta č. 7081 23** **** 4471 – text na karte: KOSAČKY",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/101/26",
+        "booking_date": "2026-05-12"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 130.32,
+          "text": "benzín, olej - kosačky",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "634001 41 06 200 000",
+          "ek": "634001",
+          "zdroj": "41",
+          "oddiel": "06",
+          "trieda": "200",
+          "analytika": "000",
+          "amount": 130.32,
+          "text": "kosenie materiál,phm",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "fuel"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Fuel and two-stroke oil for mowers and trimmers belong to the greenery function: 634001 41 06 200 000 'kosenie materiál,phm'; runner-up 634001 41 01 110 000. Debit 501 003."
+  ]
+}

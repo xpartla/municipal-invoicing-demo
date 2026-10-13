@@ -42,12 +42,14 @@ def test_an_unknown_entity_is_not_found(client):
     assert client.get("/api/reference/00305111").status_code == 404
 
 
-def test_the_picker_lists_the_anchor_invoices(client):
+def test_the_picker_lists_every_dataset_invoice(client):
     response = client.get("/api/invoices")
 
     assert response.status_code == 200
     rows = {row["id"]: row for row in response.json()}
-    assert set(rows) == {"anchor-accounting", "anchor-dog-shelter", "anchor-dpo", "anchor-telekom"}
+    assert {"anchor-accounting", "anchor-dog-shelter", "anchor-dpo", "anchor-telekom"} <= set(rows)
+    assert {row["split"] for row in rows.values()} == {"anchor", "seed", "heldout"}
+    assert len(rows) == len(load_cases())
     assert rows["anchor-telekom"]["gross"] == 93.71
 
 
@@ -71,7 +73,7 @@ def test_coding_returns_a_proposal(client):
     assert proposal["needs_review"] is False
 
 
-def test_feedback_and_evaluation_answer_not_implemented_yet(client):
+def test_feedback_answers_not_implemented_yet(client):
     proposal = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")}).json()
     feedback = {
         "invoice_id": proposal["invoice_id"],
@@ -82,7 +84,6 @@ def test_feedback_and_evaluation_answer_not_implemented_yet(client):
     }
 
     assert client.post("/api/feedback", json=feedback).status_code == 501
-    assert client.get("/api/eval").status_code == 501
 
 
 def test_coding_rejects_a_malformed_invoice(client):

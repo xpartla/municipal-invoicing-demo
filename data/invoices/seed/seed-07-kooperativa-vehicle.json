@@ -1,0 +1,102 @@
+{
+  "id": "seed-07-kooperativa-vehicle",
+  "split": "seed",
+  "invoice": {
+    "id": "seed-07-kooperativa-vehicle",
+    "supplier": {
+      "name": "KOOPERATIVA poisťovňa, a.s. Vienna Insurance Group",
+      "ico": "00585441",
+      "dic": "2020527300",
+      "ic_dph": "SK2020527300",
+      "iban": "SK86 0200 0000 0000 0410 2512",
+      "address": "Mlynské nivy 7816/16, 821 09 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2610045512",
+      "issue_date": "2026-01-20",
+      "delivery_date": null,
+      "due_date": "2026-02-01",
+      "variable_symbol": "6012457831",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-01-27",
+      "number": "019"
+    },
+    "totals": {
+      "net": 186.40,
+      "vat": 0.00,
+      "gross": 186.40,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Povinné zmluvné poistenie zodpovednosti za škodu spôsobenú prevádzkou motorového vozidla – Škoda Octavia Combi, EČV SC482BH, poistné obdobie 01.02.2026 – 31.01.2027",
+        "quantity": 1,
+        "unit": "rok",
+        "unit_price": 186.40,
+        "net": 186.40,
+        "vat": 0.00,
+        "gross": 186.40
+      }
+    ],
+    "free_text": [
+      "Poistná zmluva č. 6012457831",
+      "Poistník: Obec Boldog",
+      "Poistné je oslobodené od dane podľa § 37 zákona č. 222/2004 Z. z. o DPH.",
+      "Poistné obsahuje odvod z poistného podľa zákona č. 213/2018 Z. z."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/019/26",
+        "booking_date": "2026-01-27"
+      },
+      "posting": [
+        {
+          "md": "548 003",
+          "dal": "321 000",
+          "amount": 186.40,
+          "text": "PZP osobné auto 2026",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "634003 41 01 110 000",
+          "ek": "634003",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "000",
+          "amount": 186.40,
+          "text": "Poistenie",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "insurance"
+  ],
+  "notes": [
+    "Supplier name, IČO and address from the RPO registry (api.statistics.sk), checked 2026-10-12; DIČ, IČ DPH and IBAN are made up.",
+    "Motor third-party liability is EK 634003 'Poistenie' (transport group): 634003 41 01 110 000; property insurance would be 637015. Debit 548 003 Ostatné náklady na prevádzkovú činnosť-poistné."
+  ]
+}

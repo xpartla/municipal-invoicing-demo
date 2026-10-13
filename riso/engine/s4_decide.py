@@ -1,8 +1,9 @@
 """S4, decision. In order: a precedent with a compatible description wins outright; the canteen
 food rule fixes its position; a single rule-consistent candidate wins; otherwise the best
-candidate is proposed for review with up to fifteen ranked alternatives. An invoice is split
-only when its entries name different budget positions, and a split always goes to review.
-The full version adds a ranking model where this stage now asks for review."""
+rule-consistent candidate, or failing that the best one, is proposed for review with up to
+fifteen ranked alternatives. An invoice is split only when its entries name different
+buildings or activities, and a split always goes to review. The full version adds a
+ranking model where this stage now asks for review."""
 
 from decimal import Decimal
 
@@ -19,7 +20,7 @@ from riso.knowledge import STRONG, KnowledgeBase
 from riso.reference import ReferenceIndex
 
 MAX_ALTERNATIVES = 15
-SINGLE_CANDIDATE_FLOOR = {2: 0.85, 1: 0.8}  # by tier
+SINGLE_CANDIDATE_FLOOR = {3: 0.85, 2: 0.85, 1: 0.8}  # by tier
 
 
 def decide(
@@ -37,12 +38,12 @@ def decide(
             alternatives=ranked[:MAX_ALTERNATIVES],
             reasons=("without the invoice total there is no amount to book",),
         )
-    split = _split(invoice, candidates)
+    split = _split(invoice, candidates, index)
     if split is not None:
         return split
 
     precedent = next((c for c in ranked if c.precedent is not None), None)
-    if precedent is not None and _compatible(precedent, invoice, index, knowledge):
+    if precedent is not None and _compatible(precedent, invoice, ranked, index, knowledge):
         return _one("precedent", precedent, invoice, ranked)
     if context.canteen_food:
         canteen = next((c for c in ranked if c.budget_key == canteen_key(knowledge)), None)
@@ -67,7 +68,8 @@ def decide(
         if len(ranked) > 1
         else "only one weak match"
     )
-    return _one("best_candidate", ranked[0], invoice, ranked, tuple(reasons))
+    best = next((c for c in ranked if c.consistent), ranked[0])
+    return _one("best_candidate", best, invoice, ranked, tuple(reasons))
 
 
 def _one(
@@ -97,14 +99,22 @@ def _one(
 def _compatible(
     precedent: Candidate,
     invoice: NormalisedInvoice,
+    ranked: tuple[Candidate, ...],
     index: ReferenceIndex,
     knowledge: KnowledgeBase,
 ) -> bool:
-    """The invoice names no other building or activity than the precedent's position, and
-    its concepts, if any, include the precedent's economic code."""
+    """The invoice names no other building or activity than the precedent's position, it
+    does not name another position outright (the Mother's Day refreshments from the
+    supplier of the office's cleaning supplies), and its concepts, if any, include the
+    precedent's economic code."""
     position = index.expense[precedent.budget_key]
-    named = set(invoice.named_functions())
+    named = set(invoice.invoice_functions())
     if named and named != {position_function(position)}:
+        return False
+    if any(
+        c.consistent and c.tier == 3 and index.expense[c.budget_key].ek != position.ek
+        for c in ranked
+    ):
         return False
     eks = {
         ek
@@ -126,16 +136,19 @@ def _single_consistent(ranked: tuple[Candidate, ...]) -> Candidate | None:
     return top[0] if len(top) == 1 else None
 
 
-def _split(invoice: NormalisedInvoice, candidates: CandidateSet) -> Decision | None:
+def _split(
+    invoice: NormalisedInvoice, candidates: CandidateSet, index: ReferenceIndex
+) -> Decision | None:
     """One line per entry, merging entries that land on the same position, when entries name
-    different positions and every entry has an amount."""
+    different buildings or activities and every entry has an amount."""
     entries = invoice.document.lines
     choices = {
         i: chosen
         for i, line in enumerate(candidates.lines)
         if (chosen := next((c for c in line if c.consistent), None)) is not None
     }
-    if len(entries) < 2 or len({c.budget_key for c in choices.values()}) < 2:
+    functions = {position_function(index.expense[c.budget_key]) for c in choices.values()}
+    if len(entries) < 2 or len(functions) < 2:
         return None
     if any(amount is None for amount in invoice.line_amounts) or not candidates.invoice:
         return None

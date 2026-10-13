@@ -1,0 +1,105 @@
+{
+  "id": "heldout-20-kvetinarstvo-wreath",
+  "split": "heldout",
+  "invoice": {
+    "id": "heldout-20-kvetinarstvo-wreath",
+    "supplier": {
+      "name": "Lucia Príkladná - kvetinárstvo",
+      "ico": "78901235",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK70 1100 0000 0029 3311 4580",
+      "address": "Mierové námestie 5, 903 01 Senec",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/088",
+      "issue_date": "2026-09-15",
+      "delivery_date": "2026-09-12",
+      "due_date": "2026-09-25",
+      "variable_symbol": "2026088",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-18",
+      "number": "253"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 133.00,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Smútočný veniec ⌀ 60 cm zo živých kvetov so stuhou a nápisom",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 95.00,
+        "gross": 95.00
+      },
+      {
+        "description": "Kytica – biele ruže a chryzantémy",
+        "quantity": 1,
+        "unit": "ks",
+        "unit_price": 38.00,
+        "gross": 38.00
+      }
+    ],
+    "free_text": [
+      "Objednávka obce – pietna spomienka pri Pomníku padlých hrdinov, 13.09.2026",
+      "Nie som platiteľ DPH."
+    ],
+    "ocr_meta": {
+      "synthetic": true,
+      "page_count": 1,
+      "confidence": {}
+    }
+  },
+  "expected": {
+    "outcome": "coded",
+    "coding": {
+      "document": {
+        "series": "FD",
+        "number": "FD/253/26",
+        "booking_date": "2026-09-18"
+      },
+      "posting": [
+        {
+          "md": "501 003",
+          "dal": "321 000",
+          "amount": 133.00,
+          "text": "veniec, kytica - pietna spomienka",
+          "stredisko": null,
+          "transfer": null
+        }
+      ],
+      "budget": [
+        {
+          "key": "633006 41 01 110 007",
+          "ek": "633006",
+          "zdroj": "41",
+          "oddiel": "01",
+          "trieda": "110",
+          "analytika": "007",
+          "amount": 133.00,
+          "text": "kytice,vence",
+          "stredisko": null,
+          "transfer": null
+        }
+      ]
+    }
+  },
+  "tags": [
+    "materials"
+  ],
+  "notes": [
+    "Made-up natural person (sole trader), placeholder IČO; address and IBAN made up.",
+    "The budget has 'kytice,vence' (633006 41 01 110 007). Debit 501 003 (runner-up 513 000 representation)."
+  ]
+}
