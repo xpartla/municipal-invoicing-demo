@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -73,17 +75,105 @@ def test_coding_returns_a_proposal(client):
     assert proposal["needs_review"] is False
 
 
-def test_feedback_answers_not_implemented_yet(client):
-    proposal = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")}).json()
-    feedback = {
+def _feedback(proposal: dict, action: str = "accepted", final: dict | None = None) -> dict:
+    return {
         "invoice_id": proposal["invoice_id"],
         "bundle_id": proposal["bundle_id"],
-        "action": "accepted",
+        "action": action,
         "proposal": proposal,
-        "final": {k: proposal[k] for k in ("document", "posting", "budget")},
+        "final": final or _coding(proposal),
     }
 
-    assert client.post("/api/feedback", json=feedback).status_code == 501
+
+def _coding(proposal: dict) -> dict:
+    """The proposal's coding, as a copy to edit."""
+    return copy.deepcopy({k: proposal[k] for k in ("document", "posting", "budget")})
+
+
+def test_accepting_a_proposal_makes_a_precedent_and_uses_up_the_number(client):
+    invoice = _invoice("anchor-telekom")
+    proposal = client.post("/api/code", json={"invoice": invoice}).json()
+
+    receipt = client.post("/api/feedback", json=_feedback(proposal))
+
+    assert receipt.status_code == 200
+    body = receipt.json()
+    assert body["document_number"] == "FD/144/26"
+    assert body["supplier_ico"] == "35763469"
+    assert body["precedents"] == 2  # the screenshot's and this one
+    log = client.get("/api/feedback").json()
+    assert [(row["invoice_id"], row["action"]) for row in log] == [("anchor-telekom", "accepted")]
+    again = client.post("/api/code", json={"invoice": invoice}).json()
+    assert "FD/144/26 is already used" in again["validation"]["warnings"]
+
+
+def test_a_correction_is_stored_as_the_accountant_entered_it(client):
+    proposal = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")}).json()
+    final = _coding(proposal)
+    final["budget"][0] |= {
+        "key": "632003 41 01 110 001",
+        "ek": "632003",
+        "analytika": "001",
+        "text": "telefon,fax",
+    }
+
+    receipt = client.post("/api/feedback", json=_feedback(proposal, "corrected", final))
+    recoded = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")}).json()
+
+    assert receipt.status_code == 200
+    assert recoded["budget"][0]["key"] == "632003 41 01 110 001"  # the newest precedent
+
+
+def test_a_correction_must_use_codes_from_the_dictionaries(client):
+    proposal = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")}).json()
+    final = _coding(proposal)
+    final["posting"][0]["md"] = "518 999"
+
+    response = client.post("/api/feedback", json=_feedback(proposal, "corrected", final))
+
+    assert response.status_code == 422
+    assert any("518 999" in error for error in response.json()["detail"])
+    assert client.get("/api/feedback").json() == []
+
+
+def test_an_accepted_proposal_cannot_carry_changes(client):
+    proposal = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")}).json()
+    final = _coding(proposal)
+    final["posting"][0]["text"] = "iný text"
+
+    assert (
+        client.post("/api/feedback", json=_feedback(proposal, "accepted", final)).status_code == 422
+    )
+
+
+def test_a_picked_position_brings_its_whole_line(client):
+    invoice = _invoice("anchor-telekom")
+
+    line = client.post("/api/line", json={"invoice": invoice, "budget_key": "632003 41 09 111 000"})
+    unknown = client.post(
+        "/api/line", json={"invoice": invoice, "budget_key": "632003 41 09 111 999"}
+    )
+
+    assert line.status_code == 200
+    assert line.json() | {"why": None} == {
+        "budget_key": "632003 41 09 111 000",
+        "md": "518 003",
+        "dal": "321 000",
+        "transfer": None,
+        "budget_text": "MŠ - telefon",
+        "posting_text": "tel.poplatky",
+        "score": 0.0,
+        "why": None,
+    }
+    assert unknown.status_code == 404
+
+
+def test_alternatives_carry_the_whole_line(client):
+    proposal = client.post("/api/code", json={"invoice": _invoice("anchor-telekom")}).json()
+
+    assert proposal["alternatives"]
+    for alternative in proposal["alternatives"]:
+        assert alternative["md"] and alternative["dal"] and alternative["budget_text"]
 
 
 def test_coding_rejects_a_malformed_invoice(client):

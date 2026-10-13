@@ -1,4 +1,4 @@
-"""S4, decision. In order: a precedent with a compatible description wins outright; the canteen
+"""S4, decision. In order: the supplier's newest compatible precedent wins outright; the canteen
 food rule fixes its position; a single rule-consistent candidate wins; otherwise the best
 rule-consistent candidate, or failing that the best one, is proposed for review with up to
 fifteen ranked alternatives. An invoice is split only when its entries name different
@@ -42,9 +42,17 @@ def decide(
     if split is not None:
         return split
 
-    precedent = next((c for c in ranked if c.precedent is not None), None)
-    if precedent is not None and _compatible(precedent, invoice, ranked, index, knowledge):
-        return _one("precedent", precedent, invoice, ranked)
+    # The newest compatible precedent: a correction the accountant just made outranks an
+    # older habit, and an older precedent for the building the invoice names outranks a newer
+    # one for another building.
+    precedents = sorted(
+        (c for c in ranked if c.precedent is not None), key=lambda c: c.precedent_rank or 0
+    )
+    compatible = next(
+        (c for c in precedents if _compatible(c, invoice, ranked, index, knowledge)), None
+    )
+    if compatible is not None:
+        return _one("precedent", compatible, invoice, ranked)
     if context.canteen_food:
         canteen = next((c for c in ranked if c.budget_key == canteen_key(knowledge)), None)
         if canteen is not None:
@@ -61,7 +69,7 @@ def decide(
             rule="none", lines=(), alternatives=(), reasons=("no budget position fits the invoice",)
         )
     reasons = []
-    if precedent is not None:
+    if precedents:
         reasons.append("the invoice names another activity than this supplier's earlier invoices")
     reasons.append(
         "several budget positions fit; the best is proposed"

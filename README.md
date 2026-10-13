@@ -17,16 +17,20 @@ The demo entity is Obec Boldog (IČO 00305863), with reference data for 08/2026.
 
 ## Status
 
-M2 is done: a mock dataset of 70 synthetic invoices (30 seed, 40 held-out) whose expected
-codings were written without access to the engine, and an evaluation harness. On the held-out
-set the engine keeps every code valid (100%), but finds the full budget key for 61.5% of the
-invoices and the economic code for 76.9%, short of the demo targets of 85% and 90%; 11 of 40
-are wrong without being flagged for review. The four real precedents are still reproduced
-exactly. The pages and the feedback store come with M3. The plan lives outside this
-repository.
+M3 is done: the web app and the feedback loop. The proposal page lays the coding out like the
+accounting software's two tabs, with a copy button on every value and line, the evidence
+behind each field, and alternatives that swap a whole line. The accountant accepts the
+proposal, or corrects it with codes picked from the municipality's dictionaries; either way
+the coding becomes the supplier's newest precedent and its number is used up, so the next
+invoice from that supplier follows it. The pages are in Slovak, including the engine's
+review reasons and evidence, which a message catalogue translates.
+
+M2 measured the engine on 40 held-out synthetic invoices: every code valid, the full budget
+key right for 61.5% and the economic code for 76.9%, short of the demo targets of 85% and 90%.
+The plan lives outside this repository.
 
 ```sh
-uv run riso code data/invoices/anchor/*.json
+uv run riso serve --port 8001       # then open http://127.0.0.1:8001
 uv run riso eval
 ```
 
@@ -39,6 +43,17 @@ uv sync
 uv run pytest
 uv run riso serve          # http://127.0.0.1:8000
 ```
+
+The end-to-end click-through drives the four pages in a headless browser; it starts its own
+server with empty state. Playwright is not a project dependency:
+
+```sh
+uv run --with playwright playwright install chromium     # once
+uv run --with playwright python tests/e2e/clickthrough.py [screenshot dir]
+```
+
+`riso reset` clears what the pages recorded (supplier memory, counters, the feedback log), so
+every demo starts from the same state.
 
 ## Commands
 
@@ -63,7 +78,9 @@ tidy.
 | `GET /api/reference/{ičo}` | The ReferenceBundle |
 | `GET /api/invoices`, `GET /api/invoices/{id}` | The mock invoices, for the picker |
 | `POST /api/code` | A CodingProposal for `{invoice, entity}` |
-| `POST /api/feedback` | Records an accepted or corrected proposal (501 until M3) |
+| `POST /api/line` | The whole line (MD, DAL, transfer, texts) a budget position brings for `{invoice, budget_key}`, for the correction pickers |
+| `POST /api/feedback` | Records an accepted or corrected proposal: checks the codes against the dictionaries, makes the coding the supplier's newest precedent, uses up its number, appends to the feedback log |
+| `GET /api/feedback` | The feedback recorded since the last `riso reset` |
 | `GET /api/eval` | The latest EvalReport of `riso eval` (`?split=`, default `heldout`); runs it when there is none, or with `?refresh=true` |
 
 The interactive documentation is at `/docs` while the server runs.
@@ -79,7 +96,8 @@ riso/
   knowledge/      the authored knowledge base: models, loader, term matching
   store/          runtime state: supplier memory, counters, feedback log, evaluation reports
   api/            FastAPI app
-  web/            static pages (Slovak) and vendored Alpine.js
+  web/            static pages (Slovak), app.js, messages-sk.json (Slovak wording of the
+                  engine's messages), vendored Alpine.js
   eval/           scoring proposals against expected outcomes, the metrics, the text report
   checks.py       what `riso check` runs
   dataset.py      loading the mock dataset
@@ -92,7 +110,7 @@ data/
   initial_state/  supplier memory and counters at the start of a demo
 knowledge/2026/   EK to SU bridge, AU rules, function map, lexicon, transfer, canteen and style rules
 schemas/          JSON Schemas of the contracts
-tests/
+tests/            pytest; e2e/clickthrough.py is the browser click-through
 ```
 
 ## Data handling

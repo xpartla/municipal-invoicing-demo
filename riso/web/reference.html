@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Číselníky · riso</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/app.css">
   <script defer src="/app.js"></script>
   <script defer src="/vendor/alpine-3.17.4.min.js"></script>
@@ -26,38 +27,110 @@
       <div>
         <p class="muted">
           <span x-text="bundle.entity.name"></span>, IČO <span x-text="bundle.entity.ico"></span>,
-          obdobie <span x-text="bundle.period"></span>
+          obdobie <span x-text="bundle.period"></span>. Každý navrhnutý kód musí byť v týchto
+          číselníkoch.
         </p>
-        <section class="card">
-          <h2>Rozsah</h2>
-          <div class="scroll">
+        <div class="tabs" role="tablist">
+          <template x-for="[key, label] in REFERENCE_TABS" :key="key">
+            <button type="button" role="tab" :aria-selected="tab === key" @click="tab = key">
+              <span x-text="label"></span> <span class="count" x-text="count(key)"></span>
+            </button>
+          </template>
+        </div>
+        <div class="filters">
+          <input type="search" x-model="query" placeholder="Hľadať kód alebo popis" aria-label="Hľadať">
+          <span class="muted" x-text="rows(tab).length + ' riadkov'"></span>
+        </div>
+
+        <div class="scroll card flush">
+          <template x-if="tab === 'expense' || tab === 'income'">
             <table class="grid">
+              <thead>
+                <tr><th>EK</th><th>Zdroj</th><th>Oddiel</th><th>Trieda</th><th>Analytika</th><th>Popis</th></tr>
+              </thead>
               <tbody>
-                <template x-for="[label, count] in counts" :key="label">
-                  <tr><td x-text="label"></td><td class="num" x-text="count"></td></tr>
-                </template>
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <section class="card">
-          <h2>Upozornenia z načítania</h2>
-          <div class="scroll">
-            <table class="grid">
-              <thead><tr><th>Súbor</th><th>Riadky</th><th>Hlásenie</th></tr></thead>
-              <tbody>
-                <template x-for="warning in bundle.warnings" :key="warning.source + warning.rows.join()">
-                  <tr class="warning">
-                    <td x-text="warning.source"></td>
-                    <td x-text="warning.rows.join(', ')"></td>
-                    <td x-text="warning.message"></td>
+                <template x-for="row in rows(tab)" :key="row.key">
+                  <tr>
+                    <td class="code" x-text="row.ek"></td>
+                    <td class="code" x-text="row.zdroj"></td>
+                    <td class="code" x-text="row.oddiel"></td>
+                    <td class="code" x-text="row.trieda"></td>
+                    <td class="code" x-text="row.analytika"></td>
+                    <td>
+                      <span x-text="row.description || '—'"></span>
+                      <template x-if="row.aliases && row.aliases.length">
+                        <span class="muted" x-text="'; ' + row.aliases.join('; ')"></span>
+                      </template>
+                    </td>
                   </tr>
                 </template>
               </tbody>
             </table>
-          </div>
-        </section>
-        <p class="placeholder">Prehliadač celých číselníkov pribudne v ďalšej etape.</p>
+          </template>
+          <template x-if="tab === 'accounts'">
+            <table class="grid">
+              <thead><tr><th>Účet</th><th>Druh</th><th>Popis</th></tr></thead>
+              <tbody>
+                <template x-for="row in rows(tab)" :key="row.key">
+                  <tr>
+                    <td class="code" x-text="row.key"></td>
+                    <td x-text="ACCOUNT_TYPES[row.type] ?? row.type ?? '—'"></td>
+                    <td x-text="row.description || '—'"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </template>
+          <template x-if="tab === 'series'">
+            <table class="grid">
+              <thead><tr><th>Rada</th><th>Vzor čísla</th><th>Popis</th><th>Účet</th></tr></thead>
+              <tbody>
+                <template x-for="row in rows(tab)" :key="row.code">
+                  <tr>
+                    <td class="code" x-text="row.code"></td>
+                    <td class="code" x-text="row.pattern"></td>
+                    <td x-text="row.description || '—'"></td>
+                    <td x-text="row.bank_account || '—'"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </template>
+          <template x-if="tab === 'transfers'">
+            <div>
+              <p class="muted pad">Simulovaný zoznam z dotačných riadkov príjmov; skutočný zoznam príde z účtovného programu.</p>
+              <table class="grid">
+                <thead><tr><th>Transfer</th><th>Zdroj</th><th>Názov</th></tr></thead>
+                <tbody>
+                  <template x-for="row in rows(tab)" :key="row.id">
+                    <tr>
+                      <td class="code" x-text="row.id"></td>
+                      <td class="code" x-text="row.zdroj"></td>
+                      <td x-text="row.name"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </template>
+          <template x-if="tab === 'centres'">
+            <p class="muted pad">Strediská obec nepoužíva; pole stredisko zostáva prázdne.</p>
+          </template>
+          <template x-if="tab === 'warnings'">
+            <table class="grid">
+              <thead><tr><th>Súbor</th><th>Riadky</th><th>Hlásenie</th></tr></thead>
+              <tbody>
+                <template x-for="row in rows(tab)" :key="row.source + row.rows.join()">
+                  <tr class="warning">
+                    <td x-text="row.source"></td>
+                    <td x-text="row.rows.join(', ')"></td>
+                    <td x-text="sk(row.message)"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </template>
+        </div>
       </div>
     </template>
   </main>

@@ -11,6 +11,7 @@ from pydantic import BaseModel
 
 from riso import __version__, paths
 from riso.contracts import (
+    Alternative,
     CodeRequest,
     CodingProposal,
     EvalReport,
@@ -18,13 +19,15 @@ from riso.contracts import (
     InvoiceDocument,
     ReferenceBundle,
 )
-from riso.contracts.base import Amount
+from riso.contracts.base import Amount, BudgetKey, Ico
 from riso.contracts.eval import Split
 from riso.dataset import load_cases
-from riso.engine import code_invoice
+from riso.engine import code_invoice, code_line
+from riso.engine.s6_validate import check_coding
+from riso.engine.s8_feedback import apply_feedback
 from riso.eval import evaluate
 from riso.knowledge import UnknownKnowledge, load_knowledge
-from riso.reference import LocalReferenceSource, UnknownEntity
+from riso.reference import LocalReferenceSource, ReferenceIndex, UnknownEntity
 from riso.store import StateStore
 
 
@@ -54,6 +57,35 @@ class InvoiceListItem(BaseModel):
     number: str | None
     issue_date: dt.date | None
     gross: Amount | None
+
+
+class LineRequest(BaseModel):
+    """Body of POST /api/line: the invoice, and a position the accountant picked."""
+
+    invoice: InvoiceDocument
+    entity: Ico | None = None
+    budget_key: BudgetKey
+
+
+class FeedbackReceipt(BaseModel):
+    """What POST /api/feedback stored."""
+
+    invoice_id: str
+    action: str
+    entity_ico: str
+    document_number: str | None
+    supplier_ico: str | None
+    precedents: int  # the supplier's precedents in memory now; 0 without an IČO
+    received_at: dt.datetime
+
+
+class FeedbackItem(BaseModel):
+    """One row of GET /api/feedback."""
+
+    invoice_id: str
+    action: str
+    document_number: str | None
+    received_at: dt.datetime | None
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -105,27 +137,87 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 return case.invoice
         raise HTTPException(404, f"no invoice {invoice_id}")
 
-    @app.post("/api/code")
-    def code(request: CodeRequest) -> CodingProposal:
-        ico = request.entity or "".join((request.invoice.customer.ico or "").split())
+    def setting(ico: str) -> dict:
+        """What the engine needs for an entity: its settings, bundle, knowledge and state."""
         try:
             entity = references.context(ico)
             bundle = references.bundle(ico, entity.reference_period)
             knowledge = load_knowledge(entity.budget_year)
         except (UnknownEntity, UnknownKnowledge) as exc:
             raise HTTPException(404, str(exc)) from exc
-        return code_invoice(
-            request.invoice,
-            entity=entity,
-            bundle=bundle,
-            memory=state.supplier_memory(ico),
-            counters=state.counters(ico),
-            knowledge=knowledge,
+        return {
+            "entity": entity,
+            "bundle": bundle,
+            "knowledge": knowledge,
+            "memory": state.supplier_memory(ico),
+            "counters": state.counters(ico),
+        }
+
+    def customer(invoice: InvoiceDocument, entity: str | None) -> str:
+        return entity or "".join((invoice.customer.ico or "").split())
+
+    @app.post("/api/code")
+    def code(request: CodeRequest) -> CodingProposal:
+        return code_invoice(request.invoice, **setting(customer(request.invoice, request.entity)))
+
+    @app.post("/api/line")
+    def line(request: LineRequest) -> Alternative:
+        """The whole line a position the accountant picked brings: MD, DAL, transfer, texts."""
+        try:
+            return code_line(
+                request.invoice,
+                request.budget_key,
+                **setting(customer(request.invoice, request.entity)),
+            )
+        except KeyError as exc:
+            raise HTTPException(404, f"{request.budget_key} is not in the budget") from exc
+
+    @app.post("/api/feedback")
+    def feedback(feedback: Feedback) -> FeedbackReceipt:
+        """Stores the accountant's verdict: the coding becomes the supplier's newest precedent,
+        its number is used up, and the feedback is logged. A corrected coding must pass the
+        dictionary checks; whether its sum matches the invoice is the accountant's call."""
+        ico = feedback.bundle_id.split("/")[0]
+        period = feedback.bundle_id.split("/")[-1]
+        try:
+            bundle = references.bundle(ico, period)
+        except UnknownEntity as exc:
+            raise HTTPException(404, str(exc)) from exc
+        index = ReferenceIndex(bundle)
+        errors = check_coding(feedback.final, index).errors
+        if errors:
+            raise HTTPException(422, errors)
+        memory, counters = apply_feedback(
+            feedback, state.supplier_memory(ico), state.counters(ico), index
+        )
+        state.save_supplier_memory(memory)
+        state.save_counters(counters)
+        received = dt.datetime.now(dt.UTC).replace(microsecond=0)
+        state.append_feedback(ico, feedback.model_copy(update={"received_at": received}))
+        supplier_ico = feedback.supplier_ico or feedback.proposal.supplier.ico
+        record = memory.find(supplier_ico) if supplier_ico else None
+        return FeedbackReceipt(
+            invoice_id=feedback.invoice_id,
+            action=feedback.action,
+            entity_ico=ico,
+            document_number=feedback.final.document.number,
+            supplier_ico=supplier_ico,
+            precedents=len(record.precedents) if record else 0,
+            received_at=received,
         )
 
-    @app.post("/api/feedback", status_code=204)
-    def feedback(feedback: Feedback) -> None:
-        raise HTTPException(501, "The feedback store is built in M3")
+    @app.get("/api/feedback")
+    def feedback_log(entity: str = "00305863") -> list[FeedbackItem]:
+        """The feedback stored since the last `riso reset`, oldest first."""
+        return [
+            FeedbackItem(
+                invoice_id=item.invoice_id,
+                action=item.action,
+                document_number=item.final.document.number,
+                received_at=item.received_at,
+            )
+            for item in state.feedback(entity)
+        ]
 
     @app.get("/api/eval")
     def evaluation(

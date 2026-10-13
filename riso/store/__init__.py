@@ -52,6 +52,14 @@ class StateStore:
     def save_counters(self, counters: Counters) -> None:
         self._write(counters.entity_ico, COUNTERS_FILE, counters.model_dump_json(indent=2) + "\n")
 
+    def feedback(self, ico: str) -> list[Feedback]:
+        """The feedback log, oldest first; empty before the first feedback or after a reset."""
+        path = self.var_dir / ico / FEEDBACK_FILE
+        if not path.is_file():
+            return []
+        lines = path.read_text(encoding="utf-8").splitlines()
+        return [Feedback.model_validate_json(line) for line in lines if line.strip()]
+
     def append_feedback(self, ico: str, feedback: Feedback) -> None:
         path = self.var_dir / ico / FEEDBACK_FILE
         path.parent.mkdir(parents=True, exist_ok=True)

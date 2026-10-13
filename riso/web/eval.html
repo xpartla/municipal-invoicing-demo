@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Vyhodnotenie · riso</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/app.css">
   <script defer src="/app.js"></script>
   <script defer src="/vendor/alpine-3.17.4.min.js"></script>
@@ -18,9 +19,152 @@
       <a href="/eval.html" aria-current="page">Vyhodnotenie</a>
     </nav>
   </header>
-  <main>
-    <h1>Vyhodnotenie</h1>
-    <p class="placeholder">Výsledky na testovacej sade pribudnú spolu s testovacími dátami.</p>
+  <main x-data="evalPage()" x-init="load()">
+    <div class="page-head">
+      <div>
+        <h1>Vyhodnotenie</h1>
+        <p class="muted">Návrhy programu porovnané s očakávaným zaúčtovaním vymyslených faktúr.</p>
+      </div>
+      <div class="buttons">
+        <select x-model="split" @change="load()" aria-label="Sada">
+          <option value="heldout">Testovacia sada</option>
+          <option value="seed">Syntetická sada</option>
+          <option value="anchor">Skeny</option>
+        </select>
+        <button type="button" class="button ghost" :disabled="loading" @click="load(true)">Prepočítať</button>
+      </div>
+    </div>
+    <p class="error" x-show="error" x-text="error"></p>
+    <p class="muted" x-show="loading">Počítam…</p>
+
+    <template x-if="report">
+      <div>
+        <p class="muted">
+          <span x-text="report.cases.length"></span> faktúr,
+          <span x-text="report.memory === 'frozen'
+            ? 'pamäť dodávateľov z ' + report.precedent_cases + ' skenov a syntetických faktúr, testovacie ju nemenia'
+            : 'pamäť rastie faktúru po faktúre v poradí zaúčtovania'"></span>.
+          Výpočet <span x-text="new Date(report.generated_at).toLocaleString('sk-SK')"></span>,
+          dáta <span class="code" x-text="report.dataset_sha256.slice(0, 12)"></span>.
+        </p>
+
+        <div class="targets">
+          <template x-for="target in report.targets" :key="target.metric">
+            <div class="target" :class="target.met ? 'good' : 'weak'">
+              <span class="label" x-text="METRIC_LABELS[target.metric] ?? target.metric"></span>
+              <span class="big" x-text="formatPercent(target.value)"></span>
+              <span class="muted">
+                cieľ <span x-text="formatPercent(target.target)"></span>,
+                <span x-text="target.met ? 'splnený' : 'nesplnený'"></span>
+              </span>
+            </div>
+          </template>
+        </div>
+
+        <div class="stack">
+          <section class="card">
+            <h2>Ukazovatele</h2>
+            <div class="scroll">
+              <table class="grid compact">
+                <thead><tr><th>Ukazovateľ</th><th class="num">Hodnota</th><th class="num">Počet</th></tr></thead>
+                <tbody>
+                  <template x-for="[name, rate] in metrics" :key="name">
+                    <tr>
+                      <td x-text="METRIC_LABELS[name] ?? name"></td>
+                      <td class="num" x-text="formatPercent(rate.value)"></td>
+                      <td class="num muted" x-text="rate.hits + ' z ' + rate.n"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <section class="card">
+            <h2>Podľa dodávateľa a druhu faktúry</h2>
+            <div class="scroll">
+              <table class="grid compact">
+                <thead>
+                  <tr>
+                    <th></th><th class="num">Počet</th>
+                    <template x-for="[key, label] in GROUP_COLUMNS" :key="key">
+                      <th class="num" x-text="label"></th>
+                    </template>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="[label, group] in groups" :key="label">
+                    <tr>
+                      <td x-text="label"></td>
+                      <td class="num" x-text="group.correct.n"></td>
+                      <template x-for="[key] in GROUP_COLUMNS" :key="key">
+                        <td class="num" x-text="formatPercent(group[key].value)"></td>
+                      </template>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <section class="card">
+          <div class="page-head">
+            <h2>Faktúry</h2>
+            <div class="segmented" role="group" aria-label="Filter">
+              <template x-for="[key, label] in CASE_FILTERS" :key="key">
+                <button type="button" :aria-pressed="filter === key" @click="filter = key" x-text="label"></button>
+              </template>
+            </div>
+          </div>
+          <div class="scroll">
+            <table class="grid">
+              <thead>
+                <tr><th>Faktúra</th><th>Očakávané</th><th>Navrhnuté</th><th>Výsledok</th></tr>
+              </thead>
+              <tbody>
+                <template x-for="item in cases" :key="item.case_id">
+                  <tr>
+                    <td>
+                      <a :href="'/proposal.html?id=' + encodeURIComponent(item.case_id)" x-text="item.supplier ?? item.case_id"></a>
+                      <div class="hint code" x-text="item.case_id"></div>
+                    </td>
+                    <td class="small-text">
+                      <template x-if="item.expected.length === 0">
+                        <span x-text="codes(item.expected, item.expected_outcome)"></span>
+                      </template>
+                      <template x-for="(line, k) in item.expected" :key="k">
+                        <div class="codes">
+                          <span class="code" x-text="line.key"></span>
+                          <span class="code muted" x-text="line.md + ' / ' + line.dal"></span>
+                        </div>
+                      </template>
+                    </td>
+                    <td class="small-text">
+                      <template x-if="item.proposed.length === 0">
+                        <span x-text="codes(item.proposed, 'coded')"></span>
+                      </template>
+                      <template x-for="(line, k) in item.proposed" :key="k">
+                        <div class="codes">
+                          <span class="code" x-text="line.key"></span>
+                          <span class="code muted" x-text="line.md + ' / ' + line.dal"></span>
+                        </div>
+                      </template>
+                    </td>
+                    <td>
+                      <div class="verdict">
+                        <span class="badge small" :class="item.correct ? 'good' : 'weak'" x-text="item.correct ? 'správne' : 'chybné'"></span>
+                        <span class="badge small" :class="item.needs_review ? 'fair' : 'neutral'" x-text="item.needs_review ? 'na kontrolu' : 'bez kontroly'"></span>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <p class="muted" x-show="cases.length === 0">Žiadne faktúry v tomto filtri.</p>
+        </section>
+      </div>
+    </template>
   </main>
 </body>
 </html>

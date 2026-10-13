@@ -109,6 +109,7 @@ class Candidate(StageResult):
     tier: int = 0  # 2: its description names what the invoice names; 1: same concept
     precedent: PrecedentLine | None = None
     precedent_number: str | None = None
+    precedent_rank: int | None = None  # 0 for the supplier's newest precedent
 
 
 class CandidateSet(StageResult):

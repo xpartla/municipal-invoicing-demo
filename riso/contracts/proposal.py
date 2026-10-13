@@ -99,10 +99,15 @@ class Evidence(Contract):
 
 
 class Alternative(Contract):
+    """Another budget position for the line, with the whole line it would bring, so the UI
+    can swap it in place."""
+
     budget_key: BudgetKey
-    md: AccountKey | None = Field(
-        default=None, description="Debit account it would bring, so the UI can swap the whole line"
-    )
+    md: AccountKey | None = Field(default=None, description="Debit account it would bring")
+    dal: AccountKey | None = Field(default=None, description="Credit account it would bring")
+    transfer: str | None = Field(default=None, description="Transfer, for a grant source")
+    budget_text: str | None = None
+    posting_text: str | None = None
     score: float = Field(ge=0, le=1)
     why: str
 

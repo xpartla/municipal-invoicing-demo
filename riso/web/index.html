@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Faktúry · riso</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/app.css">
   <script defer src="/app.js"></script>
   <script defer src="/vendor/alpine-3.17.4.min.js"></script>
@@ -22,6 +23,17 @@
     <h1>Dodávateľské faktúry</h1>
     <p class="muted">Vyberte faktúru, pre ktorú sa navrhne zaúčtovanie a rozpočet.</p>
     <p class="error" x-show="error" x-text="error"></p>
+    <div class="filters">
+      <input type="search" x-model="query" placeholder="Hľadať dodávateľa alebo číslo faktúry"
+             aria-label="Hľadať">
+      <select x-model="split" aria-label="Sada">
+        <option value="">Všetky sady</option>
+        <option value="anchor">Skeny</option>
+        <option value="seed">Syntetické</option>
+        <option value="heldout">Testovacie</option>
+      </select>
+      <span class="muted" x-text="shown.length + ' z ' + items.length"></span>
+    </div>
     <div class="scroll">
       <table class="grid">
         <thead>
@@ -31,10 +43,11 @@
             <th>Vystavená</th>
             <th class="num">Suma</th>
             <th>Sada</th>
+            <th>Stav</th>
           </tr>
         </thead>
         <tbody>
-          <template x-for="item in items" :key="item.id">
+          <template x-for="item in shown" :key="item.id">
             <tr>
               <td>
                 <a :href="'/proposal.html?id=' + encodeURIComponent(item.id)"
@@ -44,15 +57,25 @@
               <td x-text="formatDate(item.issue_date)"></td>
               <td class="num" x-text="formatAmount(item.gross)"></td>
               <td><span class="tag" x-text="splitLabel(item.split)"></span></td>
+              <td>
+                <template x-if="status(item)">
+                  <span class="badge good small" x-text="status(item)"></span>
+                </template>
+              </td>
             </tr>
           </template>
         </tbody>
       </table>
     </div>
     <section class="card">
-      <h2>Vložiť InvoiceDocument JSON</h2>
-      <textarea rows="6" disabled
-                placeholder="Vkladanie vlastnej faktúry pribudne spolu s návrhom kódovania."></textarea>
+      <h2>Vložiť vlastnú faktúru</h2>
+      <p class="muted">Faktúra vo formáte InvoiceDocument (JSON), ako ju dodá OCR.</p>
+      <textarea rows="6" x-model="pasted" aria-label="InvoiceDocument JSON"
+                placeholder='{"id": "...", "supplier": {...}, "customer": {"ico": "00305863"}, ...}'></textarea>
+      <div class="buttons">
+        <button type="button" class="button" :disabled="!pasted.trim()" @click="propose()">Navrhnúť</button>
+      </div>
+      <p class="error" x-show="pasteError" x-text="pasteError"></p>
     </section>
   </main>
 </body>

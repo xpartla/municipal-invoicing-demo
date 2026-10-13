@@ -22,7 +22,7 @@ from riso.engine.models import (
     NormalisedInvoice,
     ResolvedContext,
 )
-from riso.engine.s5_posting import debit_account
+from riso.engine.s5_posting import choose_transfer, credit_account, debit_account, line_texts
 from riso.knowledge import KnowledgeBase
 from riso.reference import ReferenceIndex
 
@@ -208,11 +208,18 @@ def _alternatives(
             continue
         position = index.expense[candidate.budget_key]
         md, _, _ = debit_account(position, candidate, invoice, context, index, knowledge)
+        dal, _, _ = credit_account(position, candidate, context, index, knowledge)
+        transfer, _ = choose_transfer(position, invoice, index, knowledge)
+        budget_text, posting_text = line_texts(position, candidate, invoice, knowledge)
         why = candidate.evidence[0].detail if candidate.evidence else ", ".join(candidate.sources)
         shown.append(
             Alternative(
                 budget_key=candidate.budget_key,
                 md=md,
+                dal=dal,
+                transfer=transfer,
+                budget_text=budget_text,
+                posting_text=posting_text,
                 score=round(min(candidate.score, 1.0), 2),
                 why=why,
             )

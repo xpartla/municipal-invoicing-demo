@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Návrh · riso</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/app.css">
   <script defer src="/app.js"></script>
   <script defer src="/vendor/alpine-3.17.4.min.js"></script>
@@ -19,54 +20,439 @@
     </nav>
   </header>
   <main x-data="proposalPage()" x-init="load()">
-    <h1>Návrh kódovania</h1>
-    <p class="error" x-show="error" x-text="error"></p>
-
-    <template x-if="invoice">
-      <section class="card">
-        <h2 x-text="invoice.supplier.name ?? 'Neznámy dodávateľ'"></h2>
-        <dl class="facts">
-          <dt>IČO dodávateľa</dt><dd x-text="invoice.supplier.ico ?? '—'"></dd>
-          <dt>Číslo faktúry</dt><dd x-text="invoice.invoice.number ?? '—'"></dd>
-          <dt>Variabilný symbol</dt><dd x-text="invoice.invoice.variable_symbol ?? '—'"></dd>
-          <dt>Dátum vystavenia</dt><dd x-text="formatDate(invoice.invoice.issue_date)"></dd>
-          <dt>Dátum dodania</dt><dd x-text="formatDate(invoice.invoice.delivery_date)"></dd>
-          <dt>Dátum splatnosti</dt><dd x-text="formatDate(invoice.invoice.due_date)"></dd>
-          <dt>Fakturovaná suma</dt><dd x-text="formatAmount(invoice.totals.gross)"></dd>
-          <dt>Dátum zaúčtovania (rukou)</dt><dd x-text="formatDate(invoice.handwritten.date)"></dd>
-          <dt>Číslo dokladu (rukou)</dt><dd x-text="invoice.handwritten.number ?? '—'"></dd>
-        </dl>
-      </section>
-    </template>
-
-    <div class="cards" style="margin-top: 16px">
-      <section class="card">
-        <h2>Zaúčtovanie záväzku</h2>
-        <div class="scroll">
-          <table class="grid">
-            <thead>
-              <tr><th>Účet MD</th><th>Účet DAL</th><th class="num">Suma</th><th>Popis</th></tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="4" class="placeholder">Návrh pribudne v ďalšej etape.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <section class="card">
-        <h2>Rozpočet záväzku</h2>
-        <div class="scroll">
-          <table class="grid">
-            <thead>
-              <tr><th>Položka</th><th class="num">Suma</th><th>Popis</th></tr>
-            </thead>
-            <tbody>
-              <tr><td colspan="3" class="placeholder">Návrh pribudne v ďalšej etape.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+    <div class="page-head">
+      <div>
+        <h1>Návrh kódovania</h1>
+        <p class="muted" x-show="invoice">
+          <span x-text="invoice?.supplier?.name ?? 'Neznámy dodávateľ'"></span>,
+          faktúra <span x-text="invoice?.invoice?.number ?? '—'"></span>,
+          <span x-text="formatAmount(gross)"></span>
+        </p>
+      </div>
+      <a class="button ghost" href="/">Zoznam faktúr</a>
     </div>
+    <p class="error" x-show="error" x-text="error"></p>
+    <p class="muted" x-show="loading">Navrhujem…</p>
+
+    <template x-if="proposal">
+      <div>
+        <!-- Document header and verdict -->
+        <section class="card">
+          <div class="header-row">
+            <div class="doc-fields">
+              <div class="doc-field">
+                <span class="label">Rada</span>
+                <template x-if="mode !== 'correct'">
+                  <span class="value code" x-text="doc.series"></span>
+                </template>
+                <template x-if="mode === 'correct'">
+                  <select x-model="doc.series" aria-label="Rada dokladu">
+                    <template x-for="series in reference.series" :key="series.code">
+                      <option :value="series.code" x-text="series.code"></option>
+                    </template>
+                  </select>
+                </template>
+              </div>
+              <div class="doc-field">
+                <span class="label">Číslo dokladu</span>
+                <template x-if="mode !== 'correct'">
+                  <span>
+                    <span class="value code" x-text="doc.number || '—'"></span>
+                    <button type="button" class="copy" :class="copiedKey === 'number' && 'done'"
+                            @click="copy(doc.number, 'number')" aria-label="Kopírovať číslo dokladu"
+                            title="Kopírovať"></button>
+                  </span>
+                </template>
+                <template x-if="mode === 'correct'">
+                  <input class="code narrow" x-model.trim="doc.number" placeholder="FD/NNN/RR"
+                         aria-label="Číslo dokladu">
+                </template>
+              </div>
+              <div class="doc-field">
+                <span class="label">Dátum zaúčtovania</span>
+                <template x-if="mode !== 'correct'">
+                  <span>
+                    <span class="value" x-text="formatDate(doc.booking_date)"></span>
+                    <button type="button" class="copy" :class="copiedKey === 'date' && 'done'"
+                            @click="copy(formatDate(doc.booking_date), 'date')"
+                            aria-label="Kopírovať dátum zaúčtovania" title="Kopírovať"></button>
+                  </span>
+                </template>
+                <template x-if="mode === 'correct'">
+                  <input type="date" x-model="doc.booking_date" aria-label="Dátum zaúčtovania">
+                </template>
+              </div>
+            </div>
+            <div class="badges">
+              <span class="badge" :class="confidenceClass">
+                Istota <span x-text="formatPercent(proposal.confidence.overall)"></span>
+              </span>
+              <span class="badge" :class="proposal.validation.ok ? 'good' : 'weak'"
+                    x-text="proposal.validation.ok ? 'Kódy overené' : 'Chyba v kódoch'"></span>
+              <span class="badge" :class="proposal.needs_review ? 'fair' : 'good'"
+                    x-text="proposal.needs_review ? 'Na kontrolu' : 'Bez kontroly'"></span>
+              <span class="badge neutral"
+                    x-text="proposal.supplier.known ? 'Známy dodávateľ' : 'Nový dodávateľ'"></span>
+            </div>
+          </div>
+          <template x-if="proposal.review_reasons.length || proposal.validation.errors.length">
+            <div class="notice" :class="proposal.validation.errors.length ? 'bad' : ''">
+              <strong>Prečo na kontrolu</strong>
+              <ul>
+                <template x-for="reason in proposal.validation.errors" :key="'e' + reason">
+                  <li x-text="sk(reason)"></li>
+                </template>
+                <template x-for="reason in proposal.review_reasons" :key="reason">
+                  <li x-text="sk(reason)"></li>
+                </template>
+              </ul>
+            </div>
+          </template>
+        </section>
+
+        <!-- Manual entry: nothing proposed -->
+        <template x-if="manual && mode === 'view'">
+          <section class="card">
+            <h2>Ručné zaúčtovanie</h2>
+            <p>Program nenavrhol žiadny riadok. Doklad zadajte ručne, kódy vyberte z číselníkov.</p>
+            <button type="button" class="button" @click="startCorrecting()">Zadať ručne</button>
+          </section>
+        </template>
+
+        <!-- The two tabs of the software -->
+        <template x-if="mode !== 'correct' && lines.length">
+          <div class="cards">
+            <section class="card">
+              <h2>Zaúčtovanie záväzku</h2>
+              <div class="scroll">
+                <table class="grid">
+                  <thead>
+                    <tr><th>Účet MD</th><th>Účet DAL</th><th class="num">Suma</th><th>Popis</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="(line, i) in lines" :key="'p' + i">
+                      <tr :class="line.choice !== '' && 'swapped'">
+                        <td>
+                          <span class="code" x-text="line.md"></span>
+                          <button type="button" class="copy" :class="copiedKey === 'md' + i && 'done'"
+                                  @click="copy(line.md, 'md' + i)" aria-label="Kopírovať účet MD"
+                                  title="Kopírovať"></button>
+                          <div class="hint" x-text="accountName(line.md)"></div>
+                        </td>
+                        <td>
+                          <span class="code" x-text="line.dal"></span>
+                          <button type="button" class="copy" :class="copiedKey === 'dal' + i && 'done'"
+                                  @click="copy(line.dal, 'dal' + i)" aria-label="Kopírovať účet DAL"
+                                  title="Kopírovať"></button>
+                          <div class="hint" x-text="accountName(line.dal)"></div>
+                        </td>
+                        <td class="num">
+                          <span x-text="formatAmount(parseAmount(line.amount))"></span>
+                          <button type="button" class="copy" :class="copiedKey === 'pa' + i && 'done'"
+                                  @click="copy(amountText(parseAmount(line.amount)), 'pa' + i)"
+                                  aria-label="Kopírovať sumu" title="Kopírovať"></button>
+                        </td>
+                        <td>
+                          <span x-text="line.postingText"></span>
+                          <button type="button" class="copy" :class="copiedKey === 'pt' + i && 'done'"
+                                  @click="copy(line.postingText, 'pt' + i)" aria-label="Kopírovať popis"
+                                  title="Kopírovať"></button>
+                        </td>
+                        <td>
+                          <button type="button" class="copy-line" :class="copiedKey === 'pl' + i && 'done'"
+                                  @click="copy(postingRow(line), 'pl' + i)"
+                                  x-text="copiedKey === 'pl' + i ? 'Skopírované' : 'Riadok'"
+                                  title="Kopírovať celý riadok"></button>
+                        </td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="card">
+              <h2>Rozpočet záväzku</h2>
+              <template x-for="(line, i) in lines" :key="'b' + i">
+                <div class="budget-line" :class="line.choice !== '' && 'swapped'">
+                  <div class="key-row">
+                    <div class="key" :aria-label="'Položka ' + line.key">
+                      <template x-for="[part, label] in KEY_PARTS" :key="part">
+                        <span class="part">
+                          <small x-text="label"></small>
+                          <b class="code" x-text="keyParts(line.key)[part]"></b>
+                        </span>
+                      </template>
+                    </div>
+                    <button type="button" class="copy" :class="copiedKey === 'key' + i && 'done'"
+                            @click="copy(line.key, 'key' + i)" aria-label="Kopírovať položku"
+                            title="Kopírovať položku"></button>
+                  </div>
+                  <div class="hint" x-text="positionName(line.key)"></div>
+                  <dl class="facts compact">
+                    <dt>Suma</dt>
+                    <dd>
+                      <span x-text="formatAmount(parseAmount(line.amount))"></span>
+                      <button type="button" class="copy" :class="copiedKey === 'ba' + i && 'done'"
+                              @click="copy(amountText(parseAmount(line.amount)), 'ba' + i)"
+                              aria-label="Kopírovať sumu" title="Kopírovať"></button>
+                    </dd>
+                    <dt>Popis</dt>
+                    <dd>
+                      <span x-text="line.budgetText"></span>
+                      <button type="button" class="copy" :class="copiedKey === 'bt' + i && 'done'"
+                              @click="copy(line.budgetText, 'bt' + i)" aria-label="Kopírovať popis"
+                              title="Kopírovať"></button>
+                    </dd>
+                    <template x-if="line.transfer">
+                      <dt>Transfer</dt>
+                    </template>
+                    <template x-if="line.transfer">
+                      <dd>
+                        <span class="code" x-text="line.transfer"></span>
+                        <button type="button" class="copy" :class="copiedKey === 'tr' + i && 'done'"
+                                @click="copy(line.transfer, 'tr' + i)" aria-label="Kopírovať transfer"
+                                title="Kopírovať"></button>
+                      </dd>
+                    </template>
+                  </dl>
+                  <div class="line-actions">
+                    <button type="button" class="copy-line" :class="copiedKey === 'bl' + i && 'done'"
+                            @click="copy(budgetRow(line), 'bl' + i)"
+                            x-text="copiedKey === 'bl' + i ? 'Skopírované' : 'Riadok'"
+                            title="Kopírovať celý riadok"></button>
+                    <template x-if="mode === 'view' && proposal.alternatives.length">
+                      <label class="alternatives">
+                        <span>Iná položka</span>
+                        <select x-model="line.choice" @change="swap(i)">
+                          <option value="">Navrhnutá</option>
+                          <template x-for="(alternative, a) in proposal.alternatives" :key="a">
+                            <option :value="String(a)" x-text="alternativeLabel(alternative)"></option>
+                          </template>
+                        </select>
+                      </label>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </section>
+          </div>
+        </template>
+
+        <!-- Correct and accept: codes only from the dictionaries -->
+        <template x-if="mode === 'correct'">
+          <section class="card">
+            <h2>Oprava</h2>
+            <p class="muted">Kódy vyberte z číselníkov obce. Po výbere položky program doplní účty a popisy podľa pravidiel; môžete ich zmeniť.</p>
+            <datalist id="positions">
+              <template x-for="position in reference.bundle.budget_positions_expense" :key="position.key">
+                <option :value="position.key" x-text="position.description"></option>
+              </template>
+            </datalist>
+            <datalist id="accounts">
+              <template x-for="account in reference.bundle.accounts" :key="account.key">
+                <option :value="account.key" x-text="account.description"></option>
+              </template>
+            </datalist>
+            <datalist id="supplier-accounts">
+              <template x-for="account in reference.supplierAccounts" :key="account.key">
+                <option :value="account.key" x-text="account.description"></option>
+              </template>
+            </datalist>
+            <template x-for="(line, i) in lines" :key="'e' + i">
+              <fieldset class="editor">
+                <legend>Riadok <span x-text="i + 1"></span></legend>
+                <label class="wide">
+                  <span>Rozpočtová položka</span>
+                  <input class="code" list="positions" x-model.trim="line.key" @change="picked(i)"
+                         placeholder="EK zdroj oddiel trieda analytika">
+                  <small class="hint" x-text="positionName(line.key) || ' '"></small>
+                </label>
+                <label>
+                  <span>Účet MD</span>
+                  <input class="code" list="accounts" x-model.trim="line.md" placeholder="518 000">
+                  <small class="hint" x-text="accountName(line.md) || ' '"></small>
+                </label>
+                <label>
+                  <span>Účet DAL</span>
+                  <input class="code" list="supplier-accounts" x-model.trim="line.dal" placeholder="321 000">
+                  <small class="hint" x-text="accountName(line.dal) || ' '"></small>
+                </label>
+                <label>
+                  <span>Suma</span>
+                  <input class="num" inputmode="decimal" x-model="line.amount">
+                </label>
+                <label>
+                  <span>Transfer</span>
+                  <select x-model="line.transfer">
+                    <option value="">bez transferu</option>
+                    <template x-for="transfer in transfersFor(line)" :key="transfer.id">
+                      <option :value="transfer.id" x-text="transfer.id + ' · ' + transfer.name"></option>
+                    </template>
+                  </select>
+                </label>
+                <label class="wide">
+                  <span>Popis v rozpočte</span>
+                  <input x-model="line.budgetText">
+                </label>
+                <label class="wide">
+                  <span>Popis v zaúčtovaní</span>
+                  <input x-model="line.postingText">
+                </label>
+                <div class="editor-actions" x-show="lines.length > 1">
+                  <button type="button" class="button ghost small" @click="removeLine(i)">Odstrániť riadok</button>
+                </div>
+              </fieldset>
+            </template>
+            <button type="button" class="button ghost small" @click="addLine()">Pridať riadok</button>
+            <p class="muted">
+              Spolu <span x-text="formatAmount(total)"></span>, faktúra <span x-text="formatAmount(gross)"></span>
+            </p>
+            <template x-if="problems.errors.length || problems.warnings.length">
+              <div class="notice" :class="problems.errors.length ? 'bad' : ''">
+                <ul>
+                  <template x-for="problem in problems.errors" :key="problem"><li x-text="problem"></li></template>
+                  <template x-for="problem in problems.warnings" :key="problem"><li x-text="problem"></li></template>
+                </ul>
+              </div>
+            </template>
+            <label class="wide">
+              <span>Poznámka k oprave</span>
+              <textarea rows="2" x-model="note" placeholder="Nepovinné"></textarea>
+            </label>
+          </section>
+        </template>
+
+        <!-- Verdict -->
+        <section class="actions" x-show="mode !== 'saved'">
+          <template x-if="mode === 'view' && !manual">
+            <div class="buttons">
+              <button type="button" class="button" :disabled="saving" @click="save()"
+                      x-text="changed ? 'Prijať so zmenou' : 'Prijať'"></button>
+              <button type="button" class="button ghost" @click="startCorrecting()">Opraviť a prijať</button>
+              <button type="button" class="button ghost" x-show="changed" @click="reset()">Pôvodný návrh</button>
+            </div>
+          </template>
+          <template x-if="mode === 'correct'">
+            <div class="buttons">
+              <button type="button" class="button" :disabled="saving || problems.errors.length > 0"
+                      @click="save()">Uložiť opravu</button>
+              <button type="button" class="button ghost" @click="cancelCorrecting()">Zrušiť</button>
+            </div>
+          </template>
+          <p class="error" x-show="saveError" x-text="saveError"></p>
+        </section>
+
+        <template x-if="mode === 'saved' && receipt">
+          <section class="notice good-notice">
+            <strong x-text="receipt.action === 'accepted' ? 'Návrh prijatý.' : 'Oprava uložená.'"></strong>
+            <span x-show="receipt.document_number">
+              Číslo <span class="code" x-text="receipt.document_number"></span> je použité.
+            </span>
+            <span x-show="receipt.precedents">
+              Dodávateľ má v pamäti <span x-text="receipt.precedents"></span>
+              <span x-text="receipt.precedents === 1 ? 'precedens' : (receipt.precedents < 5 ? 'precedensy' : 'precedensov')"></span>.
+            </span>
+            <div class="buttons">
+              <button type="button" class="button ghost" @click="propose()">Navrhnúť znova</button>
+              <template x-if="nextId">
+                <a class="button" :href="'/proposal.html?id=' + encodeURIComponent(nextId)">Ďalšia faktúra</a>
+              </template>
+            </div>
+          </section>
+        </template>
+
+        <!-- Evidence -->
+        <section class="card">
+          <details :open="showEvidence" @toggle="showEvidence = $el.open">
+            <summary><h2 class="inline">Prečo práve toto</h2></summary>
+            <div class="evidence">
+              <template x-for="[field, items] in evidenceByField" :key="field">
+                <div class="evidence-group">
+                  <h3 x-text="FIELD_LABELS[field] ?? field"></h3>
+                  <ul>
+                    <template x-for="item in items" :key="item.detail">
+                      <li>
+                        <span class="tag" x-text="SOURCE_LABELS[item.source] ?? item.source"></span>
+                        <span x-text="sk(item.detail)"></span>
+                      </li>
+                    </template>
+                  </ul>
+                </div>
+              </template>
+              <div class="evidence-group">
+                <h3>Istota po poliach</h3>
+                <table class="grid compact">
+                  <tbody>
+                    <template x-for="[label, value] in confidenceRows()" :key="label">
+                      <tr><td x-text="label"></td><td class="num" x-text="formatPercent(value)"></td></tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+              <template x-if="proposal.validation.checks.length">
+                <div class="evidence-group">
+                  <h3>Kontroly v poriadku</h3>
+                  <ul>
+                    <template x-for="check in proposal.validation.checks" :key="check">
+                      <li x-text="checkName(check)"></li>
+                    </template>
+                  </ul>
+                </div>
+              </template>
+              <template x-if="proposal.validation.warnings.length">
+                <div class="evidence-group">
+                  <h3>Upozornenia</h3>
+                  <ul>
+                    <template x-for="warning in proposal.validation.warnings" :key="warning">
+                      <li x-text="sk(warning)"></li>
+                    </template>
+                  </ul>
+                </div>
+              </template>
+            </div>
+          </details>
+        </section>
+
+        <!-- The invoice as the OCR read it -->
+        <section class="card">
+          <h2>Faktúra</h2>
+          <dl class="facts">
+            <dt>Dodávateľ</dt><dd x-text="invoice.supplier.name ?? '—'"></dd>
+            <dt>IČO dodávateľa</dt><dd x-text="invoice.supplier.ico ?? '—'"></dd>
+            <dt>Číslo faktúry</dt><dd x-text="invoice.invoice.number ?? '—'"></dd>
+            <dt>Variabilný symbol</dt><dd x-text="invoice.invoice.variable_symbol ?? '—'"></dd>
+            <dt>Vystavená</dt><dd x-text="formatDate(invoice.invoice.issue_date)"></dd>
+            <dt>Dodanie</dt><dd x-text="formatDate(invoice.invoice.delivery_date)"></dd>
+            <dt>Splatná</dt><dd x-text="formatDate(invoice.invoice.due_date)"></dd>
+            <dt>Spolu</dt><dd x-text="formatAmount(invoice.totals.gross)"></dd>
+            <dt>Rukou na doklade</dt>
+            <dd>
+              <span x-text="formatDate(invoice.handwritten.date)"></span>,
+              číslo <span x-text="invoice.handwritten.number ?? '—'"></span>
+            </dd>
+          </dl>
+          <div class="scroll">
+            <table class="grid">
+              <thead><tr><th>Položka</th><th class="num">Bez DPH</th><th class="num">DPH %</th><th class="num">Spolu</th></tr></thead>
+              <tbody>
+                <template x-for="(entry, i) in invoice.lines" :key="i">
+                  <tr>
+                    <td x-text="entry.description"></td>
+                    <td class="num" x-text="formatAmount(entry.net)"></td>
+                    <td class="num" x-text="entry.vat_rate ?? '—'"></td>
+                    <td class="num" x-text="formatAmount(entryGross(entry))"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <ul class="free-text" x-show="invoice.free_text.length">
+            <template x-for="text in invoice.free_text" :key="text"><li x-text="text"></li></template>
+          </ul>
+        </section>
+      </div>
+    </template>
   </main>
 </body>
 </html>

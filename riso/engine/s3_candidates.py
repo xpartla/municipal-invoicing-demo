@@ -207,6 +207,7 @@ def _precedent_candidates(
                     ),
                     precedent=line,
                     precedent_number=precedent.document_number,
+                    precedent_rank=rank,
                 )
             )
     return found
@@ -461,7 +462,11 @@ def _merge(found: list[Candidate]) -> tuple[Candidate, ...]:
         best = max(group, key=lambda c: c.score)
         sources = tuple(dict.fromkeys(s for c in group for s in c.sources))
         evidence = {(e.field, e.source, e.detail): e for c in group for e in c.evidence}
-        with_precedent = next((c for c in group if c.precedent is not None), None)
+        with_precedent = min(
+            (c for c in group if c.precedent is not None),
+            key=lambda c: c.precedent_rank or 0,
+            default=None,
+        )
         merged.append(
             Candidate(
                 budget_key=key,
@@ -472,6 +477,7 @@ def _merge(found: list[Candidate]) -> tuple[Candidate, ...]:
                 tier=max(c.tier for c in group),
                 precedent=with_precedent.precedent if with_precedent else None,
                 precedent_number=with_precedent.precedent_number if with_precedent else None,
+                precedent_rank=with_precedent.precedent_rank if with_precedent else None,
             )
         )
     return tuple(sorted(merged, key=lambda c: (-c.score, c.budget_key)))
