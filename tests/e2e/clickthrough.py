@@ -1,4 +1,4 @@
-"""End-to-end click-through of the four pages in a headless browser: the M3 exit criterion.
+"""End-to-end click-through of the five pages in a headless browser: the M3 exit criterion.
 
 It starts the app on a free port with its own empty runtime state, so it leaves var/ alone and
 runs the same on a fresh clone. Playwright is not a project dependency; run it with
@@ -72,6 +72,15 @@ with sync_playwright() as p:
     )
     page.on("pageerror", lambda e: problems.append(f"page error: {e}"))
 
+    step("how it works shows the OCR's JSON of the Telekom invoice")
+    page.goto(f"{BASE}/about.html")
+    example = page.locator("pre.json").first
+    expect(example).to_contain_text('"number": "144"')
+    page.get_by_role("button", name="Kopírovať JSON").click()
+    served = json.load(urllib.request.urlopen(f"{BASE}/api/invoices/anchor-telekom"))
+    assert json.loads(page.evaluate("navigator.clipboard.readText()")) == served
+    shot(page, "00-about")
+
     step("picker lists the dataset")
     page.goto(f"{BASE}/")
     expect(page.locator("tbody tr")).to_have_count(74)
@@ -91,7 +100,11 @@ with sync_playwright() as p:
     page.locator(".budget-line .copy-line").first.click()
     row = page.evaluate("navigator.clipboard.readText()")
     assert row == "632005 41 01 110 000\t93,71\ttelefon,fax", repr(row)
-    page.locator("details summary").click()
+    page.locator("summary", has_text="Prečo práve toto").click()
+    page.locator("summary", has_text="Vstup z OCR").click()
+    expect(page.locator(".ocr-input pre.json")).to_contain_text('"ico": "35763469"')
+    page.locator(".ocr-input").get_by_role("button", name="Kopírovať JSON").click()
+    assert json.loads(page.evaluate("navigator.clipboard.readText()"))["id"] == "anchor-telekom"
     shot(page, "02-proposal-telekom")
 
     step("an alternative swaps the whole line, and back")
@@ -173,9 +186,17 @@ with sync_playwright() as p:
     page.fill("input[type=search]", "telefon")
     expect(page.locator("tbody tr").first).to_contain_text("telefon")
     page.fill("input[type=search]", "")
+    expect(page.locator(".key-anatomy")).to_contain_text("Analytika")
     page.get_by_role("tab", name="Upozornenia").click()
     expect(page.locator("tbody")).to_contain_text("zlúčené")
     shot(page, "09-reference")
+
+    step("the series tab shows the counters the feedback moved")
+    page.get_by_role("tab", name="Číselné rady").click()
+    counters = page.locator("table.counters tbody tr").first
+    expect(counters).to_contain_text("FD/253/26")  # after FD/252/26, the corrected heldout-19
+    expect(counters).to_contain_text("FD/144/26")
+    shot(page, "09b-numbering")
 
     step("evaluation")
     page.goto(f"{BASE}/eval.html")
@@ -189,10 +210,22 @@ with sync_playwright() as p:
     phone.set_viewport_size({"width": 390, "height": 844})
     phone.goto(f"{BASE}/proposal.html?id=anchor-dpo")
     expect(phone.get_by_role("heading", name="Rozpočet záväzku")).to_be_visible()
-    width = phone.evaluate("document.documentElement.scrollWidth")
-    if width > 390:
-        problems.append(f"phone: page is {width}px wide")
+    phone.locator("summary", has_text="Vstup z OCR").click()
     shot(phone, "11-phone")
+    phone.goto(f"{BASE}/about.html")
+    expect(phone.locator("pre.json").first).to_contain_text("Slovak Telekom")
+    shot(phone, "12-phone-about")
+    phone.goto(f"{BASE}/reference.html?tab=series")
+    expect(phone.locator("table.counters")).to_be_visible()
+    shot(phone, "13-phone-numbering")
+    for url in ("/proposal.html?id=anchor-dpo", "/about.html", "/reference.html?tab=series"):
+        phone.goto(f"{BASE}{url}")
+        phone.wait_for_load_state("networkidle")
+        if url.startswith("/proposal"):
+            phone.locator("summary", has_text="Vstup z OCR").click()
+        width = phone.evaluate("document.documentElement.scrollWidth")
+        if width > 390:
+            problems.append(f"phone: {url} is {width}px wide")
     browser.close()
 
 for problem in problems:

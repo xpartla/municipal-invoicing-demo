@@ -13,6 +13,7 @@
   <header class="topbar">
     <span class="brand">riso</span>
     <nav>
+      <a href="/about.html">Ako to funguje</a>
       <a href="/">Faktúry</a>
       <a href="/proposal.html" aria-current="page">Návrh</a>
       <a href="/reference.html">Číselníky</a>
@@ -33,6 +34,23 @@
     </div>
     <p class="error" x-show="error" x-text="error"></p>
     <p class="muted" x-show="loading">Navrhujem…</p>
+
+    <!-- The OCR's output for this invoice, as the app received it -->
+    <template x-if="invoice">
+      <details class="card ocr-input">
+        <summary><h2 class="inline">Vstup z OCR (JSON)</h2></summary>
+        <div class="page-head">
+          <p class="muted">
+            Faktúra tak, ako ju aplikácia dostala od OCR. Význam polí vysvetľuje stránka
+            <a href="/about.html">Ako to funguje</a>.
+          </p>
+          <button type="button" class="copy-line" :class="copiedKey === 'json' && 'done'"
+                  @click="copy(invoiceJson, 'json')"
+                  x-text="copiedKey === 'json' ? 'Skopírované' : 'Kopírovať JSON'"></button>
+        </div>
+        <pre class="json" x-text="invoiceJson"></pre>
+      </details>
+    </template>
 
     <template x-if="proposal">
       <div>

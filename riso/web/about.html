@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ako to funguje · riso</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css">
+  <script defer src="/app.js"></script>
+  <script defer src="/vendor/alpine-3.17.4.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <span class="brand">riso</span>
+    <nav>
+      <a href="/about.html" aria-current="page">Ako to funguje</a>
+      <a href="/">Faktúry</a>
+      <a href="/proposal.html">Návrh</a>
+      <a href="/reference.html">Číselníky</a>
+      <a href="/eval.html">Vyhodnotenie</a>
+    </nav>
+  </header>
+  <main x-data="aboutPage()" x-init="load()">
+    <h1>Ako to funguje</h1>
+    <p class="lead">
+      Ukážka vezme došlú dodávateľskú faktúru obce tak, ako by ju odovzdalo OCR, a navrhne, čo
+      účtovník zadá do účtovného programu: zaúčtovanie (účty MD a DAL), rozpočtovú položku a
+      hlavičku dokladu (rada, číslo dokladu, dátum zaúčtovania). Účtovník návrh prijme alebo opraví
+      a aplikácia si opravu zapamätá. Obec v ukážke je Obec Boldog so svojimi skutočnými číselníkmi.
+    </p>
+
+    <section class="card">
+      <h2>Postup</h2>
+      <ol class="steps">
+        <li>
+          <strong>Vstup z OCR.</strong> Faktúra príde ako štruktúrované dáta vo formáte JSON
+          (príklad nižšie). Samotné OCR v ukážke nie je: faktúry sú pripravené tak, ako by ich OCR
+          vrátilo, aj s typickými chybami čítania.
+        </li>
+        <li>
+          <strong>Dodávateľ.</strong> Aplikácia ho nájde podľa IČO, prípadne podľa názvu. Ak už obec
+          od neho účtovala, vychádza z jeho posledného zaúčtovania.
+        </li>
+        <li>
+          <strong>Návrh.</strong> Pri novom dodávateľovi prečíta text faktúry a podľa slovníka
+          pojmov a účtovných pravidiel vyberie rozpočtovú položku a účty.
+        </li>
+        <li>
+          <strong>Kontroly.</strong> Každý kód sa overí v <a href="/reference.html">číselníkoch</a>
+          obce. Aplikácia upozorní aj na obsadené číslo dokladu alebo dvakrát zaúčtovanú faktúru.
+        </li>
+        <li>
+          <strong>Prijatie alebo oprava.</strong> Pri neistote je návrh označený na kontrolu aj s
+          dôvodom. Oprava sa stane vzorom pre ďalšie faktúry toho istého dodávateľa.
+        </li>
+        <li>
+          <strong>Prenos do programu.</strong> V ukážke cez tlačidlá na kopírovanie: jednu hodnotu
+          alebo celý riadok naraz.
+        </li>
+      </ol>
+      <p class="muted">
+        Bez umelej inteligencie: história dodávateľov, spísané účtovné pravidlá a porovnávanie
+        textov. Každé rozhodnutie aplikácia vysvetlí v časti „Prečo práve toto“ na stránke návrhu.
+      </p>
+    </section>
+
+    <section class="card">
+      <div class="page-head">
+        <h2>Vstup z OCR: príklad</h2>
+        <div class="buttons">
+          <button type="button" class="copy-line" :class="copiedKey === 'json' && 'done'"
+                  :disabled="!json" @click="copy(json, 'json')"
+                  x-text="copiedKey === 'json' ? 'Skopírované' : 'Kopírovať JSON'"></button>
+          <a class="button ghost small" :href="'/proposal.html?id=' + EXAMPLE_INVOICE">
+            Návrh pre túto faktúru
+          </a>
+        </div>
+      </div>
+      <p>
+        Faktúra Slovak Telekomu (skutočný sken) presne v podobe, v akej ju aplikácia dostane od OCR.
+        Názvy polí sú anglické, lebo ide o dohodnutý formát medzi OCR a aplikáciou; ich význam je v
+        tabuľke nižšie.
+      </p>
+      <p class="error" x-show="error" x-text="error"></p>
+      <pre class="json" x-show="json" x-text="json"></pre>
+    </section>
+
+    <section class="card">
+      <h2>Čo znamenajú polia</h2>
+      <div class="scroll">
+        <table class="grid">
+          <thead><tr><th>Pole</th><th>Význam</th></tr></thead>
+          <tbody>
+            <tr>
+              <td class="code">id</td>
+              <td>Označenie faktúry v aplikácii.</td>
+            </tr>
+            <tr>
+              <td class="code">supplier</td>
+              <td>
+                Dodávateľ: názov, IČO, DIČ, IČ DPH, IBAN, adresa a či je platiteľom DPH. Podľa IČO
+                aplikácia hľadá, ako obec dodávateľa účtovala doteraz.
+              </td>
+            </tr>
+            <tr>
+              <td class="code">customer</td>
+              <td>Odberateľ, teda obec. Podľa jej IČO aplikácia vyberie číselníky obce.</td>
+            </tr>
+            <tr>
+              <td class="code">invoice</td>
+              <td>
+                Hlavička faktúry: číslo, dátum vystavenia, dodania a splatnosti, variabilný symbol,
+                mena a druh dokladu (faktúra alebo dobropis).
+              </td>
+            </tr>
+            <tr>
+              <td class="code">handwritten</td>
+              <td>
+                Ručná poznámka účtovníka na doklade: <span class="code">date</span> je dátum
+                zaúčtovania, <span class="code">number</span> poradové číslo dokladu
+                (144 → FD/144/26).
+              </td>
+            </tr>
+            <tr>
+              <td class="code">totals</td>
+              <td>Súčty faktúry: bez DPH, DPH, spolu a sadzby DPH.</td>
+            </tr>
+            <tr>
+              <td class="code">lines</td>
+              <td>
+                Položky faktúry: popis, prípadne množstvo, jednotka a cena, suma bez DPH, sadzba
+                DPH, DPH a spolu. Z popisov aplikácia určuje, čo sa kúpilo.
+              </td>
+            </tr>
+            <tr>
+              <td class="code">free_text</td>
+              <td>Ďalší text z faktúry, napríklad obdobie alebo číslo zmluvy. Aplikácia ho číta tiež.</td>
+            </tr>
+            <tr>
+              <td class="code">ocr_meta</td>
+              <td>
+                Údaje o čítaní: zdrojový súbor, počet strán, či je faktúra vymyslená na testovanie
+                (<span class="code">synthetic</span>) a istota OCR pri jednotlivých poliach
+                (<span class="code">confidence</span>).
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <h3 class="spaced">Keď OCR niečo neprečíta</h3>
+      <p>
+        Pole má hodnotu <span class="code">null</span> a v
+        <span class="code">ocr_meta.confidence</span> je istota OCR od 0 do 1. Pri testovacej
+        faktúre BVS napríklad OCR neprečítalo ručne písaný dátum (výňatok):
+      </p>
+      <pre class="json">"handwritten": { "date": null, "number": "239" },
+"ocr_meta": { "confidence": { "handwritten.date": 0.2 } }</pre>
+      <p>
+        Aplikácia potom dátum zaúčtovania nevyplní a
+        <a href="/proposal.html?id=heldout-10-bvs-water-ocu-noise">návrh</a> označí na kontrolu.
+        Keď chýba číslo dokladu, doplní ho počítadlo; viac na stránke
+        <a href="/reference.html?tab=series">Číselníky, Číselné rady</a>.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Číselníky</h2>
+      <p>
+        Číselníky sú zoznamy kódov z účtovného programu obce: rozpočtové položky, účty, číselné rady
+        dokladov a transfery. Aplikácia navrhuje a pri oprave pripustí len kódy, ktoré v nich sú.
+        Čo ktorý zoznam znamená a ako sa číslujú doklady, vysvetľuje stránka
+        <a href="/reference.html">Číselníky</a>.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Čo ukážka nerobí</h2>
+      <ul>
+        <li>Samotné OCR: vstup je pripravený vopred.</li>
+        <li>Zápis do účtovného programu ani zosúladenie čísel dokladov s ním.</li>
+        <li>Dobropisy: aplikácia ich rozpozná, ale zadávajú sa ručne.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

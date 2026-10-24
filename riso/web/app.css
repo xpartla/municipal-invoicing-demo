@@ -225,6 +225,27 @@ details > summary { cursor: pointer; list-style-position: outside; }
 .grid.compact th, .grid.compact td { padding: 4px 8px; }
 .free-text { color: var(--muted); }
 
+/* The OCR's JSON: scrolls inside its own box, never the page. */
+pre.json {
+  margin: 12px 0 0;
+  padding: 12px;
+  max-height: 28rem;
+  overflow: auto;
+  background: var(--head);
+  border-radius: 6px;
+  font: 0.82rem/1.45 ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+.ocr-input > summary + * { margin-top: 12px; }
+.ocr-input .page-head p { margin: 0; flex: 1 1 20em; }
+.lead { max-width: 60em; }
+.steps { margin: 0; padding-left: 20px; }
+.steps li { margin-bottom: 6px; }
+h3.spaced { margin-top: 16px; }
+p.flush-top { margin-top: 0; }
+.tab-note { margin: 12px 0 0; max-width: 60em; }
+.key-anatomy .key { margin-bottom: 8px; }
+td.wrap { white-space: normal; }
+
 .filters { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0; }
 .filters input[type="search"] { flex: 1 1 260px; max-width: 420px; }
 .tabs { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 12px; border-bottom: 1px solid var(--line); }

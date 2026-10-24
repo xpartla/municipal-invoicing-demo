@@ -189,11 +189,57 @@ def test_coding_needs_reference_data_for_the_customer(client):
     assert client.post("/api/code", json={"invoice": invoice}).status_code == 404
 
 
+def test_the_counters_start_from_the_initial_state(client):
+    response = client.get("/api/counters/00305863")
+
+    assert response.status_code == 200
+    assert response.json() == [
+        {
+            "series": "FD",
+            "year": 2026,
+            "last_used": "FD/222/26",
+            "next": "FD/223/26",
+            "used": ["FD/183/26", "FD/213/26", "FD/215/26", "FD/222/26"],
+        },
+        {"series": "FDŠJ", "year": 2026, "last_used": None, "next": "FDŠJ/001/26", "used": []},
+    ]
+
+
+def test_feedback_moves_the_counter_past_the_highest_number_used(client):
+    for case_id in ("anchor-telekom", "heldout-19-telekom-phone"):
+        proposal = client.post("/api/code", json={"invoice": _invoice(case_id)}).json()
+        assert client.post("/api/feedback", json=_feedback(proposal)).status_code == 200
+
+    fd = client.get("/api/counters/00305863").json()[0]
+
+    assert fd["last_used"] == "FD/252/26"
+    assert fd["next"] == "FD/253/26"
+    assert fd["used"] == [
+        "FD/144/26",
+        "FD/183/26",
+        "FD/213/26",
+        "FD/215/26",
+        "FD/222/26",
+        "FD/252/26",
+    ]
+
+
+def test_counters_of_an_unknown_entity_are_not_found(client):
+    assert client.get("/api/counters/00305111").status_code == 404
+
+
 def test_the_pages_and_vendored_script_are_served(client):
     page = client.get("/")
 
     assert page.status_code == 200
     assert "Dodávateľské faktúry" in page.text
-    for path in ("/proposal.html", "/reference.html", "/eval.html", "/app.js", "/app.css"):
+    for path in (
+        "/about.html",
+        "/proposal.html",
+        "/reference.html",
+        "/eval.html",
+        "/app.js",
+        "/app.css",
+    ):
         assert client.get(path).status_code == 200, path
     assert client.get("/vendor/alpine-3.17.4.min.js").status_code == 200

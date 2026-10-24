@@ -27,7 +27,13 @@ from riso.engine.s6_validate import check_coding
 from riso.engine.s8_feedback import apply_feedback
 from riso.eval import evaluate
 from riso.knowledge import UnknownKnowledge, load_knowledge
-from riso.reference import LocalReferenceSource, ReferenceIndex, UnknownEntity
+from riso.reference import (
+    LocalReferenceSource,
+    ReferenceIndex,
+    UnknownEntity,
+    format_number,
+    parse_number,
+)
 from riso.store import StateStore
 
 
@@ -86,6 +92,16 @@ class FeedbackItem(BaseModel):
     action: str
     document_number: str | None
     received_at: dt.datetime | None
+
+
+class SeriesCounter(BaseModel):
+    """One row of GET /api/counters: a series' document numbers in one year."""
+
+    series: str
+    year: int
+    last_used: str | None  # the highest number taken, e.g. FD/222/26; None before the first
+    next: str  # what the counter fills in when the OCR could not read the handwritten number
+    used: list[str]  # the numbers of this series and year already taken, lowest first
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -218,6 +234,44 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
             for item in state.feedback(entity)
         ]
+
+    @app.get("/api/counters/{entity}")
+    def counters(entity: str) -> list[SeriesCounter]:
+        """The document counters, invoice series first: the last number used, the one the
+        counter would fill in next, and the numbers taken. Only feedback moves them."""
+        try:
+            context = references.context(entity)
+            index = ReferenceIndex(references.bundle(entity, context.reference_period))
+            counters = state.counters(entity)
+        except UnknownEntity as exc:
+            raise HTTPException(404, str(exc)) from exc
+        except FileNotFoundError as exc:
+            raise HTTPException(404, f"no counters for {entity}") from exc
+        year = context.budget_year
+        keys = [f"{context.default_series}/{year}", f"{context.canteen_series}/{year}"]
+        rows = []
+        for key in dict.fromkeys([*keys, *counters.last_used]):
+            code, year_text = key.split("/")
+            series = index.series.get(code)
+            if series is None:
+                continue
+            series_year = int(year_text)
+            taken = []
+            for number in counters.used_numbers:
+                parsed = parse_number(series.pattern, number)
+                if parsed is not None and parsed.year == series_year % 100:
+                    taken.append((parsed.sequence, number))
+            last = counters.last_used.get(key, 0)
+            rows.append(
+                SeriesCounter(
+                    series=code,
+                    year=series_year,
+                    last_used=format_number(series.pattern, last, series_year) if last else None,
+                    next=format_number(series.pattern, last + 1, series_year),
+                    used=[number for _, number in sorted(taken)],
+                )
+            )
+        return rows
 
     @app.get("/api/eval")
     def evaluation(

@@ -259,6 +259,27 @@ function copier() {
   };
 }
 
+// --- How it works: the OCR's output for one real invoice, as the API serves it ---
+
+const EXAMPLE_INVOICE = "anchor-telekom";
+
+function aboutPage() {
+  return {
+    ...copier(),
+    json: "",
+    error: null,
+    EXAMPLE_INVOICE,
+    async load() {
+      try {
+        const invoice = await fetchJSON(`/api/invoices/${EXAMPLE_INVOICE}`);
+        this.json = JSON.stringify(invoice, null, 2);
+      } catch (error) {
+        this.error = error.message;
+      }
+    },
+  };
+}
+
 // --- Invoice picker ---
 
 function invoicePicker() {
@@ -436,6 +457,9 @@ function proposalPage() {
 
     get gross() {
       return this.proposal?.invoice.gross ?? this.invoice?.totals?.gross ?? null;
+    },
+    get invoiceJson() {
+      return this.invoice ? JSON.stringify(this.invoice, null, 2) : "";
     },
     get manual() {
       return this.proposal && this.proposal.budget.length === 0;
@@ -710,15 +734,49 @@ const REFERENCE_TABS = [
   ["warnings", "Upozornenia"],
 ];
 
+// What each list is and how the app uses it, shown above the tab's table.
+const TAB_NOTES = {
+  expense:
+    "Výdavkové položky rozpočtu obce. Každý riadok dodávateľskej faktúry sa zaradí na jednu z nich " +
+    "(karta Rozpočet záväzku v návrhu).",
+  accounts:
+    "Účty pre kartu Zaúčtovanie záväzku. Na MD ide spravidla nákladový účet (napr. 518 003), pri " +
+    "investícii obstaranie majetku (042), na DAL záväzok voči dodávateľovi (321 000, pri školskej " +
+    "jedálni 321 080).",
+  income:
+    "Príjmové položky rozpočtu. Dodávateľské faktúry ich nepoužívajú; z ich dotačných riadkov " +
+    "ukážka vytvorila simulovaný zoznam transferov.",
+  series:
+    "Číselné rady dokladov. Dodávateľské faktúry používajú radu FD, potraviny pre školskú jedáleň " +
+    "radu FDŠJ; ostatné rady (banka, pokladnica, odberateľské faktúry, mzdy…) sú tu pre úplnosť.",
+  transfers:
+    "Transfer sa pripája k riadku rozpočtu, keď faktúru platí dotácia, napr. zo štátneho rozpočtu " +
+    "(zdroj 111). Zoznam je v ukážke simulovaný z dotačných riadkov príjmov; skutočný príde z " +
+    "účtovného programu.",
+  centres:
+    "Strediská obec nepoužíva, preto je zoznam prázdny a pole stredisko pri zaúčtovaní zostáva " +
+    "prázdne.",
+  warnings:
+    "Čo import exportu z účtovného programu našiel nezvyčajné: zlúčený zdvojený riadok rozpočtu " +
+    "a riadky bez popisu.",
+};
+
+function rowsWord(count) {
+  if (count === 1) return "riadok";
+  return count >= 2 && count <= 4 ? "riadky" : "riadkov";
+}
+
 function referencePage() {
   return {
     entity: null,
     bundle: null,
+    counters: null,
     tab: "expense",
     query: "",
     error: null,
     REFERENCE_TABS,
     ACCOUNT_TYPES,
+    TAB_NOTES,
     async load() {
       await loadMessages();
       try {
@@ -733,7 +791,18 @@ function referencePage() {
         if (REFERENCE_TABS.some(([key]) => key === tab)) this.tab = tab;
       } catch (error) {
         this.error = error.message;
+        return;
       }
+      try {
+        this.counters = await fetchJSON(`/api/counters/${this.entity.ico}`);
+      } catch {
+        // The counters only add to the series tab; the lists show without them.
+      }
+    },
+    get sources() {
+      return (this.bundle?.sources ?? [])
+        .map((source) => `${source.name} (${source.data_rows} ${rowsWord(source.data_rows)})`)
+        .join(", ");
     },
     count(tab) {
       if (!this.bundle) return 0;

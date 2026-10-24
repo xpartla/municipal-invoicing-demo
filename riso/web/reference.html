@@ -13,6 +13,7 @@
   <header class="topbar">
     <span class="brand">riso</span>
     <nav>
+      <a href="/about.html">Ako to funguje</a>
       <a href="/">Faktúry</a>
       <a href="/proposal.html">Návrh</a>
       <a href="/reference.html" aria-current="page">Číselníky</a>
@@ -25,11 +26,31 @@
 
     <template x-if="bundle">
       <div>
-        <p class="muted">
-          <span x-text="bundle.entity.name"></span>, IČO <span x-text="bundle.entity.ico"></span>,
-          obdobie <span x-text="bundle.period"></span>. Každý navrhnutý kód musí byť v týchto
-          číselníkoch.
-        </p>
+        <section class="card">
+          <p class="flush-top">
+            Číselníky sú zoznamy kódov z účtovného programu obce: rozpočtové položky, účty, číselné
+            rady dokladov a transfery. Ukážka používa číselníky, ktoré má
+            <span x-text="bundle.entity.name"></span> (IČO <span x-text="bundle.entity.ico"></span>),
+            z exportu za obdobie <span x-text="bundle.period"></span>:
+            <span x-text="sources"></span>.
+          </p>
+          <p>V aplikácii majú tri úlohy:</p>
+          <ol class="steps">
+            <li><strong>Návrh:</strong> aplikácia navrhuje len kódy, ktoré v číselníkoch sú.</li>
+            <li>
+              <strong>Kontrola:</strong> každý navrhnutý kód sa v nich overí; kód mimo nich znamená
+              „Chyba v kódoch“.
+            </li>
+            <li>
+              <strong>Oprava:</strong> pri oprave sa kódy vyberajú len z číselníkov a kód mimo nich
+              sa nedá uložiť.
+            </li>
+          </ol>
+          <p class="muted">
+            Prijatie ani oprava návrhu číselníky nemení; mení sa len história dodávateľa a obsadené
+            čísla dokladov.
+          </p>
+        </section>
         <div class="tabs" role="tablist">
           <template x-for="[key, label] in REFERENCE_TABS" :key="key">
             <button type="button" role="tab" :aria-selected="tab === key" @click="tab = key">
@@ -37,6 +58,32 @@
             </button>
           </template>
         </div>
+        <p class="tab-note" x-text="TAB_NOTES[tab]"></p>
+
+        <!-- The parts of a budget key, on the example of the Telekom invoice's position -->
+        <template x-if="tab === 'expense'">
+          <div class="card key-anatomy">
+            <div class="key" aria-label="Položka 632005 41 01 110 000">
+              <span class="part"><small>EK</small><b class="code">632005</b></span>
+              <span class="part"><small>Zdroj</small><b class="code">41</b></span>
+              <span class="part"><small>Oddiel</small><b class="code">01</b></span>
+              <span class="part"><small>Trieda</small><b class="code">110</b></span>
+              <span class="part"><small>Analytika</small><b class="code">000</b></span>
+            </div>
+            <dl class="facts compact">
+              <dt>EK</dt>
+              <dd>ekonomická klasifikácia: čo sa platí; 632005 je v rozpočte obce „telefon,fax“</dd>
+              <dt>Zdroj</dt>
+              <dd>z akých peňazí: 41 vlastné príjmy obce, 111 štátny rozpočet</dd>
+              <dt>Oddiel, trieda</dt>
+              <dd>funkčná klasifikácia, na aký účel: 01 110 obecný úrad, 09 111 materská škola</dd>
+              <dt>Analytika</dt>
+              <dd>vlastné členenie obce v rámci položky, napr. 637004 … 006 „výkon zodp.osoby“</dd>
+            </dl>
+            <p class="muted small-text">Príklad je položka faktúry Slovak Telekomu.</p>
+          </div>
+        </template>
+
         <div class="filters">
           <input type="search" x-model="query" placeholder="Hľadať kód alebo popis" aria-label="Hľadať">
           <span class="muted" x-text="rows(tab).length + ' riadkov'"></span>
@@ -82,23 +129,63 @@
             </table>
           </template>
           <template x-if="tab === 'series'">
-            <table class="grid">
-              <thead><tr><th>Rada</th><th>Vzor čísla</th><th>Popis</th><th>Účet</th></tr></thead>
-              <tbody>
-                <template x-for="row in rows(tab)" :key="row.code">
-                  <tr>
-                    <td class="code" x-text="row.code"></td>
-                    <td class="code" x-text="row.pattern"></td>
-                    <td x-text="row.description || '—'"></td>
-                    <td x-text="row.bank_account || '—'"></td>
-                  </tr>
-                </template>
-              </tbody>
-            </table>
+            <div>
+              <div class="pad">
+                <h3>Číslovanie dodávateľských faktúr</h3>
+                <p>
+                  Číslo dokladu, napr. FD/144/26, tvorí rada, poradové číslo a rok. Aplikácia ho
+                  berie z ručnej poznámky na faktúre, tak ako to robí účtovník. Počítadlo ho doplní
+                  len vtedy, keď OCR číslo neprečíta: dá ďalšie číslo v rade a návrh označí na
+                  kontrolu. Prijatím návrhu sa číslo obsadí a počítadlo sa posunie za najvyššie
+                  použité číslo. Keby sa obsadené číslo objavilo na ďalšej faktúre, aplikácia
+                  upozorní.
+                </p>
+                <p class="muted">
+                  V ukážke je počítadlo lokálne. Rada FD pokračuje po FD/222/26, najvyššom čísle zo
+                  snímok obrazovky účtovného programu. Posledné číslo rady FDŠJ nepoznáme, preto
+                  začína od 1. V plnej verzii sa počítadlo pred každým zápisom zosúladí s účtovným
+                  programom.
+                </p>
+              </div>
+              <template x-if="counters">
+                <table class="grid counters">
+                  <thead>
+                    <tr>
+                      <th>Rada</th><th>Rok</th><th>Posledné použité</th><th>Ďalšie z počítadla</th>
+                      <th>Obsadené čísla</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="row in counters" :key="row.series + '/' + row.year">
+                      <tr>
+                        <td class="code" x-text="row.series"></td>
+                        <td x-text="row.year"></td>
+                        <td class="code" x-text="row.last_used ?? '—'"></td>
+                        <td class="code" x-text="row.next"></td>
+                        <td class="code wrap" x-text="row.used.join(', ') || '—'"></td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </template>
+              <h3 class="pad">Všetky rady obce</h3>
+              <table class="grid">
+                <thead><tr><th>Rada</th><th>Vzor čísla</th><th>Popis</th><th>Účet</th></tr></thead>
+                <tbody>
+                  <template x-for="row in rows(tab)" :key="row.code">
+                    <tr>
+                      <td class="code" x-text="row.code"></td>
+                      <td class="code" x-text="row.pattern"></td>
+                      <td x-text="row.description || '—'"></td>
+                      <td x-text="row.bank_account || '—'"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
           </template>
           <template x-if="tab === 'transfers'">
             <div>
-              <p class="muted pad">Simulovaný zoznam z dotačných riadkov príjmov; skutočný zoznam príde z účtovného programu.</p>
               <table class="grid">
                 <thead><tr><th>Transfer</th><th>Zdroj</th><th>Názov</th></tr></thead>
                 <tbody>
@@ -114,7 +201,7 @@
             </div>
           </template>
           <template x-if="tab === 'centres'">
-            <p class="muted pad">Strediská obec nepoužíva; pole stredisko zostáva prázdne.</p>
+            <p class="muted pad">Zoznam je prázdny.</p>
           </template>
           <template x-if="tab === 'warnings'">
             <table class="grid">

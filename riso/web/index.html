@@ -13,6 +13,7 @@
   <header class="topbar">
     <span class="brand">riso</span>
     <nav>
+      <a href="/about.html">Ako to funguje</a>
       <a href="/" aria-current="page">Faktúry</a>
       <a href="/proposal.html">Návrh</a>
       <a href="/reference.html">Číselníky</a>
@@ -21,7 +22,10 @@
   </header>
   <main x-data="invoicePicker()" x-init="load()">
     <h1>Dodávateľské faktúry</h1>
-    <p class="muted">Vyberte faktúru, pre ktorú sa navrhne zaúčtovanie a rozpočet.</p>
+    <p class="muted">
+      Vyberte faktúru, pre ktorú sa navrhne zaúčtovanie a rozpočet. Ako ukážka funguje a čo dostáva
+      od OCR, vysvetľuje stránka <a href="/about.html">Ako to funguje</a>.
+    </p>
     <p class="error" x-show="error" x-text="error"></p>
     <div class="filters">
       <input type="search" x-model="query" placeholder="Hľadať dodávateľa alebo číslo faktúry"
@@ -69,7 +73,10 @@
     </div>
     <section class="card">
       <h2>Vložiť vlastnú faktúru</h2>
-      <p class="muted">Faktúra vo formáte InvoiceDocument (JSON), ako ju dodá OCR.</p>
+      <p class="muted">
+        Faktúra vo formáte InvoiceDocument (JSON), ako ju dodá OCR. Príklad je na stránke
+        <a href="/about.html">Ako to funguje</a>.
+      </p>
       <textarea rows="6" x-model="pasted" aria-label="InvoiceDocument JSON"
                 placeholder='{"id": "...", "supplier": {...}, "customer": {"ico": "00305863"}, ...}'></textarea>
       <div class="buttons">

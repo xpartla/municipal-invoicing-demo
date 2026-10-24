@@ -21,7 +21,7 @@ from riso.reference import ReferenceIndex
 from riso.store import StateStore
 
 BOLDOG = "00305863"
-PAGES = ["/", "/proposal.html", "/reference.html", "/eval.html"]
+PAGES = ["/", "/about.html", "/proposal.html", "/reference.html", "/eval.html"]
 CATALOGUE = json.loads((paths.WEB_DIR / "messages-sk.json").read_text(encoding="utf-8"))
 PATTERNS = [re.compile(pattern) for pattern, _ in CATALOGUE["messages"]]
 
