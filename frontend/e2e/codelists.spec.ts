@@ -46,7 +46,8 @@ test('Systém and its tabs pass axe', async ({ page, checkA11y }) => {
   await openNav(page);
   await page.getByRole('link', { name: 'Systém' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Systém' })).toBeVisible();
-  await expect(page.getByLabel(/^Predvolená rada/)).toHaveValue('FD');
+  // Loaded; journey 3 of journeys-m2 changes the value in parallel, so not which value.
+  await expect(page.getByLabel(/^Predvolená rada/)).not.toHaveValue('');
   await checkA11y();
   expect(await scrollsHorizontally(page)).toBe(false);
   await page.getByRole('tab', { name: 'Účtovacie zvyklosti' }).click();
