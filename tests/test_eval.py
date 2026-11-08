@@ -27,7 +27,7 @@ from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.eval import evaluate
 from riso.eval.metrics import metrics, score_case
-from riso.knowledge import load_knowledge
+from riso.knowledge import knowledge_for
 from riso.store import StateStore
 
 BOLDOG = "00305863"
@@ -50,7 +50,7 @@ def telekom(source, tmp_path_factory) -> tuple[DatasetCase, CodingProposal]:
         bundle=source.bundle(BOLDOG),
         memory=state.supplier_memory(BOLDOG),
         counters=state.counters(BOLDOG),
-        knowledge=load_knowledge(entity.budget_year),
+        knowledge=knowledge_for(BOLDOG, entity.budget_year),
     )
     return case, proposal
 

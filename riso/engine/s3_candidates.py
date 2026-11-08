@@ -105,6 +105,8 @@ def position_function(position: BudgetPosition) -> str:
 
 def canteen_key(knowledge: KnowledgeBase, analytika: str | None = None) -> str:
     rule = knowledge.canteen
+    if rule is None:
+        raise ValueError("the knowledge has no canteen rule")
     oddiel, trieda = rule.function.split()
     return budget_key(rule.ek, rule.zdroj, oddiel, trieda, analytika or rule.analytika)
 
@@ -112,7 +114,7 @@ def canteen_key(knowledge: KnowledgeBase, analytika: str | None = None) -> str:
 def _invoice_function(
     invoice: NormalisedInvoice, context: ResolvedContext, knowledge: KnowledgeBase
 ) -> tuple[str, bool, Evidence]:
-    if context.canteen:
+    if context.canteen and knowledge.canteen is not None:
         function = knowledge.canteen.function
         return function, True, Evidence(field="cofog", source="rule", detail=f"canteen, {function}")
     named = invoice.invoice_functions()
@@ -255,6 +257,8 @@ def _rule_candidates(
 def _canteen_candidates(index: ReferenceIndex, knowledge: KnowledgeBase) -> list[Candidate]:
     """The canteen food rule fixes the position; its alternative analytics stay as options."""
     rule = knowledge.canteen
+    if rule is None:
+        return []
     found = []
     for i, analytika in enumerate([rule.analytika, *rule.alternatives]):
         key = canteen_key(knowledge, analytika)

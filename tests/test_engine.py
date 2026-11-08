@@ -20,7 +20,7 @@ from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.engine.s8_feedback import add_precedent, apply_feedback
 from riso.eval import coded_lines
-from riso.knowledge import load_knowledge
+from riso.knowledge import knowledge_for
 from riso.reference import ReferenceIndex
 from riso.store import StateStore
 
@@ -35,7 +35,7 @@ def setting(source, tmp_path_factory):
     return {
         "entity": source.context(BOLDOG),
         "bundle": source.bundle(BOLDOG),
-        "knowledge": load_knowledge(2026),
+        "knowledge": knowledge_for(BOLDOG, 2026),
         "memory": state.supplier_memory(BOLDOG),
         "counters": state.counters(BOLDOG),
     }

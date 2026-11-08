@@ -192,7 +192,7 @@ def _code(args: argparse.Namespace) -> int:
     from riso.contracts import DatasetCase, InvoiceDocument
     from riso.engine import code_invoice
     from riso.eval import compare
-    from riso.knowledge import load_knowledge
+    from riso.knowledge import knowledge_for
     from riso.reference import LocalReferenceSource
     from riso.store import StateStore
 
@@ -211,7 +211,7 @@ def _code(args: argparse.Namespace) -> int:
                 bundle=references.bundle(ico, entity.reference_period),
                 memory=state.supplier_memory(ico),
                 counters=state.counters(ico),
-                knowledge=load_knowledge(entity.budget_year),
+                knowledge=knowledge_for(ico, entity.budget_year),
             )
         except LookupError as exc:
             print(f"riso code: {path}: {exc}", file=sys.stderr)

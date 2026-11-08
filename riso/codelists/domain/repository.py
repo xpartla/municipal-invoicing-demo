@@ -7,6 +7,7 @@ A list's owner is a customer or, for a global list, nobody: every method takes t
 
 from typing import Protocol
 
+from riso.codelists.domain.conventions import CustomerConventions
 from riso.codelists.domain.kinds import ListKind
 from riso.codelists.domain.version import CodeListVersion, VersionInfo
 
@@ -39,3 +40,13 @@ class CodeListRepository(Protocol):
     def years(self, customer_id: str | None) -> list[int]:
         """The years the owner has any list for."""
         ...
+
+
+class ConventionsRepository(Protocol):
+    def get(self, customer_id: str, year: int) -> CustomerConventions | None: ...
+
+    def save(self, conventions: CustomerConventions) -> None:
+        """Adds or replaces the customer's conventions for the year."""
+        ...
+
+    def years(self, customer_id: str) -> list[int]: ...

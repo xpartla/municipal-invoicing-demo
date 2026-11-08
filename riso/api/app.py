@@ -44,7 +44,7 @@ from riso.engine.s6_validate import check_coding
 from riso.engine.s8_feedback import apply_feedback
 from riso.eval import evaluate
 from riso.identity.api.routes import router as identity_router
-from riso.knowledge import UnknownKnowledge, load_knowledge
+from riso.knowledge import UnknownKnowledge, knowledge_for
 from riso.platform.log import configure_logging
 from riso.platform.migrations import current_revision, head_revision
 from riso.platform.settings import Settings as PlatformSettings
@@ -233,7 +233,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         try:
             entity = references.context(ico)
             bundle = references.bundle(ico, entity.reference_period)
-            knowledge = load_knowledge(entity.budget_year)
+            knowledge = knowledge_for(ico, entity.budget_year)
         except (UnknownEntity, UnknownKnowledge) as exc:
             raise HTTPException(404, str(exc)) from exc
         return {

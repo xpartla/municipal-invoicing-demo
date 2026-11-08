@@ -64,3 +64,15 @@ class InMemoryCodelistsUnitOfWork(StoresUnitOfWork):
         super().__init__(**kwargs)
         self.audit = self.store(RecordingAudit())
         self.codelists = self.store(InMemoryCodeLists(self))
+        self.conventions = self.store(InMemoryConventions())
+
+
+class InMemoryConventions(SnapshotStore):
+    def get(self, customer_id: str, year: int):
+        return self.take((customer_id, year)) if (customer_id, year) in self.rows else None
+
+    def save(self, conventions) -> None:
+        self.put((conventions.customer_id, conventions.year), conventions)
+
+    def years(self, customer_id: str) -> list[int]:
+        return sorted(year for (cid, year) in self.rows if cid == customer_id)

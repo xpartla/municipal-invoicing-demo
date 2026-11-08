@@ -3,8 +3,9 @@
 It creates:
 
 - Obec Boldog (00305863), with its 2026 parameters from `data/entities/00305863.json`, the
-  address of its municipal office, and version 1 of each of its 2026 code lists from the
-  committed bundle `data/bundles/00305863/2026-08.json`;
+  address of its municipal office, version 1 of each of its 2026 code lists from the
+  committed bundle `data/bundles/00305863/2026-08.json`, and its 2026 conventions from
+  `data/conventions/00305863/2026.yaml`;
 - the made-up provider "Účtovníctvo Vzor, s.r.o.", to which Boldog is assigned;
 - a second, made-up municipality assigned to the provider, so staff can switch customers;
 - a third, made-up municipality with no provider, for the isolation checks;
@@ -36,11 +37,13 @@ from sqlalchemy.engine.url import make_url
 from riso import paths
 from riso.api.uow import AppUnitOfWork
 from riso.codelists import versions_from_bundle
+from riso.codelists.domain import CustomerConventions
 from riso.codelists.infrastructure.global_files import global_versions, global_years
 from riso.contracts import ReferenceBundle
 from riso.identity.domain import Email, MembershipScope, PasswordPolicy, Role, User
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.orm import UserRow
+from riso.knowledge import load_conventions
 from riso.platform.db import Database
 from riso.platform.migrations import downgrade, upgrade
 from riso.platform.settings import Settings
@@ -100,6 +103,7 @@ def seed(
     entities_dir: Path = paths.ENTITIES_DIR,
     bundles_dir: Path = paths.BUNDLES_DIR,
     global_dir: Path = paths.GLOBAL_DIR,
+    conventions_dir: Path = paths.CONVENTIONS_DIR,
 ) -> Seeded:
     """Migrates and seeds the database of `settings`. Refuses outside `dev` and `test`, and
     on a database that has users already unless `reset` drops it first."""
@@ -128,6 +132,7 @@ def seed(
             entities_dir,
             bundles_dir,
             global_dir,
+            conventions_dir,
         )
     finally:
         db.dispose()
@@ -152,6 +157,7 @@ def _fill(
     entities: Path,
     bundles: Path,
     global_root: Path,
+    conventions_root: Path,
 ) -> Seeded:
     clock = FixedClock(SEEDED_AT)
     ids = UuidV7Generator(clock, random.Random(20260101).getrandbits)
@@ -198,6 +204,12 @@ def _fill(
         )
         for version in versions_from_bundle(bundle, boldog.id, ids, now):
             uow.codelists.add(version)
+        year = boldog_settings["budget_year"]
+        uow.conventions.save(
+            CustomerConventions.create(
+                boldog.id, year, load_conventions(BOLDOG_ICO, year, conventions_root), now, None
+            )
+        )
         for year in global_years(global_root):
             for version in global_versions(global_root, year, ids, now):
                 uow.codelists.add(version)

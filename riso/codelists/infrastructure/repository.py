@@ -15,6 +15,7 @@ from riso.codelists.domain import (
     CodeListVersion,
     CofogEntry,
     CostCentreEntry,
+    CustomerConventions,
     EkEntry,
     Entry,
     FrameworkAccountEntry,
@@ -34,12 +35,14 @@ from riso.codelists.infrastructure.orm import (
     CodeListVersionRow,
     CofogFunctionRow,
     CostCentreRow,
+    CustomerConventionsRow,
     DocumentSeriesRow,
     EkCodeRow,
     FrameworkAccountRow,
     FundingSourceRow,
     TransferRow,
 )
+from riso.knowledge import Conventions
 from riso.shared.errors import NotFound
 from riso.shared.uow import UnitOfWork
 
@@ -351,5 +354,47 @@ class SqlCodeListRepository:
                 .where(_owned_by(customer_id))
                 .distinct()
                 .order_by(CodeListVersionRow.year)
+            )
+        )
+
+
+class SqlConventionsRepository:
+    def __init__(self, session: Session, uow: UnitOfWork) -> None:
+        self._session = session
+        self._uow = uow
+
+    def get(self, customer_id: str, year: int) -> CustomerConventions | None:
+        row = self._session.get(CustomerConventionsRow, (customer_id, year))
+        if row is None:
+            return None
+        conventions = CustomerConventions(
+            customer_id=row.customer_id,
+            year=row.year,
+            revision=row.revision,
+            document=Conventions.model_validate(row.document),
+            updated_at=row.updated_at,
+            updated_by=row.updated_by,
+        )
+        self._uow.track(conventions)
+        return conventions
+
+    def save(self, conventions: CustomerConventions) -> None:
+        key = (conventions.customer_id, conventions.year)
+        row = self._session.get(CustomerConventionsRow, key)
+        if row is None:
+            row = CustomerConventionsRow(customer_id=conventions.customer_id, year=conventions.year)
+            self._session.add(row)
+        row.revision = conventions.revision
+        row.document = conventions.document.model_dump(mode="json", exclude_defaults=True)
+        row.updated_at = conventions.updated_at
+        row.updated_by = conventions.updated_by
+        self._uow.track(conventions)
+
+    def years(self, customer_id: str) -> list[int]:
+        return list(
+            self._session.scalars(
+                select(CustomerConventionsRow.year)
+                .where(CustomerConventionsRow.customer_id == customer_id)
+                .order_by(CustomerConventionsRow.year)
             )
         )

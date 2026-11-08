@@ -13,6 +13,7 @@ from riso.codelists.domain import (
     CodeListVersion,
     CofogEntry,
     CostCentreEntry,
+    CustomerConventions,
     EkEntry,
     FrameworkAccountEntry,
     FundingSourceEntry,
@@ -26,6 +27,7 @@ from riso.codelists.domain import (
 )
 from riso.codelists.infrastructure.orm import AccountRow, CodeListVersionRow
 from riso.codelists.infrastructure.uow import SqlCodelistsUnitOfWork
+from riso.knowledge import Conventions, load_conventions
 from riso.shared import FixedClock, Ico, NotFound, UuidV7Generator
 from riso.tenancy.domain import Customer
 from riso.tenancy.infrastructure.uow import SqlTenancyUnitOfWork
@@ -200,3 +202,25 @@ def test_purging_a_customer_deletes_its_versions_and_entries(migrated):
     with migrated.session() as session:
         assert session.scalar(select(func.count()).select_from(AccountRow)) == 0
         assert session.scalars(select(CodeListVersionRow.id)).all() == ["g1"]
+
+
+@pytest.mark.parametrize("document", [Conventions(), load_conventions("00305863", 2026)])
+def test_conventions_round_trip(uow, document):
+    with uow() as work:
+        work.conventions.save(CustomerConventions.create("c1", 2026, document, T0, "u1"))
+        work.commit()
+    with uow() as work:
+        loaded = work.conventions.get("c1", 2026)
+        assert work.conventions.get("c2", 2026) is None
+        assert work.conventions.years("c1") == [2026]
+        loaded.replace(Conventions(), T0, "u2")
+        work.conventions.save(loaded)
+        work.commit()
+    with uow() as work:
+        again = work.conventions.get("c1", 2026)
+    assert loaded.document == Conventions()
+    assert (again.revision, again.document, again.updated_by) == (
+        2 if document != Conventions() else 1,
+        Conventions(),
+        "u2" if document != Conventions() else "u1",
+    )

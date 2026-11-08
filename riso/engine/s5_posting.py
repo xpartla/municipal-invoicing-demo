@@ -29,13 +29,15 @@ def derive_coding(
     index: ReferenceIndex,
     knowledge: KnowledgeBase,
 ) -> Derivation:
-    posting, budget, evidence = [], [], []
+    posting, budget, evidence, reasons = [], [], [], []
     md_confidence = dal_confidence = 1.0
     for chosen in decision.lines:
         position = index.expense[chosen.candidate.budget_key]
-        md, md_score, md_evidence = debit_account(
+        md, md_score, md_evidence, md_reason = debit_account(
             position, chosen.candidate, invoice, context, index, knowledge
         )
+        if md_reason is not None:
+            reasons.append(md_reason)
         dal, dal_score, dal_evidence = credit_account(
             position, chosen.candidate, context, index, knowledge
         )
@@ -69,6 +71,7 @@ def derive_coding(
         evidence=tuple(evidence),
         md_confidence=md_confidence,
         dal_confidence=dal_confidence,
+        reasons=tuple(dict.fromkeys(reasons)),
     )
 
 
@@ -79,18 +82,21 @@ def debit_account(
     context: ResolvedContext,
     index: ReferenceIndex,
     knowledge: KnowledgeBase,
-) -> tuple[str, float, Evidence]:
+) -> tuple[str, float, Evidence, str | None]:
     """The MD account: the precedent's, the canteen rule's, or the bridge's SU with the AU the
-    rules choose."""
+    rules choose. An AU missing from the chart falls back to the SU's 000, then to its only
+    AU; otherwise the account is a guess and the fourth value says why the line needs
+    review (phase 2 plan §6.4)."""
     precedent = candidate.precedent if candidate else None
     if precedent is not None and precedent.budget_key == position.key:
         label = candidate.precedent_number if candidate else None
         detail = f"{label or 'an earlier invoice'} debited {precedent.md}"
-        return precedent.md, 0.97, Evidence(field="md", source="supplier_memory", detail=detail)
+        evidence = Evidence(field="md", source="supplier_memory", detail=detail)
+        return precedent.md, 0.97, evidence, None
     canteen = knowledge.canteen
-    if context.canteen_food and position.ek == canteen.ek:
+    if canteen is not None and context.canteen_food and position.ek == canteen.ek:
         detail = f"canteen food rule: {canteen.md}"
-        return canteen.md, 0.9, Evidence(field="md", source="rule", detail=detail)
+        return canteen.md, 0.9, Evidence(field="md", source="rule", detail=detail), None
 
     rule = knowledge.su_for(position.ek)
     if rule is None:
@@ -103,17 +109,29 @@ def debit_account(
         zdroj=position.zdroj,
         words=invoice.all_words() + words(position.description or ""),
     )
-    key = f"{rule.su} {au}"
-    if key not in index.accounts:
-        key = (
-            f"{rule.su} 000"
-            if f"{rule.su} 000" in index.accounts
-            else index.accounts_by_su[rule.su][0].key
-        )
-    variants = len(index.accounts_by_su[rule.su])
+    key, missing = _existing_account(rule.su, au, index)
+    variants = len(index.accounts_by_su.get(rule.su, []))
     confidence = 0.85 if reason != "default" or variants == 1 else 0.75
+    if missing is not None:
+        confidence, reason = 0.5, missing
     detail = f"EK {position.ek} is booked to {rule.su} ({rule.note}); AU {key[4:]}: {reason}"
-    return key, confidence, Evidence(field="md", source="rule", detail=detail)
+    return key, confidence, Evidence(field="md", source="rule", detail=detail), missing
+
+
+def _existing_account(su: str, au: str, index: ReferenceIndex) -> tuple[str, str | None]:
+    """The account `su au`, or the fallback when the chart lacks it: the SU's 000, else its
+    only AU. With neither, a guess (the SU's first account, or `su 000` when it has none)
+    and the review reason."""
+    key = f"{su} {au}"
+    if key in index.accounts:
+        return key, None
+    if f"{su} 000" in index.accounts:
+        return f"{su} 000", None
+    options = index.accounts_by_su.get(su, [])
+    if len(options) == 1:
+        return options[0].key, None
+    guess = options[0].key if options else f"{su} 000"
+    return guess, f"no analytic account: {key} is not in the chart, {guess} is a guess"
 
 
 def credit_account(

@@ -3,6 +3,7 @@ codelists context. Pure Python: it imports only this context's domain, `riso.sha
 `riso.contracts` (and `riso.engine` and `riso.knowledge`); never SQLAlchemy, FastAPI,
 `riso.platform` or I/O libraries."""
 
+from riso.codelists.domain.conventions import ConventionsChanged, CustomerConventions
 from riso.codelists.domain.entries import (
     ENTRY_TYPES,
     AccountEntry,
@@ -26,7 +27,7 @@ from riso.codelists.domain.kinds import (
     VersionOrigin,
     VersionStatus,
 )
-from riso.codelists.domain.repository import CodeListRepository
+from riso.codelists.domain.repository import CodeListRepository, ConventionsRepository
 from riso.codelists.domain.validation import (
     Finding,
     FindingCode,
@@ -55,7 +56,10 @@ __all__ = [
     "CodeListVersion",
     "CodeListVersionCreated",
     "CofogEntry",
+    "ConventionsChanged",
+    "ConventionsRepository",
     "CostCentreEntry",
+    "CustomerConventions",
     "EkEntry",
     "Entry",
     "Finding",

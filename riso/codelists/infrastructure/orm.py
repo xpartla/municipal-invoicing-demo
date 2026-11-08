@@ -162,3 +162,19 @@ class FundingSourceRow(_GlobalEntry, Base):
 class FrameworkAccountRow(_GlobalEntry, Base):
     __tablename__ = "framework_accounts"
     __table_args__ = (UniqueConstraint("version_id", "entry_key"),)
+
+
+class CustomerConventionsRow(Base):
+    """A customer's conventions for a year (plan §11): the document as JSON, validated by the
+    `Conventions` model on the way in and out."""
+
+    __tablename__ = "customer_conventions"
+
+    customer_id: Mapped[str] = mapped_column(
+        ForeignKey("customers.id", ondelete="CASCADE"), primary_key=True
+    )
+    year: Mapped[int] = mapped_column(Integer, primary_key=True)
+    revision: Mapped[int] = mapped_column(Integer)
+    document: Mapped[dict[str, Any]] = mapped_column(JSON)
+    updated_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    updated_by: Mapped[str | None] = mapped_column(String(36))

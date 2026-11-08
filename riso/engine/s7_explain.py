@@ -46,6 +46,7 @@ def explain(
     reasons = [
         *decision.reasons,
         *_header_reasons(invoice, context),
+        *derivation.reasons,
         *validation.errors,
         *validation.warnings,
         *(
@@ -207,7 +208,7 @@ def _alternatives(
         if candidate.budget_key in chosen:
             continue
         position = index.expense[candidate.budget_key]
-        md, _, _ = debit_account(position, candidate, invoice, context, index, knowledge)
+        md, _, _, _ = debit_account(position, candidate, invoice, context, index, knowledge)
         dal, _, _ = credit_account(position, candidate, context, index, knowledge)
         transfer, _ = choose_transfer(position, invoice, index, knowledge)
         budget_text, posting_text = line_texts(position, candidate, invoice, knowledge)

@@ -1,4 +1,11 @@
-"""The knowledge base as authored in knowledge/<budget year>/*.yaml (plan section 6)."""
+"""The knowledge base as authored in knowledge/<budget year>/*.yaml (plan section 6), and a
+customer's conventions merged into it (phase 2 plan §6.4).
+
+The global files hold what is true for every municipality: the EK to SU bridge, the function
+map, the lexicon, the transfer rule and the style. What turned out to be one customer's own
+(the analytic-account rules, the canteen rule, local concepts such as Boldog's municipal
+company, transfer overrides) is that customer's `Conventions`; `merge` gives the
+`KnowledgeBase` the engine codes with."""
 
 from functools import cached_property
 from typing import Annotated
@@ -52,8 +59,8 @@ class AccountRules(Authored):
 
 
 class AuRules(Authored):
-    debit: dict[Su, AccountRules]
-    credit: dict[Su, AccountRules]
+    debit: dict[Su, AccountRules] = Field(default_factory=dict)
+    credit: dict[Su, AccountRules] = Field(default_factory=dict)
 
 
 class FunctionEntry(Authored):
@@ -106,21 +113,41 @@ class Style(Authored):
     )
 
 
+class TransferOverrides(Authored):
+    never: list[Zdroj] = Field(
+        default_factory=list, description="Further zdroj codes that never expect a transfer"
+    )
+
+
+class Conventions(Authored):
+    """A customer's coding rules for one year: the parts of the knowledge that name its own
+    analytic accounts, projects, series or local organisations. Every part may be empty: a
+    customer without conventions codes with the global knowledge alone, and the engine falls
+    back to the SU's `000` account (S5)."""
+
+    au_rules: AuRules = Field(default_factory=AuRules)
+    canteen: CanteenRule | None = None
+    concepts: dict[str, Concept] = Field(
+        default_factory=dict, description="Local concepts added to the lexicon"
+    )
+    transfers: TransferOverrides = Field(default_factory=TransferOverrides)
+
+
 class KnowledgeBase(Authored):
     budget_year: int
     bridge: list[BridgeRule]
-    au_rules: AuRules
+    au_rules: AuRules = Field(default_factory=AuRules)
     functions: FunctionMap
     lexicon: Lexicon
     transfer_rules: TransferRules
-    canteen: CanteenRule
+    canteen: CanteenRule | None = None
     style: Style
 
     @model_validator(mode="after")
     def _known_concepts(self) -> "KnowledgeBase":
         known = set(self.lexicon.concepts)
         used = (
-            set(self.canteen.concepts)
+            set(self.canteen.concepts if self.canteen else ())
             | set(self.style.month_for)
             | {
                 concept
@@ -209,3 +236,35 @@ class KnowledgeBase(Authored):
         if any(zdroj.startswith(prefix) for prefix in rules.zdroj_prefixes):
             return True
         return rules.from_income_grants and zdroj in grant_sources
+
+
+def merge(knowledge: KnowledgeBase, conventions: Conventions) -> KnowledgeBase:
+    """The global knowledge of the year with a customer's conventions: their AU rules and
+    canteen rule, their concepts added to the lexicon, their transfer overrides added to the
+    rule. The global knowledge must not carry AU rules or a canteen rule of its own, and a
+    local concept must not shadow a global one."""
+    if knowledge.au_rules.debit or knowledge.au_rules.credit or knowledge.canteen is not None:
+        raise ValueError("the global knowledge holds customer conventions")
+    shadowed = sorted(set(conventions.concepts) & set(knowledge.lexicon.concepts))
+    if shadowed:
+        raise ValueError(f"conventions redefine global concepts {shadowed}")
+    lexicon = knowledge.lexicon
+    rules = knowledge.transfer_rules
+    return KnowledgeBase(
+        budget_year=knowledge.budget_year,
+        bridge=knowledge.bridge,
+        au_rules=conventions.au_rules,
+        functions=knowledge.functions,
+        lexicon=Lexicon(
+            stopwords=lexicon.stopwords,
+            credit_note_markers=lexicon.credit_note_markers,
+            concepts={**lexicon.concepts, **conventions.concepts},
+        ),
+        transfer_rules=TransferRules(
+            zdroj_prefixes=rules.zdroj_prefixes,
+            from_income_grants=rules.from_income_grants,
+            never=list(dict.fromkeys([*rules.never, *conventions.transfers.never])),
+        ),
+        canteen=conventions.canteen,
+        style=knowledge.style,
+    )

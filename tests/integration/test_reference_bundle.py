@@ -8,10 +8,12 @@ from riso import paths
 from riso.api.adapters import bundle_entity
 from riso.api.composition import build_services
 from riso.api.seed import seed
-from riso.codelists import BundleCache, reference_bundle
+from riso.codelists import BundleCache, customer_knowledge, reference_bundle
+from riso.codelists.application.conventions import KnowledgeCache
 from riso.codelists.domain import AccountEntry, ListKind, VersionOrigin
 from riso.contracts import ReferenceBundle
 from riso.identity.infrastructure.hashing import Argon2Hasher
+from riso.knowledge import knowledge_for, load_knowledge
 from riso.platform import Settings
 from riso.shared import AllowAll, InvalidState, PermissionDenied, RequestContext
 from riso.tenancy.application import get_customer
@@ -94,3 +96,19 @@ def test_the_bundle_needs_read_access_to_the_customer(seeded):
         reference_bundle(
             anonymous, services.uow(immediate=False), customers["Obec Boldog"], 2026, entity
         )
+
+
+def test_boldogs_stored_conventions_give_the_files_knowledge(seeded):
+    services, customers = seeded
+    knowledge, revision = customer_knowledge(
+        CTX, services.uow(immediate=False), customers["Obec Boldog"], 2026, cache=KnowledgeCache()
+    )
+    assert revision == 1 and knowledge == knowledge_for("00305863", 2026)
+    other, revision = customer_knowledge(
+        CTX,
+        services.uow(immediate=False),
+        customers["Obec Vzorová Lehota"],
+        2026,
+        cache=KnowledgeCache(),
+    )
+    assert revision == 0 and other == load_knowledge(2026)
