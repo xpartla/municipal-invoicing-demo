@@ -247,6 +247,47 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/users/{user_id}/impersonate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Users.Impersonate
+         * @description Starts acting as the user in this session, for at most 60 minutes. Needs a reason;
+         *     another admin cannot be the target.
+         */
+        post: operations["users.impersonate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/impersonation/end": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Me.End Impersonation
+         * @description Ends the impersonation; the session is the admin's again.
+         */
+        post: operations["me.end_impersonation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/customers/{customer_id}": {
         parameters: {
             query?: never;
@@ -267,6 +308,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Customers.Update Contact
+         * @description The customer's address and bank account (users, staff and admins).
+         */
+        patch: operations["customers.update_contact"];
+        trace?: never;
+    };
     "/api/providers/{provider_id}": {
         parameters: {
             query?: never;
@@ -279,6 +340,27 @@ export interface paths {
          * @description The provider and its active customers.
          */
         get: operations["providers.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Audit.List
+         * @description Newest first. `actor_id` matches the actor or the real actor; `action` is a whole
+         *     action or a prefix ending in a dot.
+         */
+        get: operations["audit.list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -532,6 +614,20 @@ export interface components {
              */
             row: number;
         };
+        /** AddressIn */
+        AddressIn: {
+            /** Street */
+            street: string;
+            /** City */
+            city: string;
+            /** Postal Code */
+            postal_code: string;
+            /**
+             * Country
+             * @default SK
+             */
+            country: string;
+        };
         /** AddressOut */
         AddressOut: {
             /** Street */
@@ -574,6 +670,43 @@ export interface components {
             score: number;
             /** Why */
             why: string;
+        };
+        /** AuditEventOut */
+        AuditEventOut: {
+            /** Id */
+            id: string;
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Action */
+            action: string;
+            /** Actor Id */
+            actor_id: string | null;
+            /** Real Actor Id */
+            real_actor_id: string | null;
+            /** Customer Id */
+            customer_id: string | null;
+            /** Target Type */
+            target_type: string | null;
+            /** Target Id */
+            target_id: string | null;
+            /** Details */
+            details: {
+                [key: string]: unknown;
+            };
+            /** Request Id */
+            request_id: string | null;
+            /** Ip */
+            ip: string | null;
+        };
+        /** AuditPageOut */
+        AuditPageOut: {
+            /** Items */
+            items: components["schemas"]["AuditEventOut"][];
+            /** Total */
+            total: number;
         };
         /**
          * BudgetLine
@@ -819,6 +952,12 @@ export interface components {
             provider_id: string | null;
             /** Permissions */
             permissions: components["schemas"]["Permission"][];
+        };
+        /** CustomerContactIn */
+        CustomerContactIn: {
+            address?: components["schemas"]["AddressIn"] | null;
+            /** Iban */
+            iban?: string | null;
         };
         /** CustomerOut */
         CustomerOut: {
@@ -1070,6 +1209,11 @@ export interface components {
              * @description Sequence number of the FD document: '144' becomes FD/144/26
              */
             number?: string | null;
+        };
+        /** ImpersonateIn */
+        ImpersonateIn: {
+            /** Reason */
+            reason: string;
         };
         /** ImpersonationOut */
         ImpersonationOut: {
@@ -2019,6 +2163,57 @@ export interface operations {
             };
         };
     };
+    "users.impersonate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImpersonateIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "me.end_impersonation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     "customers.get": {
         parameters: {
             query?: never;
@@ -2029,6 +2224,41 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "customers.update_contact": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerContactIn"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -2068,6 +2298,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProviderOverviewOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "audit.list": {
+        parameters: {
+            query?: {
+                actor_id?: string | null;
+                customer_id?: string | null;
+                action?: string | null;
+                since?: string | null;
+                until?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditPageOut"];
                 };
             };
             /** @description Validation Error */

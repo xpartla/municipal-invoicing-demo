@@ -12,6 +12,7 @@ from typing import Any, Protocol
 from riso.identity import Permission
 from riso.shared.context import RequestContext
 from riso.shared.errors import Conflict, FieldErrors, NotFound
+from riso.shared.ports import AuditRecorder
 from riso.shared.uow import UnitOfWork
 from riso.shared.values import Iban, Ico, clean_name
 from riso.tenancy.application.views import CustomerView, ParametersView
@@ -36,6 +37,26 @@ class TenancyUnitOfWork(UnitOfWork, Protocol):
 
     @property
     def parameters(self) -> ParametersRepository: ...
+
+    @property
+    def audit(self) -> AuditRecorder: ...
+
+
+def _audit(
+    ctx: RequestContext,
+    uow: TenancyUnitOfWork,
+    action: str,
+    customer_id: str,
+    details: dict[str, object] | None = None,
+) -> None:
+    uow.audit.record(
+        ctx,
+        action,
+        target_type="customer",
+        target_id=customer_id,
+        customer_id=customer_id,
+        details=details,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,6 +154,7 @@ def create_customer(
         if cmd.provider_id is not None:
             customer.assign_to(uow.providers.get(cmd.provider_id))
         uow.customers.add(customer)
+        _audit(ctx, uow, "customer.created", customer.id, {"provider_id": cmd.provider_id})
         uow.commit()
     return CustomerView.of(customer)
 
@@ -155,8 +177,20 @@ def update_identity(
         customer = uow.customers.get(customer_id)
         if parsed.ico != customer.ico:
             _require_unique_ico(uow, parsed.ico, customer.id)
+        before = (customer.name, customer.ico, customer.dic)
         customer.update_identity(parsed.name, parsed.ico, parsed.dic)
         uow.customers.save(customer)
+        changed = [
+            f
+            for f, old, new in zip(
+                ("name", "ico", "dic"),
+                before,
+                (customer.name, customer.ico, customer.dic),
+                strict=True,
+            )
+            if old != new
+        ]
+        _audit(ctx, uow, "customer.identity_updated", customer.id, {"fields": changed})
         uow.commit()
     return CustomerView.of(customer)
 
@@ -170,8 +204,17 @@ def update_contact(
     errors.raise_if_any("invalid customer")
     with uow:
         customer = uow.customers.get(customer_id)
+        changed = [
+            name
+            for name, old, new in (
+                ("address", customer.address, address),
+                ("iban", customer.iban, iban),
+            )
+            if old != new
+        ]
         customer.update_contact(address, iban)
         uow.customers.save(customer)
+        _audit(ctx, uow, "customer.contact_updated", customer.id, {"fields": changed})
         uow.commit()
     return CustomerView.of(customer)
 
@@ -185,6 +228,7 @@ def assign_variable_number(
         customer = uow.customers.get(customer_id)
         customer.assign_variable_number(number)
         uow.customers.save(customer)
+        _audit(ctx, uow, "customer.variable_number_assigned", customer.id)
         uow.commit()
     return CustomerView.of(customer)
 
@@ -195,6 +239,7 @@ def delete_customer(ctx: RequestContext, uow: TenancyUnitOfWork, customer_id: st
         customer = uow.customers.get(customer_id)
         customer.delete(uow.clock.now())
         uow.customers.save(customer)
+        _audit(ctx, uow, "customer.deleted", customer.id)
         uow.commit()
     return CustomerView.of(customer)
 
@@ -206,6 +251,7 @@ def restore_customer(ctx: RequestContext, uow: TenancyUnitOfWork, customer_id: s
         _require_unique_ico(uow, customer.ico, customer.id)
         customer.restore()
         uow.customers.save(customer)
+        _audit(ctx, uow, "customer.restored", customer.id)
         uow.commit()
     return CustomerView.of(customer)
 
@@ -237,5 +283,6 @@ def set_parameters(
     with uow:
         uow.customers.get(customer_id)
         uow.parameters.save(parameters)
+        _audit(ctx, uow, "customer.parameters_set", customer_id, {"year": year})
         uow.commit()
     return ParametersView.of(parameters)

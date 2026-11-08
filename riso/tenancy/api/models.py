@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from riso.tenancy.application import CustomerView, ProviderOverview, ProviderView
 from riso.tenancy.domain import CustomerStatus, ProviderStatus
@@ -80,3 +80,15 @@ class ProviderOverviewOut(BaseModel):
             provider=ProviderOut.of(view.provider),
             customers=[CustomerOut.of(c) for c in view.customers],
         )
+
+
+class AddressIn(BaseModel):
+    street: str = Field(max_length=200)
+    city: str = Field(max_length=100)
+    postal_code: str = Field(max_length=12)
+    country: str = Field(default="SK", max_length=2)
+
+
+class CustomerContactIn(BaseModel):
+    address: AddressIn | None = None
+    iban: str | None = Field(default=None, max_length=42)

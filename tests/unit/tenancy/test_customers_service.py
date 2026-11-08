@@ -183,3 +183,28 @@ def test_a_failed_command_leaves_nothing_behind(uow):
         uow.customers.save(customer)
         raise Conflict("boom")
     assert uow.customers.get(boldog.id).variable_number is None
+
+
+def test_every_write_is_audited_in_the_customer(uow):
+    boldog = new(uow)
+    update_contact(SYSTEM, uow, boldog.id, CustomerContact(iban="SK3112000000198742637541"))
+    update_identity(
+        SYSTEM, uow, boldog.id, CustomerIdentity("Obec Boldog", "00305863", "2021009530")
+    )
+    set_parameters(SYSTEM, uow, boldog.id, 2026, VALUES)
+    delete_customer(SYSTEM, uow, boldog.id)
+    restore_customer(SYSTEM, uow, boldog.id)
+    assert uow.audit.actions() == [
+        "customer.created",
+        "customer.contact_updated",
+        "customer.identity_updated",
+        "customer.parameters_set",
+        "customer.deleted",
+        "customer.restored",
+    ]
+    assert {e["customer_id"] for e in uow.audit.entries} == {boldog.id}
+    assert uow.audit.entries[1]["details"] == {"fields": ["iban"]}
+    assert uow.audit.entries[2]["details"] == {"fields": ["dic"]}
+    with pytest.raises(Conflict):
+        new(uow)  # refused: nothing more is recorded
+    assert len(uow.audit.entries) == 6

@@ -8,7 +8,7 @@ address has an account; a failing token says only that the link is not valid or 
 from dataclasses import dataclass
 from datetime import datetime
 
-from riso.identity.application.auth import IdentityUnitOfWork, end_sessions
+from riso.identity.application.auth import IdentityUnitOfWork, as_user, end_sessions
 from riso.identity.application.ports import Links, TenancyDirectory, TokenGenerator
 from riso.identity.application.views import UserView
 from riso.identity.domain import (
@@ -160,6 +160,19 @@ def invite(
                 scope=scope_name,
                 link=links.login(),
             )
+        uow.audit.record(
+            ctx,
+            "user.invited",
+            target_type="user",
+            target_id=user.id,
+            customer_id=customer_id,
+            details={
+                "scope_kind": cmd.scope_kind.value,
+                "scope_id": cmd.scope_id,
+                "role": cmd.role.value,
+                "new_account": new_account,
+            },
+        )
         uow.commit()
     return Invited(UserView.of(user), new_account)
 
@@ -228,6 +241,7 @@ def token_info(uow: IdentityUnitOfWork, secret: str) -> TokenInfo:
 
 
 def accept_invitation(
+    ctx: RequestContext,
     uow: IdentityUnitOfWork,
     hasher: PasswordHasher,
     policy: PasswordPolicy,
@@ -246,6 +260,9 @@ def accept_invitation(
         token.use(now)
         uow.tokens.save(token)
         uow.users.save(user)
+        uow.audit.record(
+            as_user(ctx, user.id), "user.invitation_accepted", target_type="user", target_id=user.id
+        )
         uow.commit()
     return UserView.of(user)
 
@@ -254,7 +271,11 @@ def accept_invitation(
 
 
 def request_password_reset(
-    uow: IdentityUnitOfWork, tokens: TokenGenerator, links: Links, typed_email: str
+    ctx: RequestContext,
+    uow: IdentityUnitOfWork,
+    tokens: TokenGenerator,
+    links: Links,
+    typed_email: str,
 ) -> None:
     """Mails a reset link when the address is an active, unlocked account's login email.
     Answers the same in every case, so the caller learns nothing about accounts."""
@@ -267,10 +288,12 @@ def request_password_reset(
         if user is None or not user.can_log_in:
             return
         send_password_reset(uow, tokens, links, user)
+        uow.audit.record(ctx, "user.reset_requested", target_type="user", target_id=user.id)
         uow.commit()
 
 
 def reset_password(
+    ctx: RequestContext,
     uow: IdentityUnitOfWork,
     hasher: PasswordHasher,
     policy: PasswordPolicy,
@@ -290,6 +313,9 @@ def reset_password(
         uow.tokens.save(token)
         uow.users.save(user)
         end_sessions(uow, user.id)
+        uow.audit.record(
+            as_user(ctx, user.id), "user.password_reset", target_type="user", target_id=user.id
+        )
         uow.commit()
 
 
@@ -338,6 +364,7 @@ def change_password(
                 when=_when(now),
                 link=links.login(),
             )
+        uow.audit.record(ctx, "user.password_changed", target_type="user", target_id=user.id)
         uow.commit()
 
 
@@ -382,10 +409,11 @@ def request_email_change(
                 name=user.name,
                 new_email=email.value,
             )
+        uow.audit.record(ctx, "user.email_change_requested", target_type="user", target_id=user.id)
         uow.commit()
 
 
-def confirm_email_change(uow: IdentityUnitOfWork, secret: str) -> UserView:
+def confirm_email_change(ctx: RequestContext, uow: IdentityUnitOfWork, secret: str) -> UserView:
     with uow:
         token = _usable_token(uow, secret, TokenKind.EMAIL_CHANGE)
         user = uow.users.get(token.user_id)
@@ -397,5 +425,8 @@ def confirm_email_change(uow: IdentityUnitOfWork, secret: str) -> UserView:
         token.use(uow.clock.now())
         uow.tokens.save(token)
         uow.users.save(user)
+        uow.audit.record(
+            as_user(ctx, user.id), "user.email_changed", target_type="user", target_id=user.id
+        )
         uow.commit()
     return UserView.of(user)

@@ -180,3 +180,7 @@ class ChangePasswordIn(BaseModel):
 class EmailChangeIn(BaseModel):
     new_email: str = Field(max_length=320)
     current_password: str = Field(max_length=1024)
+
+
+class ImpersonateIn(BaseModel):
+    reason: str = Field(max_length=500)

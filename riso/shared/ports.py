@@ -1,8 +1,11 @@
-"""Ports for technical services that use cases in every context need: file storage and
-mail. The adapters live in `riso.platform`; tests use fakes from `tests/fakes`."""
+"""Ports for technical services that use cases in every context need: file storage, mail
+and the audit log. The adapters live in `riso.platform`; tests use fakes from `tests/fakes`."""
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import BinaryIO, Protocol
+
+from riso.shared.context import RequestContext
 
 
 @dataclass(frozen=True, slots=True)
@@ -65,4 +68,25 @@ class Mailer(Protocol):
         **values: str,
     ) -> str:
         """Returns the outbox ID of the message."""
+        ...
+
+
+class AuditRecorder(Protocol):
+    """Appends to the audit log in the current transaction (plan §4.7, §12). Every write use
+    case records what it did; the entry carries the actor, the real actor when an admin
+    impersonates, the acting customer, the request ID and the client's address from `ctx`.
+
+    `details` holds IDs and field names, never invoice content, names or IBANs."""
+
+    def record(
+        self,
+        ctx: RequestContext,
+        action: str,
+        *,
+        target_type: str | None = None,
+        target_id: str | None = None,
+        customer_id: str | None = None,
+        details: Mapping[str, object] | None = None,
+    ) -> None:
+        """`customer_id` defaults to the context's acting customer."""
         ...

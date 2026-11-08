@@ -4,6 +4,7 @@ from riso.shared import NotFound
 from riso.shared.values import Ico
 from riso.tenancy.domain import Customer, CustomerParameters, ServiceProvider
 from tests.fakes.memory import SnapshotStore, StoresUnitOfWork
+from tests.fakes.ports import RecordingAudit
 from tests.fakes.uow import InMemoryUnitOfWork
 
 
@@ -86,6 +87,7 @@ class InMemoryParameters(SnapshotStore):
 class InMemoryTenancyUnitOfWork(StoresUnitOfWork):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.audit = self.store(RecordingAudit())
         self.customers = self.store(InMemoryCustomers(self))
         self.providers = self.store(InMemoryProviders())
         self.parameters = self.store(InMemoryParameters())

@@ -7,6 +7,7 @@ once. It lives in the composition root, the one place that may import every cont
 infrastructure.
 """
 
+from riso.audit.infrastructure.log import SqlAuditLog, SqlAuditRecorder
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
 from riso.platform.mail import MailTemplates, OutboxMailSender, OutboxQueries, TemplateMailer
 from riso.tenancy.infrastructure.uow import SqlTenancyUnitOfWork
@@ -17,6 +18,8 @@ TEMPLATES = MailTemplates()
 class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork):
     mailer: TemplateMailer
     outbox: OutboxQueries
+    audit: SqlAuditRecorder
+    audit_log: SqlAuditLog
 
     def _start(self) -> None:
         SqlIdentityUnitOfWork._start(self)
@@ -25,3 +28,5 @@ class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork):
             TEMPLATES, OutboxMailSender(self.session, self.clock, self.ids)
         )
         self.outbox = OutboxQueries(self.session)
+        self.audit = SqlAuditRecorder(self.session, self.clock, self.ids)
+        self.audit_log = SqlAuditLog(self.session)

@@ -1,21 +1,26 @@
 """The identity API: logging in and out, and the caller's own account (`/api/auth/…`,
 `/api/me/…`)."""
 
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Request, Response
 
 from riso.api.deps import (
     AnyCaller,
+    Caller,
     PersonalCaller,
     SelfCaller,
     ServicesDep,
     check_csrf,
     clear_session_cookies,
+    platform_context,
     set_session_cookies,
 )
 from riso.identity.api.models import (
     AcceptedOut,
     ChangePasswordIn,
     EmailChangeIn,
+    ImpersonateIn,
     LoginIn,
     MeOut,
     ResetRequestIn,
@@ -42,6 +47,8 @@ from riso.identity.application.auth import (
     logout_everywhere,
     me,
 )
+from riso.identity.application.impersonation import end_impersonation, start_impersonation
+from riso.identity.domain import Permission
 from riso.shared.errors import Unauthenticated
 
 router = APIRouter(prefix="/api", dependencies=[Depends(check_csrf)], tags=["identity"])
@@ -54,6 +61,7 @@ def login_route(
     """Logs in with the login email and password. Sets the session and CSRF cookies. Answers
     401 for any failure and 429 (with `Retry-After`) while throttled."""
     done = login(
+        caller.ctx,
         services.uow(),
         services.hasher,
         services.tokens,
@@ -65,7 +73,7 @@ def login_route(
         ),
     )
     set_session_cookies(response, services, done.token, done.csrf_token)
-    auth = authenticate(services.uow, done.token)
+    auth = authenticate(services.uow, done.token, caller.ctx)
     if auth is None:  # pragma: no cover - the session was made a moment ago
         raise Unauthenticated("login failed")
     return MeOut.of(me(auth, services.policy(auth.grants), services.directory))
@@ -74,14 +82,14 @@ def login_route(
 @router.post("/auth/logout", name="auth.logout", status_code=204)
 def logout_route(response: Response, caller: SelfCaller, services: ServicesDep) -> None:
     """Ends this session."""
-    logout(services.uow(), caller.required().session_id)
+    logout(caller.ctx, services.uow(), caller.required().session_id)
     clear_session_cookies(response, services)
 
 
 @router.post("/auth/logout-all", name="auth.logout_all", status_code=204)
 def logout_all_route(response: Response, caller: PersonalCaller, services: ServicesDep) -> None:
     """Ends every session of the caller, this one included. Refused while impersonating."""
-    logout_everywhere(services.uow(), caller.required().actor_id)
+    logout_everywhere(caller.ctx, services.uow(), caller.required().actor_id)
     clear_session_cookies(response, services)
 
 
@@ -120,7 +128,12 @@ def token_info_route(body: TokenIn, caller: AnyCaller, services: ServicesDep) ->
 def accept_invitation_route(body: SetPasswordIn, caller: AnyCaller, services: ServicesDep) -> None:
     """Sets the password of an invited account from the invitation link."""
     accept_invitation(
-        services.uow(), services.hasher, services.password_policy, body.token, body.password
+        caller.ctx,
+        services.uow(),
+        services.hasher,
+        services.password_policy,
+        body.token,
+        body.password,
     )
 
 
@@ -129,7 +142,7 @@ def request_reset_route(
     body: ResetRequestIn, caller: AnyCaller, services: ServicesDep
 ) -> AcceptedOut:
     """Mails a reset link if the address has an account. The answer is always the same."""
-    request_password_reset(services.uow(), services.tokens, services.links, body.email)
+    request_password_reset(caller.ctx, services.uow(), services.tokens, services.links, body.email)
     return AcceptedOut(detail="if the address has an account, a link was sent to it")
 
 
@@ -137,14 +150,19 @@ def request_reset_route(
 def reset_password_route(body: SetPasswordIn, caller: AnyCaller, services: ServicesDep) -> None:
     """Sets a new password from a reset link and ends every session of the account."""
     reset_password(
-        services.uow(), services.hasher, services.password_policy, body.token, body.password
+        caller.ctx,
+        services.uow(),
+        services.hasher,
+        services.password_policy,
+        body.token,
+        body.password,
     )
 
 
 @router.post("/auth/email-change/confirm", name="auth.confirm_email_change", status_code=204)
 def confirm_email_route(body: TokenIn, caller: AnyCaller, services: ServicesDep) -> None:
     """Makes the new address the login email, from the link mailed to it."""
-    confirm_email_change(services.uow(), body.token)
+    confirm_email_change(caller.ctx, services.uow(), body.token)
 
 
 # The caller's credentials ------------------------------------------------------------------
@@ -183,3 +201,30 @@ def email_change_route(
         current_password=body.current_password,
     )
     return AcceptedOut(detail="a confirmation link was sent to the new address")
+
+
+# Impersonation -----------------------------------------------------------------------------
+
+
+@router.post("/admin/users/{user_id}/impersonate", name="users.impersonate", status_code=204)
+def impersonate_route(
+    caller: Annotated[Caller, Depends(platform_context(Permission.USERS_IMPERSONATE))],
+    services: ServicesDep,
+    user_id: str,
+    body: ImpersonateIn,
+) -> None:
+    """Starts acting as the user in this session, for at most 60 minutes. Needs a reason;
+    another admin cannot be the target."""
+    start_impersonation(
+        caller.ctx,
+        services.uow(),
+        session_id=caller.required().session_id,
+        user_id=user_id,
+        reason=body.reason,
+    )
+
+
+@router.post("/me/impersonation/end", name="me.end_impersonation", status_code=204)
+def end_impersonation_route(caller: SelfCaller, services: ServicesDep) -> None:
+    """Ends the impersonation; the session is the admin's again."""
+    end_impersonation(caller.ctx, services.uow(), session_id=caller.required().session_id)

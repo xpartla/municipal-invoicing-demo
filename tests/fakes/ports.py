@@ -72,3 +72,39 @@ class RecordingJobQueue:
             }
         )
         return job_id
+
+
+class RecordingAudit:
+    """An `AuditRecorder` keeping its entries in a list. Like the real one, entries recorded in
+    a unit of work that rolls back are dropped (the fakes' stores call `begin`/`rollback`)."""
+
+    def __init__(self) -> None:
+        self.entries: list[dict] = []
+        self._mark = 0
+
+    def record(
+        self, ctx, action, *, target_type=None, target_id=None, customer_id=None, details=None
+    ):
+        self.entries.append(
+            {
+                "action": action,
+                "actor_id": ctx.actor_id,
+                "real_actor_id": ctx.real_actor_id,
+                "customer_id": customer_id or ctx.customer_id,
+                "target_type": target_type,
+                "target_id": target_id,
+                "details": dict(details or {}),
+            }
+        )
+
+    def begin(self) -> None:
+        self._mark = len(self.entries)
+
+    def commit(self) -> None:
+        self._mark = len(self.entries)
+
+    def rollback(self) -> None:
+        del self.entries[self._mark :]
+
+    def actions(self) -> list[str]:
+        return [e["action"] for e in self.entries]

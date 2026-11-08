@@ -26,6 +26,7 @@ from riso.api.middleware import (
     RequestIdMiddleware,
     SecurityHeadersMiddleware,
 )
+from riso.audit.api.routes import router as audit_router
 from riso.contracts import (
     Alternative,
     CodeRequest,
@@ -59,7 +60,7 @@ from riso.tenancy.api.routes import router as tenancy_router
 
 log = logging.getLogger(__name__)
 
-ROUTERS = [identity_router, tenancy_router, admin_router]
+ROUTERS = [identity_router, tenancy_router, audit_router, admin_router]
 """The phase 2 routers. They are mounted with or without a database, so the OpenAPI document
 and the permission matrix see the same routes; without one they answer 503."""
 

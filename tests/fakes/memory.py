@@ -35,7 +35,7 @@ class SnapshotStore:
         return [copy.deepcopy(v) for v in self.rows.values()]
 
 
-S = TypeVar("S", bound=SnapshotStore)
+S = TypeVar("S")
 
 
 class StoresUnitOfWork(InMemoryUnitOfWork):
@@ -44,7 +44,7 @@ class StoresUnitOfWork(InMemoryUnitOfWork):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self._stores: list[SnapshotStore] = []
+        self._stores: list[Any] = []
 
     def store(self, store: S) -> S:
         self._stores.append(store)

@@ -75,11 +75,15 @@ MATRIX: dict[str, RouteAccess] = {
     "auth.request_reset": public(),
     "auth.reset_password": public(),
     "auth.confirm_email_change": public(),
+    "me.end_impersonation": own(),
+    "users.impersonate": platform(Permission.USERS_IMPERSONATE),
     # Platform tools.
     "outbox.list": platform(Permission.OUTBOX_READ),
     "outbox.get": platform(Permission.OUTBOX_READ),
+    "audit.list": platform(Permission.AUDIT_READ),
     # Tenancy.
     "customers.get": customer(Permission.CUSTOMER_READ),
+    "customers.update_contact": customer(Permission.CUSTOMER_EDIT_CONTACT),
     "providers.get": provider(Permission.PROVIDER_OVERVIEW),
     # The demo (P2-M4 replaces these).
     "legacy.entities": public(),

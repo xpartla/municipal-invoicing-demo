@@ -88,9 +88,10 @@ def _ip(request: Request) -> str | None:
 
 def _caller(request: Request, services: Annotated[Services, Depends(_services)]) -> Caller:
     token = request.cookies.get(SESSION_COOKIE)
-    auth = authenticate(services.uow, token) if token else None
+    anonymous = RequestContext(_request_id(request), None, ip=_ip(request))
+    auth = authenticate(services.uow, token, anonymous) if token else None
     if auth is None:
-        return Caller(None, None, RequestContext(_request_id(request), None, ip=_ip(request)))
+        return Caller(None, None, anonymous)
     if request.method in UNSAFE_METHODS:
         header = request.headers.get(CSRF_HEADER, "")
         if not secrets.compare_digest(header, auth.csrf_token):

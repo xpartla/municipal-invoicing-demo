@@ -7,7 +7,7 @@ a wrong password. Failures are throttled per account and per client address
 """
 
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Protocol
 
 from riso.identity.application.access import Grant, MembershipPolicy
@@ -33,8 +33,9 @@ from riso.identity.domain import (
     hash_token,
     ip_key,
 )
+from riso.shared.context import RequestContext
 from riso.shared.errors import Throttled, Unauthenticated, ValidationFailed
-from riso.shared.ports import Mailer
+from riso.shared.ports import AuditRecorder, Mailer
 from riso.shared.uow import UnitOfWork
 
 TIMING_HASH = (
@@ -60,6 +61,15 @@ class IdentityUnitOfWork(UnitOfWork, Protocol):
     @property
     def mailer(self) -> Mailer: ...
 
+    @property
+    def audit(self) -> AuditRecorder: ...
+
+
+def as_user(ctx: RequestContext, user_id: str) -> RequestContext:
+    """The context of an anonymous request once it is known whose it is (a login, a link from
+    a mail), for the audit."""
+    return replace(ctx, actor_id=user_id, real_actor_id=None)
+
 
 IdentityUnitsOfWork = Callable[[bool], IdentityUnitOfWork]
 """Makes an identity unit of work; the argument asks for the write lock up front."""
@@ -83,7 +93,11 @@ class LoggedIn:
 
 
 def login(
-    uow: IdentityUnitOfWork, hasher: PasswordHasher, tokens: TokenGenerator, cmd: Login
+    ctx: RequestContext,
+    uow: IdentityUnitOfWork,
+    hasher: PasswordHasher,
+    tokens: TokenGenerator,
+    cmd: Login,
 ) -> LoggedIn:
     """Raises `Throttled` while the account or the address is blocked, `Unauthenticated` when
     the login fails."""
@@ -94,6 +108,8 @@ def login(
             counters.append(uow.login_attempts.get(ip_key(cmd.ip)))
         blocked = [until for c in counters if (until := c.blocked_until(now)) is not None]
         if blocked:
+            uow.audit.record(ctx, "auth.login_throttled")
+            uow.commit()
             raise Throttled("too many failed logins", int((max(blocked) - now).total_seconds()) + 1)
 
         user = _user_by_email(uow, cmd.email)
@@ -106,6 +122,12 @@ def login(
             for counter in counters:
                 counter.record_failure(now)
                 uow.login_attempts.save(counter)
+            uow.audit.record(
+                ctx,
+                "auth.login_failed",
+                target_type="user" if user else None,
+                target_id=user.id if user else None,
+            )
             uow.commit()
             raise Unauthenticated("login failed")
 
@@ -127,6 +149,9 @@ def login(
             user_agent=cmd.user_agent,
         )
         uow.sessions.add(session)
+        uow.audit.record(
+            as_user(ctx, user.id), "auth.login", target_type="session", target_id=session.id
+        )
         uow.commit()
     return LoggedIn(token=token, csrf_token=csrf, session_id=session.id, user_id=user.id)
 
@@ -166,22 +191,27 @@ class Authenticated:
         return self.real_user.id if self.real_user else None
 
 
-def authenticate(uows: IdentityUnitsOfWork, token: str) -> Authenticated | None:
+def authenticate(
+    uows: IdentityUnitsOfWork, token: str, ctx: RequestContext | None = None
+) -> Authenticated | None:
     """The session of a cookie's token, or None when it is unknown, ended, expired, or its
     user can no longer log in. Most requests only read; the time of the last request is
-    written once a minute, and an impersonation past its limit is ended."""
+    written once a minute, and an impersonation past its limit is ended (and audited with
+    the request's ID and address from `ctx`)."""
     with uows(False) as uow:
-        found, dirty = _resolve(uow, token)
+        found, dirty = _resolve(uow, token, ctx)
     if not dirty:
         return found
     with uows(True) as uow:
-        found, dirty = _resolve(uow, token)
+        found, dirty = _resolve(uow, token, ctx)
         if dirty:
             uow.commit()
     return found
 
 
-def _resolve(uow: IdentityUnitOfWork, token: str) -> tuple[Authenticated | None, bool]:
+def _resolve(
+    uow: IdentityUnitOfWork, token: str, ctx: RequestContext | None
+) -> tuple[Authenticated | None, bool]:
     """The session, and whether it changed and must be saved (the caller commits)."""
     now = uow.clock.now()
     session = uow.sessions.by_token_hash(hash_token(token))
@@ -198,6 +228,17 @@ def _resolve(uow: IdentityUnitOfWork, token: str) -> tuple[Authenticated | None,
         if session.impersonation_expired(now) or not target.can_log_in or target.is_admin:
             session.end_impersonation()
             dirty = True
+            uow.audit.record(
+                replace(
+                    ctx or RequestContext("-", None),
+                    actor_id=target.id,
+                    real_actor_id=user.id,
+                ),
+                "impersonation.expired",
+                target_type="user",
+                target_id=target.id,
+                details={"session_id": session.id},
+            )
         else:
             assert session.impersonation_started_at is not None
             assert session.impersonation_expires_at is not None
@@ -229,12 +270,13 @@ def _resolve(uow: IdentityUnitOfWork, token: str) -> tuple[Authenticated | None,
 # Logging out ------------------------------------------------------------------------------
 
 
-def logout(uow: IdentityUnitOfWork, session_id: str) -> None:
+def logout(ctx: RequestContext, uow: IdentityUnitOfWork, session_id: str) -> None:
     with uow:
         session = uow.sessions.get(session_id)
         if session.revoked_at is None:
             session.revoke(uow.clock.now())
             uow.sessions.save(session)
+            uow.audit.record(ctx, "auth.logout", target_type="session", target_id=session.id)
         uow.commit()
 
 
@@ -255,9 +297,16 @@ def end_sessions(uow: IdentityUnitOfWork, user_id: str, *, keep: str | None = No
     return ended
 
 
-def logout_everywhere(uow: IdentityUnitOfWork, user_id: str) -> int:
+def logout_everywhere(ctx: RequestContext, uow: IdentityUnitOfWork, user_id: str) -> int:
     with uow:
         ended = end_sessions(uow, user_id)
+        uow.audit.record(
+            ctx,
+            "auth.logout_all",
+            target_type="user",
+            target_id=user_id,
+            details={"sessions": ended},
+        )
         uow.commit()
     return ended
 

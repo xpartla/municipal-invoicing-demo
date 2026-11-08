@@ -5,6 +5,7 @@ from collections.abc import Collection
 from riso.identity.domain import Email, ScopeKind, User, UserStatus
 from riso.shared import Conflict, NotFound
 from tests.fakes.memory import SnapshotStore, StoresUnitOfWork
+from tests.fakes.ports import RecordingAudit
 from tests.fakes.uow import InMemoryUnitOfWork
 
 
@@ -71,6 +72,7 @@ class InMemoryUsers(SnapshotStore):
 class InMemoryIdentityUnitOfWork(StoresUnitOfWork):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+        self.audit = self.store(RecordingAudit())
         self.users = self.store(InMemoryUsers(self))
 
 
