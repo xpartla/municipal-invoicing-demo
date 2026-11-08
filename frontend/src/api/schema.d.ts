@@ -789,6 +789,29 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Coding.Code
+         * @description The engine's proposal for the invoice, coded with the customer's code lists,
+         *     parameters and conventions for the invoice's booking year. Nothing is stored. (Supplier
+         *     memory and counters come from the demo's files until P2-M4.) 409 when the customer has no
+         *     lists or parameters for that year.
+         */
+        post: operations["coding.code"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit": {
         parameters: {
             query?: never;
@@ -1051,9 +1074,9 @@ export interface components {
             description?: string | null;
             /**
              * Row
-             * @description Row in the exported sheet
+             * @description Row in the exported sheet; none for a row added by hand
              */
-            row: number;
+            row?: number | null;
         };
         /** AddressIn */
         AddressIn: {
@@ -1224,9 +1247,9 @@ export interface components {
             aliases?: string[];
             /**
              * Rows
-             * @description Rows in the exported sheet
+             * @description Rows in the exported sheet; empty for a position added by hand
              */
-            rows: number[];
+            rows?: number[];
         };
         /** CaseResult */
         CaseResult: {
@@ -3773,6 +3796,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CustomerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "coding.code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceDocument"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodingProposal"];
                 };
             };
             /** @description Validation Error */

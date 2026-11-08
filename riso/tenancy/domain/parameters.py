@@ -2,8 +2,9 @@
 and the name, which come from the customer.
 
 The parameters validate through the `EntityContext` contract itself, so their rules are
-exactly the contract's (zdroj, account keys and the period by their patterns). M2 replaces
-`reference_period` with the code list versions of the year.
+exactly the contract's (zdroj and account keys by their patterns). The contract's
+`reference_period` is not a parameter: since P2-M2 it is the period of the customer's active
+code list versions, which the caller passes to `entity_context`.
 """
 
 from collections.abc import Mapping
@@ -16,8 +17,9 @@ from riso.contracts import EntityContext
 from riso.shared.errors import FieldError, ValidationFailed
 
 MIN_YEAR, MAX_YEAR = 2000, 2100
-_PLACEHOLDER = {"ico": "00000000", "name": "-"}
-"""Stands in for the customer's own IČO and name while the parameters are checked alone."""
+_PLACEHOLDER = {"ico": "00000000", "name": "-", "reference_period": "2000-01"}
+"""Stands in for the customer's own IČO and name, and the lists' period, while the parameters
+are checked alone."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,7 +27,6 @@ class CustomerParameters:
     customer_id: str
     year: int
     vat_payer: bool
-    reference_period: str
     default_zdroj: str
     default_series: str
     default_dal: str
@@ -34,7 +35,6 @@ class CustomerParameters:
 
     FIELDS = (
         "vat_payer",
-        "reference_period",
         "default_zdroj",
         "default_series",
         "default_dal",
@@ -68,8 +68,14 @@ class CustomerParameters:
         data = asdict(self)
         return {name: data[name] for name in self.FIELDS}
 
-    def entity_context(self, *, ico: str, name: str) -> EntityContext:
-        """What the engine reads."""
+    def entity_context(self, *, ico: str, name: str, reference_period: str) -> EntityContext:
+        """What the engine reads; `reference_period` is the code lists' (the bundle's)."""
         return EntityContext.model_validate(
-            {"ico": ico, "name": name, "budget_year": self.year, **self.values()}
+            {
+                "ico": ico,
+                "name": name,
+                "budget_year": self.year,
+                "reference_period": reference_period,
+                **self.values(),
+            }
         )

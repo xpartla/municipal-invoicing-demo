@@ -59,7 +59,6 @@ class CustomerParametersRow(Base):
     )
     year: Mapped[int] = mapped_column(Integer, primary_key=True)
     vat_payer: Mapped[bool] = mapped_column(Boolean)
-    reference_period: Mapped[str] = mapped_column(String(7))
     default_zdroj: Mapped[str] = mapped_column(String(4))
     default_series: Mapped[str] = mapped_column(String(50))
     default_dal: Mapped[str] = mapped_column(String(7))

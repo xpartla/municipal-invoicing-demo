@@ -1896,6 +1896,59 @@
         }
       }
     },
+    "/api/customers/{customer_id}/code": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Coding.Code",
+        "description": "The engine's proposal for the invoice, coded with the customer's code lists,\nparameters and conventions for the invoice's booking year. Nothing is stored. (Supplier\nmemory and counters come from the demo's files until P2-M4.) 409 when the customer has no\nlists or parameters for that year.",
+        "operationId": "coding.code",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodingProposal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/audit": {
       "get": {
         "tags": [
@@ -2628,9 +2681,16 @@
             "title": "Description"
           },
           "row": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Row",
-            "description": "Row in the exported sheet"
+            "description": "Row in the exported sheet; none for a row added by hand"
           }
         },
         "additionalProperties": false,
@@ -2639,8 +2699,7 @@
           "key",
           "su",
           "au",
-          "type",
-          "row"
+          "type"
         ],
         "title": "Account"
       },
@@ -3156,9 +3215,8 @@
               "type": "integer"
             },
             "type": "array",
-            "minItems": 1,
             "title": "Rows",
-            "description": "Rows in the exported sheet"
+            "description": "Rows in the exported sheet; empty for a position added by hand"
           }
         },
         "additionalProperties": false,
@@ -3167,8 +3225,7 @@
           "key",
           "ek",
           "zdroj",
-          "analytika",
-          "rows"
+          "analytika"
         ],
         "title": "BudgetPosition"
       },

@@ -8,9 +8,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from riso import paths
+from riso.shared.errors import DomainError
 
 if TYPE_CHECKING:
-    from riso.contracts import CodingProposal
+    from riso.contracts import CodingProposal, EvalReport
+    from riso.contracts.eval import Split
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -61,6 +63,17 @@ def main(argv: list[str] | None = None) -> int:
     evaluation.add_argument("--all", action="store_true", help="list every case, not only misses")
     evaluation.add_argument(
         "--strict", action="store_true", help="exit with 1 when a target of section 9 is missed"
+    )
+    evaluation.add_argument(
+        "--source",
+        choices=("files", "db"),
+        default="files",
+        help="where the lists, parameters and conventions come from: the committed files "
+        "(default) or the database of RISO_DB_URL; the memory always comes from "
+        "data/initial_state",
+    )
+    evaluation.add_argument(
+        "--customer", metavar="IČO", help="the customer to evaluate (default: the dataset's one)"
     )
 
     migrate = commands.add_parser("migrate", help="upgrade the database to the newest schema")
@@ -260,8 +273,11 @@ def _eval(args: argparse.Namespace) -> int:
     from riso.store import StateStore
 
     try:
-        report = evaluate(args.split)
-    except (LookupError, ValueError) as exc:
+        if args.source == "db":
+            report = _evaluate_on_database(args.split, args.customer)
+        else:
+            report = evaluate(args.split, entity=args.customer)
+    except (LookupError, ValueError, DomainError) as exc:
         print(f"riso eval: {exc}", file=sys.stderr)
         return 2
     if not report.cases:
@@ -275,6 +291,23 @@ def _eval(args: argparse.Namespace) -> int:
         print(f"\nwrote {_shown(path)}")
     missed = [t for t in report.targets if not t.met]
     return 1 if args.strict and missed else 0
+
+
+def _evaluate_on_database(split: "Split", customer: str | None) -> "EvalReport":
+    from riso.api.adapters import DatabaseReferenceSource
+    from riso.api.composition import build_services
+    from riso.eval import evaluate
+    from riso.shared.context import AllowAll, RequestContext
+
+    services = build_services()
+    try:
+        ctx = RequestContext(request_id="riso-eval", actor_id=None, policy=AllowAll())
+        source = DatabaseReferenceSource(
+            lambda: services.uow(immediate=False), services.reference_data(), ctx
+        )
+        return evaluate(split, entity=customer, source=source, knowledge_of=source.knowledge)
+    finally:
+        services.close()
 
 
 def _migrate(args: argparse.Namespace) -> int:

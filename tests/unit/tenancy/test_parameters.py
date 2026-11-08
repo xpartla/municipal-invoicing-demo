@@ -19,7 +19,10 @@ VALUES = {k: BOLDOG[k] for k in CustomerParameters.FIELDS}
 def test_boldogs_settings_load_and_round_trip_to_the_entity_context():
     parameters = CustomerParameters.parse("c1", 2026, VALUES)
     assert parameters.values() == VALUES
-    assert parameters.entity_context(ico="00305863", name="Obec Boldog") == EntityContext(**BOLDOG)
+    context = parameters.entity_context(
+        ico="00305863", name="Obec Boldog", reference_period="2026-08"
+    )
+    assert context == EntityContext(**BOLDOG)
 
 
 @pytest.mark.parametrize(
@@ -29,7 +32,6 @@ def test_boldogs_settings_load_and_round_trip_to_the_entity_context():
         ("default_zdroj", ""),
         ("default_dal", "321000"),
         ("canteen_dal", "321 08"),
-        ("reference_period", "2026-13"),
         ("vat_payer", "maybe"),
     ],
 )
@@ -68,7 +70,13 @@ VALUE = st.one_of(TEXT, st.booleans(), st.integers(-2, 2), st.none())
 def test_validation_equals_the_entity_contexts(values):
     try:
         EntityContext.model_validate(
-            {"ico": "00305863", "name": "Obec Boldog", "budget_year": 2026, **values}
+            {
+                "ico": "00305863",
+                "name": "Obec Boldog",
+                "budget_year": 2026,
+                "reference_period": "2026-08",
+                **values,
+            }
         )
         expected = None
     except ValidationError as exc:
@@ -79,3 +87,9 @@ def test_validation_equals_the_entity_contexts(values):
     except ValidationFailed as exc:
         found = sorted(e.field for e in exc.errors)
     assert found == expected
+
+
+def test_the_period_is_not_a_parameter():
+    with pytest.raises(ValidationFailed) as caught:
+        CustomerParameters.parse("c1", 2026, {**VALUES, "reference_period": "2026-08"})
+    assert [e.field for e in caught.value.errors] == ["reference_period"]

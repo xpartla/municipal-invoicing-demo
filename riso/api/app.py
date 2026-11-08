@@ -44,6 +44,7 @@ from riso.engine.s6_validate import check_coding
 from riso.engine.s8_feedback import apply_feedback
 from riso.eval import evaluate
 from riso.identity.api.routes import router as identity_router
+from riso.invoicing.api.routes import router as invoicing_router
 from riso.knowledge import UnknownKnowledge, knowledge_for
 from riso.platform.log import configure_logging
 from riso.platform.migrations import current_revision, head_revision
@@ -60,7 +61,7 @@ from riso.tenancy.api.routes import router as tenancy_router
 
 log = logging.getLogger(__name__)
 
-ROUTERS = [identity_router, tenancy_router, audit_router, admin_router]
+ROUTERS = [identity_router, tenancy_router, invoicing_router, audit_router, admin_router]
 """The phase 2 routers. They are mounted with or without a database, so the OpenAPI document
 and the permission matrix see the same routes; without one they answer 503."""
 
