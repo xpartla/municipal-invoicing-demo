@@ -23,8 +23,13 @@ worker, the app's security headers and error mapping, the React SPA shell served
 `riso serve`, the gate script, the E2E harness and CI. P2-M1 adds logins and access: users,
 customers and service providers, sessions with CSRF and throttling, invitations and password
 resets through a mail outbox, roles and permissions checked on every route, impersonation for
-admins, the audit log, and `riso seed`. Code lists on the database, the import tool, invoices,
-OCR and e-invoices follow. The demo below keeps working until its pages are replaced.
+admins, the audit log, and `riso seed`. P2-M2 moves the code lists to the database: each
+customer's lists per year in versions (a row edit makes a new one), the 2026 global lists (EK,
+COFOG, funding sources, the framework chart) and the validation against them, Boldog's coding
+conventions out of the knowledge base, coding from the database (`POST
+/api/customers/{id}/code`, `riso eval --source db`), the knowledge health report, and the
+Číselníky and Systém screens. The import tool, invoices, OCR and e-invoices follow. The demo
+below keeps working until its pages are replaced.
 
 M3 is done: the web app and the feedback loop. The proposal page lays the coding out like the
 accounting software's two tabs, with a copy button on every value and line, the evidence
