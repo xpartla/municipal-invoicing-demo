@@ -1,4 +1,5 @@
-"""Command line: riso ingest | check | export-schemas | reset | serve | code | eval | migrate."""
+"""Command line: riso ingest | check | export-schemas | reset | serve | code | eval | migrate |
+worker."""
 
 import argparse
 import sys
@@ -61,6 +62,12 @@ def main(argv: list[str] | None = None) -> int:
         "--revision", default="head", help="the Alembic revision to upgrade to (default head)"
     )
 
+    worker = commands.add_parser("worker", help="run the background jobs worker")
+    worker.add_argument("--once", action="store_true", help="run the jobs that are due, then exit")
+    worker.add_argument(
+        "--poll", type=float, default=1.0, help="seconds between looks for new jobs"
+    )
+
     args = parser.parse_args(argv)
     handlers: dict[str, Callable[[argparse.Namespace], int]] = {
         "ingest": _ingest,
@@ -71,6 +78,7 @@ def main(argv: list[str] | None = None) -> int:
         "code": _code,
         "eval": _eval,
         "migrate": _migrate,
+        "worker": _worker,
     }
     return handlers[args.command](args)
 
@@ -253,6 +261,31 @@ def _migrate(args: argparse.Namespace) -> int:
     else:
         print(f"migrated from {before or 'base'} to {after or 'base'}")
     return 0
+
+
+def _worker(args: argparse.Namespace) -> int:
+    """Runs the jobs of RISO_DB_URL in the foreground, until Ctrl-C (or once)."""
+    import threading
+
+    from riso.api.composition import build_services
+
+    services = build_services()
+    try:
+        worker = services.worker()
+        if args.once:
+            print(f"ran {worker.run_pending()} job(s)")
+            return 0
+        print(f"worker {worker.worker_id} running; Ctrl-C stops it")
+        stop = threading.Event()
+        try:
+            while not stop.is_set():
+                worker.run_pending()
+                stop.wait(args.poll)
+        except KeyboardInterrupt:
+            print("stopped")
+        return 0
+    finally:
+        services.close()
 
 
 def _shown(path: Path) -> str:

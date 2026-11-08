@@ -19,8 +19,12 @@ from riso.shared.ids import IdGenerator
 
 
 class UnitOfWork(Protocol):
-    clock: Clock
-    ids: IdGenerator
+    # Read-only, so an implementation may hold a more specific type.
+    @property
+    def clock(self) -> Clock: ...
+
+    @property
+    def ids(self) -> IdGenerator: ...
 
     def __enter__(self) -> Self: ...
 

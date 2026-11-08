@@ -4,7 +4,10 @@ tables."""
 
 import importlib
 
-MODEL_MODULES: tuple[str, ...] = ()
+MODEL_MODULES: tuple[str, ...] = (
+    "riso.platform.mail",
+    "riso.jobs.infrastructure.orm",
+)
 
 
 def import_models() -> None:

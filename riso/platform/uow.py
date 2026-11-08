@@ -15,7 +15,14 @@ from riso.shared.ids import IdGenerator
 class SqlUnitOfWork:
     """One transaction. `commit()` collects the tracked aggregates' events, commits, and only
     then dispatches them; leaving the block without a commit, or with an exception, rolls
-    back and drops the events."""
+    back and drops the events.
+
+    On SQLite the transaction begins with BEGIN IMMEDIATE unless `immediate=False`. A command
+    reads before it writes; a deferred transaction that read an older snapshot cannot become
+    a writer once another connection has committed, and SQLite then fails at once with
+    "database is locked" instead of waiting. Taking the write lock up front makes writers
+    queue for it (up to the busy timeout). Read-only work passes `immediate=False`.
+    """
 
     session: Session
 
@@ -26,7 +33,7 @@ class SqlUnitOfWork:
         clock: Clock,
         ids: IdGenerator,
         dispatcher: EventDispatcher | None = None,
-        immediate: bool = False,
+        immediate: bool = True,
     ) -> None:
         self._db = db
         self.clock = clock

@@ -84,6 +84,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso serve` | Runs the API and the pages |
 | `riso code <file>…` | Codes InvoiceDocuments or dataset cases and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
+| `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed |
 
 Run them with `uv run riso …`. `uv run ruff check .` and `uv run ruff format .` keep the code
@@ -131,7 +132,9 @@ The interactive documentation is at `/docs` while the server runs.
 riso/
   shared/         the kernel: IDs (UUIDv7), clock, errors, events, request context, unit of
                   work protocol, IČO, IBAN and money
-  platform/       settings, the database (SQLite in WAL mode), migrations, the unit of work
+  platform/       settings, the database (SQLite in WAL mode), migrations, the unit of work,
+                  content-addressed file storage (var/files/<owner>/<yyyy>/<mm>/<sha256>.<ext>)
+                  and the mail outbox
   identity/ tenancy/ codelists/ intake/ invoicing/ exchange/ reporting/ audit/ jobs/
                   the bounded contexts of phase 2, each in layers: domain/, application/,
                   infrastructure/, api/; other code imports only a context's __init__

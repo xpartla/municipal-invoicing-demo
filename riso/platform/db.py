@@ -8,10 +8,11 @@ SQLite-only in the SQL itself, so PostgreSQL stays a change of URL.
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import Engine, MetaData, create_engine, event
+from sqlalchemy import DateTime, Dialect, Engine, MetaData, TypeDecorator, create_engine, event
 from sqlalchemy.engine import Connection
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
@@ -31,6 +32,26 @@ class Base(DeclarativeBase):
     """The declarative base of every context's ORM models; they share one `metadata`."""
 
     metadata = metadata
+
+
+class UtcDateTime(TypeDecorator[datetime]):
+    """A timezone-aware UTC instant. SQLite keeps no time zone, so the value is stored as
+    naive UTC and read back as aware UTC; a naive value is refused on the way in."""
+
+    impl = DateTime
+    cache_ok = True
+
+    def process_bind_param(self, value: datetime | None, dialect: Dialect) -> datetime | None:
+        if value is None:
+            return None
+        if value.tzinfo is None:
+            raise ValueError("instants must be timezone-aware")
+        return value.astimezone(UTC).replace(tzinfo=None)
+
+    def process_result_value(self, value: datetime | None, dialect: Dialect) -> datetime | None:
+        if value is None:
+            return None
+        return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
 
 
 BUSY_TIMEOUT_MS = 5000
