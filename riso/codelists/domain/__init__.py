@@ -19,6 +19,12 @@ from riso.codelists.domain.entries import (
     entry_fields,
     parse_entry,
 )
+from riso.codelists.domain.health import (
+    HealthCode,
+    HealthFinding,
+    HealthSeverity,
+    health_report,
+)
 from riso.codelists.domain.kinds import (
     CUSTOMER_KINDS,
     GLOBAL_KINDS,
@@ -67,6 +73,9 @@ __all__ = [
     "FrameworkAccountEntry",
     "FundingSourceEntry",
     "GlobalLists",
+    "HealthCode",
+    "HealthFinding",
+    "HealthSeverity",
     "ListKind",
     "ListWarning",
     "SeriesEntry",
@@ -78,6 +87,7 @@ __all__ = [
     "VersionStatus",
     "entry_fields",
     "has_errors",
+    "health_report",
     "parse_entry",
     "validate_list",
     "validate_lists",

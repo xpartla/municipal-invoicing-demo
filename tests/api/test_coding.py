@@ -3,37 +3,20 @@ database, the four anchors are coded exactly as `riso code` codes them from the 
 
 import pytest
 
-from riso.api import Settings, create_app
 from riso.api.adapters import DatabaseReferenceSource
-from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.contracts import CodingProposal
 from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.eval import compare, evaluate
-from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.knowledge import knowledge_for
-from riso.platform import Settings as PlatformSettings
 from riso.reference import LocalReferenceSource
 from riso.shared import AllowAll, RequestContext
 from riso.store import StateStore
-from tests.api.conftest import ApiClient
+from tests.api.conftest import SEED_PASSWORD, ApiClient
 
-PASSWORD = "Ukážkové-heslo-2026"
+PASSWORD = SEED_PASSWORD
 BOLDOG = "00305863"
 ANCHORS = {c.id: c for c in load_cases() if c.split == "anchor"}
-
-
-@pytest.fixture(scope="module")
-def seeded(tmp_path_factory):
-    settings = PlatformSettings(var_dir=tmp_path_factory.mktemp("coding") / "var", env="test")
-    done = seed(settings, password=PASSWORD, hasher=Argon2Hasher.fast())
-    services = build_services(settings, hasher=Argon2Hasher.fast())
-    app = create_app(
-        Settings(var_dir=settings.var_dir, platform=settings, run_worker=False), services=services
-    )
-    yield app, done, settings.var_dir
-    services.close()
 
 
 def _client(app, done, key="user"):

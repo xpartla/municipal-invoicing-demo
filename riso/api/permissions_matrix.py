@@ -94,6 +94,8 @@ MATRIX: dict[str, RouteAccess] = {
     "outbox.list": platform(Permission.OUTBOX_READ),
     "outbox.get": platform(Permission.OUTBOX_READ),
     "audit.list": platform(Permission.AUDIT_READ),
+    # Code lists.
+    "codelists.health": customer(Permission.CUSTOMER_READ),
     # Invoicing.
     "coding.code": customer(Permission.INVOICES_PROCESS),
     # Tenancy.

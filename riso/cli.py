@@ -27,7 +27,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     ingest.add_argument("--out", type=Path, default=paths.BUNDLES_DIR)
 
-    commands.add_parser("check", help="check the committed data against the dictionaries")
+    check = commands.add_parser(
+        "check",
+        help="check the committed data against the dictionaries, or with --customer one "
+        "customer's knowledge health on the database",
+    )
+    check.add_argument(
+        "--customer",
+        metavar="IČO",
+        help="report the knowledge health of this customer on the database of RISO_DB_URL",
+    )
+    check.add_argument(
+        "--year", type=int, help="with --customer: the year (default: its newest parameters)"
+    )
 
     schemas = commands.add_parser("export-schemas", help="write the contracts as JSON Schema")
     schemas.add_argument("--out", type=Path, default=paths.SCHEMAS_DIR)
@@ -133,6 +145,8 @@ def _ingest(args: argparse.Namespace) -> int:
 
 
 def _check(args: argparse.Namespace) -> int:
+    if args.customer:
+        return _health(args.customer, args.year)
     from riso.checks import run_checks
 
     results = run_checks()
@@ -143,6 +157,38 @@ def _check(args: argparse.Namespace) -> int:
     failed = sum(1 for r in results if r.errors)
     print(f"{len(results) - failed} of {len(results)} checks passed")
     return 1 if failed else 0
+
+
+def _health(ico: str, year: int | None) -> int:
+    """The knowledge health report of a customer on the database (plan §6.5); exits with 1
+    when it has errors."""
+    from riso.api.composition import build_services
+    from riso.codelists import HealthSeverity, knowledge_health
+    from riso.shared.context import AllowAll, RequestContext
+    from riso.shared.values import Ico
+
+    services = build_services()
+    try:
+        with services.uow(immediate=False) as uow:
+            customer = uow.customers.find_active_by_ico(Ico.parse(ico))
+            years = uow.parameters.years(customer.id) if customer else []
+        if customer is None:
+            print(f"riso check: no active customer with IČO {ico}", file=sys.stderr)
+            return 2
+        chosen = year or (years[-1] if years else services.clock.now().year)
+        ctx = RequestContext(request_id="riso-check", actor_id=None, policy=AllowAll())
+        memory = services.supplier_state().memory(customer.id)
+        findings = knowledge_health(ctx, services.uow(immediate=False), customer.id, chosen, memory)
+    finally:
+        services.close()
+    print(f"{customer.name} ({ico}), {chosen}")
+    for finding in findings:
+        count = f" ×{finding.count}" if finding.count > 1 else ""
+        print(f"  {finding.severity:<7}  {finding.message}{count}")
+    errors = sum(f.severity is HealthSeverity.ERROR for f in findings)
+    warnings = sum(f.severity is HealthSeverity.WARNING for f in findings)
+    print(f"{errors} errors, {warnings} warnings, {len(findings) - errors - warnings} notes")
+    return 1 if errors else 0
 
 
 def _export_schemas(args: argparse.Namespace) -> int:

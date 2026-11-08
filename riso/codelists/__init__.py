@@ -15,13 +15,18 @@ from riso.codelists.application import (
     customer_knowledge,
     get_conventions,
     global_lists,
+    knowledge_health,
     parse_conventions,
     reference_bundle,
     set_conventions,
     versions_from_bundle,
 )
+from riso.codelists.domain import HealthCode, HealthFinding, HealthSeverity
 
 __all__ = [
+    "HealthCode",
+    "HealthFinding",
+    "HealthSeverity",
     "ConventionsView",
     "customer_knowledge",
     "get_conventions",
@@ -34,6 +39,7 @@ __all__ = [
     "build_bundle",
     "customer_findings",
     "global_lists",
+    "knowledge_health",
     "reference_bundle",
     "versions_from_bundle",
 ]

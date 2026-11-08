@@ -789,6 +789,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Codelists.Health
+         * @description The knowledge health report (plan §6.5): missing lists, conventions naming missing
+         *     accounts, budget EKs without a bridge rule, precedents outside the active lists.
+         */
+        get: operations["codelists.health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/customers/{customer_id}/code": {
         parameters: {
             query?: never;
@@ -1720,6 +1741,41 @@ export interface components {
              */
             number?: string | null;
         };
+        /**
+         * HealthCode
+         * @enum {string}
+         */
+        HealthCode: "knowledge_missing" | "list_missing" | "global_list_missing" | "convention_missing_account" | "convention_missing_position" | "ek_without_bridge" | "precedent_outside_lists";
+        /** HealthFindingOut */
+        HealthFindingOut: {
+            code: components["schemas"]["HealthCode"];
+            severity: components["schemas"]["HealthSeverity"];
+            /** Subject */
+            subject: string;
+            /** Where */
+            where: string | null;
+            kind: components["schemas"]["ListKind"] | null;
+            /** Count */
+            count: number;
+            /** Message */
+            message: string;
+        };
+        /** HealthReportOut */
+        HealthReportOut: {
+            /** Year */
+            year: number;
+            /** Errors */
+            errors: number;
+            /** Warnings */
+            warnings: number;
+            /** Findings */
+            findings: components["schemas"]["HealthFindingOut"][];
+        };
+        /**
+         * HealthSeverity
+         * @enum {string}
+         */
+        HealthSeverity: "error" | "warning" | "info";
         /** ImpersonateIn */
         ImpersonateIn: {
             /** Reason */
@@ -1931,6 +1987,11 @@ export interface components {
         LinkSentOut: {
             kind: components["schemas"]["TokenKind"];
         };
+        /**
+         * ListKind
+         * @enum {string}
+         */
+        ListKind: "accounts" | "budget_expense" | "budget_income" | "document_series" | "transfers" | "cost_centres" | "ek" | "cofog" | "funding_sources" | "framework_accounts";
         /** LoginIn */
         LoginIn: {
             /** Email */
@@ -3796,6 +3857,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CustomerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.health": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthReportOut"];
                 };
             };
             /** @description Validation Error */

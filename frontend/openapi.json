@@ -1896,6 +1896,69 @@
         }
       }
     },
+    "/api/customers/{customer_id}/health": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Health",
+        "description": "The knowledge health report (plan §6.5): missing lists, conventions naming missing\naccounts, budget EKs without a bridge rule, precedents outside the active lists.",
+        "operationId": "codelists.health",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/customers/{customer_id}/code": {
       "post": {
         "tags": [
@@ -4540,6 +4603,113 @@
         "title": "Handwritten",
         "description": "Written by hand on the scan when the invoice arrives; the position varies per scan."
       },
+      "HealthCode": {
+        "type": "string",
+        "enum": [
+          "knowledge_missing",
+          "list_missing",
+          "global_list_missing",
+          "convention_missing_account",
+          "convention_missing_position",
+          "ek_without_bridge",
+          "precedent_outside_lists"
+        ],
+        "title": "HealthCode"
+      },
+      "HealthFindingOut": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/HealthCode"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/HealthSeverity"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "where": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Where"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ListKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "subject",
+          "where",
+          "kind",
+          "count",
+          "message"
+        ],
+        "title": "HealthFindingOut"
+      },
+      "HealthReportOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "errors": {
+            "type": "integer",
+            "title": "Errors"
+          },
+          "warnings": {
+            "type": "integer",
+            "title": "Warnings"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/HealthFindingOut"
+            },
+            "type": "array",
+            "title": "Findings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "errors",
+          "warnings",
+          "findings"
+        ],
+        "title": "HealthReportOut"
+      },
+      "HealthSeverity": {
+        "type": "string",
+        "enum": [
+          "error",
+          "warning",
+          "info"
+        ],
+        "title": "HealthSeverity"
+      },
       "ImpersonateIn": {
         "properties": {
           "reason": {
@@ -5249,6 +5419,22 @@
           "kind"
         ],
         "title": "LinkSentOut"
+      },
+      "ListKind": {
+        "type": "string",
+        "enum": [
+          "accounts",
+          "budget_expense",
+          "budget_income",
+          "document_series",
+          "transfers",
+          "cost_centres",
+          "ek",
+          "cofog",
+          "funding_sources",
+          "framework_accounts"
+        ],
+        "title": "ListKind"
       },
       "LoginIn": {
         "properties": {

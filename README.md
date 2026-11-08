@@ -149,7 +149,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | Command | Does |
 |---|---|
 | `riso ingest` | Builds `data/bundles/<IČO>/<period>.json` from the Excel exports in `../data` (or `--raw`, or `RISO_RAW_DIR`) |
-| `riso check` | Checks the committed data against the dictionaries: entity settings, supplier memory, counters, the knowledge base, every dataset case, schema drift |
+| `riso check` | Checks the committed data against the dictionaries: entity settings, supplier memory, counters, the knowledge base (with Boldog's conventions), every dataset case, schema drift. `--customer <IČO> [--year YYYY]` prints that customer's knowledge health report from the database instead (missing lists, conventions naming missing accounts, budget EKs without a bridge rule, precedents outside the active lists); exit 1 when it has errors |
 | `riso export-openapi` | Writes the API's OpenAPI document to `frontend/openapi.json`, which the frontend client is generated from; `--check` only reports a stale file |
 | `riso export-schemas` | Writes the contracts as JSON Schema to `schemas/`; `--check` only reports stale files |
 | `riso reset` | Restores the runtime state in `var/` from `data/initial_state/` |
