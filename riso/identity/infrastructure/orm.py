@@ -1,8 +1,8 @@
-"""The identity tables: `users` and `memberships` (plan §11)."""
+"""The identity tables: `users`, `memberships`, `sessions` and `login_attempts` (plan §11)."""
 
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Index, String, UniqueConstraint
+from sqlalchemy import ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from riso.platform.db import Base, UtcDateTime
@@ -44,3 +44,33 @@ class MembershipRow(Base):
     role: Mapped[str] = mapped_column(String(32))
     created_at: Mapped[datetime] = mapped_column(UtcDateTime)
     deactivated_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+
+
+class SessionRow(Base):
+    __tablename__ = "sessions"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    csrf_token: Mapped[str] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    last_seen_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    expires_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    revoked_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    ip: Mapped[str | None] = mapped_column(String(45))
+    user_agent: Mapped[str | None] = mapped_column(String(300))
+    impersonated_user_id: Mapped[str | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), index=True
+    )
+    impersonation_reason: Mapped[str | None] = mapped_column(String(500))
+    impersonation_started_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+
+
+class LoginAttemptRow(Base):
+    """Failed logins per hashed key (`account:…`, `ip:…`)."""
+
+    __tablename__ = "login_attempts"
+
+    key: Mapped[str] = mapped_column(String(80), primary_key=True)
+    failures: Mapped[int] = mapped_column(Integer)
+    last_failure_at: Mapped[datetime | None] = mapped_column(UtcDateTime)

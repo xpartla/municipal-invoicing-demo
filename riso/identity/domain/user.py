@@ -107,6 +107,14 @@ class User:
         self.password_hash = password_hash
         self.password_changed_at = at
 
+    def replace_hash(self, password_hash: str) -> None:
+        """Stores a new hash of the same password (stronger parameters after a login); the
+        password itself did not change, so `password_changed_at` stays."""
+        self._require_present()
+        if self.password_hash is None:
+            raise InvalidState(f"user {self.id} has no password")
+        self.password_hash = password_hash
+
     def rename(self, name: str) -> None:
         self._require_present()
         self.name = clean_name(name)

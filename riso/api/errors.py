@@ -2,11 +2,13 @@
 
 | Error | Status | Body |
 |---|---|---|
+| `Unauthenticated` | 401 | `{"detail": message, "code": "unauthenticated"}` |
 | `NotFound` | 404 | `{"detail": message, "code": "not_found"}` |
 | `PermissionDenied` | 403 | `{"detail": message, "code": "permission_denied"}` |
 | `Conflict` | 409 | `{"detail": message, "code": "conflict"}` |
 | `InvalidState` | 409 | `{"detail": message, "code": "invalid_state"}` |
 | `ValidationFailed` | 422 | `{"detail": [{"loc", "msg", "type"}…], "code": "validation_failed"}` |
+| `Throttled` | 429 | `{"detail": message, "code": "throttled", "retry_after": s}`, `Retry-After` |
 | anything else | 500 | `{"detail": "Internal Server Error", "request_id": …}` |
 
 The 422 body has the shape of FastAPI's own request validation errors, so the frontend maps
@@ -28,12 +30,15 @@ from riso.shared.errors import (
     InvalidState,
     NotFound,
     PermissionDenied,
+    Throttled,
+    Unauthenticated,
     ValidationFailed,
 )
 
 log = logging.getLogger(__name__)
 
 _STATUS: list[tuple[type[DomainError], int, str]] = [
+    (Unauthenticated, 401, "unauthenticated"),
     (NotFound, 404, "not_found"),
     (PermissionDenied, 403, "permission_denied"),
     (Conflict, 409, "conflict"),
@@ -50,6 +55,12 @@ async def _domain_error(request: Request, exc: DomainError) -> JSONResponse:
     if isinstance(exc, ValidationFailed):
         return JSONResponse(
             {"detail": validation_detail(exc), "code": "validation_failed"}, status_code=422
+        )
+    if isinstance(exc, Throttled):
+        return JSONResponse(
+            {"detail": exc.message, "code": "throttled", "retry_after": exc.retry_after},
+            status_code=429,
+            headers={"Retry-After": str(exc.retry_after)},
         )
     for kind, status, code in _STATUS:
         if isinstance(exc, kind):

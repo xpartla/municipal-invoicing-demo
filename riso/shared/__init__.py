@@ -12,6 +12,8 @@ from riso.shared.errors import (
     InvalidState,
     NotFound,
     PermissionDenied,
+    Throttled,
+    Unauthenticated,
     ValidationFailed,
 )
 from riso.shared.events import DomainEvent, EventDispatcher, HasEvents
@@ -42,6 +44,8 @@ __all__ = [
     "PermissionDenied",
     "RequestContext",
     "SystemClock",
+    "Throttled",
+    "Unauthenticated",
     "UnitOfWork",
     "UuidV7Generator",
     "ValidationFailed",

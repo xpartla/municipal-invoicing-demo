@@ -72,3 +72,32 @@ class InMemoryIdentityUnitOfWork(StoresUnitOfWork):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.users = self.store(InMemoryUsers(self))
+
+
+class FakeDirectory:
+    """A `TenancyDirectory` over plain lists."""
+
+    def __init__(self, customers=(), providers=()) -> None:
+        self._customers = {c.id: c for c in customers}
+        self._providers = {p.id: p for p in providers}
+        self.lookups: list[str] = []
+
+    def customer(self, customer_id):
+        self.lookups.append(customer_id)
+        return self._customers.get(customer_id)
+
+    def customers(self, *, ids=None, provider_ids=None):
+        found = [
+            c
+            for c in self._customers.values()
+            if c.active
+            and (ids is None or c.id in ids)
+            and (provider_ids is None or c.provider_id in provider_ids)
+        ]
+        return sorted(found, key=lambda c: (c.name, c.id))
+
+    def provider(self, provider_id):
+        return self._providers.get(provider_id)
+
+    def providers(self, ids):
+        return sorted((p for p in self._providers.values() if p.id in ids), key=lambda p: p.name)

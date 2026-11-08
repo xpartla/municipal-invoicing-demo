@@ -6,6 +6,126 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Auth.Login",
+        "description": "Logs in with the login email and password. Sets the session and CSRF cookies. Answers\n401 for any failure and 429 (with `Retry-After`) while throttled.",
+        "operationId": "auth.login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Auth.Logout",
+        "description": "Ends this session.",
+        "operationId": "auth.logout",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/auth/logout-all": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Auth.Logout All",
+        "description": "Ends every session of the caller, this one included.",
+        "operationId": "auth.logout_all",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Me.Get",
+        "description": "The caller, its memberships and capabilities, and the customers it can open.",
+        "operationId": "me.get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/sessions": {
+      "get": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Me.Sessions",
+        "description": "The caller's active sessions, newest first.",
+        "operationId": "me.sessions",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SessionOut"
+                  },
+                  "type": "array",
+                  "title": "Response Me.Sessions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/entities": {
       "get": {
         "summary": "Legacy.Entities",
@@ -1206,6 +1326,49 @@
         ],
         "title": "CostCentre"
       },
+      "CustomerAccessOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "ico": {
+            "type": "string",
+            "title": "Ico"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          },
+          "permissions": {
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "type": "array",
+            "title": "Permissions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "ico",
+          "provider_id",
+          "permissions"
+        ],
+        "title": "CustomerAccessOut"
+      },
       "DocumentRef": {
         "properties": {
           "series": {
@@ -1716,6 +1879,41 @@
         "type": "object",
         "title": "Handwritten",
         "description": "Written by hand on the scan when the invoice arrives; the position varies per scan."
+      },
+      "ImpersonationOut": {
+        "properties": {
+          "real_user_id": {
+            "type": "string",
+            "title": "Real User Id"
+          },
+          "real_user_name": {
+            "type": "string",
+            "title": "Real User Name"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "real_user_id",
+          "real_user_name",
+          "reason",
+          "started_at",
+          "expires_at"
+        ],
+        "title": "ImpersonationOut"
       },
       "IngestWarning": {
         "properties": {
@@ -2325,6 +2523,116 @@
         "title": "LineRequest",
         "description": "Body of POST /api/line: the invoice, and a position the accountant picked."
       },
+      "LoginIn": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 320,
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginIn"
+      },
+      "MeOut": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserOut"
+          },
+          "session": {
+            "$ref": "#/components/schemas/SessionOut"
+          },
+          "impersonation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ImpersonationOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "platform": {
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "type": "array",
+            "title": "Platform"
+          },
+          "providers": {
+            "items": {
+              "$ref": "#/components/schemas/ScopeOut"
+            },
+            "type": "array",
+            "title": "Providers"
+          },
+          "customers": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerAccessOut"
+            },
+            "type": "array",
+            "title": "Customers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "session",
+          "impersonation",
+          "platform",
+          "providers",
+          "customers"
+        ],
+        "title": "MeOut",
+        "description": "The caller, its memberships, and its capabilities: what it may do on the platform, in\neach of its providers, and in each customer it can open."
+      },
+      "MembershipOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "scope_kind": {
+            "$ref": "#/components/schemas/ScopeKind"
+          },
+          "scope_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scope Id"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "scope_kind",
+          "scope_id",
+          "role",
+          "active"
+        ],
+        "title": "MembershipOut"
+      },
       "OcrMeta": {
         "properties": {
           "source_file": {
@@ -2367,6 +2675,37 @@
         "additionalProperties": false,
         "type": "object",
         "title": "OcrMeta"
+      },
+      "Permission": {
+        "type": "string",
+        "enum": [
+          "customer.read",
+          "invoices.process",
+          "codelists.edit",
+          "templates.use",
+          "templates.create_customer",
+          "customer.edit_contact",
+          "customer.edit_identity",
+          "customer.assign_variable_number",
+          "logins.manage",
+          "customers.delete",
+          "templates.create_provider",
+          "customers.create",
+          "provider.overview",
+          "templates.create_global",
+          "providers.manage",
+          "users.delete",
+          "users.administer",
+          "users.impersonate",
+          "codelists.global",
+          "audit.read",
+          "jobs.manage",
+          "outbox.read",
+          "evaluation.read",
+          "customer.data_export",
+          "account.own"
+        ],
+        "title": "Permission"
       },
       "PostingLine": {
         "properties": {
@@ -2546,6 +2885,51 @@
         ],
         "title": "ReferenceBundle"
       },
+      "Role": {
+        "type": "string",
+        "enum": [
+          "customer_viewer",
+          "customer_user",
+          "provider_staff",
+          "platform_admin"
+        ],
+        "title": "Role"
+      },
+      "ScopeKind": {
+        "type": "string",
+        "enum": [
+          "customer",
+          "provider",
+          "platform"
+        ],
+        "title": "ScopeKind"
+      },
+      "ScopeOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "permissions": {
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            },
+            "type": "array",
+            "title": "Permissions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "permissions"
+        ],
+        "title": "ScopeOut"
+      },
       "SeriesCounter": {
         "properties": {
           "series": {
@@ -2589,6 +2973,66 @@
         ],
         "title": "SeriesCounter",
         "description": "One row of GET /api/counters: a series' document numbers in one year."
+      },
+      "SessionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "last_seen_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen At"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "ip": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip"
+          },
+          "user_agent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Agent"
+          },
+          "current": {
+            "type": "boolean",
+            "title": "Current",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "last_seen_at",
+          "expires_at",
+          "ip",
+          "user_agent"
+        ],
+        "title": "SessionOut"
       },
       "SourceFile": {
         "properties": {
@@ -2770,6 +3214,75 @@
           "zdroj"
         ],
         "title": "Transfer"
+      },
+      "UserOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "notification_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notification Email"
+          },
+          "status": {
+            "$ref": "#/components/schemas/UserStatus"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked"
+          },
+          "memberships": {
+            "items": {
+              "$ref": "#/components/schemas/MembershipOut"
+            },
+            "type": "array",
+            "title": "Memberships"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "notification_email",
+          "status",
+          "locked",
+          "memberships"
+        ],
+        "title": "UserOut"
+      },
+      "UserStatus": {
+        "type": "string",
+        "enum": [
+          "invited",
+          "active",
+          "deleted",
+          "purged"
+        ],
+        "title": "UserStatus"
       },
       "Validation": {
         "properties": {

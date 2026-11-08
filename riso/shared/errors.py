@@ -1,6 +1,6 @@
 """Errors the domain and the use cases raise. The API maps them to HTTP (guide §6.5):
-`NotFound` 404, `PermissionDenied` 403, `Conflict` and `InvalidState` 409, `ValidationFailed`
-422 with field errors.
+`Unauthenticated` 401, `NotFound` 404, `PermissionDenied` 403, `Conflict` and `InvalidState`
+409, `ValidationFailed` 422 with field errors, `Throttled` 429 with `Retry-After`.
 
 Messages carry IDs and states, never invoice content, names or IBANs, because they end up in
 logs.
@@ -19,6 +19,18 @@ class DomainError(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message
+
+
+class Unauthenticated(DomainError):
+    """No valid session, or a login that failed. Says nothing about which part was wrong."""
+
+
+class Throttled(DomainError):
+    """Too many failed attempts; try again after `retry_after` seconds."""
+
+    def __init__(self, message: str, retry_after: int) -> None:
+        super().__init__(message)
+        self.retry_after = max(1, retry_after)
 
 
 class NotFound(DomainError):

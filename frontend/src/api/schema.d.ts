@@ -4,6 +4,107 @@
  */
 
 export interface paths {
+    "/api/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth.Login
+         * @description Logs in with the login email and password. Sets the session and CSRF cookies. Answers
+         *     401 for any failure and 429 (with `Retry-After`) while throttled.
+         */
+        post: operations["auth.login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth.Logout
+         * @description Ends this session.
+         */
+        post: operations["auth.logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/logout-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth.Logout All
+         * @description Ends every session of the caller, this one included.
+         */
+        post: operations["auth.logout_all"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Me.Get
+         * @description The caller, its memberships and capabilities, and the customers it can open.
+         */
+        get: operations["me.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Me.Sessions
+         * @description The caller's active sessions, newest first.
+         */
+        get: operations["me.sessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/entities": {
         parameters: {
             query?: never;
@@ -464,6 +565,19 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** CustomerAccessOut */
+        CustomerAccessOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Ico */
+            ico: string;
+            /** Provider Id */
+            provider_id: string | null;
+            /** Permissions */
+            permissions: components["schemas"]["Permission"][];
+        };
         /**
          * DocumentRef
          * @description Header of the accounting document.
@@ -677,6 +791,25 @@ export interface components {
              */
             number?: string | null;
         };
+        /** ImpersonationOut */
+        ImpersonationOut: {
+            /** Real User Id */
+            real_user_id: string;
+            /** Real User Name */
+            real_user_name: string;
+            /** Reason */
+            reason: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+        };
         /** IngestWarning */
         IngestWarning: {
             /**
@@ -845,6 +978,40 @@ export interface components {
             /** Budget Key */
             budget_key: string;
         };
+        /** LoginIn */
+        LoginIn: {
+            /** Email */
+            email: string;
+            /** Password */
+            password: string;
+        };
+        /**
+         * MeOut
+         * @description The caller, its memberships, and its capabilities: what it may do on the platform, in
+         *     each of its providers, and in each customer it can open.
+         */
+        MeOut: {
+            user: components["schemas"]["UserOut"];
+            session: components["schemas"]["SessionOut"];
+            impersonation: components["schemas"]["ImpersonationOut"] | null;
+            /** Platform */
+            platform: components["schemas"]["Permission"][];
+            /** Providers */
+            providers: components["schemas"]["ScopeOut"][];
+            /** Customers */
+            customers: components["schemas"]["CustomerAccessOut"][];
+        };
+        /** MembershipOut */
+        MembershipOut: {
+            /** Id */
+            id: string;
+            scope_kind: components["schemas"]["ScopeKind"];
+            /** Scope Id */
+            scope_id: string | null;
+            role: components["schemas"]["Role"];
+            /** Active */
+            active: boolean;
+        };
         /** OcrMeta */
         OcrMeta: {
             /** Source File */
@@ -865,6 +1032,11 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /**
+         * Permission
+         * @enum {string}
+         */
+        Permission: "customer.read" | "invoices.process" | "codelists.edit" | "templates.use" | "templates.create_customer" | "customer.edit_contact" | "customer.edit_identity" | "customer.assign_variable_number" | "logins.manage" | "customers.delete" | "templates.create_provider" | "customers.create" | "provider.overview" | "templates.create_global" | "providers.manage" | "users.delete" | "users.administer" | "users.impersonate" | "codelists.global" | "audit.read" | "jobs.manage" | "outbox.read" | "evaluation.read" | "customer.data_export" | "account.own";
         /**
          * PostingLine
          * @description One line of Zaúčtovanie záväzku.
@@ -932,6 +1104,25 @@ export interface components {
             warnings?: components["schemas"]["IngestWarning"][];
         };
         /**
+         * Role
+         * @enum {string}
+         */
+        Role: "customer_viewer" | "customer_user" | "provider_staff" | "platform_admin";
+        /**
+         * ScopeKind
+         * @enum {string}
+         */
+        ScopeKind: "customer" | "provider" | "platform";
+        /** ScopeOut */
+        ScopeOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Permissions */
+            permissions: components["schemas"]["Permission"][];
+        };
+        /**
          * SeriesCounter
          * @description One row of GET /api/counters: a series' document numbers in one year.
          */
@@ -946,6 +1137,35 @@ export interface components {
             next: string;
             /** Used */
             used: string[];
+        };
+        /** SessionOut */
+        SessionOut: {
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Ip */
+            ip: string | null;
+            /** User Agent */
+            user_agent: string | null;
+            /**
+             * Current
+             * @default false
+             */
+            current: boolean;
         };
         /** SourceFile */
         SourceFile: {
@@ -1008,6 +1228,27 @@ export interface components {
              */
             mock: boolean;
         };
+        /** UserOut */
+        UserOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Email */
+            email: string | null;
+            /** Notification Email */
+            notification_email: string | null;
+            status: components["schemas"]["UserStatus"];
+            /** Locked */
+            locked: boolean;
+            /** Memberships */
+            memberships: components["schemas"]["MembershipOut"][];
+        };
+        /**
+         * UserStatus
+         * @enum {string}
+         */
+        UserStatus: "invited" | "active" | "deleted" | "purged";
         /** Validation */
         Validation: {
             /** Ok */
@@ -1050,6 +1291,115 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    "auth.login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "auth.logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "auth.logout_all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "me.get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeOut"];
+                };
+            };
+        };
+    };
+    "me.sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"][];
+                };
+            };
+        };
+    };
     "legacy.entities": {
         parameters: {
             query?: never;

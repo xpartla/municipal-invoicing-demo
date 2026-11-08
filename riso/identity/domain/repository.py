@@ -1,10 +1,13 @@
 """The repository protocols of the identity context."""
 
 from collections.abc import Collection
+from datetime import datetime
 from typing import Protocol
 
 from riso.identity.domain.email import Email
 from riso.identity.domain.permissions import ScopeKind
+from riso.identity.domain.session import Session
+from riso.identity.domain.throttle import LoginAttempts
 from riso.identity.domain.user import User
 
 
@@ -35,3 +38,32 @@ class UserRepository(Protocol):
         """Every user (not purged ones), by name; `query` matches the name or the email,
         ignoring case."""
         ...
+
+
+class SessionRepository(Protocol):
+    def add(self, session: Session) -> None: ...
+
+    def by_token_hash(self, token_hash: str) -> Session | None: ...
+
+    def get(self, session_id: str) -> Session:
+        """Raises `NotFound`."""
+        ...
+
+    def save(self, session: Session) -> None: ...
+
+    def active_of(self, user_id: str, now: datetime) -> list[Session]:
+        """The user's sessions that are still valid at `now`, as the one who logged in
+        (impersonation sessions of an admin are the admin's), newest first."""
+        ...
+
+    def impersonating(self, user_id: str) -> list[Session]:
+        """The sessions, not ended, in which an admin acts as this user."""
+        ...
+
+
+class LoginAttemptRepository(Protocol):
+    def get(self, key: str) -> LoginAttempts:
+        """The key's counter; a fresh one when there is none."""
+        ...
+
+    def save(self, attempts: LoginAttempts) -> None: ...
