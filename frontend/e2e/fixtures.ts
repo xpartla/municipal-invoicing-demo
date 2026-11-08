@@ -8,7 +8,7 @@ import { test as base, expect, type Page } from '@playwright/test';
  *   every 4xx answer as an error; those from `/api/` are the API answering as designed (a 401
  *   before the login, a 422 for a form), so they are left out. 5xx answers and failed assets
  *   still fail the test;
- * - `checkA11y` runs axe for WCAG 2.1 A and AA (plan §10.1).
+ * - `checkA11y` runs axe for WCAG 2.1 A and AA (plan §10.1), once running transitions end.
  */
 
 interface Fixtures {
@@ -39,6 +39,17 @@ export const test = base.extend<Fixtures>({
 
   checkA11y: async ({ page }, use) => {
     await use(async (target = page) => {
+      // A dialog or menu that is still fading in has blended colours; axe would measure
+      // the contrast of a half-transparent button. Let running transitions finish first
+      // (not the endless ones, such as a loader's spin).
+      await target.evaluate(() =>
+        Promise.all(
+          document
+            .getAnimations()
+            .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
+            .map((animation) => animation.finished),
+        ),
+      );
       const results = await new AxeBuilder({ page: target })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
         .analyze();
