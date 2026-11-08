@@ -1,12 +1,9 @@
 """In-memory repositories and the unit of work of the tenancy context."""
 
-from types import TracebackType
-from typing import Self
-
 from riso.shared import NotFound
 from riso.shared.values import Ico
 from riso.tenancy.domain import Customer, CustomerParameters, ServiceProvider
-from tests.fakes.memory import SnapshotStore
+from tests.fakes.memory import SnapshotStore, StoresUnitOfWork
 from tests.fakes.uow import InMemoryUnitOfWork
 
 
@@ -86,36 +83,9 @@ class InMemoryParameters(SnapshotStore):
             del self.rows[key]
 
 
-class InMemoryTenancyUnitOfWork(InMemoryUnitOfWork):
+class InMemoryTenancyUnitOfWork(StoresUnitOfWork):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
-        self.customers = InMemoryCustomers(self)
-        self.providers = InMemoryProviders()
-        self.parameters = InMemoryParameters()
-        self._stores: list[SnapshotStore] = [self.customers, self.providers, self.parameters]
-
-    def __enter__(self) -> Self:
-        super().__enter__()
-        for store in self._stores:
-            store.begin()
-        return self
-
-    def __exit__(
-        self,
-        exc_type: type[BaseException] | None,
-        exc: BaseException | None,
-        tb: TracebackType | None,
-    ) -> None:
-        for store in self._stores:
-            store.rollback()  # restores the snapshot unless the work was committed
-        super().__exit__(exc_type, exc, tb)
-
-    def commit(self) -> None:
-        for store in self._stores:
-            store.commit()
-        super().commit()
-
-    def rollback(self) -> None:
-        for store in self._stores:
-            store.rollback()
-        super().rollback()
+        self.customers = self.store(InMemoryCustomers(self))
+        self.providers = self.store(InMemoryProviders())
+        self.parameters = self.store(InMemoryParameters())

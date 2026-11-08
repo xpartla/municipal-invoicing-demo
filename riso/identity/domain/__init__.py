@@ -12,6 +12,7 @@ from riso.identity.domain.permissions import (
     Role,
     ScopeKind,
 )
+from riso.identity.domain.repository import UserRepository
 from riso.identity.domain.user import TRANSITIONS, User, UserStatus
 
 __all__ = [
@@ -27,5 +28,6 @@ __all__ = [
     "Role",
     "ScopeKind",
     "User",
+    "UserRepository",
     "UserStatus",
 ]
