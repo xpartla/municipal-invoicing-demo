@@ -55,10 +55,14 @@ fi
 
 pytest_args=(-m "not ocr and not e2e")
 if [[ "$mode" == full ]]; then
-    # Reported only during P2-M0; enforced from P2-M1 (plan §13.2).
-    pytest_args+=(--cov=riso --cov-report=term:skip-covered)
+    # Enforced from P2-M1 (plan §13.2, guide §6.9): 85% overall, 90% for the domain packages.
+    pytest_args+=(--cov=riso --cov-report=term:skip-covered --cov-fail-under=85)
 fi
 step "pytest (not ocr, not e2e)" uv run pytest "${pytest_args[@]}"
+if [[ "$mode" == full ]]; then
+    step "coverage of riso/*/domain >= 90%" \
+        uv run coverage report --include='riso/*/domain/*' --skip-covered --fail-under=90
+fi
 
 step "riso check" uv run riso check
 step "schema drift" uv run riso export-schemas --check

@@ -131,8 +131,9 @@ checkpoints that touch UI flows, the API contract, migrations or OCR:
 scripts/check.sh fast    # ruff check and format, mypy, lint-imports, pytest without the ocr
                          # and e2e markers, riso check, schema drift, migrations, and the
                          # frontend's lint, typecheck and unit tests when frontend/ changed
-scripts/check.sh full    # fast with a coverage report, plus pytest -m ocr, the frontend
-                         # build, the API client drift check and the Playwright E2E specs
+scripts/check.sh full    # fast with coverage (at least 85% overall and 90% for the domain
+                         # packages), plus pytest -m ocr, the frontend build, the API
+                         # client drift check and the Playwright E2E specs
 ```
 
 Every step runs and the summary names the ones that failed; the exit code is non-zero if any
