@@ -4,7 +4,10 @@ import { test as base, expect, type Page } from '@playwright/test';
 /**
  * The fixtures every spec uses:
  * - `baseURL` is the server the global setup started;
- * - the page fails the test on any console error or uncaught exception;
+ * - the page fails the test on any console error or uncaught exception. The browser also logs
+ *   every 4xx answer as an error; those from `/api/` are the API answering as designed (a 401
+ *   before the login, a 422 for a form), so they are left out. 5xx answers and failed assets
+ *   still fail the test;
  * - `checkA11y` runs axe for WCAG 2.1 A and AA (plan §10.1).
  */
 
@@ -22,7 +25,12 @@ export const test = base.extend<Fixtures>({
   page: async ({ page }, use) => {
     const problems: string[] = [];
     page.on('console', (message) => {
-      if (message.type() === 'error') problems.push(`console: ${message.text()}`);
+      if (message.type() !== 'error') return;
+      const text = message.text();
+      const apiClientError =
+        /^Failed to load resource: the server responded with a status of 4\d\d/.test(text) &&
+        new URL(message.location().url || 'http://x/').pathname.startsWith('/api/');
+      if (!apiClientError) problems.push(`console: ${text}`);
     });
     page.on('pageerror', (error) => problems.push(`page: ${error.message}`));
     await use(page);

@@ -3,6 +3,94 @@
     "name": "riso",
     "tagline": "Zaúčtovanie dodávateľských faktúr"
   },
+  "common": {
+    "loading": "Načítava sa…",
+    "save": "Uložiť",
+    "cancel": "Zrušiť",
+    "close": "Zavrieť",
+    "confirm": "Potvrdiť",
+    "error": "Niečo sa pokazilo. Skúste to znova.",
+    "saved": "Uložené.",
+    "yes": "Áno",
+    "no": "Nie"
+  },
+  "errors": {
+    "password_too_short": "Heslo musí mať aspoň 12 znakov.",
+    "password_too_long": "Heslo môže mať najviac 256 znakov.",
+    "password_common": "Toto heslo je príliš bežné alebo jednoduché.",
+    "password_like_account": "Heslo sa nesmie zhodovať s e-mailom ani s menom.",
+    "password_wrong": "Heslo nie je správne.",
+    "token_invalid": "Odkaz je neplatný alebo mu vypršala platnosť.",
+    "email": "Toto nie je platná e-mailová adresa.",
+    "required": "Toto pole je povinné.",
+    "too_long": "Text je príliš dlhý.",
+    "ico_check_digit": "IČO nemá správnu kontrolnú číslicu.",
+    "iban_check": "IBAN nie je platný.",
+    "dic": "DIČ má desať číslic.",
+    "postal_code": "PSČ nie je platné.",
+    "country": "Kód krajiny má dve písmená.",
+    "variable_number": "Variabilný symbol má jednu až desať číslic.",
+    "unchanged": "Toto je vaša súčasná adresa.",
+    "mismatch": "IČO sa nezhoduje.",
+    "role_scope": "Táto rola sem nepatrí.",
+    "invalid": "Hodnota nie je platná.",
+    "string_too_long": "Text je príliš dlhý.",
+    "missing": "Toto pole je povinné.",
+    "conflict": "Táto zmena je v rozpore s inými údajmi.",
+    "invalid_state": "Túto akciu teraz nemožno vykonať.",
+    "permission_denied": "Na túto akciu nemáte oprávnenie.",
+    "not_found": "Hľadaný záznam neexistuje."
+  },
+  "auth": {
+    "login": {
+      "title": "Prihlásenie",
+      "email": "E-mail",
+      "password": "Heslo",
+      "submit": "Prihlásiť sa",
+      "forgot": "Zabudli ste heslo?",
+      "failed": "Nesprávny e-mail alebo heslo.",
+      "throttled": "Príliš veľa neúspešných pokusov. Skúste to znova o {{minutes}} min.",
+      "passwordSet": "Heslo je nastavené. Teraz sa prihláste.",
+      "emailChanged": "Prihlasovacia adresa je zmenená. Prihláste sa novou adresou.",
+      "loggedOut": "Odhlásenie prebehlo."
+    },
+    "password": {
+      "new": "Nové heslo",
+      "again": "Heslo znova",
+      "hint": "Aspoň 12 znakov. Najlepšie je dlhšie spojenie slov, ktoré si zapamätáte.",
+      "mismatch": "Heslá sa nezhodujú."
+    },
+    "invitation": {
+      "title": "Nastavenie hesla",
+      "greeting": "Vitajte, {{name}}.",
+      "intro": "Nastavte si heslo k účtu {{email}}.",
+      "expires": "Odkaz platí do {{date}}.",
+      "submit": "Nastaviť heslo"
+    },
+    "forgot": {
+      "title": "Zabudnuté heslo",
+      "intro": "Zadajte e-mail, ktorým sa prihlasujete. Pošleme vám odkaz na nové heslo.",
+      "email": "E-mail",
+      "submit": "Poslať odkaz",
+      "sent": "Ak táto adresa patrí k účtu v riso, poslali sme na ňu odkaz na nové heslo. Odkaz platí hodinu.",
+      "back": "Späť na prihlásenie"
+    },
+    "reset": {
+      "title": "Nové heslo",
+      "intro": "Nastavte si nové heslo k účtu {{email}}. Ostatné prihlásenia sa ukončia.",
+      "submit": "Uložiť nové heslo"
+    },
+    "confirmEmail": {
+      "title": "Potvrdenie novej adresy",
+      "intro": "Vaša prihlasovacia adresa sa zmení na {{email}}.",
+      "submit": "Potvrdiť zmenu"
+    },
+    "invalidLink": {
+      "title": "Odkaz nie je platný",
+      "text": "Odkaz je neplatný, už bol použitý alebo mu vypršala platnosť. Požiadajte o nový.",
+      "login": "Na prihlásenie"
+    }
+  },
   "shell": {
     "nav": {
       "label": "Hlavné menu",
@@ -13,15 +101,41 @@
       "files": "Úložisko",
       "messages": "Správy",
       "system": "Systém",
+      "providerOverview": "Prehľad klientov",
+      "users": "Používatelia",
+      "platform": "Platforma",
+      "providers": "Servisné účty",
+      "globalCodelists": "Globálne číselníky",
+      "audit": "Audit",
+      "jobs": "Úlohy",
+      "outbox": "Odoslané e-maily",
+      "evaluation": "Vyhodnotenie",
       "help": "Pomocník",
       "profile": "Profil",
       "logout": "Odhlásiť",
       "soon": "Pripravujeme",
       "legacyDemo": "Pôvodná ukážka"
     },
+    "section": {
+      "customer": "Klient",
+      "provider": "Servisný účet",
+      "admin": "Administrácia"
+    },
+    "customer": {
+      "label": "Klient",
+      "placeholder": "Vyberte klienta",
+      "nothingFound": "Žiadny klient sa nenašiel"
+    },
+    "impersonation": {
+      "banner": "Ste prihlásený ako {{name}}.",
+      "reason": "Dôvod: {{reason}}",
+      "end": "Ukončiť"
+    },
     "newInvoice": "Nová faktúra",
     "newInvoiceSoon": "Nahrávanie faktúr pribudne v jednej z ďalších etáp.",
     "toggleNavigation": "Zobraziť alebo skryť menu",
+    "collapse": "Zbaliť menu",
+    "expand": "Rozbaliť menu",
     "theme": {
       "toLight": "Prepnúť na svetlý režim",
       "toDark": "Prepnúť na tmavý režim"
@@ -29,13 +143,28 @@
   },
   "home": {
     "title": "Domov",
-    "intro": "Toto je základ novej aplikácie riso. Ďalšie obrazovky budú pribúdať postupne.",
+    "intro": "Prehľad klienta {{name}} s počtami faktúr a grafmi pribudne v jednej z ďalších etáp.",
     "legacy": "Doterajšia ukážka s návrhmi zaúčtovania zostáva dostupná, kým ju nové obrazovky nenahradia.",
     "legacyLink": "Otvoriť pôvodnú ukážku"
+  },
+  "comingSoon": {
+    "text": "Táto obrazovka pribudne v jednej z ďalších etáp."
+  },
+  "messages": {
+    "text": "Pripravujeme: správy a upozornenia od servisného účtu a administrátora."
+  },
+  "forbidden": {
+    "title": "Prístup zamietnutý",
+    "text": "Na túto stránku nemáte oprávnenie.",
+    "home": "Späť na úvod"
+  },
+  "noAccess": {
+    "title": "Zatiaľ bez prístupu",
+    "text": "Váš účet zatiaľ nemá prístup k žiadnemu klientovi. Obráťte sa na svoj servisný účet."
   },
   "notFound": {
     "title": "Stránka sa nenašla",
     "text": "Táto adresa neexistuje alebo bola presunutá.",
-    "home": "Späť na Domov"
+    "home": "Späť na úvod"
   }
 }

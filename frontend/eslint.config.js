@@ -26,6 +26,19 @@ export default defineConfig([
     rules: {
       'react-refresh/only-export-components': ['error', { allowConstantExport: true }],
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      // TanStack Router's idiom: route guards throw redirect() and notFound().
+      '@typescript-eslint/only-throw-error': [
+        'error',
+        {
+          allow: [
+            {
+              from: 'package',
+              package: '@tanstack/router-core',
+              name: ['Redirect', 'NotFoundError'],
+            },
+          ],
+        },
+      ],
       // UI text goes through i18n keys; a literal string in JSX is almost always a mistake.
       'no-restricted-syntax': [
         'error',
