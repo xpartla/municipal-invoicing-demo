@@ -68,6 +68,11 @@ def main(argv: list[str] | None = None) -> int:
         "--revision", default="head", help="the Alembic revision to upgrade to (default head)"
     )
 
+    seed = commands.add_parser(
+        "seed", help="create the demo database: Boldog, a provider, a user per role (dev only)"
+    )
+    seed.add_argument("--reset", action="store_true", help="drop the database and the files first")
+
     worker = commands.add_parser("worker", help="run the background jobs worker")
     worker.add_argument("--once", action="store_true", help="run the jobs that are due, then exit")
     worker.add_argument(
@@ -85,6 +90,7 @@ def main(argv: list[str] | None = None) -> int:
         "code": _code,
         "eval": _eval,
         "migrate": _migrate,
+        "seed": _seed,
         "worker": _worker,
     }
     return handlers[args.command](args)
@@ -284,6 +290,31 @@ def _migrate(args: argparse.Namespace) -> int:
         print(f"database at {after or 'base'}, nothing to do")
     else:
         print(f"migrated from {before or 'base'} to {after or 'base'}")
+    return 0
+
+
+def _seed(args: argparse.Namespace) -> int:
+    """Seeds RISO_DB_URL. Passwords come from RISO_SEED_PASSWORD, or are generated and shown
+    once. Refuses unless RISO_ENV is dev or test."""
+    import os
+
+    from riso.api.seed import SeedRefused, seed
+    from riso.platform import Settings
+
+    try:
+        done = seed(
+            Settings(), reset=args.reset, password=os.environ.get("RISO_SEED_PASSWORD") or None
+        )
+    except SeedRefused as exc:
+        print(f"riso seed: {exc}", file=sys.stderr)
+        return 2
+    print("seeded:", ", ".join(done.customers))
+    width = max(len(email) for _, email, _ in done.users.values())
+    for key, (_, email, password) in done.users.items():
+        shown = password if done.generated_passwords else "(RISO_SEED_PASSWORD)"
+        print(f"  {key:<7} {email:<{width}}  {shown}")
+    if done.generated_passwords:
+        print("The passwords are shown only now; `riso seed --reset` makes new ones.")
     return 0
 
 

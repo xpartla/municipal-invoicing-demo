@@ -1,4 +1,5 @@
 import { expect, scrollsHorizontally, test } from './fixtures';
+import { CUSTOMERS, SEED_PASSWORD, USERS } from './seed';
 
 // The shell loads, is accessible and fits the screen, at each project's width.
 
@@ -26,4 +27,17 @@ test('the dark theme passes axe too', async ({ page, checkA11y }) => {
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-mantine-color-scheme', 'dark');
   await checkA11y();
+});
+
+test('the seeded admin logs in through the API', async ({ request }) => {
+  await request.get('/api/me'); // any response sets the CSRF cookie
+  const { cookies } = await request.storageState();
+  const csrf = cookies.find((cookie) => cookie.name === 'riso_csrf')?.value ?? '';
+  const response = await request.post('/api/auth/login', {
+    data: { email: USERS.admin.email, password: SEED_PASSWORD },
+    headers: { 'X-CSRF-Token': csrf },
+  });
+  expect(response.status()).toBe(200);
+  const me = (await response.json()) as { customers: { name: string }[] };
+  expect(me.customers.map((c) => c.name)).toContain(CUSTOMERS.boldog);
 });

@@ -18,11 +18,13 @@ The demo entity is Obec Boldog (IČO 00305863), with reference data for 08/2026.
 ## Status
 
 Phase 2 has started: a light version of the real application, built milestone by milestone on
-top of the demo. P2-M0 lays the foundation: the database and migrations, the background jobs
+top of the demo. P2-M0 laid the foundation: the database and migrations, the background jobs
 worker, the app's security headers and error mapping, the React SPA shell served by
-`riso serve`, the gate script, the E2E harness and CI. Logins, code lists on the database, the
-import tool, invoices, OCR and e-invoices follow. The demo below keeps working until its pages
-are replaced.
+`riso serve`, the gate script, the E2E harness and CI. P2-M1 adds logins and access: users,
+customers and service providers, sessions with CSRF and throttling, invitations and password
+resets through a mail outbox, roles and permissions checked on every route, impersonation for
+admins, the audit log, and `riso seed`. Code lists on the database, the import tool, invoices,
+OCR and e-invoices follow. The demo below keeps working until its pages are replaced.
 
 M3 is done: the web app and the feedback loop. The proposal page lays the coding out like the
 accounting software's two tabs, with a copy button on every value and line, the evidence
@@ -52,6 +54,29 @@ scripts/check.sh fast
 uv run riso migrate        # create or upgrade var/riso.db
 uv run riso serve          # http://127.0.0.1:8000
 ```
+
+For a database to log in to, seed it (development only):
+
+```sh
+RISO_ENV=dev RISO_SEED_PASSWORD='Ukážkové-heslo-2026' uv run riso seed --reset
+```
+
+`riso seed` migrates, then creates Obec Boldog with its 2026 parameters, the made-up provider
+"Účtovníctvo Vzor, s.r.o.", two more made-up municipalities (one assigned to the provider, one
+not), and one login per role, all under the reserved `.test` domain:
+
+| Role | Login |
+|---|---|
+| Administrátor | `admin@riso.test` |
+| Servisný účet (staff of the provider) | `peter.uctovnik@vzor.test` |
+| Používateľ of Obec Boldog | `jana.vzorova@boldog.test` |
+| Iba na čítanie in Obec Boldog | `ivan.citatel@boldog.test` |
+
+Without `RISO_SEED_PASSWORD` the passwords are generated and printed once. The command refuses
+unless `RISO_ENV` is `dev` or `test`, and refuses a database that has users unless `--reset`
+drops it (and `var/files`) first. IDs come from a fixed seed, so customer URLs survive a reset.
+Mail (invitations, reset links) is not sent: it waits in the outbox, which the admin reads at
+`GET /api/admin/outbox`.
 
 `riso serve` refuses to start on a database that is not migrated. It runs the jobs worker in a
 thread. When the SPA has been built into `riso/web/dist/`, it serves the SPA at `/` and at
@@ -127,6 +152,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso serve` | Runs the API, the pages and the jobs worker; needs `riso migrate` first |
 | `riso code <file>…` | Codes InvoiceDocuments or dataset cases and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
+| `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed |
 
@@ -140,6 +166,9 @@ Environment variables, all optional:
 | Variable | Default | Meaning |
 |---|---|---|
 | `RISO_ENV` | unset | `dev`, `test` or `prod`; the seed command refuses unless `dev` or `test` |
+| `RISO_SEED_PASSWORD` | unset | the password `riso seed` gives every seeded login; generated when unset |
+| `RISO_PUBLIC_URL` | `http://localhost:8001` | the app's address, for the links in mail |
+| `RISO_COOKIE_SECURE` | `false` | mark the session and CSRF cookies `Secure` (behind HTTPS, phase 2.5) |
 | `RISO_VAR_DIR` | `var/` | runtime state: the database, uploaded files, OCR models, reports |
 | `RISO_DB_URL` | `sqlite:///<var>/riso.db` | the SQLAlchemy database URL |
 | `RISO_TESSDATA` | `<var>/tessdata` | the Tesseract models |
@@ -167,15 +196,31 @@ uv run alembic upgrade head
 | `GET /api/feedback` | The feedback recorded since the last `riso reset` |
 | `GET /api/eval` | The latest EvalReport of `riso eval` (`?split=`, default `heldout`); runs it when there is none, or with `?refresh=true` |
 
+The phase 2 API (logins, customers, providers, users, the outbox and the audit) is described
+at `/docs` while the server runs. In short:
+
+- `POST /api/auth/login` sets two cookies: `riso_session` (HttpOnly) and `riso_csrf`. Every
+  unsafe request sends the `riso_csrf` value back in the `X-CSRF-Token` header; before a login
+  the cookie holds a random value, set on the first response. Sessions end after 8 hours
+  without a request or 7 days after the login. Five failed logins block the account and the
+  address for 1, then 2, 4, 8 and at most 15 minutes (429 with `Retry-After`).
+- `GET /api/me` returns the caller, its memberships and what it may do: on the platform, in
+  each of its providers, and in each customer it can open.
+- Customer data lives under `/api/customers/{customer_id}/…`, provider routes under
+  `/api/providers/{provider_id}/…`, admin tools under `/api/admin/…`. A customer the caller
+  cannot reach answers 404; a missing permission 403; no session 401.
+
 The interactive documentation is at `/docs` while the server runs.
 
 Every response carries an `X-Request-ID` (the client's, when it sends a well-formed one) and
 the security headers: a Content-Security-Policy without inline or evaluated scripts (the demo
 pages, which use Alpine.js, get `'unsafe-eval'` until they are replaced), `nosniff`, frame
 denial and `Referrer-Policy: same-origin`. API responses are `Cache-Control: no-store`. Errors
-are JSON: 404, 403, 409 with `{detail, code}`, 422 with a list of `{loc, msg, type}` like
-FastAPI's own validation errors, and an unknown `/api` path is a JSON 404. Every API route is
-named and listed in `riso/api/permissions_matrix.py`; a test fails for a route without an entry.
+are JSON: 401, 403, 404, 409 with `{detail, code}`, 422 with a list of `{loc, msg, type}` like
+FastAPI's own validation errors, 429 with `retry_after`, and an unknown `/api` path is a JSON
+404. Every API route is named and listed in `riso/api/permissions_matrix.py` with the
+permission it needs; a generated test calls every route as every role and fails for a route
+without an entry or with a dependency that disagrees with it.
 
 ## Layout
 
