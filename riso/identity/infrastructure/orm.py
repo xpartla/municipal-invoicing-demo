@@ -1,8 +1,9 @@
-"""The identity tables: `users`, `memberships`, `sessions` and `login_attempts` (plan §11)."""
+"""The identity tables: `users`, `memberships`, `sessions`, `login_attempts` and `tokens`
+(plan §11)."""
 
 from datetime import datetime
 
-from sqlalchemy import ForeignKey, Index, Integer, String, UniqueConstraint
+from sqlalchemy import JSON, ForeignKey, Index, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from riso.platform.db import Base, UtcDateTime
@@ -74,3 +75,20 @@ class LoginAttemptRow(Base):
     key: Mapped[str] = mapped_column(String(80), primary_key=True)
     failures: Mapped[int] = mapped_column(Integer)
     last_failure_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+
+
+class TokenRow(Base):
+    """Single-use mail tokens, stored as their SHA-256."""
+
+    __tablename__ = "tokens"
+    __table_args__ = (Index(None, "user_id", "kind"),)
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    kind: Mapped[str] = mapped_column(String(32))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    created_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    expires_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    used_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    revoked_at: Mapped[datetime | None] = mapped_column(UtcDateTime)
+    payload: Mapped[dict[str, str]] = mapped_column(JSON)

@@ -10,7 +10,7 @@ from riso.identity.application.views import (
     SessionView,
     UserView,
 )
-from riso.identity.domain import Permission, Role, ScopeKind, UserStatus
+from riso.identity.domain import Permission, Role, ScopeKind, TokenKind, UserStatus
 
 
 class LoginIn(BaseModel):
@@ -146,3 +146,37 @@ class MeOut(BaseModel):
                 for c in view.customers
             ],
         )
+
+
+class TokenIn(BaseModel):
+    token: str = Field(max_length=200)
+
+
+class TokenInfoOut(BaseModel):
+    kind: TokenKind
+    name: str
+    email: str
+    expires_at: datetime
+
+
+class SetPasswordIn(BaseModel):
+    token: str = Field(max_length=200)
+    password: str = Field(max_length=1024)
+
+
+class ResetRequestIn(BaseModel):
+    email: str = Field(max_length=320)
+
+
+class AcceptedOut(BaseModel):
+    detail: str
+
+
+class ChangePasswordIn(BaseModel):
+    current_password: str = Field(max_length=1024)
+    new_password: str = Field(max_length=1024)
+
+
+class EmailChangeIn(BaseModel):
+    new_email: str = Field(max_length=320)
+    current_password: str = Field(max_length=1024)

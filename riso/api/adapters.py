@@ -84,3 +84,22 @@ class SqlTenancyDirectory:
             )
             for row in rows
         ]
+
+
+class SpaLinks:
+    """The SPA's pages that mail links to (`Links` port). Tokens go in the fragment."""
+
+    def __init__(self, public_url: str) -> None:
+        self._base = public_url.rstrip("/")
+
+    def invitation(self, token: str) -> str:
+        return f"{self._base}/invitation#{token}"
+
+    def password_reset(self, token: str) -> str:
+        return f"{self._base}/reset-password#{token}"
+
+    def email_change(self, token: str) -> str:
+        return f"{self._base}/confirm-email#{token}"
+
+    def login(self) -> str:
+        return f"{self._base}/login"

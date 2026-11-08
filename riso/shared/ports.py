@@ -50,3 +50,19 @@ class MailSender(Protocol):
     def send(self, message: MailMessage) -> str:
         """Returns the outbox ID of the message."""
         ...
+
+
+class Mailer(Protocol):
+    """Renders a mail template and sends it (to the outbox) in the current transaction."""
+
+    def send(
+        self,
+        template: str,
+        to: str,
+        *,
+        user_id: str | None = None,
+        customer_id: str | None = None,
+        **values: str,
+    ) -> str:
+        """Returns the outbox ID of the message."""
+        ...

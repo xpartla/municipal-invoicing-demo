@@ -17,6 +17,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from riso import __version__, paths
+from riso.api.admin import router as admin_router
 from riso.api.composition import Services, build_services
 from riso.api.errors import install_error_handlers
 from riso.api.frontend import FrontendFiles
@@ -57,7 +58,7 @@ from riso.store import StateStore
 
 log = logging.getLogger(__name__)
 
-ROUTERS = [identity_router]
+ROUTERS = [identity_router, admin_router]
 """The phase 2 routers. They are mounted with or without a database, so the OpenAPI document
 and the permission matrix see the same routes; without one they answer 503."""
 

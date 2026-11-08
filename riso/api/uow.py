@@ -8,10 +8,20 @@ infrastructure.
 """
 
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
+from riso.platform.mail import MailTemplates, OutboxMailSender, OutboxQueries, TemplateMailer
 from riso.tenancy.infrastructure.uow import SqlTenancyUnitOfWork
+
+TEMPLATES = MailTemplates()
 
 
 class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork):
+    mailer: TemplateMailer
+    outbox: OutboxQueries
+
     def _start(self) -> None:
         SqlIdentityUnitOfWork._start(self)
         SqlTenancyUnitOfWork._start(self)
+        self.mailer = TemplateMailer(
+            TEMPLATES, OutboxMailSender(self.session, self.clock, self.ids)
+        )
+        self.outbox = OutboxQueries(self.session)

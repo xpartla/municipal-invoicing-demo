@@ -24,9 +24,10 @@ from fastapi import Depends, HTTPException, Request, Response
 
 from riso.api.composition import Services
 from riso.api.middleware import CSRF_COOKIE_NAME
+from riso.api.permissions_matrix import Scope
 from riso.identity.application.access import MembershipPolicy
 from riso.identity.application.auth import Authenticated, authenticate
-from riso.identity.domain import ABSOLUTE_LIMIT
+from riso.identity.domain import ABSOLUTE_LIMIT, Permission
 from riso.shared.context import RequestContext
 from riso.shared.errors import PermissionDenied, Unauthenticated
 
@@ -118,6 +119,25 @@ def self_context(caller: Annotated[Caller, Depends(_caller)]) -> Caller:
 
 AnyCaller = Annotated[Caller, Depends(any_caller)]
 SelfCaller = Annotated[Caller, Depends(self_context)]
+
+
+@dataclass(frozen=True, slots=True)
+class PlatformAccess:
+    """Platform routes (`/api/admin/…`): a logged-in caller holding the permission on the
+    platform, which only admins do; 401 or 403 otherwise. The matrix test reads `scope` and
+    `permission` off the route's dependencies."""
+
+    permission: Permission
+    scope: Scope = Scope.PLATFORM
+
+    def __call__(self, caller: Annotated[Caller, Depends(_caller)]) -> Caller:
+        caller.required()
+        caller.ctx.require(self.permission)
+        return caller
+
+
+def platform_context(permission: Permission) -> PlatformAccess:
+    return PlatformAccess(permission)
 
 
 # Cookies ----------------------------------------------------------------------------------

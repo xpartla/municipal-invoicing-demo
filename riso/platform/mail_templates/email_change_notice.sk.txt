@@ -1,0 +1,10 @@
+Subject: Zmena prihlasovacej adresy v riso
+
+Dobrý deň, $name,
+
+vo vašom účte v riso bola vyžiadaná zmena prihlasovacej adresy na $new_email.
+Zmena platí až potom, ako ju potvrdíte z novej adresy.
+
+Ak ste o zmenu nežiadali, zmeňte si heslo a kontaktujte správcu.
+
+riso

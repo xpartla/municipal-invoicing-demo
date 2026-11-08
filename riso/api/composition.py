@@ -7,7 +7,7 @@ import os
 import socket
 from dataclasses import dataclass, field
 
-from riso.api.adapters import SqlTenancyDirectory
+from riso.api.adapters import SpaLinks, SqlTenancyDirectory
 from riso.api.uow import AppUnitOfWork
 from riso.identity.application.access import Grant, MembershipPolicy
 from riso.identity.domain import PasswordHasher, PasswordPolicy
@@ -40,6 +40,7 @@ class Services:
     password_policy: PasswordPolicy
     tokens: SecretsTokenGenerator
     directory: SqlTenancyDirectory
+    links: SpaLinks
     _threads: list[WorkerThread] = field(default_factory=list)
 
     def uow(self, immediate: bool = True) -> AppUnitOfWork:
@@ -93,4 +94,5 @@ def build_services(
         password_policy=default_policy(),
         tokens=SecretsTokenGenerator(),
         directory=SqlTenancyDirectory(db),
+        links=SpaLinks(settings.public_url),
     )

@@ -26,6 +26,7 @@ from riso.identity.domain import (
     PasswordHasher,
     Session,
     SessionRepository,
+    TokenRepository,
     User,
     UserRepository,
     account_key,
@@ -33,6 +34,7 @@ from riso.identity.domain import (
     ip_key,
 )
 from riso.shared.errors import Throttled, Unauthenticated, ValidationFailed
+from riso.shared.ports import Mailer
 from riso.shared.uow import UnitOfWork
 
 TIMING_HASH = (
@@ -51,6 +53,12 @@ class IdentityUnitOfWork(UnitOfWork, Protocol):
 
     @property
     def login_attempts(self) -> LoginAttemptRepository: ...
+
+    @property
+    def tokens(self) -> TokenRepository: ...
+
+    @property
+    def mailer(self) -> Mailer: ...
 
 
 IdentityUnitsOfWork = Callable[[bool], IdentityUnitOfWork]

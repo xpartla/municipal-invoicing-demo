@@ -126,6 +126,388 @@
         }
       }
     },
+    "/api/auth/token-info": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Auth.Token Info",
+        "description": "What a link from a mail is for (invitation, reset, email change) and for whom; 422\nwith `token_invalid` when it is not valid or has expired.",
+        "operationId": "auth.token_info",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenInfoOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/invitation/accept": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Auth.Accept Invitation",
+        "description": "Sets the password of an invited account from the invitation link.",
+        "operationId": "auth.accept_invitation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPasswordIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/password-reset": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Auth.Request Reset",
+        "description": "Mails a reset link if the address has an account. The answer is always the same.",
+        "operationId": "auth.request_reset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetRequestIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptedOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/password-reset/complete": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Auth.Reset Password",
+        "description": "Sets a new password from a reset link and ends every session of the account.",
+        "operationId": "auth.reset_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetPasswordIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/email-change/confirm": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Auth.Confirm Email Change",
+        "description": "Makes the new address the login email, from the link mailed to it.",
+        "operationId": "auth.confirm_email_change",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TokenIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/password": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Me.Change Password",
+        "description": "Changes the password and ends the caller's other sessions. Refused while\nimpersonating.",
+        "operationId": "me.change_password",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me/email-change": {
+      "post": {
+        "tags": [
+          "identity"
+        ],
+        "summary": "Me.Request Email Change",
+        "description": "Mails a confirmation link to the new address. Refused while impersonating.",
+        "operationId": "me.request_email_change",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailChangeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptedOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/outbox": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Outbox.List",
+        "description": "The outbox, newest first; `to` filters by part of the address.",
+        "operationId": "outbox.list",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Size"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 320
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboxPageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/outbox/{message_id}": {
+      "get": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Outbox.Get",
+        "operationId": "outbox.get",
+        "parameters": [
+          {
+            "name": "message_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Message Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OutboxMessageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/entities": {
       "get": {
         "summary": "Legacy.Entities",
@@ -536,6 +918,19 @@
   },
   "components": {
     "schemas": {
+      "AcceptedOut": {
+        "properties": {
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "detail"
+        ],
+        "title": "AcceptedOut"
+      },
       "Account": {
         "properties": {
           "key": {
@@ -1045,6 +1440,26 @@
         ],
         "title": "CaseResult"
       },
+      "ChangePasswordIn": {
+        "properties": {
+          "current_password": {
+            "type": "string",
+            "maxLength": 1024,
+            "title": "Current Password"
+          },
+          "new_password": {
+            "type": "string",
+            "maxLength": 1024,
+            "title": "New Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "ChangePasswordIn"
+      },
       "CodeRequest": {
         "properties": {
           "invoice": {
@@ -1451,6 +1866,26 @@
           "description"
         ],
         "title": "DocumentSeries"
+      },
+      "EmailChangeIn": {
+        "properties": {
+          "new_email": {
+            "type": "string",
+            "maxLength": 320,
+            "title": "New Email"
+          },
+          "current_password": {
+            "type": "string",
+            "maxLength": 1024,
+            "title": "Current Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "new_email",
+          "current_password"
+        ],
+        "title": "EmailChangeIn"
       },
       "Entity": {
         "properties": {
@@ -2676,6 +3111,174 @@
         "type": "object",
         "title": "OcrMeta"
       },
+      "OutboxItemOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "to_address": {
+            "type": "string",
+            "title": "To Address"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "template": {
+            "type": "string",
+            "title": "Template"
+          },
+          "customer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "to_address",
+          "subject",
+          "template",
+          "customer_id",
+          "user_id",
+          "sent_at"
+        ],
+        "title": "OutboxItemOut"
+      },
+      "OutboxMessageOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "to_address": {
+            "type": "string",
+            "title": "To Address"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "template": {
+            "type": "string",
+            "title": "Template"
+          },
+          "customer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Id"
+          },
+          "user_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
+          },
+          "sent_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent At"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "to_address",
+          "subject",
+          "template",
+          "customer_id",
+          "user_id",
+          "sent_at",
+          "body"
+        ],
+        "title": "OutboxMessageOut"
+      },
+      "OutboxPageOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OutboxItemOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "OutboxPageOut"
+      },
       "Permission": {
         "type": "string",
         "enum": [
@@ -2885,6 +3488,20 @@
         ],
         "title": "ReferenceBundle"
       },
+      "ResetRequestIn": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 320,
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "title": "ResetRequestIn"
+      },
       "Role": {
         "type": "string",
         "enum": [
@@ -3034,6 +3651,26 @@
         ],
         "title": "SessionOut"
       },
+      "SetPasswordIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Token"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 1024,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "title": "SetPasswordIn"
+      },
       "SourceFile": {
         "properties": {
           "name": {
@@ -3131,6 +3768,57 @@
           "met"
         ],
         "title": "Target"
+      },
+      "TokenIn": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "title": "TokenIn"
+      },
+      "TokenInfoOut": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/TokenKind"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "name",
+          "email",
+          "expires_at"
+        ],
+        "title": "TokenInfoOut"
+      },
+      "TokenKind": {
+        "type": "string",
+        "enum": [
+          "invitation",
+          "password_reset",
+          "email_change"
+        ],
+        "title": "TokenKind"
       },
       "Totals": {
         "properties": {

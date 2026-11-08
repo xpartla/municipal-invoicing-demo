@@ -11,7 +11,27 @@ from riso.api.deps import (
     clear_session_cookies,
     set_session_cookies,
 )
-from riso.identity.api.models import LoginIn, MeOut, SessionOut
+from riso.identity.api.models import (
+    AcceptedOut,
+    ChangePasswordIn,
+    EmailChangeIn,
+    LoginIn,
+    MeOut,
+    ResetRequestIn,
+    SessionOut,
+    SetPasswordIn,
+    TokenIn,
+    TokenInfoOut,
+)
+from riso.identity.application.accounts import (
+    accept_invitation,
+    change_password,
+    confirm_email_change,
+    request_email_change,
+    request_password_reset,
+    reset_password,
+    token_info,
+)
 from riso.identity.application.auth import (
     Login,
     authenticate,
@@ -80,3 +100,85 @@ def sessions_route(caller: SelfCaller, services: ServicesDep) -> list[SessionOut
         SessionOut.of(view, auth.session_id)
         for view in list_sessions(services.uow(immediate=False), auth.actor_id)
     ]
+
+
+# Links from mail ---------------------------------------------------------------------------
+
+
+@router.post("/auth/token-info", name="auth.token_info")
+def token_info_route(body: TokenIn, caller: AnyCaller, services: ServicesDep) -> TokenInfoOut:
+    """What a link from a mail is for (invitation, reset, email change) and for whom; 422
+    with `token_invalid` when it is not valid or has expired."""
+    info = token_info(services.uow(immediate=False), body.token)
+    return TokenInfoOut(
+        kind=info.kind, name=info.name, email=info.email, expires_at=info.expires_at
+    )
+
+
+@router.post("/auth/invitation/accept", name="auth.accept_invitation", status_code=204)
+def accept_invitation_route(body: SetPasswordIn, caller: AnyCaller, services: ServicesDep) -> None:
+    """Sets the password of an invited account from the invitation link."""
+    accept_invitation(
+        services.uow(), services.hasher, services.password_policy, body.token, body.password
+    )
+
+
+@router.post("/auth/password-reset", name="auth.request_reset", status_code=202)
+def request_reset_route(
+    body: ResetRequestIn, caller: AnyCaller, services: ServicesDep
+) -> AcceptedOut:
+    """Mails a reset link if the address has an account. The answer is always the same."""
+    request_password_reset(services.uow(), services.tokens, services.links, body.email)
+    return AcceptedOut(detail="if the address has an account, a link was sent to it")
+
+
+@router.post("/auth/password-reset/complete", name="auth.reset_password", status_code=204)
+def reset_password_route(body: SetPasswordIn, caller: AnyCaller, services: ServicesDep) -> None:
+    """Sets a new password from a reset link and ends every session of the account."""
+    reset_password(
+        services.uow(), services.hasher, services.password_policy, body.token, body.password
+    )
+
+
+@router.post("/auth/email-change/confirm", name="auth.confirm_email_change", status_code=204)
+def confirm_email_route(body: TokenIn, caller: AnyCaller, services: ServicesDep) -> None:
+    """Makes the new address the login email, from the link mailed to it."""
+    confirm_email_change(services.uow(), body.token)
+
+
+# The caller's credentials ------------------------------------------------------------------
+
+
+@router.post("/me/password", name="me.change_password", status_code=204)
+def change_password_route(
+    body: ChangePasswordIn, caller: SelfCaller, services: ServicesDep
+) -> None:
+    """Changes the password and ends the caller's other sessions. Refused while
+    impersonating."""
+    change_password(
+        caller.ctx,
+        services.uow(),
+        services.hasher,
+        services.password_policy,
+        services.links,
+        current_password=body.current_password,
+        new_password=body.new_password,
+        session_id=caller.required().session_id,
+    )
+
+
+@router.post("/me/email-change", name="me.request_email_change", status_code=202)
+def email_change_route(
+    body: EmailChangeIn, caller: SelfCaller, services: ServicesDep
+) -> AcceptedOut:
+    """Mails a confirmation link to the new address. Refused while impersonating."""
+    request_email_change(
+        caller.ctx,
+        services.uow(),
+        services.hasher,
+        services.tokens,
+        services.links,
+        new_email=body.new_email,
+        current_password=body.current_password,
+    )
+    return AcceptedOut(detail="a confirmation link was sent to the new address")

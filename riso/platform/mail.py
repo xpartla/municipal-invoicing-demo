@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from string import Template
 
-from sqlalchemy import Integer, String, Text
+from sqlalchemy import Integer, String, Text, func, select
 from sqlalchemy.orm import Mapped, Session, mapped_column
 
 from riso.platform.db import Base, UtcDateTime
@@ -92,7 +92,7 @@ class MailTemplates:
         self._directory = directory
         self._locale = locale
 
-    def render(self, name: str, **values: str) -> RenderedMail:
+    def render(self, name: str, /, **values: str) -> RenderedMail:
         path = self._directory / f"{name}.{self._locale}.txt"
         if not path.is_file():
             raise NotFound(f"no mail template {name}.{self._locale}")
@@ -106,3 +106,79 @@ class MailTemplates:
         except KeyError as exc:
             raise ValueError(f"mail template {name}: no value for {exc.args[0]}") from exc
         return RenderedMail(subject=subject, body=rendered.rstrip("\n") + "\n", template=name)
+
+
+class TemplateMailer:
+    """The `Mailer` port: renders a template and writes the message to the outbox on the
+    caller's session."""
+
+    def __init__(self, templates: MailTemplates, sender: OutboxMailSender) -> None:
+        self._templates = templates
+        self._sender = sender
+
+    def send(
+        self,
+        template: str,
+        to: str,
+        *,
+        user_id: str | None = None,
+        customer_id: str | None = None,
+        **values: str,
+    ) -> str:
+        rendered = self._templates.render(template, **values)
+        return self._sender.send(rendered.to(to, customer_id=customer_id, user_id=user_id))
+
+
+@dataclass(frozen=True, slots=True)
+class OutboxMessage:
+    id: str
+    created_at: datetime
+    to_address: str
+    subject: str
+    body: str
+    template: str
+    customer_id: str | None
+    user_id: str | None
+    sent_at: datetime | None
+
+
+class OutboxQueries:
+    """Reading the outbox, for the admin's viewer (plan §5.3)."""
+
+    def __init__(self, session: Session) -> None:
+        self._session = session
+
+    def page(
+        self, *, page: int = 1, size: int = 50, to: str | None = None
+    ) -> tuple[list[OutboxMessage], int]:
+        """Newest first. `to` matches part of the address, ignoring case."""
+        query = select(MailOutboxRow)
+        if to:
+            query = query.where(MailOutboxRow.to_address.contains(to.lower(), autoescape=True))
+        total = self._session.scalar(select(func.count()).select_from(query.subquery())) or 0
+        rows = self._session.scalars(
+            query.order_by(MailOutboxRow.created_at.desc(), MailOutboxRow.id.desc())
+            .limit(size)
+            .offset((page - 1) * size)
+        ).all()
+        return [_message(row) for row in rows], total
+
+    def get(self, message_id: str) -> OutboxMessage:
+        row = self._session.get(MailOutboxRow, message_id)
+        if row is None:
+            raise NotFound(f"no message {message_id}")
+        return _message(row)
+
+
+def _message(row: MailOutboxRow) -> OutboxMessage:
+    return OutboxMessage(
+        id=row.id,
+        created_at=row.created_at,
+        to_address=row.to_address,
+        subject=row.subject,
+        body=row.body,
+        template=row.template,
+        customer_id=row.customer_id,
+        user_id=row.user_id,
+        sent_at=row.sent_at,
+    )

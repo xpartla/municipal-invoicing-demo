@@ -14,6 +14,8 @@ from enum import StrEnum
 from fastapi import FastAPI
 from fastapi.routing import APIRoute, iter_route_contexts
 
+from riso.identity.domain import Permission
+
 
 class Scope(StrEnum):
     PUBLIC = "public"
@@ -50,6 +52,16 @@ MATRIX: dict[str, RouteAccess] = {
     "auth.logout_all": own(),
     "me.get": own(),
     "me.sessions": own(),
+    "me.change_password": own(),
+    "me.request_email_change": own(),
+    "auth.token_info": public(),
+    "auth.accept_invitation": public(),
+    "auth.request_reset": public(),
+    "auth.reset_password": public(),
+    "auth.confirm_email_change": public(),
+    # Platform tools.
+    "outbox.list": RouteAccess(Scope.PLATFORM, Permission.OUTBOX_READ),
+    "outbox.get": RouteAccess(Scope.PLATFORM, Permission.OUTBOX_READ),
     # The demo (P2-M4 replaces these).
     "legacy.entities": public(),
     "legacy.reference": public(),

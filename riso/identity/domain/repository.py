@@ -8,6 +8,7 @@ from riso.identity.domain.email import Email
 from riso.identity.domain.permissions import ScopeKind
 from riso.identity.domain.session import Session
 from riso.identity.domain.throttle import LoginAttempts
+from riso.identity.domain.token import Token, TokenKind
 from riso.identity.domain.user import User
 
 
@@ -67,3 +68,15 @@ class LoginAttemptRepository(Protocol):
         ...
 
     def save(self, attempts: LoginAttempts) -> None: ...
+
+
+class TokenRepository(Protocol):
+    def add(self, token: Token) -> None: ...
+
+    def by_hash(self, token_hash: str) -> Token | None: ...
+
+    def save(self, token: Token) -> None: ...
+
+    def outstanding(self, user_id: str, kind: TokenKind) -> list[Token]:
+        """The user's tokens of this kind that were neither used nor revoked."""
+        ...

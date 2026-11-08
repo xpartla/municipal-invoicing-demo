@@ -1,0 +1,12 @@
+Subject: Potvrďte novú prihlasovaciu adresu v riso
+
+Dobrý deň, $name,
+
+na túto adresu sa chcete prihlasovať do riso.
+
+Zmenu potvrdíte cez tento odkaz, ktorý platí do $expires:
+$link
+
+Ak ste o zmenu nežiadali, správu ignorujte.
+
+riso

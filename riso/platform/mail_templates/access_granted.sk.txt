@@ -1,0 +1,10 @@
+Subject: Nový prístup v riso: $scope
+
+Dobrý deň, $name,
+
+vo vašom účte v riso máte nový prístup: $scope.
+
+Prihlásite sa ako doteraz:
+$link
+
+riso

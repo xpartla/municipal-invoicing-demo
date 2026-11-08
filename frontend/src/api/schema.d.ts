@@ -105,6 +105,185 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/auth/token-info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth.Token Info
+         * @description What a link from a mail is for (invitation, reset, email change) and for whom; 422
+         *     with `token_invalid` when it is not valid or has expired.
+         */
+        post: operations["auth.token_info"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/invitation/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth.Accept Invitation
+         * @description Sets the password of an invited account from the invitation link.
+         */
+        post: operations["auth.accept_invitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/password-reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth.Request Reset
+         * @description Mails a reset link if the address has an account. The answer is always the same.
+         */
+        post: operations["auth.request_reset"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/password-reset/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth.Reset Password
+         * @description Sets a new password from a reset link and ends every session of the account.
+         */
+        post: operations["auth.reset_password"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/email-change/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Auth.Confirm Email Change
+         * @description Makes the new address the login email, from the link mailed to it.
+         */
+        post: operations["auth.confirm_email_change"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Me.Change Password
+         * @description Changes the password and ends the caller's other sessions. Refused while
+         *     impersonating.
+         */
+        post: operations["me.change_password"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/me/email-change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Me.Request Email Change
+         * @description Mails a confirmation link to the new address. Refused while impersonating.
+         */
+        post: operations["me.request_email_change"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/outbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Outbox.List
+         * @description The outbox, newest first; `to` filters by part of the address.
+         */
+        get: operations["outbox.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/outbox/{message_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Outbox.Get */
+        get: operations["outbox.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/entities": {
         parameters: {
             query?: never;
@@ -282,6 +461,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcceptedOut */
+        AcceptedOut: {
+            /** Detail */
+            detail: string;
+        };
         /** Account */
         Account: {
             /**
@@ -478,6 +662,13 @@ export interface components {
             /** Confidence */
             confidence: number;
         };
+        /** ChangePasswordIn */
+        ChangePasswordIn: {
+            /** Current Password */
+            current_password: string;
+            /** New Password */
+            new_password: string;
+        };
         /**
          * CodeRequest
          * @description Body of POST /api/code.
@@ -617,6 +808,13 @@ export interface components {
             description: string;
             /** Bank Account */
             bank_account?: string | null;
+        };
+        /** EmailChangeIn */
+        EmailChangeIn: {
+            /** New Email */
+            new_email: string;
+            /** Current Password */
+            current_password: string;
         };
         /** Entity */
         Entity: {
@@ -1032,6 +1230,59 @@ export interface components {
                 [key: string]: number;
             };
         };
+        /** OutboxItemOut */
+        OutboxItemOut: {
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** To Address */
+            to_address: string;
+            /** Subject */
+            subject: string;
+            /** Template */
+            template: string;
+            /** Customer Id */
+            customer_id: string | null;
+            /** User Id */
+            user_id: string | null;
+            /** Sent At */
+            sent_at: string | null;
+        };
+        /** OutboxMessageOut */
+        OutboxMessageOut: {
+            /** Id */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** To Address */
+            to_address: string;
+            /** Subject */
+            subject: string;
+            /** Template */
+            template: string;
+            /** Customer Id */
+            customer_id: string | null;
+            /** User Id */
+            user_id: string | null;
+            /** Sent At */
+            sent_at: string | null;
+            /** Body */
+            body: string;
+        };
+        /** OutboxPageOut */
+        OutboxPageOut: {
+            /** Items */
+            items: components["schemas"]["OutboxItemOut"][];
+            /** Total */
+            total: number;
+        };
         /**
          * Permission
          * @enum {string}
@@ -1103,6 +1354,11 @@ export interface components {
             /** Warnings */
             warnings?: components["schemas"]["IngestWarning"][];
         };
+        /** ResetRequestIn */
+        ResetRequestIn: {
+            /** Email */
+            email: string;
+        };
         /**
          * Role
          * @enum {string}
@@ -1167,6 +1423,13 @@ export interface components {
              */
             current: boolean;
         };
+        /** SetPasswordIn */
+        SetPasswordIn: {
+            /** Token */
+            token: string;
+            /** Password */
+            password: string;
+        };
         /** SourceFile */
         SourceFile: {
             /** Name */
@@ -1199,6 +1462,29 @@ export interface components {
             /** Met */
             met: boolean;
         };
+        /** TokenIn */
+        TokenIn: {
+            /** Token */
+            token: string;
+        };
+        /** TokenInfoOut */
+        TokenInfoOut: {
+            kind: components["schemas"]["TokenKind"];
+            /** Name */
+            name: string;
+            /** Email */
+            email: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+        };
+        /**
+         * TokenKind
+         * @enum {string}
+         */
+        TokenKind: "invitation" | "password_reset" | "email_change";
         /** Totals */
         Totals: {
             /** Net */
@@ -1396,6 +1682,293 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SessionOut"][];
+                };
+            };
+        };
+    };
+    "auth.token_info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenInfoOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "auth.accept_invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetPasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "auth.request_reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetRequestIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcceptedOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "auth.reset_password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetPasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "auth.confirm_email_change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "me.change_password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "me.request_email_change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailChangeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcceptedOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "outbox.list": {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutboxPageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "outbox.get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                message_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OutboxMessageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
