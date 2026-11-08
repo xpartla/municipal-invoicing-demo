@@ -10,11 +10,11 @@ from riso import paths
 from riso.contracts import Counters, DatasetCase, EntityContext, SupplierMemory
 from riso.contracts.schemas import stale_schemas
 from riso.dataset import TAGS, load_cases
-from riso.engine.s1_normalise import ico_is_valid
 from riso.engine.s3_candidates import canteen_key
 from riso.engine.s6_validate import SUPPLIER_SU, check_codes, check_coding
 from riso.knowledge import KnowledgeBase, UnknownKnowledge, load_knowledge
 from riso.reference import LocalReferenceSource, ReferenceIndex, UnknownEntity, parse_number
+from riso.shared.values import ico_is_valid
 from riso.store import COUNTERS_FILE, MEMORY_FILE
 
 
@@ -196,8 +196,8 @@ def _expected_gross(case: DatasetCase) -> Decimal | None:
     """What the coding must add up to: the invoice total, or, when the case was built with
     an unreadable or mistyped total, the sum of its entries rounded to cents."""
     invoice = case.invoice
-    entries = [line.gross for line in invoice.lines]
-    if "ocr-noise" in case.tags and entries and None not in entries:
+    entries = [line.gross for line in invoice.lines if line.gross is not None]
+    if "ocr-noise" in case.tags and entries and len(entries) == len(invoice.lines):
         return sum(entries, Decimal(0)).quantize(Decimal("0.01"))
     return invoice.totals.gross
 

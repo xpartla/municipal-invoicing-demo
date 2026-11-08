@@ -41,6 +41,8 @@ def derive_coding(
         )
         transfer, transfer_evidence = choose_transfer(position, invoice, index, knowledge)
         budget_text, posting_text = line_texts(position, chosen.candidate, invoice, knowledge)
+        # Expense positions always carry the function: ingest refuses rows without it.
+        assert position.oddiel is not None and position.trieda is not None
         budget.append(
             BudgetLine(
                 key=position.key,
@@ -124,7 +126,7 @@ def credit_account(
     """The DAL account: the precedent's, or the supplier account of the series, with the
     analytic account of a project where a rule names one."""
     precedent = candidate.precedent if candidate else None
-    if precedent is not None and precedent.budget_key == position.key:
+    if candidate is not None and precedent is not None and precedent.budget_key == position.key:
         detail = f"{candidate.precedent_number or 'an earlier invoice'} credited {precedent.dal}"
         return precedent.dal, 0.99, Evidence(field="dal", source="supplier_memory", detail=detail)
     entity = context.entity

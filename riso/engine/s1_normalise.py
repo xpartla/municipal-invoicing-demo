@@ -9,6 +9,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from riso.contracts import InvoiceDocument, InvoiceLine
 from riso.engine.models import Hit, NormalisedInvoice, SourcedText
 from riso.knowledge import KnowledgeBase
+from riso.shared.values import ico_is_valid
 from riso.text import cased_words, words
 
 CENT = Decimal("0.01")
@@ -79,13 +80,6 @@ def normalise(document: InvoiceDocument, knowledge: KnowledgeBase) -> Normalised
     )
 
 
-def ico_is_valid(ico: str) -> bool:
-    """The check digit of an 8-digit IČO: weights 8 to 2, then (11 - sum mod 11) mod 10."""
-    digits = [int(c) for c in ico]
-    total = sum(weight * digit for weight, digit in zip(range(8, 1, -1), digits[:7], strict=True))
-    return (11 - total % 11) % 10 == digits[7]
-
-
 def cents(amount: Decimal) -> Decimal:
     return amount.quantize(CENT, rounding=ROUND_HALF_UP)
 
@@ -134,11 +128,8 @@ def _gross(
     document: InvoiceDocument, line_grosses: list[Decimal | None], issues: list[str]
 ) -> Decimal | None:
     totals = document.totals
-    entries = (
-        sum(line_grosses, Decimal(0))
-        if line_grosses and all(g is not None for g in line_grosses)
-        else None
-    )
+    known = [g for g in line_grosses if g is not None]
+    entries = sum(known, Decimal(0)) if line_grosses and len(known) == len(line_grosses) else None
     if totals.gross is not None:
         if entries is not None and abs(cents(entries) - totals.gross) > CENT:
             issues.append(

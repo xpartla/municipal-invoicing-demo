@@ -17,6 +17,13 @@ The demo entity is Obec Boldog (IČO 00305863), with reference data for 08/2026.
 
 ## Status
 
+Phase 2 has started: a light version of the real application, built milestone by milestone on
+top of the demo. P2-M0 lays the foundation: the database and migrations, the background jobs
+worker, the app's security headers and error mapping, the React SPA shell served by
+`riso serve`, the gate script, the E2E harness and CI. Logins, code lists on the database, the
+import tool, invoices, OCR and e-invoices follow. The demo below keeps working until its pages
+are replaced.
+
 M3 is done: the web app and the feedback loop. The proposal page lays the coding out like the
 accounting software's two tabs, with a copy button on every value and line, the evidence
 behind each field, and alternatives that swap a whole line. The accountant accepts the
@@ -30,6 +37,7 @@ key right for 61.5% and the economic code for 76.9%, short of the demo targets o
 The plan lives outside this repository.
 
 ```sh
+uv run riso migrate
 uv run riso serve --port 8001       # then open http://127.0.0.1:8001
 uv run riso eval
 ```
@@ -39,10 +47,16 @@ uv run riso eval
 Requires [uv](https://docs.astral.sh/uv/) and Python 3.12 or later.
 
 ```sh
-uv sync
-uv run pytest
+uv sync                    # the project and its dev tools (mypy, import-linter, ...)
+scripts/check.sh fast
+uv run riso migrate        # create or upgrade var/riso.db
 uv run riso serve          # http://127.0.0.1:8000
 ```
+
+`riso serve` refuses to start on a database that is not migrated. It runs the jobs worker in a
+thread. When the SPA has been built into `riso/web/dist/`, it serves the SPA at `/` and at
+every client route; the demo pages keep their paths, with the invoice picker at `/index.html`.
+Without a built SPA it serves the demo pages at `/` as before.
 
 The end-to-end click-through drives the four pages in a headless browser; it starts its own
 server with empty state. Playwright is not a project dependency:
@@ -55,20 +69,90 @@ uv run --with playwright python tests/e2e/clickthrough.py [screenshot dir]
 `riso reset` clears what the pages recorded (supplier memory, counters, the feedback log), so
 every demo starts from the same state.
 
+## Frontend
+
+The new UI is a React single-page app in `frontend/` (Vite, TypeScript, Mantine, TanStack
+Router and Query, i18next). It needs Node 24 (`frontend/.nvmrc`) and pnpm through corepack:
+
+```sh
+nvm install 24 && nvm use 24     # or any Node 24
+corepack enable pnpm
+cd frontend
+pnpm install
+pnpm dev                          # http://localhost:5173, proxying /api to riso serve --port 8001
+pnpm build                        # into ../riso/web/dist, which riso serve then serves at /
+```
+
+`pnpm lint`, `pnpm typecheck` and `pnpm test` (Vitest) check it. The E2E specs in
+`frontend/e2e/` run Playwright against the real backend: the global setup migrates a
+temporary database, starts `riso serve` on a free port serving the built SPA, and tears it
+down. Every spec runs at 390, 820 and 1280 px, fails on any console error, and checks
+accessibility with axe (WCAG 2.1 AA):
+
+```sh
+pnpm exec playwright install chromium   # once
+pnpm build && pnpm e2e
+``` The typed API client is
+generated from the backend's OpenAPI document; after changing a route or its models, run
+`uv run riso export-openapi` and `pnpm gen:api`, and commit both `frontend/openapi.json` and
+`frontend/src/api/schema.d.ts` (`pnpm check:api` fails when either is stale).
+
+## Checks
+
+`scripts/check.sh` runs the gates. Run `fast` before and after every change, and `full` at
+checkpoints that touch UI flows, the API contract, migrations or OCR:
+
+```sh
+scripts/check.sh fast    # ruff check and format, mypy, lint-imports, pytest without the ocr
+                         # and e2e markers, riso check, schema drift, migrations, and the
+                         # frontend's lint, typecheck and unit tests when frontend/ changed
+scripts/check.sh full    # fast with a coverage report, plus pytest -m ocr, the frontend
+                         # build, the API client drift check and the Playwright E2E specs
+```
+
+Every step runs and the summary names the ones that failed; the exit code is non-zero if any
+did. A step whose tool is not set up yet is skipped with a message. The pytest markers are
+`ocr`, `e2e` and `slow`. mypy is strict for the phase 2 packages (`riso.shared`,
+`riso.platform` and the bounded contexts) and at its default level for the demo packages.
+
 ## Commands
 
 | Command | Does |
 |---|---|
 | `riso ingest` | Builds `data/bundles/<IČO>/<period>.json` from the Excel exports in `../data` (or `--raw`, or `RISO_RAW_DIR`) |
 | `riso check` | Checks the committed data against the dictionaries: entity settings, supplier memory, counters, the knowledge base, every dataset case, schema drift |
+| `riso export-openapi` | Writes the API's OpenAPI document to `frontend/openapi.json`, which the frontend client is generated from; `--check` only reports a stale file |
 | `riso export-schemas` | Writes the contracts as JSON Schema to `schemas/`; `--check` only reports stale files |
 | `riso reset` | Restores the runtime state in `var/` from `data/initial_state/` |
-| `riso serve` | Runs the API and the pages |
+| `riso serve` | Runs the API, the pages and the jobs worker; needs `riso migrate` first |
 | `riso code <file>…` | Codes InvoiceDocuments or dataset cases and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
+| `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
+| `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed |
 
 Run them with `uv run riso …`. `uv run ruff check .` and `uv run ruff format .` keep the code
 tidy.
+
+## Configuration
+
+Environment variables, all optional:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `RISO_ENV` | unset | `dev`, `test` or `prod`; the seed command refuses unless `dev` or `test` |
+| `RISO_VAR_DIR` | `var/` | runtime state: the database, uploaded files, OCR models, reports |
+| `RISO_DB_URL` | `sqlite:///<var>/riso.db` | the SQLAlchemy database URL |
+| `RISO_TESSDATA` | `<var>/tessdata` | the Tesseract models |
+| `RISO_SMTP_HOST`, `RISO_SMTP_PORT`, `RISO_SMTP_USER`, `RISO_SMTP_PASSWORD`, `RISO_SMTP_FROM` | unset | optional mail sending; without them mail stays in the outbox |
+| `RISO_RAW_DIR` | `../data` | the raw exports from the accounting software, for `riso ingest` and the tests that need them |
+
+The schema lives in Alembic migrations (`migrations/`). After changing the ORM models, generate
+a migration and read it before committing:
+
+```sh
+uv run alembic revision --autogenerate -m "<context>: <what>"
+uv run alembic upgrade head
+```
 
 ## API
 
@@ -85,10 +169,27 @@ tidy.
 
 The interactive documentation is at `/docs` while the server runs.
 
+Every response carries an `X-Request-ID` (the client's, when it sends a well-formed one) and
+the security headers: a Content-Security-Policy without inline or evaluated scripts (the demo
+pages, which use Alpine.js, get `'unsafe-eval'` until they are replaced), `nosniff`, frame
+denial and `Referrer-Policy: same-origin`. API responses are `Cache-Control: no-store`. Errors
+are JSON: 404, 403, 409 with `{detail, code}`, 422 with a list of `{loc, msg, type}` like
+FastAPI's own validation errors, and an unknown `/api` path is a JSON 404. Every API route is
+named and listed in `riso/api/permissions_matrix.py`; a test fails for a route without an entry.
+
 ## Layout
 
 ```
 riso/
+  shared/         the kernel: IDs (UUIDv7), clock, errors, events, request context, unit of
+                  work protocol, IČO, IBAN and money
+  platform/       settings, the database (SQLite in WAL mode), migrations, the unit of work,
+                  content-addressed file storage (var/files/<owner>/<yyyy>/<mm>/<sha256>.<ext>)
+                  and the mail outbox
+  identity/ tenancy/ codelists/ intake/ invoicing/ exchange/ reporting/ audit/ jobs/
+                  the bounded contexts of phase 2, each in layers: domain/, application/,
+                  infrastructure/, api/; other code imports only a context's __init__
+                  (.importlinter has the rules, `lint-imports` checks them)
   contracts/      Pydantic models of the JSON contracts; schemas/ is generated from them
   ingest/         S0: Excel exports to ReferenceBundle
   reference/      reading bundles and entity settings, lookups, document numbering
@@ -110,6 +211,8 @@ data/
   initial_state/  supplier memory and counters at the start of a demo
 knowledge/2026/   EK to SU bridge, AU rules, function map, lexicon, transfer, canteen and style rules
 schemas/          JSON Schemas of the contracts
+migrations/       Alembic migrations of the database
+scripts/check.sh  the gates
 tests/            pytest; e2e/clickthrough.py is the browser click-through
 ```
 

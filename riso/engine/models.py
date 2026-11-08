@@ -127,12 +127,15 @@ class ChosenLine(StageResult):
     invoice_line: int | None = None
 
 
+DecisionRule = Literal[
+    "precedent", "canteen_rule", "single_candidate", "best_candidate", "split", "none"
+]
+
+
 class Decision(StageResult):
     """S4: the budget line or lines to propose, the alternatives, and why to review."""
 
-    rule: Literal[
-        "precedent", "canteen_rule", "single_candidate", "best_candidate", "split", "none"
-    ]
+    rule: DecisionRule
     lines: tuple[ChosenLine, ...]
     alternatives: tuple[Candidate, ...]
     reasons: tuple[str, ...]

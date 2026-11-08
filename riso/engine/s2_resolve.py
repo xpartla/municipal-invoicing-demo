@@ -2,6 +2,8 @@
 document number and the booking date from the handwritten note, and the counter's next
 number only when the handwritten number is missing."""
 
+from typing import Literal
+
 from riso.contracts import Counters, EntityContext, SupplierMemory, SupplierRecord
 from riso.engine.models import NormalisedInvoice, ResolvedContext
 from riso.knowledge import KnowledgeBase
@@ -34,6 +36,7 @@ def resolve(
     series = entity.canteen_series if canteen else entity.default_series
     year = invoice.booking_date.year if invoice.booking_date else entity.budget_year
     pattern = index.series[series].pattern
+    source: Literal["handwritten", "counter"]
     if invoice.handwritten_number is not None:
         number = format_number(pattern, invoice.handwritten_number, year)
         source = "handwritten"

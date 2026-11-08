@@ -1,15 +1,26 @@
-"""The JSON API of plan section 8 and the static pages, served by one FastAPI app. The pages
-call the same API a later integration would use."""
+"""The FastAPI app: the demo's JSON API and pages, and the phase 2 frame around them
+(settings, the database, the jobs worker, the request ID, security headers, error mapping and
+the SPA).
+
+`create_app(Settings())` is the demo as it was: no database, the Alpine pages at `/`. `riso
+serve` uses `create_served_app()`, which adds the database, the worker and the built SPA.
+"""
 
 import datetime as dt
+import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from riso import __version__, paths
+from riso.api.composition import build_services
+from riso.api.errors import install_error_handlers
+from riso.api.frontend import FrontendFiles
+from riso.api.middleware import RequestIdMiddleware, SecurityHeadersMiddleware
 from riso.contracts import (
     Alternative,
     CodeRequest,
@@ -27,6 +38,9 @@ from riso.engine.s6_validate import check_coding
 from riso.engine.s8_feedback import apply_feedback
 from riso.eval import evaluate
 from riso.knowledge import UnknownKnowledge, load_knowledge
+from riso.platform.log import configure_logging
+from riso.platform.migrations import current_revision, head_revision
+from riso.platform.settings import Settings as PlatformSettings
 from riso.reference import (
     LocalReferenceSource,
     ReferenceIndex,
@@ -35,6 +49,11 @@ from riso.reference import (
     parse_number,
 )
 from riso.store import StateStore
+
+log = logging.getLogger(__name__)
+
+SPA_DIR = paths.WEB_DIR / "dist"
+"""Where `pnpm build` in frontend/ puts the SPA. Git-ignored."""
 
 
 @dataclass(frozen=True)
@@ -45,6 +64,12 @@ class Settings:
     initial_state_dir: Path = paths.INITIAL_STATE_DIR
     var_dir: Path = field(default_factory=paths.var_dir)
     web_dir: Path = paths.WEB_DIR
+    spa_dir: Path | None = None
+    """The built SPA; None, or a folder without index.html, serves the demo pages at /."""
+    platform: PlatformSettings | None = None
+    """The database, files and jobs; None runs the demo without them."""
+    run_worker: bool = True
+    """Whether the lifespan runs the jobs worker in a thread (when there is a database)."""
 
 
 class EntitySummary(BaseModel):
@@ -108,9 +133,36 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or Settings()
     references = LocalReferenceSource(settings.bundles_dir, settings.entities_dir)
     state = StateStore(settings.var_dir, settings.initial_state_dir)
-    app = FastAPI(title="riso", version=__version__, summary="Invoice coding demo")
+    services = build_services(settings.platform) if settings.platform else None
 
-    @app.get("/api/entities")
+    @asynccontextmanager
+    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        if services is not None:
+            _require_migrated(services.settings.db_url)
+            if settings.run_worker:
+                services.worker_thread().start()
+        try:
+            yield
+        finally:
+            if services is not None:
+                services.close()
+
+    app = FastAPI(
+        title="riso",
+        version=__version__,
+        summary="Invoice coding demo",
+        lifespan=lifespan,
+        # The operation ID is the route's unique name ("invoices.book"), the key of the
+        # permission matrix and of the generated client's operations.
+        generate_unique_id_function=lambda route: route.name,
+    )
+    app.state.services = services
+    install_error_handlers(app)
+    # Added last runs first: the request ID wraps everything, then the headers.
+    app.add_middleware(SecurityHeadersMiddleware)
+    app.add_middleware(RequestIdMiddleware)
+
+    @app.get("/api/entities", name="legacy.entities")
     def entities() -> list[EntitySummary]:
         summaries = []
         for ico in references.entities():
@@ -125,14 +177,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         return summaries
 
-    @app.get("/api/reference/{entity}")
+    @app.get("/api/reference/{entity}", name="legacy.reference")
     def reference(entity: str, period: str | None = None) -> ReferenceBundle:
         try:
             return references.bundle(entity, period)
         except UnknownEntity as exc:
             raise HTTPException(404, str(exc)) from exc
 
-    @app.get("/api/invoices")
+    @app.get("/api/invoices", name="legacy.invoices")
     def invoices() -> list[InvoiceListItem]:
         return [
             InvoiceListItem(
@@ -146,7 +198,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             for case in load_cases(settings.invoices_dir)
         ]
 
-    @app.get("/api/invoices/{invoice_id}")
+    @app.get("/api/invoices/{invoice_id}", name="legacy.invoice")
     def invoice(invoice_id: str) -> InvoiceDocument:
         for case in load_cases(settings.invoices_dir):
             if case.id == invoice_id:
@@ -172,11 +224,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def customer(invoice: InvoiceDocument, entity: str | None) -> str:
         return entity or "".join((invoice.customer.ico or "").split())
 
-    @app.post("/api/code")
+    @app.post("/api/code", name="legacy.code")
     def code(request: CodeRequest) -> CodingProposal:
         return code_invoice(request.invoice, **setting(customer(request.invoice, request.entity)))
 
-    @app.post("/api/line")
+    @app.post("/api/line", name="legacy.line")
     def line(request: LineRequest) -> Alternative:
         """The whole line a position the accountant picked brings: MD, DAL, transfer, texts."""
         try:
@@ -188,7 +240,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         except KeyError as exc:
             raise HTTPException(404, f"{request.budget_key} is not in the budget") from exc
 
-    @app.post("/api/feedback")
+    @app.post("/api/feedback", name="legacy.feedback")
     def feedback(feedback: Feedback) -> FeedbackReceipt:
         """Stores the accountant's verdict: the coding becomes the supplier's newest precedent,
         its number is used up, and the feedback is logged. A corrected coding must pass the
@@ -222,7 +274,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             received_at=received,
         )
 
-    @app.get("/api/feedback")
+    @app.get("/api/feedback", name="legacy.feedback_log")
     def feedback_log(entity: str = "00305863") -> list[FeedbackItem]:
         """The feedback stored since the last `riso reset`, oldest first."""
         return [
@@ -235,7 +287,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             for item in state.feedback(entity)
         ]
 
-    @app.get("/api/counters/{entity}")
+    @app.get("/api/counters/{entity}", name="legacy.counters")
     def counters(entity: str) -> list[SeriesCounter]:
         """The document counters, invoice series first: the last number used, the one the
         counter would fill in next, and the numbers taken. Only feedback moves them."""
@@ -273,7 +325,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             )
         return rows
 
-    @app.get("/api/eval")
+    @app.get("/api/eval", name="legacy.eval")
     def evaluation(
         entity: str = "00305863", split: Split = "heldout", refresh: bool = False
     ) -> EvalReport:
@@ -294,5 +346,26 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             state.save_eval(report)
         return report
 
-    app.mount("/", StaticFiles(directory=settings.web_dir, html=True), name="web")
+    # Pages are the router's fallback: they never shadow an API route, and an unknown API
+    # path gets a JSON 404 rather than a page.
+    app.router.default = FrontendFiles(settings.web_dir, settings.spa_dir)
     return app
+
+
+def create_served_app() -> FastAPI:
+    """The app `riso serve` runs: the settings from the RISO_ variables, the database and the
+    worker, and the built SPA when there is one."""
+    configure_logging()
+    platform = PlatformSettings()
+    spa = SPA_DIR if (SPA_DIR / "index.html").is_file() else None
+    if spa is None:
+        log.warning("no built SPA in %s; serving the demo pages at /", SPA_DIR)
+    return create_app(Settings(var_dir=platform.var_dir, spa_dir=spa, platform=platform))
+
+
+def _require_migrated(url: str) -> None:
+    current, head = current_revision(url), head_revision()
+    if current != head:
+        raise RuntimeError(
+            f"the database is at {current or 'base'}, not {head}; run `riso migrate` first"
+        )

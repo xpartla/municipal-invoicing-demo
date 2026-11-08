@@ -5,10 +5,13 @@ description = "Demo engine that proposes the posting and budget coding of Slovak
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.20.1",
     "fastapi>=0.115",
     "openpyxl>=3.1",
     "pydantic>=2.9",
+    "pydantic-settings>=2.16.2",
     "pyyaml>=6.0",
+    "sqlalchemy>=2.1.8",
     "uvicorn>=0.30",
     "xlrd>=2.0",
 ]
@@ -19,8 +22,15 @@ riso = "riso.cli:main"
 [dependency-groups]
 dev = [
     "httpx2>=2.13",
+    "hypothesis>=6.170.15",
+    "import-linter>=2.16",
+    "mypy>=2.4.1",
     "pytest>=8.3",
+    "pytest-cov>=7.1.0",
     "ruff>=0.8",
+    "types-openpyxl>=3.1.5.20261017",
+    "types-pyyaml>=6.0.12.20261103",
+    "types-xlrd>=2.0.0.20260518",
 ]
 
 [build-system]
@@ -32,6 +42,58 @@ packages = ["riso"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
+addopts = ["--strict-markers"]
+markers = [
+    "ocr: runs Tesseract on images (slow; needs the models from `riso ocr setup`)",
+    "e2e: drives the app in a browser",
+    "slow: takes more than a few seconds",
+]
+
+[tool.coverage.run]
+source = ["riso"]
+branch = true
+
+[tool.coverage.report]
+show_missing = false
+skip_covered = true
+
+[tool.mypy]
+python_version = "3.12"
+files = ["riso"]
+plugins = ["pydantic.mypy"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+strict_equality = true
+enable_error_code = ["ignore-without-code"]
+
+# Strict for the phase 2 packages; the demo packages keep the default level. The flags are
+# listed one by one because `strict = true` in an override applies to every module.
+[[tool.mypy.overrides]]
+module = [
+    "riso.shared.*",
+    "riso.platform.*",
+    "riso.identity.*",
+    "riso.tenancy.*",
+    "riso.codelists.*",
+    "riso.intake.*",
+    "riso.invoicing.*",
+    "riso.exchange.*",
+    "riso.reporting.*",
+    "riso.audit.*",
+    "riso.jobs.*",
+]
+disallow_any_generics = true
+disallow_subclassing_any = true
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+warn_return_any = true
+no_implicit_reexport = true
+extra_checks = true
 
 [tool.ruff]
 line-length = 100

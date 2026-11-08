@@ -2,6 +2,7 @@
 a set of case results."""
 
 from collections.abc import Callable, Iterable
+from typing import Any
 
 from riso.contracts import (
     BudgetLine,
@@ -31,7 +32,7 @@ def score_case(case: DatasetCase, proposal: CodingProposal, *, known: bool) -> C
     expected = case.expected
     proposed = _line_codes(proposal.posting, proposal.budget)
     alternatives = [alternative.budget_key for alternative in proposal.alternatives]
-    common = {
+    common: dict[str, Any] = {
         "case_id": case.id,
         "tags": case.tags,
         "supplier": case.invoice.supplier.name,
@@ -90,7 +91,7 @@ def metrics(results: list[CaseResult]) -> dict[str, Rate]:
         "correct": _rate(results, lambda r: r.correct),
         "full_key": _rate(coded, lambda r: r.full_key is True),
         "full_line": _rate(coded, _lines_ok),
-        **{name: _rate(coded, lambda r, name=name: r.fields[name]) for name in FIELDS},
+        **{name: _rate(coded, _field_ok(name)) for name in FIELDS},
         "top3": _rate([r for r in coded if r.top3 is not None], lambda r: r.top3 is True),
         "split": _rate(coded, lambda r: r.split_ok is True),
         "manual_entry": _rate(
@@ -114,6 +115,11 @@ def metrics(results: list[CaseResult]) -> dict[str, Rate]:
             lambda r: r.needs_review == r.expected_review,
         ),
     }
+
+
+def _field_ok(name: str) -> Callable[[CaseResult], bool]:
+    """Whether a case got one coding field right."""
+    return lambda r: r.fields[name]
 
 
 def group_metrics(results: list[CaseResult]) -> dict[str, Rate]:

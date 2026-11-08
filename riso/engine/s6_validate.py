@@ -4,7 +4,7 @@ review. `riso check` uses the dictionary checks on the committed data too."""
 
 from decimal import Decimal
 
-from riso.contracts import Coding, Validation
+from riso.contracts import BudgetLine, Coding, PostingLine, Validation
 from riso.engine.models import NormalisedInvoice, ResolvedContext
 from riso.knowledge import KnowledgeBase
 from riso.reference import ReferenceIndex, parse_number
@@ -172,7 +172,8 @@ def _pairing_errors(coding: Coding) -> list[str]:
 
 def _reference_errors(coding: Coding, index: ReferenceIndex) -> list[str]:
     errors = []
-    for line in [*coding.posting, *coding.budget]:
+    lines: list[PostingLine | BudgetLine] = [*coding.posting, *coding.budget]
+    for line in lines:
         if line.stredisko is not None and line.stredisko not in index.cost_centres:
             errors.append(f"stredisko {line.stredisko} is not in the list")
         if line.transfer is not None and line.transfer not in index.transfers:

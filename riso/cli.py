@@ -1,4 +1,5 @@
-"""Command line: riso ingest | check | export-schemas | reset | serve | code | eval."""
+"""Command line: riso ingest | check | export-schemas | export-openapi | reset | serve | code |
+eval | migrate | worker."""
 
 import argparse
 import sys
@@ -30,6 +31,12 @@ def main(argv: list[str] | None = None) -> int:
     schemas.add_argument("--out", type=Path, default=paths.SCHEMAS_DIR)
     schemas.add_argument("--check", action="store_true", help="only report stale files")
 
+    openapi = commands.add_parser(
+        "export-openapi", help="write the API's OpenAPI document for the frontend client"
+    )
+    openapi.add_argument("--out", type=Path, default=None, help="default frontend/openapi.json")
+    openapi.add_argument("--check", action="store_true", help="only report a stale file")
+
     commands.add_parser("reset", help="restore the runtime state from data/initial_state")
 
     serve = commands.add_parser("serve", help="run the API and the pages")
@@ -56,15 +63,29 @@ def main(argv: list[str] | None = None) -> int:
         "--strict", action="store_true", help="exit with 1 when a target of section 9 is missed"
     )
 
+    migrate = commands.add_parser("migrate", help="upgrade the database to the newest schema")
+    migrate.add_argument(
+        "--revision", default="head", help="the Alembic revision to upgrade to (default head)"
+    )
+
+    worker = commands.add_parser("worker", help="run the background jobs worker")
+    worker.add_argument("--once", action="store_true", help="run the jobs that are due, then exit")
+    worker.add_argument(
+        "--poll", type=float, default=1.0, help="seconds between looks for new jobs"
+    )
+
     args = parser.parse_args(argv)
     handlers: dict[str, Callable[[argparse.Namespace], int]] = {
         "ingest": _ingest,
         "check": _check,
         "export-schemas": _export_schemas,
+        "export-openapi": _export_openapi,
         "reset": _reset,
         "serve": _serve,
         "code": _code,
         "eval": _eval,
+        "migrate": _migrate,
+        "worker": _worker,
     }
     return handlers[args.command](args)
 
@@ -118,6 +139,23 @@ def _export_schemas(args: argparse.Namespace) -> int:
     return 0
 
 
+def _export_openapi(args: argparse.Namespace) -> int:
+    from riso.api.openapi import OPENAPI_FILE, openapi_json
+
+    out: Path = args.out or OPENAPI_FILE
+    text = openapi_json()
+    if args.check:
+        current = out.read_text(encoding="utf-8") if out.is_file() else None
+        if current != text:
+            print(f"stale  {_shown(out)}; run `riso export-openapi`")
+            return 1
+        return 0
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text, encoding="utf-8")
+    print(f"wrote {_shown(out)}")
+    return 0
+
+
 def _reset(args: argparse.Namespace) -> int:
     from riso.store import StateStore
 
@@ -131,7 +169,7 @@ def _serve(args: argparse.Namespace) -> int:
     import uvicorn
 
     uvicorn.run(
-        "riso.api.app:create_app",
+        "riso.api.app:create_served_app",
         factory=True,
         host=args.host,
         port=args.port,
@@ -231,6 +269,47 @@ def _eval(args: argparse.Namespace) -> int:
         print(f"\nwrote {_shown(path)}")
     missed = [t for t in report.targets if not t.met]
     return 1 if args.strict and missed else 0
+
+
+def _migrate(args: argparse.Namespace) -> int:
+    """Upgrades the database of RISO_DB_URL (default var/riso.db)."""
+    from riso.platform import Settings
+    from riso.platform.migrations import current_revision, upgrade
+
+    url = Settings().db_url
+    before = current_revision(url)
+    upgrade(url, args.revision)
+    after = current_revision(url)
+    if before == after:
+        print(f"database at {after or 'base'}, nothing to do")
+    else:
+        print(f"migrated from {before or 'base'} to {after or 'base'}")
+    return 0
+
+
+def _worker(args: argparse.Namespace) -> int:
+    """Runs the jobs of RISO_DB_URL in the foreground, until Ctrl-C (or once)."""
+    import threading
+
+    from riso.api.composition import build_services
+
+    services = build_services()
+    try:
+        worker = services.worker()
+        if args.once:
+            print(f"ran {worker.run_pending()} job(s)")
+            return 0
+        print(f"worker {worker.worker_id} running; Ctrl-C stops it")
+        stop = threading.Event()
+        try:
+            while not stop.is_set():
+                worker.run_pending()
+                stop.wait(args.poll)
+        except KeyboardInterrupt:
+            print("stopped")
+        return 0
+    finally:
+        services.close()
 
 
 def _shown(path: Path) -> str:
