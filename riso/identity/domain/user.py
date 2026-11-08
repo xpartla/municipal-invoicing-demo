@@ -189,6 +189,13 @@ class User:
         membership.deactivate(at)
         return membership
 
+    def remove_membership(self, scope: MembershipScope) -> Membership:
+        """Forgets the membership (a staff member taken off a provider, a purged customer);
+        the audit keeps its history."""
+        membership = self._membership(scope)
+        self.memberships.remove(membership)
+        return membership
+
     def reactivate_membership(self, scope: MembershipScope) -> Membership:
         self._require_present()
         membership = self._membership(scope)

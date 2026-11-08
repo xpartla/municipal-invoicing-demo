@@ -15,6 +15,7 @@ from riso.shared.errors import Conflict, FieldErrors, NotFound
 from riso.shared.ports import AuditRecorder
 from riso.shared.uow import UnitOfWork
 from riso.shared.values import Iban, Ico, clean_name
+from riso.tenancy.application.ports import Logins
 from riso.tenancy.application.views import CustomerView, ParametersView
 from riso.tenancy.domain import (
     Address,
@@ -40,6 +41,9 @@ class TenancyUnitOfWork(UnitOfWork, Protocol):
 
     @property
     def audit(self) -> AuditRecorder: ...
+
+    @property
+    def logins(self) -> Logins: ...
 
 
 def _audit(
@@ -286,3 +290,20 @@ def set_parameters(
         _audit(ctx, uow, "customer.parameters_set", customer_id, {"year": year})
         uow.commit()
     return ParametersView.of(parameters)
+
+
+def purge_customer(
+    ctx: RequestContext, uow: TenancyUnitOfWork, customer_id: str, typed_ico: str
+) -> None:
+    """Deletes a soft-deleted customer for good, with its parameters, its assignment and the
+    memberships in it, after its IČO was typed to confirm (plan §5.6). The audit keeps its
+    events. (Invoices arrive in P2-M4; the purge will warn about booked ones then.)"""
+    ctx.require(Permission.CUSTOMERS_DELETE, customer_id)
+    with uow:
+        customer = uow.customers.get(customer_id)
+        customer.confirm_purge(typed_ico)
+        memberships = uow.logins.remove_customer_memberships(customer_id)
+        uow.parameters.remove_all(customer_id)
+        uow.customers.remove(customer_id)
+        _audit(ctx, uow, "customer.purged", customer_id, {"memberships": memberships})
+        uow.commit()

@@ -3,7 +3,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request, Response
+from fastapi import APIRouter, Depends, Query, Request, Response
 
 from riso.api.deps import (
     AnyCaller,
@@ -13,6 +13,7 @@ from riso.api.deps import (
     ServicesDep,
     check_csrf,
     clear_session_cookies,
+    customer_context,
     platform_context,
     set_session_cookies,
 )
@@ -21,18 +22,27 @@ from riso.identity.api.models import (
     ChangePasswordIn,
     EmailChangeIn,
     ImpersonateIn,
+    InvitedOut,
+    InviteIn,
+    LinkSentOut,
     LoginIn,
     MeOut,
+    ProfileIn,
     ResetRequestIn,
     SessionOut,
     SetPasswordIn,
+    StaffIn,
     TokenIn,
     TokenInfoOut,
+    UserOut,
+    UserPageOut,
 )
 from riso.identity.application.accounts import (
+    Invite,
     accept_invitation,
     change_password,
     confirm_email_change,
+    invite,
     request_email_change,
     request_password_reset,
     reset_password,
@@ -48,7 +58,22 @@ from riso.identity.application.auth import (
     me,
 )
 from riso.identity.application.impersonation import end_impersonation, start_impersonation
-from riso.identity.domain import Permission
+from riso.identity.application.users import (
+    ProfileChange,
+    deactivate_login,
+    delete_user,
+    force_logout,
+    list_users,
+    lock_user,
+    purge_user,
+    reactivate_login,
+    remove_staff,
+    restore_user,
+    send_login_link,
+    unlock_user,
+    update_profile,
+)
+from riso.identity.domain import Permission, Role, ScopeKind
 from riso.shared.errors import Unauthenticated
 
 router = APIRouter(prefix="/api", dependencies=[Depends(check_csrf)], tags=["identity"])
@@ -228,3 +253,149 @@ def impersonate_route(
 def end_impersonation_route(caller: SelfCaller, services: ServicesDep) -> None:
     """Ends the impersonation; the session is the admin's again."""
     end_impersonation(caller.ctx, services.uow(), session_id=caller.required().session_id)
+
+
+# The caller's profile ----------------------------------------------------------------------
+
+
+@router.patch("/me", name="me.update")
+def update_me_route(caller: SelfCaller, services: ServicesDep, body: ProfileIn) -> UserOut:
+    """The caller's name and notification email (allowed while impersonating, audited with
+    both IDs)."""
+    sent = body.model_fields_set
+    change = ProfileChange(
+        name=body.name if "name" in sent else None,
+        notification_email=body.notification_email,
+        set_notification_email="notification_email" in sent,
+    )
+    return UserOut.of(update_profile(caller.ctx, services.uow(), change))
+
+
+# A customer's logins (staff of its provider, admins) ---------------------------------------
+
+LoginManager = Annotated[Caller, Depends(customer_context(Permission.LOGINS_MANAGE))]
+
+
+@router.post("/customers/{customer_id}/logins", name="logins.invite", status_code=201)
+def invite_login_route(
+    caller: LoginManager, services: ServicesDep, customer_id: str, body: InviteIn
+) -> InvitedOut:
+    """Invites a login (Používateľ or Iba na čítanie) by mail; an existing account gets the
+    access and a notice."""
+    done = invite(
+        caller.ctx,
+        services.uow(),
+        services.directory,
+        services.tokens,
+        services.links,
+        Invite(body.email, body.name, ScopeKind.CUSTOMER, customer_id, body.role),
+    )
+    return InvitedOut(user=UserOut.of(done.user), new_account=done.new_account)
+
+
+@router.post("/customers/{customer_id}/logins/{user_id}/deactivate", name="logins.deactivate")
+def deactivate_login_route(
+    caller: LoginManager, services: ServicesDep, customer_id: str, user_id: str
+) -> UserOut:
+    """Removes the login's access to this customer; the account stays."""
+    return UserOut.of(deactivate_login(caller.ctx, services.uow(), customer_id, user_id))
+
+
+@router.post("/customers/{customer_id}/logins/{user_id}/reactivate", name="logins.reactivate")
+def reactivate_login_route(
+    caller: LoginManager, services: ServicesDep, customer_id: str, user_id: str
+) -> UserOut:
+    return UserOut.of(reactivate_login(caller.ctx, services.uow(), customer_id, user_id))
+
+
+@router.post("/customers/{customer_id}/logins/{user_id}/reset-link", name="logins.send_link")
+def send_link_route(
+    caller: LoginManager, services: ServicesDep, customer_id: str, user_id: str
+) -> LinkSentOut:
+    """Mails a password reset link, or a new invitation to a login still invited."""
+    kind = send_login_link(
+        caller.ctx,
+        services.uow(),
+        services.directory,
+        services.tokens,
+        services.links,
+        customer_id,
+        user_id,
+    )
+    return LinkSentOut(kind=kind)
+
+
+# Providers' staff and every account (admins) -----------------------------------------------
+
+ProviderManager = Annotated[Caller, Depends(platform_context(Permission.PROVIDERS_MANAGE))]
+UserAdmin = Annotated[Caller, Depends(platform_context(Permission.USERS_ADMINISTER))]
+UserDeleter = Annotated[Caller, Depends(platform_context(Permission.USERS_DELETE))]
+
+
+@router.post("/admin/providers/{provider_id}/staff", name="providers.add_staff", status_code=201)
+def add_staff_route(
+    caller: ProviderManager, services: ServicesDep, provider_id: str, body: StaffIn
+) -> InvitedOut:
+    done = invite(
+        caller.ctx,
+        services.uow(),
+        services.directory,
+        services.tokens,
+        services.links,
+        Invite(body.email, body.name, ScopeKind.PROVIDER, provider_id, Role.PROVIDER_STAFF),
+    )
+    return InvitedOut(user=UserOut.of(done.user), new_account=done.new_account)
+
+
+@router.delete("/admin/providers/{provider_id}/staff/{user_id}", name="providers.remove_staff")
+def remove_staff_route(
+    caller: ProviderManager, services: ServicesDep, provider_id: str, user_id: str
+) -> UserOut:
+    return UserOut.of(remove_staff(caller.ctx, services.uow(), provider_id, user_id))
+
+
+@router.get("/admin/users", name="users.list")
+def users_list_route(
+    caller: UserAdmin,
+    services: ServicesDep,
+    q: Annotated[str | None, Query(max_length=200)] = None,
+    include_deleted: bool = False,
+) -> UserPageOut:
+    """Every user (not purged ones), by name; `q` matches the name or the email."""
+    users = list_users(
+        caller.ctx, services.uow(immediate=False), query=q, include_deleted=include_deleted
+    )
+    return UserPageOut(items=[UserOut.of(u) for u in users], total=len(users))
+
+
+@router.post("/admin/users/{user_id}/lock", name="users.lock")
+def lock_route(caller: UserAdmin, services: ServicesDep, user_id: str) -> UserOut:
+    """Locks the account and ends its sessions."""
+    return UserOut.of(lock_user(caller.ctx, services.uow(), user_id))
+
+
+@router.post("/admin/users/{user_id}/unlock", name="users.unlock")
+def unlock_route(caller: UserAdmin, services: ServicesDep, user_id: str) -> UserOut:
+    return UserOut.of(unlock_user(caller.ctx, services.uow(), user_id))
+
+
+@router.post("/admin/users/{user_id}/logout", name="users.force_logout", status_code=204)
+def force_logout_route(caller: UserAdmin, services: ServicesDep, user_id: str) -> None:
+    force_logout(caller.ctx, services.uow(), user_id)
+
+
+@router.post("/admin/users/{user_id}/delete", name="users.delete")
+def delete_user_route(caller: UserDeleter, services: ServicesDep, user_id: str) -> UserOut:
+    """Soft delete: the account cannot log in and can be restored."""
+    return UserOut.of(delete_user(caller.ctx, services.uow(), user_id))
+
+
+@router.post("/admin/users/{user_id}/restore", name="users.restore")
+def restore_user_route(caller: UserDeleter, services: ServicesDep, user_id: str) -> UserOut:
+    return UserOut.of(restore_user(caller.ctx, services.uow(), user_id))
+
+
+@router.post("/admin/users/{user_id}/purge", name="users.purge")
+def purge_user_route(caller: UserDeleter, services: ServicesDep, user_id: str) -> UserOut:
+    """Anonymises a deleted account for good."""
+    return UserOut.of(purge_user(caller.ctx, services.uow(), user_id))

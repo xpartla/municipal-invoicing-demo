@@ -1,7 +1,9 @@
 """API fixtures: the app on a migrated temporary database, with a frozen clock and a fast
 password hasher, and a client that sends the CSRF header like the SPA does."""
 
+import shutil
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -56,10 +58,23 @@ def clock():
     return FixedClock(T0)
 
 
+@pytest.fixture(scope="session")
+def migrated_file(tmp_path_factory) -> Path:
+    """A database migrated to head once per test session; each test gets a copy."""
+    path = tmp_path_factory.mktemp("template") / "riso.db"
+    upgrade(f"sqlite:///{path}")
+    assert (
+        not path.with_name("riso.db-wal").exists()
+        or path.with_name("riso.db-wal").stat().st_size == 0
+    )
+    return path
+
+
 @pytest.fixture
-def services(tmp_path, clock):
+def services(tmp_path, clock, migrated_file):
     settings = PlatformSettings(var_dir=tmp_path / "var", env="test")
-    upgrade(settings.db_url)
+    settings.var_dir.mkdir(parents=True)
+    shutil.copyfile(migrated_file, settings.var_dir / "riso.db")
     services = build_services(settings, clock=clock, hasher=Argon2Hasher.fast())
     yield services
     services.close()

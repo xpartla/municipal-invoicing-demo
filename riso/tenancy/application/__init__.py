@@ -13,12 +13,25 @@ from riso.tenancy.application.customers import (
     delete_customer,
     get_customer,
     get_parameters,
+    purge_customer,
     restore_customer,
     set_parameters,
     update_contact,
     update_identity,
 )
-from riso.tenancy.application.providers import ProviderOverview, get_provider
+from riso.tenancy.application.ports import LoginRef, Logins
+from riso.tenancy.application.providers import (
+    CustomerWithLogins,
+    ProviderDetail,
+    ProviderOverview,
+    assign_provider,
+    create_provider,
+    customer_directory,
+    get_provider,
+    list_providers,
+    remove_provider,
+    unassign_provider,
+)
 from riso.tenancy.application.views import (
     AddressView,
     CustomerView,
@@ -27,6 +40,17 @@ from riso.tenancy.application.views import (
 )
 
 __all__ = [
+    "CustomerWithLogins",
+    "LoginRef",
+    "Logins",
+    "ProviderDetail",
+    "assign_provider",
+    "create_provider",
+    "customer_directory",
+    "list_providers",
+    "purge_customer",
+    "remove_provider",
+    "unassign_provider",
     "AddressInput",
     "AddressView",
     "CreateCustomer",

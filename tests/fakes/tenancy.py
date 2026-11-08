@@ -1,7 +1,10 @@
 """In-memory repositories and the unit of work of the tenancy context."""
 
+from dataclasses import replace
+
 from riso.shared import NotFound
 from riso.shared.values import Ico
+from riso.tenancy.application.ports import LoginRef
 from riso.tenancy.domain import Customer, CustomerParameters, ServiceProvider
 from tests.fakes.memory import SnapshotStore, StoresUnitOfWork
 from tests.fakes.ports import RecordingAudit
@@ -88,6 +91,38 @@ class InMemoryTenancyUnitOfWork(StoresUnitOfWork):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.audit = self.store(RecordingAudit())
+        self.logins = FakeLogins()
         self.customers = self.store(InMemoryCustomers(self))
         self.providers = self.store(InMemoryProviders())
         self.parameters = self.store(InMemoryParameters())
+
+
+class FakeLogins:
+    """The `Logins` port over a plain list of (scope kind, scope ID, LoginRef)."""
+
+    def __init__(self) -> None:
+        self.rows: list[tuple[str, str, LoginRef]] = []
+
+    def of_customers(self, customer_ids):
+        return {c: [r for k, s, r in self.rows if k == "customer" and s == c] for c in customer_ids}
+
+    def staff_of(self, provider_ids):
+        return {
+            p: [r for k, s, r in self.rows if k == "provider" and s == p and r.active]
+            for p in provider_ids
+        }
+
+    def deactivate_staff(self, provider_id):
+        count = 0
+        for i, (k, s, r) in enumerate(self.rows):
+            if k == "provider" and s == provider_id and r.active:
+                self.rows[i] = (k, s, replace(r, active=False))
+                count += 1
+        return count
+
+    def remove_customer_memberships(self, customer_id):
+        before = len(self.rows)
+        self.rows = [
+            row for row in self.rows if not (row[0] == "customer" and row[1] == customer_id)
+        ]
+        return before - len(self.rows)

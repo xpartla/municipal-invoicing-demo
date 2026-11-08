@@ -208,3 +208,20 @@ def test_every_write_is_audited_in_the_customer(uow):
     with pytest.raises(Conflict):
         new(uow)  # refused: nothing more is recorded
     assert len(uow.audit.entries) == 6
+
+
+def test_removing_a_provider_with_the_fakes(uow):
+    from riso.tenancy.application import create_provider, remove_provider
+    from riso.tenancy.application.ports import LoginRef
+
+    provider = create_provider(SYSTEM, uow, "Účtovníctvo Vzor, s.r.o.", "00305871")
+    a = new(uow, provider_id=provider.id)
+    b = new(uow, ico="00305880", name="Obec Druhá", provider_id=provider.id)
+    staff = LoginRef("u1", "Peter", "p@vzor.sk", "provider_staff", True, "active", False)
+    uow.logins.rows.append(("provider", provider.id, staff))
+    remove_provider(SYSTEM, uow, provider.id)
+    assert uow.customers.get(a.id).provider_id is None
+    assert uow.customers.get(b.id).provider_id is None
+    assert uow.logins.staff_of([provider.id]) == {provider.id: []}
+    assert uow.audit.actions()[-1] == "provider.removed"
+    assert uow.audit.entries[-1]["details"] == {"customers": 2, "staff": 1}

@@ -184,3 +184,35 @@ class EmailChangeIn(BaseModel):
 
 class ImpersonateIn(BaseModel):
     reason: str = Field(max_length=500)
+
+
+class ProfileIn(BaseModel):
+    """Only the fields sent change; `notification_email` null or "" clears it."""
+
+    name: str | None = Field(default=None, max_length=200)
+    notification_email: str | None = Field(default=None, max_length=320)
+
+
+class InviteIn(BaseModel):
+    email: str = Field(max_length=320)
+    name: str = Field(max_length=200)
+    role: Role = Role.CUSTOMER_USER
+
+
+class StaffIn(BaseModel):
+    email: str = Field(max_length=320)
+    name: str = Field(max_length=200)
+
+
+class InvitedOut(BaseModel):
+    user: UserOut
+    new_account: bool
+
+
+class LinkSentOut(BaseModel):
+    kind: TokenKind
+
+
+class UserPageOut(BaseModel):
+    items: list[UserOut]
+    total: int
