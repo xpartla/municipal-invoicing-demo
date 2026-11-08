@@ -57,7 +57,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   if (!existsSync(spaIndex)) {
     throw new Error(`No built SPA at ${spaIndex}. Run \`pnpm build\` first.`);
   }
-  const varDir = mkdtempSync(join(tmpdir(), 'riso-e2e-'));
+  const varDir = mkdtempSync(join(tmpdir(), 'riso-playwright-'));
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     RISO_VAR_DIR: varDir,
