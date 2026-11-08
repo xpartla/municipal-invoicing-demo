@@ -42,6 +42,10 @@ export const theme = createTheme({
   // Text on filled colours turns black or white by the background's luminance, so badges and
   // buttons in every colour meet WCAG AA contrast (axe checks them).
   autoContrast: true,
+  // Black text from this luminance up, white below. At 0.179 both meet 4.5:1: black needs a
+  // background of L >= 0.175 ((L + 0.05) / 0.05), white one of L <= 0.183 (1.05 / (L + 0.05)).
+  // Mantine's default (0.3) gave white text on blue.6 at 3.6:1.
+  luminanceThreshold: 0.179,
   components: {
     Badge: Badge.extend({ defaultProps: { variant: 'filled' } }),
   },

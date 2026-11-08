@@ -72,6 +72,7 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
 
   const port = await freePort();
   const url = `http://127.0.0.1:${String(port)}`;
+  env.RISO_PUBLIC_URL = url; // the links in mail point at this server
   let output = '';
   // Its own process group, so the teardown stops uv and the server it started together.
   const server = spawn('uv', ['run', 'riso', 'serve', '--port', String(port)], {
