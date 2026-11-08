@@ -83,10 +83,32 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso reset` | Restores the runtime state in `var/` from `data/initial_state/` |
 | `riso serve` | Runs the API and the pages |
 | `riso code <file>…` | Codes InvoiceDocuments or dataset cases and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
+| `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed |
 
 Run them with `uv run riso …`. `uv run ruff check .` and `uv run ruff format .` keep the code
 tidy.
+
+## Configuration
+
+Environment variables, all optional:
+
+| Variable | Default | Meaning |
+|---|---|---|
+| `RISO_ENV` | unset | `dev`, `test` or `prod`; the seed command refuses unless `dev` or `test` |
+| `RISO_VAR_DIR` | `var/` | runtime state: the database, uploaded files, OCR models, reports |
+| `RISO_DB_URL` | `sqlite:///<var>/riso.db` | the SQLAlchemy database URL |
+| `RISO_TESSDATA` | `<var>/tessdata` | the Tesseract models |
+| `RISO_SMTP_HOST`, `RISO_SMTP_PORT`, `RISO_SMTP_USER`, `RISO_SMTP_PASSWORD`, `RISO_SMTP_FROM` | unset | optional mail sending; without them mail stays in the outbox |
+| `RISO_RAW_DIR` | `../data` | the raw exports from the accounting software, for `riso ingest` and the tests that need them |
+
+The schema lives in Alembic migrations (`migrations/`). After changing the ORM models, generate
+a migration and read it before committing:
+
+```sh
+uv run alembic revision --autogenerate -m "<context>: <what>"
+uv run alembic upgrade head
+```
 
 ## API
 
@@ -107,6 +129,9 @@ The interactive documentation is at `/docs` while the server runs.
 
 ```
 riso/
+  shared/         the kernel: IDs (UUIDv7), clock, errors, events, request context, unit of
+                  work protocol, IČO, IBAN and money
+  platform/       settings, the database (SQLite in WAL mode), migrations, the unit of work
   contracts/      Pydantic models of the JSON contracts; schemas/ is generated from them
   ingest/         S0: Excel exports to ReferenceBundle
   reference/      reading bundles and entity settings, lookups, document numbering
@@ -128,6 +153,8 @@ data/
   initial_state/  supplier memory and counters at the start of a demo
 knowledge/2026/   EK to SU bridge, AU rules, function map, lexicon, transfer, canteen and style rules
 schemas/          JSON Schemas of the contracts
+migrations/       Alembic migrations of the database
+scripts/check.sh  the gates
 tests/            pytest; e2e/clickthrough.py is the browser click-through
 ```
 

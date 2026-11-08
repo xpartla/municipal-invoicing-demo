@@ -24,11 +24,11 @@ from riso.contracts import (
 from riso.contracts.eval import Split
 from riso.dataset import TAGS, load_cases
 from riso.engine import code_invoice
-from riso.engine.s1_normalise import ico_is_valid
 from riso.engine.s8_feedback import add_precedent, record_number
 from riso.eval.metrics import by_supplier, by_tag, metrics, score_case
 from riso.knowledge import load_knowledge
 from riso.reference import LocalReferenceSource, ReferenceIndex
+from riso.shared.values import ico_is_valid
 from riso.store import COUNTERS_FILE, MEMORY_FILE
 from riso.text import fold
 

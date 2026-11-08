@@ -10,11 +10,11 @@ from riso import paths
 from riso.contracts import Counters, DatasetCase, EntityContext, SupplierMemory
 from riso.contracts.schemas import stale_schemas
 from riso.dataset import TAGS, load_cases
-from riso.engine.s1_normalise import ico_is_valid
 from riso.engine.s3_candidates import canteen_key
 from riso.engine.s6_validate import SUPPLIER_SU, check_codes, check_coding
 from riso.knowledge import KnowledgeBase, UnknownKnowledge, load_knowledge
 from riso.reference import LocalReferenceSource, ReferenceIndex, UnknownEntity, parse_number
+from riso.shared.values import ico_is_valid
 from riso.store import COUNTERS_FILE, MEMORY_FILE
 
 

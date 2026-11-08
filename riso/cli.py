@@ -1,4 +1,4 @@
-"""Command line: riso ingest | check | export-schemas | reset | serve | code | eval."""
+"""Command line: riso ingest | check | export-schemas | reset | serve | code | eval | migrate."""
 
 import argparse
 import sys
@@ -56,6 +56,11 @@ def main(argv: list[str] | None = None) -> int:
         "--strict", action="store_true", help="exit with 1 when a target of section 9 is missed"
     )
 
+    migrate = commands.add_parser("migrate", help="upgrade the database to the newest schema")
+    migrate.add_argument(
+        "--revision", default="head", help="the Alembic revision to upgrade to (default head)"
+    )
+
     args = parser.parse_args(argv)
     handlers: dict[str, Callable[[argparse.Namespace], int]] = {
         "ingest": _ingest,
@@ -65,6 +70,7 @@ def main(argv: list[str] | None = None) -> int:
         "serve": _serve,
         "code": _code,
         "eval": _eval,
+        "migrate": _migrate,
     }
     return handlers[args.command](args)
 
@@ -231,6 +237,22 @@ def _eval(args: argparse.Namespace) -> int:
         print(f"\nwrote {_shown(path)}")
     missed = [t for t in report.targets if not t.met]
     return 1 if args.strict and missed else 0
+
+
+def _migrate(args: argparse.Namespace) -> int:
+    """Upgrades the database of RISO_DB_URL (default var/riso.db)."""
+    from riso.platform import Settings
+    from riso.platform.migrations import current_revision, upgrade
+
+    url = Settings().db_url
+    before = current_revision(url)
+    upgrade(url, args.revision)
+    after = current_revision(url)
+    if before == after:
+        print(f"database at {after or 'base'}, nothing to do")
+    else:
+        print(f"migrated from {before or 'base'} to {after or 'base'}")
+    return 0
 
 
 def _shown(path: Path) -> str:
