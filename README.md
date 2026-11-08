@@ -17,6 +17,13 @@ The demo entity is Obec Boldog (IČO 00305863), with reference data for 08/2026.
 
 ## Status
 
+Phase 2 has started: a light version of the real application, built milestone by milestone on
+top of the demo. P2-M0 lays the foundation: the database and migrations, the background jobs
+worker, the app's security headers and error mapping, the React SPA shell served by
+`riso serve`, the gate script, the E2E harness and CI. Logins, code lists on the database, the
+import tool, invoices, OCR and e-invoices follow. The demo below keeps working until its pages
+are replaced.
+
 M3 is done: the web app and the feedback loop. The proposal page lays the coding out like the
 accounting software's two tabs, with a copy button on every value and line, the evidence
 behind each field, and alternatives that swap a whole line. The accountant accepts the
@@ -30,6 +37,7 @@ key right for 61.5% and the economic code for 76.9%, short of the demo targets o
 The plan lives outside this repository.
 
 ```sh
+uv run riso migrate
 uv run riso serve --port 8001       # then open http://127.0.0.1:8001
 uv run riso eval
 ```
