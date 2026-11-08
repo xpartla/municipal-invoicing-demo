@@ -1,5 +1,5 @@
-"""Command line: riso ingest | check | export-schemas | reset | serve | code | eval | migrate |
-worker."""
+"""Command line: riso ingest | check | export-schemas | export-openapi | reset | serve | code |
+eval | migrate | worker."""
 
 import argparse
 import sys
@@ -30,6 +30,12 @@ def main(argv: list[str] | None = None) -> int:
     schemas = commands.add_parser("export-schemas", help="write the contracts as JSON Schema")
     schemas.add_argument("--out", type=Path, default=paths.SCHEMAS_DIR)
     schemas.add_argument("--check", action="store_true", help="only report stale files")
+
+    openapi = commands.add_parser(
+        "export-openapi", help="write the API's OpenAPI document for the frontend client"
+    )
+    openapi.add_argument("--out", type=Path, default=None, help="default frontend/openapi.json")
+    openapi.add_argument("--check", action="store_true", help="only report a stale file")
 
     commands.add_parser("reset", help="restore the runtime state from data/initial_state")
 
@@ -73,6 +79,7 @@ def main(argv: list[str] | None = None) -> int:
         "ingest": _ingest,
         "check": _check,
         "export-schemas": _export_schemas,
+        "export-openapi": _export_openapi,
         "reset": _reset,
         "serve": _serve,
         "code": _code,
@@ -132,6 +139,23 @@ def _export_schemas(args: argparse.Namespace) -> int:
     return 0
 
 
+def _export_openapi(args: argparse.Namespace) -> int:
+    from riso.api.openapi import OPENAPI_FILE, openapi_json
+
+    out: Path = args.out or OPENAPI_FILE
+    text = openapi_json()
+    if args.check:
+        current = out.read_text(encoding="utf-8") if out.is_file() else None
+        if current != text:
+            print(f"stale  {_shown(out)}; run `riso export-openapi`")
+            return 1
+        return 0
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(text, encoding="utf-8")
+    print(f"wrote {_shown(out)}")
+    return 0
+
+
 def _reset(args: argparse.Namespace) -> int:
     from riso.store import StateStore
 
@@ -145,7 +169,7 @@ def _serve(args: argparse.Namespace) -> int:
     import uvicorn
 
     uvicorn.run(
-        "riso.api.app:create_app",
+        "riso.api.app:create_served_app",
         factory=True,
         host=args.host,
         port=args.port,

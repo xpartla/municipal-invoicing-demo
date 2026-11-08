@@ -11,5 +11,8 @@ dist/
 # Runtime state; `riso reset` rebuilds it from data/initial_state
 var/
 
+# The built SPA (`pnpm build` in frontend/); `riso serve` serves it
+riso/web/dist/
+
 # Windows download markers
 *:Zone.Identifier

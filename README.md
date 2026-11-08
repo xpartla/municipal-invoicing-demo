@@ -41,8 +41,14 @@ Requires [uv](https://docs.astral.sh/uv/) and Python 3.12 or later.
 ```sh
 uv sync                    # the project and its dev tools (mypy, import-linter, ...)
 scripts/check.sh fast
+uv run riso migrate        # create or upgrade var/riso.db
 uv run riso serve          # http://127.0.0.1:8000
 ```
+
+`riso serve` refuses to start on a database that is not migrated. It runs the jobs worker in a
+thread. When the SPA has been built into `riso/web/dist/`, it serves the SPA at `/` and at
+every client route; the demo pages keep their paths, with the invoice picker at `/index.html`.
+Without a built SPA it serves the demo pages at `/` as before.
 
 The end-to-end click-through drives the four pages in a headless browser; it starts its own
 server with empty state. Playwright is not a project dependency:
@@ -79,9 +85,10 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 |---|---|
 | `riso ingest` | Builds `data/bundles/<IČO>/<period>.json` from the Excel exports in `../data` (or `--raw`, or `RISO_RAW_DIR`) |
 | `riso check` | Checks the committed data against the dictionaries: entity settings, supplier memory, counters, the knowledge base, every dataset case, schema drift |
+| `riso export-openapi` | Writes the API's OpenAPI document to `frontend/openapi.json`, which the frontend client is generated from; `--check` only reports a stale file |
 | `riso export-schemas` | Writes the contracts as JSON Schema to `schemas/`; `--check` only reports stale files |
 | `riso reset` | Restores the runtime state in `var/` from `data/initial_state/` |
-| `riso serve` | Runs the API and the pages |
+| `riso serve` | Runs the API, the pages and the jobs worker; needs `riso migrate` first |
 | `riso code <file>…` | Codes InvoiceDocuments or dataset cases and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
@@ -125,6 +132,14 @@ uv run alembic upgrade head
 | `GET /api/eval` | The latest EvalReport of `riso eval` (`?split=`, default `heldout`); runs it when there is none, or with `?refresh=true` |
 
 The interactive documentation is at `/docs` while the server runs.
+
+Every response carries an `X-Request-ID` (the client's, when it sends a well-formed one) and
+the security headers: a Content-Security-Policy without inline or evaluated scripts (the demo
+pages, which use Alpine.js, get `'unsafe-eval'` until they are replaced), `nosniff`, frame
+denial and `Referrer-Policy: same-origin`. API responses are `Cache-Control: no-store`. Errors
+are JSON: 404, 403, 409 with `{detail, code}`, 422 with a list of `{loc, msg, type}` like
+FastAPI's own validation errors, and an unknown `/api` path is a JSON 404. Every API route is
+named and listed in `riso/api/permissions_matrix.py`; a test fails for a route without an entry.
 
 ## Layout
 
