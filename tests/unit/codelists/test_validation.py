@@ -102,7 +102,6 @@ def test_a_valid_budget_has_no_findings():
         ("632005", True),
         ("632001", True),
         ("611000", True),  # položka 611 has no podpoložky
-        ("632000", False),  # položka 632 has podpoložky; one of them is needed
         ("632009", False),
         ("630000", False),  # a category, not a položka
         ("600000", False),
@@ -175,11 +174,53 @@ def test_an_account_outside_the_framework_chart_is_a_warning():
     assert not has_errors(findings)
 
 
-def test_only_synthetic_accounts_count_in_the_framework_chart():
-    version = _version(ListKind.ACCOUNTS, [AccountEntry("051", "000", "active")])
-    lists = GlobalLists.of(2026, GLOBAL)
-    assert "51" not in (lists.framework_accounts or ())
-    assert len(validate_list(version, lists)) == 1
+def test_a_polozka_with_podpolozky_written_with_000_is_a_warning():
+    version = _version(ListKind.BUDGET_EXPENSE, [_position(ek="632000")])
+    findings = validate_list(version, LISTS)
+    assert _codes(findings) == [
+        (FindingCode.EK_NOT_DETAILED, Severity.WARNING, "632000 41 01 110 000", "632000")
+    ]
+    assert not has_errors(findings)
+    assert "names a položka that has podpoložky" in findings[0].message
+
+
+OPEN_CHART = {
+    **GLOBAL,
+    ListKind.FRAMEWORK_ACCOUNTS: _version(
+        ListKind.FRAMEWORK_ACCOUNTS,
+        [
+            FrameworkAccountEntry("0", "Dlhodobý majetok"),
+            FrameworkAccountEntry("04", "Obstaranie dlhodobého majetku"),
+            FrameworkAccountEntry("042", "Obstaranie DHM"),
+            FrameworkAccountEntry("5", "Náklady"),
+            FrameworkAccountEntry("51", "Služby"),
+            FrameworkAccountEntry("518", "Ostatné služby"),
+            FrameworkAccountEntry("7", "Uzávierkové a podsúvahové účty"),
+            FrameworkAccountEntry("75", "Podsúvahové účty"),
+            FrameworkAccountEntry("8", "Vnútroorganizačné účtovníctvo"),
+        ],
+        customer_id=None,
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    ("su", "known"),
+    [
+        ("518", True),
+        ("042", True),
+        ("519", False),  # group 51 lists its accounts
+        ("051", False),  # no group 05
+        ("757", True),  # group 75 is left to the entity
+        ("899", True),  # so is class 8
+        ("761", False),  # class 7 has groups, and 76 is not one
+        ("999", False),
+    ],
+)
+def test_a_class_or_group_without_accounts_admits_any_account(su, known):
+    lists = GlobalLists.of(2026, OPEN_CHART)
+    version = _version(ListKind.ACCOUNTS, [AccountEntry(su, "000", "cost")])
+    assert (validate_list(version, lists) == []) is known
 
 
 def test_inactive_rows_are_not_checked():

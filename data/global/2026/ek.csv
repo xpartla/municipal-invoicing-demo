@@ -1,0 +1,692 @@
+code,name
+100,Daňové príjmy
+110,Dane z príjmov a kapitálového majetku
+111,Daň z príjmov fyzickej osoby
+111001,Zo závislej činnosti
+111002,"Z podnikania, z inej samostatnej zárobkovej činnosti a z prenájmu"
+111003,Výnos dane z príjmov poukázaný územnej samospráve
+111004,Prevod podielu dane z príjmov fyzických osôb na osobitný účel
+111005,Prevod podielu dane z príjmov fyzických osôb pre rodičov daňovníkov
+112,Daň z príjmov právnickej osoby
+112001,Prevod podielu dane z príjmov právnických osôb na osobitný účel
+112003,Daň z príjmov právnickej osoby
+112004,Dorovnávacia daň
+113,Daň z príjmov vyberaná zrážkou
+120,Dane z majetku
+121,Daň z nehnuteľností
+121001,Z pozemkov
+121002,Zo stavieb
+121003,Z bytov a nebytových priestorov v bytovom dome
+122,Dane z dedičstva a darovania
+123,Dane z finančných a kapitálových transakcií
+123001,Z prevodu a prechodu nehnuteľností
+129,Ďalšie dane z majetku
+130,Dane za tovary a služby
+131,Daň z pridanej hodnoty
+132,Spotrebné dane
+132001,Z minerálneho oleja
+132003,Z liehu
+132005,Z piva
+132007,Z vína
+132009,Z tabakových výrobkov
+132011,Z elektriny
+132012,Z uhlia
+132013,Zo zemného plynu
+132014,Zo sladených nealkoholických nápojov
+133,Dane za špecifické služby
+133001,Za psa
+133003,Za nevýherné hracie prístroje
+133004,Za predajné automaty
+133005,Za vjazd a zotrvanie motorového vozidla v historickej časti mesta
+133006,Za ubytovanie
+133012,Za užívanie verejného priestranstva
+133013,Za komunálne odpady a drobné stavebné odpady
+133014,Za jadrové zariadenia
+133015,Za rozvoj
+134,Dane z používania tovarov a z povolenia na výkon činnosti
+134001,Z úhrad za dobývací priestor
+134002,Z motorových vozidiel
+134004,Z úhrad za uskladňovanie plynov alebo kvapalín
+139,Iné dane za tovary a služby
+139001,Úhrada za služby verejnosti poskytované Rozhlasom a televíziou Slovenska
+139002,Zo zrušených miestnych poplatkov
+139003,Odvod časti poistného z odvetví neživotného poistenia
+139004,Daň z poistenia
+139005,Daň z finančných transakcií
+140,Dane z medzinárodného obchodu a transakcií
+141,Dovozné clo
+142,Dovozná prirážka
+143,Podiel na vybratých finančných prostriedkoch
+149,Ostatné colné príjmy
+150,Poistné
+151,Poistné na nemocenské poistenie
+151001,Zamestnanci
+151002,Samostatne zárobkovo činné osoby
+151004,Zamestnávatelia
+151007,Dlžné poistné
+151008,Dobrovoľní platitelia
+152,Poistné na starobné poistenie
+152001,Zamestnanci
+152002,Samostatne zárobkovo činné osoby
+152004,Zamestnávatelia
+152005,Štát
+152006,Sociálna poisťovňa
+152008,Dlžné poistné
+152009,Dobrovoľní platitelia
+153,Poistné na úrazové poistenie
+153001,Zamestnávatelia
+153002,Dlžné poistné
+154,Poistné na zdravotné poistenie
+154001,Zamestnanci
+154002,Samostatne zárobkovo činné osoby
+154004,Zamestnávatelia
+154005,Štát
+154009,Iní platitelia
+154010,Prídel z prerozdeľovania poistného na verejné zdravotné poistenie
+154011,Dlžné poistné
+155,Poistné na poistenie v nezamestnanosti
+155001,Zamestnanci
+155003,Zamestnávatelia
+155004,Dobrovoľní platitelia
+155005,Dlžné poistné
+156,Poistné na garančné poistenie
+156001,Zamestnávatelia
+156003,Dlžné poistné
+157,Poistné do rezervného fondu solidarity
+157001,Zamestnávatelia
+157002,Samostatne zárobkovo činné osoby
+157003,Dobrovoľní platitelia
+157004,Dlžné poistné
+157005,Štát
+158,Poistné na invalidné poistenie
+158001,Zamestnanci
+158002,Zamestnávatelia
+158003,Samostatne zárobkovo činné osoby
+158004,Dobrovoľní platitelia
+158005,Štát
+158006,Dlžné poistné
+160,Sankcie uložené v daňovom konaní a iné vybrané sankcie
+170,Sankcie súvisiace so zdravotným poistením a sociálnym poistením
+190,Iné dane
+191,Daň z emisných kvót
+192,Osobitný odvod vybraných finančných inštitúcií
+193,Odplata za postúpenú pohľadávku na poistnom a daňovú pohľadávku
+194,Osobitný odvod z podnikania v regulovaných odvetviach
+195,Príspevok na financovanie riešenia krízových situácií
+196,Odvod obchodných reťazcov
+197,Ďalšie iné dane
+200,Nedaňové príjmy
+210,Príjmy z podnikania a z vlastníctva majetku
+211,Príjmy z podnikania
+211003,Dividendy a odvod zo zisku od subjektov nezaradených vo verejnej správe
+211004,Iné príjmy z podnikania
+211005,Dividendy a odvod zo zisku od subjektov zaradených vo verejnej správe
+212,Príjmy z vlastníctva
+212001,Z úhrad za vydobyté nerasty
+212002,Z prenajatých pozemkov
+212003,"Z prenajatých budov, priestorov a objektov"
+212004,"Z prenajatých strojov, prístrojov, zariadení, techniky a náradia"
+212008,Z úhrad za využívanie prírodných liečivých zdrojov a prírodných zdrojov minerálnych vôd
+212009,Z úhrad za nakladanie so zdrojmi ionizujúceho žiarenia
+220,Administratívne poplatky a iné poplatky a platby
+221,Administratívne poplatky
+221001,Súdne poplatky
+221002,Správne poplatky
+221003,Puncové poplatky
+221004,Ostatné poplatky
+221005,Licencie
+222,"Pokuty, penále a iné sankcie"
+222001,Za porušenie finančnej disciplíny
+222002,Z účtov Európskej únie
+222003,Za porušenie predpisov
+223,Poplatky a platby z nepriemyselného a náhodného predaja a služieb
+223001,"Za predaj výrobkov, tovarov a služieb"
+223002,Za školy a školské zariadenia
+223003,Za stravné
+223004,Za prebytočný hnuteľný majetok
+229,Ďalšie administratívne poplatky a iné poplatky a platby
+229001,Za vypúšťanie odpadových vôd do povrchových vôd
+229002,Za odber podzemnej vody
+229005,Za znečisťovanie ovzdušia
+229006,Za obchodovanie s emisnými kvótami
+230,Kapitálové príjmy
+231,Príjem z predaja kapitálových aktív
+232,Príjem z predaja hmotných rezerv a mobilizačných rezerv
+233,Príjem z predaja pozemkov a nehmotných aktív
+233001,Z predaja pozemkov
+233002,Z predaja nehmotných aktív
+239,Ďalšie kapitálové príjmy
+239001,Zo združených investičných prostriedkov
+239002,Z vratiek
+239200,Ostatné
+240,"Úroky z tuzemských úverov, pôžičiek, návratných finančných výpomocí, vkladov a ážio"
+241,Z úverov a pôžičiek
+242,Z vkladov
+243,Z účtov finančného hospodárenia
+244,Z termínovaných vkladov
+245,Z návratných finančných výpomocí
+246,Ostatné platby
+250,"Úroky zo zahraničných úverov, pôžičiek, návratných finančných výpomocí a vkladov"
+251,Z úverov a pôžičiek
+252,Z vkladov
+290,Iné nedaňové príjmy
+291,Vrátené neoprávnene použité alebo zadržané finančné prostriedky
+291001,Od neziskovej organizácie poskytujúcej všeobecne prospešné služby
+291002,Od rozpočtovej organizácie a príspevkovej organizácie
+291003,Od ostatných neziskových právnických osôb
+291004,Od fyzickej osoby
+291005,Nezrovnalosti a iné vratky za prostriedky Európskej únie zaradené do štátneho rozpočtu a za prostriedky spolufinancovania
+291006,Od obce a vyššieho územného celku
+291007,Od nefinančnej právnickej osoby
+291008,Od ostatných subjektov verejnej správy
+292,Ostatné príjmy
+292006,Z náhrad z poistného plnenia
+292008,Z odvodov z hazardných hier a iných podobných hier
+292009,Z odvodu
+292012,Z dobropisov
+292017,Z vratiek
+292019,Z refundácie
+292021,Z kurzových rozdielov
+292022,Z príspevkov do Fondu ochrany vkladov a Garančného fondu investícií
+292023,Z príspevkov prevádzkovateľa hazardnej hry
+292027,Iné
+300,Grant y a transfery
+310,Tuzemské bežné granty a transfery
+311,Granty
+312,Transfery v rámci verejnej správy
+312001,Zo štátneho rozpočtu okrem transferu na úhradu nákladov preneseného výkonu štátnej správy
+312002,Zo štátneho účelového fondu
+312003,Zo zdravotných poisťovní
+312005,Od právneho nástupcu Fondu národného majetku Slovenskej republiky
+312006,Zo Slovenského pozemkového fondu
+312007,Z rozpočtu obce
+312008,Z rozpočtu vyššieho územného celku
+312009,Zo Sociálnej poisťovne
+312010,Zo štátnych finančných aktív
+312011,Od ostatných subjektov verejnej správy
+312012,Zo štátneho rozpočtu na úhradu nákladov preneseného výkonu štátnej správy
+315,Transfery od subjektov nezaradených vo verejnej správe v registri organizácií vedenom Štatistickým úradom Slovenskej republiky
+320,Tuzemské kapitálové granty a transfery
+321,Granty
+322,Transfery v rámci verejnej správy
+322001,Zo štátneho rozpočtu
+322002,Zo štátneho účelového fondu
+322003,Zo zdravotných poisťovní
+322004,Od právneho nástupcu Fondu národného majetku Slovenskej republiky
+322005,Z rozpočtu obce
+322006,Z rozpočtu vyššieho územného celku
+322007,Zo štátnych finančných aktív
+322008,Od ostatných subjektov verejnej správy
+325,Transfery od subjektov nezaradených vo verejnej správe v registri organizácií vedenom Štatistickým úradom Slovenskej republiky
+330,Zahraničné granty
+331,Bežné
+331001,Od zahraničného subjektu iného ako medzinárodná organizácia
+331002,Od medzinárodnej organizácie
+332,Kapitálové
+332001,Od zahraničného subjektu iného ako medzinárodná organizácia
+332002,Od medzinárodnej organizácie
+340,Zahraničné transfery
+341,Prostriedky z rozpočtu Európskej únie
+600,Bežné výdavky
+610,"Mzdy, platy, služobné príjmy a ostatné osobné vyrovnania"
+611,"Tarifný plat, osobný plat, základný plat, funkčný plat, hodnostný plat, plat, vrátane ich náhrad"
+612,Príplatky
+612001,Osobný príplatok
+612002,Ostatné príplatky okrem osobných príplatkov
+613,"Náhrada za pracovnú pohotovosť, služobnú pohotovosť a náhrada, odmena za pohotovosť"
+614,Odmeny
+615,Ostatné osobné vyrovnania
+616,Doplatok k platu a ďalší plat
+620,Poistné a príspevok do poisťovní
+621,Poistné do Všeobecnej zdravotnej poisťovne
+623,Poistné do ostatných zdravotných poisťovní
+625,Poistné do Sociálnej poisťovne
+625001,Na nemocenské poistenie
+625002,Na starobné poistenie
+625003,Na úrazové poistenie
+625004,Na invalidné poistenie
+625005,Na poistenie v nezamestnanosti
+625006,Na garančné poistenie
+625007,Na poistenie do rezervného fondu solidarity
+627,Príspevok na doplnkové dôchodkové sporenie
+628,Poistné na osobitné účty
+628001,Na nemocenské zabezpečenie
+628002,Na výsluhový dôchodok
+628003,Na úrazové zabezpečenie
+628004,Na invalidný výsluhový dôchodok
+628005,Na výsluhový príspevok
+629,Príspevok na starobné dôchodkové sporenie
+630,Tovary a služby
+631,Cestovné náhrady
+631001,Tuzemské
+631002,Zahraničné
+631003,Pri dočasnom pridelení na výkon práce a pri vzniku pracovného pomeru
+631004,Cestovné náhrady vlastným zamestnancom
+632,"Energie, voda a komunikácie"
+632001,Ostatné energie
+632002,"Vodné, stočné"
+632003,Poštové služby
+632004,Komunikačná infraštruktúra
+632005,Telekomunikačné služby
+632006,Elektrina
+632007,Plyn
+632008,Teplo
+633,Materiál
+633001,Interiérové vybavenie
+633002,Výpočtová technika
+633003,Telekomunikačná technika
+633004,"Prevádzkové stroje, prístroje, zariadenie, technika a náradie"
+633005,"Špeciálne stroje, prístroje, zariadenie, technika a náradie"
+633006,Všeobecný materiál
+633007,Špeciálny materiál
+633008,Krv a krvné výrobky
+633009,"Knihy, časopisy, noviny, učebnice, učebné pomôcky a kompenzačné pomôcky"
+633010,"Pracovné odevy, obuv a pracovné pomôcky"
+633011,Potraviny
+633012,Osobná spotreba dieťaťa
+633013,Softvér
+633015,Palivá ako zdroj energie
+633016,Reprezentačné
+633017,Intervenčné zásoby
+633018,Licencie
+633019,Komunikačná infraštruktúra
+633200,Ostatný
+634,Dopravné
+634001,"Palivo, mazivá, oleje, špeciálne kvapaliny"
+634002,"Servis, údržba, opravy a výdavky s tým spojené"
+634003,Poistenie
+634004,Prepravné a nájom dopravných prostriedkov
+634005,"Karty, známky, poplatky"
+634006,"Pracovné odevy, obuv a pracovné pomôcky"
+635,Rutinná a štandardná údržba
+635001,Interiérového vybavenia
+635002,Výpočtovej techniky
+635003,Telekomunikačnej techniky
+635004,"Prevádzkových strojov, prístrojov, zariadení, techniky a náradia"
+635005,"Špeciálnych strojov, prístrojov, zariadení, techniky a náradia"
+635006,"Budov, objektov alebo ich častí"
+635007,"Pracovných odevov, obuvi a pracovných pomôcok"
+635008,"Kníh, učebných pomôcok a kompenzačných pomôcok"
+635009,Unikátneho softvéru
+635010,Komunikačnej infraštruktúry
+635011,Špecializovaného konfigurovateľného softvéru a krabicového softvéru
+635200,Ostatného
+636,Nájomné za nájom
+636001,"Budov, objektov alebo ich častí"
+636002,"Prevádzkových strojov, prístrojov, zariadení, techniky a náradia"
+636003,"Špeciálnych strojov, prístrojov, zariadení, techniky, náradia a materiálu"
+636004,Dopravných prostriedkov
+636005,Zo zmluvy o nájme veci s právom kúpy prenajatej veci
+636006,Výpočtovej techniky
+636007,Softvéru
+636008,Komunikačnej infraštruktúry
+637,Služby
+637001,"Školenia, kurzy, semináre, porady, konferencie, sympóziá"
+637002,Konkurzy a súťaže
+637003,"Propagácia, reklama a inzercia"
+637004,Všeobecné služby
+637005,Špeciálne služby
+637006,Náhrady
+637007,Cestovné náhrady
+637008,Náhrada nákladov hospodárskej mobilizácie a intervenčných zásob
+637009,Náhrada mzdy a platu
+637010,Na úlohy výskumu a vývoja
+637011,"Štúdie, expertízy, posudky"
+637012,Poplatky a odvody
+637013,Naturálne mzdy
+637014,Stravovanie
+637015,Poistné
+637016,Prídel do sociálneho fondu
+637017,Provízia
+637018,Vrátenie príjmov z minulých rokov
+637019,Register obnovenej evidencie pozemkov
+637020,Finančné zúčtovanie
+637021,Refundácie
+637022,Osobitné finančné prostriedky
+637024,Vyrovnanie kurzových rozdielov
+637025,Nezrovnalosti
+637026,Odmeny a príspevky
+637027,Odmeny zamestnancov mimopracovného pomeru
+637028,Odstúpenie od kúpnych zmlúv
+637029,Manká a škody
+637030,Preddavky
+637031,Pokuty a penále
+637032,Mylné platby
+637033,Platby štátnej rozpočtovej organizácii na projekty Európskej únie
+637034,Zdravotníckym zariadeniam
+637035,Dane
+637036,Reprezentačné výdavky
+637037,Vratky
+637038,Nezrovnalosti a iné vratky za prostriedky Európskej únie zaradené do štátneho rozpočtu a za prostriedky spolufinancovania
+637039,Nezrovnalosti za prostriedky Európskej únie zaradené do štátneho rozpočtu nezatriedené v podpoložke 637038
+637040,Služby v oblasti informačno-komunikačných technológií
+637041,Náhrada za zadržanie nadmerného odpočtu dane z pridanej hodnoty
+637042,Garantované energetické služby
+637043,Platby za dostupnosť
+637044,Daň z pridanej hodnoty
+637045,Dividendy a odvod zo zisku
+637200,Ostatné
+640,Bežné transfery
+641,Transfery v rámci verejnej správy
+641001,Štátnej príspevkovej organizácii
+641002,Štátnemu účelovému fondu
+641003,Sociálnej poisťovni a zdravotným poisťovniam
+641006,Štátnej rozpočtovej organizácii
+641008,Verejnej vysokej škole
+641009,Obci okrem transferu na úhradu nákladov preneseného výkonu štátnej správy
+641010,Vyššiemu územnému celku okrem transferu na úhradu nákladov preneseného výkonu štátnej správy
+641011,Právnemu nástupcovi Fondu národného majetku Slovenskej republiky
+641012,Ostatným subjektom verejnej správy
+641013,Obci na úhradu nákladov preneseného výkonu štátnej správy
+641014,Vyššiemu územnému celku na úhradu nákladov preneseného výkonu štátnej správy
+641015,Dopravným podnikom
+641016,"Národnej diaľničnej spoločnosti, a. s."
+641017,Železniciam Slovenskej republiky
+641018,"Železničnej spoločnosti Slovensko, a. s."
+641019,"Jadrovej a vyraďovacej spoločnosti, a. s."
+641020,Verejnej výskumnej inštitúcii
+641021,Príspevkovej organizácii obce
+641022,Príspevkovej organizácii vyššieho územného celku
+641023,"Spoločnosti Slovak Investment Holding, a. s."
+641024,Zdravotníckemu zariadeniu zaradenému v ústrednej správe
+641025,Zdravotníckemu zariadeniu zaradenému v územnej samospráve
+642,Transfery jednotlivcom a neziskovým právnickým osobám
+642001,"Občianskemu združeniu, nadácii a neinvestičnému fondu"
+642002,Neziskovej organizácii poskytujúcej všeobecne prospešné služby
+642004,Cirkevnej škole
+642005,Súkromnej škole
+642006,Na členské príspevky
+642007,"Cirkvi, náboženskej spoločnosti a cirkevnej charite"
+642008,Na príspevok na osobitný účet
+642009,Nefinančnej právnickej osobe
+642010,Politickej strane a politickému hnutiu
+642011,Odborovej organizácii
+642012,Na odstupné
+642013,Na odchodné
+642014,Jednotlivcovi
+642015,Na nemocenské dávky
+642016,Na dôchodkové dávky zo starobného poistenia
+642017,Na úrazové dávky
+642018,Na ostatné dávky poskytované štátom
+642019,Na prídavok na dieťa
+642020,Na dôchodkové dávky z invalidného poistenia
+642022,Na príspevok pri narodení dieťaťa
+642023,Na príspevok na pohreb
+642024,Na príspevky na podporu náhradnej starostlivosti o dieťa
+642026,Na dávku v hmotnej núdzi a príspevky k dávke
+642027,Na peňažné príspevky na kompenzáciu
+642028,Na úmrtné
+642029,Na náhradu
+642030,Príplatky a príspevky
+642031,Na platené poistné za skupiny osôb ustanovené zákonom
+642032,Na aktívne opatrenia trhu práce
+642033,Dávka v nezamestnanosti
+642035,Na peňažné náležitosti v ozbrojených silách a ozbrojených zboroch
+642036,Na štipendiá
+642037,Na náhradné výživné
+642038,Na príplatok k prídavku na dieťa
+642039,Na príplatok k príspevku pri narodení dieťaťa
+642040,"Na príspevok rodičom, ktorým sa súčasne narodili tri deti alebo viac detí alebo ktorým sa v priebehu dvoch rokov opakovane narodili dvojčatá alebo viac detí súčasne"
+642041,Na rodičovský príspevok
+642042,Ostatné sociálne dávky
+642200,Ostatné
+644,Transfery nefinančným subjektom
+644001,"Právnickej osobe založenej štátom, obcou alebo vyšším územným celkom"
+644002,Ostatnej právnickej osobe
+644003,Fyzickej osobe - podnikateľovi
+645,Náklady na likvidáciu štátnych podnikov a akciových spoločností
+646,Náklady spojené s ručením za sprivatizovaný majetok a prevádzaný majetok
+647,Transfery do tuzemských finančných inštitúcií
+647001,Na úhradu majetkovej ujmy
+647002,Na služby súvisiace so štátnymi zárukami
+647003,Na hospodársku mobilizáciu
+647004,Na podporu zahraničných investícií a exportu
+647005,Na úhradu výdavkov na činnosť Kancelárie Rady pre rozpočtovú zodpovednosť
+647006,Na implementáciu finančných nástrojov
+649,Transfery do zahraničia
+649001,Zahraničnej vláde
+649002,Jednotlivcovi a právnickej osobe inej ako medzinárodná organizácia
+649003,Medzinárodnej organizácii
+649005,Odvody do rozpočtu Európskej únie
+650,"Splácanie úrokov a ostatné platby súvisiace s úverom, pôžičkou, návratnou finančnou výpomocou a finančným prenájmom"
+651,Splácanie úrokov v tuzemsku
+651001,Národnej banke Slovenska
+651002,Banke a pobočke zahraničnej banky
+651003,Subjektu verejnej správy
+651004,Ostatnému veriteľovi
+651005,Štátnej pokladnici
+652,Splácanie úrokov do zahraničia
+652001,Zahraničnej vláde
+652002,Zahraničnej finančnej inštitúcii
+652003,Z dodávateľského úveru
+652004,Medzinárodnej organizácii
+653,"Ostatné platby súvisiace s úverom, pôžičkou, návratnou finančnou výpomocou a finančným prenájmom"
+653001,Manipulačné poplatky
+653002,Provízie
+653003,Disážio
+653004,Poistné na zabezpečenie finančných operácií
+700,Kapitálové výdavky
+710,Obstarávanie kapitálových aktív
+711,Nákup pozemkov a nehmotných aktív
+711001,Pozemkov
+711002,Lesov
+711003,Softvéru
+711004,Licencií
+711005,Ostatných nehmotných aktív
+712,"Nákup budov, objektov alebo ich častí"
+712001,"Budov, objektov alebo ich častí"
+712002,Budov alebo objektov určených na likvidáciu
+713,"Nákup strojov, prístrojov, zariadení, techniky a náradia"
+713001,Interiérového vybavenia
+713002,Výpočtovej techniky
+713003,Telekomunikačnej techniky
+713004,"Prevádzkových strojov, prístrojov, zariadení, techniky a náradia"
+713005,"Špeciálnych strojov, prístrojov, zariadení, techniky, náradia a materiálu"
+713006,Komunikačnej infraštruktúry
+714,Nákup dopravných prostriedkov všetkých druhov
+714001,Osobných automobilov
+714002,Autobusov
+714003,"Motocyklov, člnov, trojkoliek, štvorkoliek"
+714004,"Nákladných vozidiel, ťahačov, prípojných vozidiel, dopravných pracovných strojov, traktorov"
+714005,Špeciálnych automobilov
+714006,"Dopravných lietadiel, vrtuľníkov"
+714007,Iných dopravných prostriedkov
+716,Prípravná a projektová dokumentácia
+717,Realizácia stavieb a ich technického zhodnotenia
+717001,Realizácia nových stavieb
+717002,Rekonštrukcia a modernizácia
+717003,"Prístavby, nadstavby, stavebné úpravy"
+718,Rekonštrukcia a modernizácia
+718002,Výpočtovej techniky
+718003,Telekomunikačnej techniky
+718004,"Prevádzkových strojov, prístrojov, zariadení, techniky a náradia"
+718005,"Špeciálnych strojov, prístrojov, zariadení, techniky a náradia"
+718006,Softvéru
+718007,Komunikačnej infraštruktúry
+719,Ostatné kapitálové výdavky
+719001,Na združené prostriedky na investície
+719002,Na nákup umeleckých diel a zbierok
+719004,Na doplnenie a tvorbu hmotných rezerv a mobilizačných rezerv
+719012,Na osobitné finančné prostriedky
+719013,Na nákup zvierat základného stáda
+719014,Vratky
+719015,Platby štátnej rozpočtovej organizácii na projekty Európskej únie
+719200,Ostatné
+720,Kapitálové transfery
+721,Transfery v rámci verejnej správy
+721001,Štátnej príspevkovej organizácii
+721002,Štátnej rozpočtovej organizácii
+721003,Verejnej vysokej škole
+721004,Slovenskému pozemkovému fondu
+721005,Štátnemu účelovému fondu
+721006,Obci
+721007,Vyššiemu územnému celku
+721008,Právnemu nástupcovi Fondu národného majetku Slovenskej republiky
+721009,Ostatným subjektom verejnej správy
+721010,Dopravným podnikom
+721011,"Národnej diaľničnej spoločnosti, a. s"
+721012,Železniciam Slovenskej republiky
+721013,"Železničnej spoločnosti Slovensko, a. s."
+721014,"Jadrovej a vyraďovacej spoločnosti, a. s."
+721015,Verejnej výskumnej inštitúcii
+721016,Príspevkovej organizácii obce
+721017,Príspevkovej organizácii vyššieho územného celku
+721018,"Spoločnosti Slovak Investment Holding, a. s."
+721019,Zdravotníckemu zariadeniu zaradenému v ústrednej správe
+721020,Zdravotníckemu zariadeniu zaradenému v územnej samospráve
+722,Transfery jednotlivcom a neziskovým právnickým osobám
+722001,"Občianskemu združeniu, nadácii a neinvestičnému fondu"
+722002,Cirkvi
+722003,Neziskovej právnickej osobe nezaradenej v podpoložke 722001 a podpoložke 722002
+722004,Jednotlivcovi
+723001,"Právnickej osobe založenej štátom, obcou alebo vyšším územným celkom"
+723002,Ostatnej právnickej osobe nezaradenej v podpoložke 723001
+723003,Fyzickej osobe - podnikateľovi
+723004,Na realizovanú záruku
+725,Transfery do zahraničia
+725001,Jednotlivcovi a právnickej osobe inej ako medzinárodná organizácia
+725002,Medzinárodnej organizácii
+725003,Zahraničnej vláde
+726,Transfery finančným inštitúciám
+726001,Na úhradu výdavkov na činnosť Kancelárie Rady pre rozpočtovú zodpovednosť
+726002,Ostatným finančným inštitúciám
+726003,Na realizovanú záruku
+400,Príjm y z transakcií s finančnými aktívami a finančnými pasívami
+410,"Zo splátok tuzemských úverov, pôžičiek a návratných finančných výpomocí (len istín)"
+411,Od úverovaných subjektov
+411001,Od verejnoprávnej inštitúcie a zdravotnej poisťovne
+411002,Od štátneho účelového fondu
+411003,Od obce
+411004,Od vyššieho územného celku
+411005,Od fyzickej osoby
+411006,Od neziskovej právnickej osoby
+411007,Od nefinančného subjektu
+411008,Od zamestnávateľov z garančného poistenia
+411009,Od ostatných úverovaných subjektov
+411010,Od Ministerstva financií Slovenskej republiky
+420,"Zo splátok zahraničných úverov, pôžičiek a návratných finančných výpomocí (len istín)"
+421,Od zahraničnej vlády
+429,Od ostatných subjektov
+430,Z predaja majetkových účastí
+431,Právnickej osoby
+432,Právnickej osoby so zahraničnou účasťou
+440,Z predaja privatizovaného majetku a prevádzaného majetku
+441,Zo zmlúv uzatvorených v minulých rokoch
+442,Zo zmlúv uzatvorených v bežnom roku
+450,Z ostatných finančných operácií
+451,Z realizácie ostatného finančného majetku
+452,"Z konkurzu, likvidácie a exekúcie"
+453,Prostriedky z predchádzajúcich rokov
+454,Prevod prostriedkov z peňažných fondov
+454001,Z rezervného fondu obce a z rezervného fondu vyššieho územného celku
+454002,Z ostatných fondov obce a z ostatných fondov vyššieho územného celku
+454003,Z peňažných fondov subjektu iného ako obec a vyšší územný celok
+455,Odplata za postúpenú pohľadávku
+456,Iné príjmové finančné operácie
+456001,Vklady do základného imania
+456002,Prijaté finančné zábezpeky
+456003,Kurzové rozdiely
+456004,Príjmové finančné operácie súvisiace s medzibankovými transakciami a klientskymi transakciami
+456005,Ostatné príjmové finančné operácie
+456006,Príjmové finančné operácie súvisiace so znížením základného imania
+456007,Príjmové finančné operácie súvisiace s vrátením finančných zábezpek zo záruk za úvery
+500,"Prijaté úvery, pôžičky a návratné finančné výpomoci"
+510,"Tuzemské úvery, pôžičky a návratné finančné výpomoci"
+511,Zo štátnych pokladničných poukážok
+512,Z dlhopisov
+512001,Krátkodobé
+512002,Dlhodobé
+513,Bankové úvery
+513001,Krátkodobé
+513002,Dlhodobé
+513003,Kontokorentné
+514,"Ostatné úvery, pôžičky a návratné finančné výpomoci"
+514001,Krátkodobé
+514002,Dlhodobé
+515,Finančné operácie medzi Štátnou pokladnicou a Ministerstvom financií Slovenskej republiky
+520,"Zahraničné úvery, pôžičky a návratné finančné výpomoci"
+521,Od medzinárodných organizácií
+521001,Krátkodobé
+521002,Dlhodobé
+522,Od zahraničných vlád
+522001,Krátkodobé
+522002,Dlhodobé
+523,Od zahraničných finančných inštitúcií
+523001,Krátkodobé
+523002,Dlhodobé
+524,Dodávateľský úver
+524001,Krátkodobý
+524002,Dlhodobý
+525,Zo štátnych pokladničných poukážok
+526,Z dlhopisov
+526001,Krátkodobé
+526002,Dlhodobé
+529,"Ďalšie zahraničné úvery, pôžičky a návratné finančné výpomoci"
+529001,Krátkodobé
+529002,Dlhodobé
+800,Výdavky z transakcií s finančnými aktívami a finančnými pasívami
+810,"Úvery, pôžičky, návratné finančné výpomoci, účasť na majetku a ostatné výdavkové operácie"
+811,"Úvery, pôžičky a návratné finančné výpomoci v rámci verejnej správy"
+811001,Sociálnej poisťovni a zdravotným poisťovniam
+811002,Štátnemu účelovému fondu
+811003,Obci
+811004,Vyššiemu územnému celku
+811005,Ostatným subjektom verejnej správy
+811006,Ministerstvu financií Slovenskej republiky
+812,"Úvery, pôžičky a návratné finančné výpomoci jednotlivcom a neziskovým právnickým osobám"
+812001,Jednotlivcovi
+812002,Neziskovej právnickej osobe
+813,"Úvery, pôžičky a návratné finančné výpomoci nefinančným subjektom"
+813001,Z garančného poistenia
+813002,Ostatné
+814,Účasť na majetku
+814001,V tuzemsku
+814002,V zahraničí
+815,Odplata za postúpenú pohľadávku
+817,"Poskytovanie úverov, pôžičiek a návratných finančných výpomocí do zahraničia"
+818,"Úvery, pôžičky a návratné finančné výpomoci finančným inštitúciám"
+819,Iné výdavkové finančné operácie
+819001,Dlhové cenné papiere
+819002,Vrátené finančné zábezpeky
+819003,Kurzové rozdiely
+819004,Výdavkové finančné operácie súvisiace s medzibankovými transakciami a klientskymi transakciami
+819005,Ostatné výdavkové finančné operácie
+819006,Výdavkové finančné operácie súvisiace so znížením základného imania
+819007,Výdavkové finančné operácie súvisiace s poskytnutím finančných zábezpek ako záruk za úvery
+820,Splácanie istín
+821,Splácanie tuzemskej istiny
+821001,Zo štátnych pokladničných poukážok
+821002,Z dlhopisov krátkodobých
+821003,Z dlhopisov dlhodobých
+821004,Z bankových úverov krátkodobých
+821005,Z bankových úverov dlhodobých
+821006,"Z ostatných úverov, pôžičiek a návratných finančných výpomocí krátkodobých"
+821007,"Z ostatných úverov, pôžičiek a návratných finančných výpomocí dlhodobých"
+821008,Z finančných operácií medzi Štátnou pokladnicou a Ministerstvom financií Slovenskej republiky
+821009,Z dodávateľských úverov
+821010,Z kontokorentných úverov
+822,"Splácanie istiny krátkodobého úveru, pôžičky a návratnej finančnej výpomoci do zahraničia"
+822001,Zahraničnej vláde
+822002,Zahraničnej finančnej inštitúcii
+822003,Medzinárodnej organizácii
+822004,Ďalších zahraničných úverov
+822005,Dodávateľských úverov
+822006,Zo štátnych pokladničných poukážok
+822007,Z dlhopisov
+823,"Splácanie istiny dlhodobého úveru, pôžičky a návratnej finančnej výpomoci do zahraničia"
+823001,Medzinárodnej organizácii
+823002,Zahraničnej vláde
+823003,Zahraničnej finančnej inštitúcii
+823004,Dodávateľských úverov
+823005,Ďalších zahraničných úverov
+823006,Z dlhopisov
+824,Splácanie finančného prenájmu
+900,Prevody na samostatnom účte štátnej rozpočtovej organizácie
+910,Príjem z prevodu na bežné výdavky
+911,"Príjem z prevodu na mzdy, platy, služobné príjmy a ostatné osobné vyrovnania za december"
+912,Príjem z prevodu na poistné a na príspevok do poisťovní za december
+913,Príjem z prevodu na tovary a služby
+914,Príjem z prevodu na bežné transfery
+920,Príjem z prevodu na obstarávanie kapitálových aktív a z prevodu na kapitálové transfery
+930,Príjmová prevodová finančná operácia
+940,Výdavková prevodová finančná operácia

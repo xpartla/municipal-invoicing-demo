@@ -8,6 +8,8 @@ It creates:
 - the made-up provider "Účtovníctvo Vzor, s.r.o.", to which Boldog is assigned;
 - a second, made-up municipality assigned to the provider, so staff can switch customers;
 - a third, made-up municipality with no provider, for the isolation checks;
+- version 1 of each global list (EK, COFOG, funding sources, framework chart) of every year
+  in `data/global/`;
 - one user per role: an admin, a staff member of the provider, a user and a viewer of Boldog.
 
 The made-up municipalities carry placeholder IČOs that pass the check digit and are absent
@@ -34,6 +36,7 @@ from sqlalchemy.engine.url import make_url
 from riso import paths
 from riso.api.uow import AppUnitOfWork
 from riso.codelists import versions_from_bundle
+from riso.codelists.infrastructure.global_files import global_versions, global_years
 from riso.contracts import ReferenceBundle
 from riso.identity.domain import Email, MembershipScope, PasswordPolicy, Role, User
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
@@ -96,6 +99,7 @@ def seed(
     policy: PasswordPolicy | None = None,
     entities_dir: Path = paths.ENTITIES_DIR,
     bundles_dir: Path = paths.BUNDLES_DIR,
+    global_dir: Path = paths.GLOBAL_DIR,
 ) -> Seeded:
     """Migrates and seeds the database of `settings`. Refuses outside `dev` and `test`, and
     on a database that has users already unless `reset` drops it first."""
@@ -116,7 +120,15 @@ def seed(
         with db.session() as session:
             if session.scalar(select(func.count()).select_from(UserRow)):
                 raise SeedRefused("the database has users already; run `riso seed --reset`")
-        return _fill(db, settings, password, hasher or Argon2Hasher(), entities_dir, bundles_dir)
+        return _fill(
+            db,
+            settings,
+            password,
+            hasher or Argon2Hasher(),
+            entities_dir,
+            bundles_dir,
+            global_dir,
+        )
     finally:
         db.dispose()
 
@@ -139,6 +151,7 @@ def _fill(
     hasher: Argon2Hasher,
     entities: Path,
     bundles: Path,
+    global_root: Path,
 ) -> Seeded:
     clock = FixedClock(SEEDED_AT)
     ids = UuidV7Generator(clock, random.Random(20260101).getrandbits)
@@ -185,6 +198,9 @@ def _fill(
         )
         for version in versions_from_bundle(bundle, boldog.id, ids, now):
             uow.codelists.add(version)
+        for year in global_years(global_root):
+            for version in global_versions(global_root, year, ids, now):
+                uow.codelists.add(version)
         uow.commit()
     return result
 

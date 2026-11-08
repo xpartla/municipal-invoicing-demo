@@ -9,6 +9,7 @@ from riso.codelists.application.bundle import (
     build_bundle,
     reference_bundle,
 )
+from riso.codelists.application.checks import customer_findings, global_lists
 from riso.codelists.application.seeding import versions_from_bundle
 from riso.codelists.application.uow import CodelistsUnitOfWork
 
@@ -18,6 +19,8 @@ __all__ = [
     "BundleEntity",
     "CodelistsUnitOfWork",
     "build_bundle",
+    "customer_findings",
+    "global_lists",
     "reference_bundle",
     "versions_from_bundle",
 ]

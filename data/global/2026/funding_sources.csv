@@ -1,0 +1,286 @@
+code,name
+10,Zo štátneho rozpočtu
+11,Zo štátneho rozpočtu
+111,Zo štátneho rozpočtu
+11H,"Transfer od ostatných subjektov verejnej správy (okrem dotácií zo štátneho rozpočtu, štátneho fondu a zo zdrojov MH Manažmentu, a. s.)"
+11UA,Zo štátneho rozpočtu - Ukrajina
+132,Finančné prostriedky prijaté od iných subjektov podľa osobitného zákona
+11EU,Prostriedky Európskej únie (podľa § 2 písm. e) zákona č. 523/2004 Z. z.)
+11J1,Priame platby
+11J4,Trhovo orientované výdavky
+11J7,Ostatné priame platby
+11K1,Rozvoj vidieka
+11S1,"Európsky fond regionálneho rozvoja (súčasťou týchto prostriedkov sú aj prost. EÚ na financ. Programu cezhraničnej spolupráce SR - ČR, ako aj prost. EÚ na financ. OP INTERACT)"
+11T1,Európsky sociálny fond
+11U1,Kohézny fond
+1AA1,Európsky fond regionálneho rozvoja
+1AB1,Kohézny fond
+1AC1,Európsky sociálny fond
+1AD1,Priame platby
+1AE1,Ostatné priame platby
+1AF1,Trhovo orientované výdavky
+1AG1,Európsky poľnohospodársky fond pre rozvoj vidieka
+1AH1,Európsky námorný a rybársky fond
+1AK1,Fond európskej pomoci pre najodkázanejšie osoby (FEAD)
+1AL1,Iniciatíva na podporu zamestnanosti mladých ľudí (IZM)
+1AM1,"Európska územná spolupráca (Interreg V-A SK-AT, Interreg V-A SK-CZ)"
+1AW1,EPFRV - NG
+1AX1,FEAD - REACT - EU
+1AY1,ESF - REACT - EU
+1AZ1,ERDF - REACT - EU
+1BI1,Dodatočný príspevok
+1AO1,Priame platby
+1AP1,Trhovo orientované výdavky
+1AR1,Európsky poľnohospodársky fond pre rozvoj vidieka
+1AT1,Fond pre azyl a migráciu
+1AU1,Fond pre vnútornú bezpečnosť
+1AV1,Nástroj pre riadenie hraníc a víza
+1BA1,Európsky fond regionálneho rozvoja
+1BB1,Európsky sociálny fond +
+1BC1,Kohézny fond
+1BD1,"Európsky námorný, rybolovný a akvakultúrny fond"
+1BE1,Fond na spravodlivú transformáciu
+1BF1,Európska územná spolupráca (Interreg VI-A SK-AT)
+1BG1,Trhovo orientované výdavky mimo SP SPP
+1BH1,Európska územná spolupráca (Interreg VI-A SK-CZ)
+11PO,Prostriedky Plánu obnovy a odolnosti
+1P01,Plán obnovy a odolnosti
+1P02,Plán obnovy a odolnosti - prostriedky na úhradu DPH
+11SP,Prostriedky na spolufinancovanie zo ŠR
+11J2,Národné vyrovnávacie platby
+11J3,Medziročný nárast pohľadávky voči EÚ
+11J5,Trhovo orientované výdavky
+11J8,Medziročný nárast pohľadávky na ostatné priame platby
+11K2,Rozvoj vidieka
+11S2,Európsky fond regionálneho rozvoja (vrátane spolufinancovania zo ŠR k Programu cezhraničnej spolupráce SR - ČR 2007 - 2013)
+11S3,Európsky fond regionálneho rozvoja - pro rata
+11T2,Európsky sociálny fond
+11U2,Kohézny fond
+1AA2,Európsky fond regionálneho rozvoja
+1AA3,Európsky fond regionálneho rozvoja - pro rata
+1AB2,Kohézny fond
+1AC2,Európsky sociálny fond
+1AC3,Európsky sociálny fond - pro rata
+1AD2,Medziročný nárast pohľadávky na priame platby voči EÚ
+1AE2,Medziročný nárast pohľadávky na ostatné priame platby
+1AF2,Trhovo orientované výdavky
+1AG2,Európsky poľnohospodársky fond pre rozvoj vidieka
+1AH2,Európsky námorný a rybársky fond
+1AI2,Prechodná vnútroštátna pomoc
+1AK2,Fond európskej pomoci pre najodkázanejšie osoby (FEAD)
+1AM2,"Európska územná spolupráca (Interreg V-A SK-AT, Interreg V-A SK-CZ)"
+1AW2,EPFRV - NG
+1AY2,ESF - REACT - EU
+1AZ2,ERDF - REACT - EU
+1BI2,Dodatočný príspevok
+1AP2,Trhovo orientované výdavky
+1AR2,Európsky poľnohospodársky fond pre rozvoj vidieka
+1AS2,Prechodná vnútroštátna pomoc
+1AT2,Fond pre azyl a migráciu
+1AU2,Fond pre vnútornú bezpečnosť
+1AV2,Nástroj pre riadenie hraníc a víza
+1BA2,Európsky fond regionálneho rozvoja
+1BA3,Európsky fond regionálneho rozvoja - pro rata
+1BB2,Európsky sociálny fond +
+1BB3,Európsky sociálny fond + - pro rata
+1BC2,Kohézny fond
+1BD2,"Európsky námorný, rybolovný a akvakultúrny fond"
+1BE2,Fond na spravodlivú transformáciu
+1BF2,Európska územná spolupráca (Interreg VI-A SK-AT)
+1BG2,Trhovo orientované výdavky mimo SP SPP
+1BH2,Európska územná spolupráca (Interreg VI-A SK-CZ)
+11E2,Spolufinancovanie zo štátneho rozpočtu k finančnému mechanizmu EHP
+11E4,Spolufinancovanie zo štátneho rozpočtu k finančnému mechanizmu Nórskeho kráľovstva
+11E5,"Spolufinancovanie k finančným mechanizmom z rozpočtu obce, resp. VÚC"
+11N2,Spolufinancovanie zo štátneho rozpočtu k Švajčiarskemu finančnému mechanizmu
+11R2,"Riadenie migrácie, ochrana hraníc"
+11R4,"Iné - k programu Sloboda, bezpečnosť a spravodlivosť"
+1AJ2,"Európska územná spolupráca, programy nadnárodnej spolupráce a programy medziregionálnej spolupráce PO 14 - 20"
+1AJ4,"Európska územná spolupráca, programy nadnárodnej spolupráce a programy medziregionálnej spolupráce PO 21 - 27"
+11GS,Programy priamo riadené EÚ (typ účtu 19 - Účet grantov programov EÚ)
+11G2,Nástroj na prepájanie Európy (CEF)
+11B5,Programy európskej územnej spolupráce programového obdobia 2007 - 2013
+11B6,Finančný nástroj pre životné prostredie LIFE+
+20,Štátne finančné aktíva
+13,Zdroje z predchádzajúcich rokov
+131,Zo štátneho rozpočtu
+131E,Zo štátneho rozpočtu z r. 2014 (nevyčerpané prostriedky z r. 2014)1
+131F,Zo štátneho rozpočtu z r. 2015 (nevyčerpané prostriedky z r. 2015)1
+131G,Zo štátneho rozpočtu z r. 2016 (nevyčerpané prostriedky z r. 2016)1
+131H,Zo štátneho rozpočtu z r. 2017 (nevyčerpané prostriedky z r. 2017)1
+131I,Zo štátneho rozpočtu z r. 2018 (nevyčerpané prostriedky z r. 2018)1
+131J,Zo štátneho rozpočtu z r. 2019 (nevyčerpané prostriedky z r. 2019)1
+131K,Zo štátneho rozpočtu z r. 2020 (nevyčerpané prostriedky z r. 2020)1
+131L,Zo štátneho rozpočtu z r. 2021 (nevyčerpané prostriedky z r. 2021)2
+131M,Zo štátneho rozpočtu z r. 2022 (nevyčerpané prostriedky z r. 2022)3
+131N,Zo štátneho rozpočtu z r. 2023 (nevyčerpané prostriedky z r. 2023)3
+131O,Zo štátneho rozpočtu z r. 2024 (nevyčerpané prostriedky z r. 2024)4
+131P,Zo štátneho rozpočtu z r. 2025 (nevyčerpané prostriedky z r. 2025)5
+3UAO,Zo štátneho rozpočtu z r. 2024 - Ukrajina (nevyčerpané prostriedky z r. 2024)
+13EU,Prostriedky Európskej únie (podľa § 2 písm. e) zákona č. 523/2004 Z. z.)
+13J1,Priame platby
+13J4,Trhovo orientované výdavky
+13J7,Ostatné priame platby
+13K1,Rozvoj vidieka
+13S1,"Európsky fond regionálneho rozvoja (súčasťou týchto prostriedkov sú aj prostriedky EÚ na financovanie Programu cezhraničnej spolupráce SR - ČR, ako aj prostriedky EÚ na financovanie OP INTERACT)"
+13T1,Európsky sociálny fond
+13U1,Kohézny fond
+3AA1,Európsky fond regionálneho rozvoja
+3AB1,Kohézny fond
+3AC1,Európsky sociálny fond
+3AD1,Priame platby
+3AE1,Ostatné priame platby
+3AF1,Trhovo orientované výdavky
+3AG1,Európsky poľnohospodársky fond pre rozvoj vidieka
+3AH1,Európsky námorný a rybársky fond
+3AK1,Fond európskej pomoci pre najodkázanejšie osoby (FEAD)
+3AL1,Iniciatíva na podporu zamestnanosti mladých ľudí (IZM)
+3AM1,"Európska územná spolupráca (Interreg V-A SK-AT, Interreg V-A SK-CZ)"
+3AW1,EPFRV - NG
+3AX1,FEAD - REACT - EU
+3AY1,ESF - REACT - EU
+3AZ1,ERDF - REACT - EU
+3BI1,Dodatočný príspevok
+3AO1,Priame platby
+3AP1,Trhovo orientované výdavky
+3AR1,Európsky poľnohospodársky fond pre rozvoj vidieka
+3AT1,Fond pre azyl a migráciu
+3AU1,Fond pre vnútornú bezpečnosť
+3AV1,Nástroj pre riadenie hraníc a víza
+3BA1,Európsky fond regionálneho rozvoja
+3BB1,Európsky sociálny fond +
+3BC1,Kohézny fond
+3BD1,"Európsky námorný, rybolovný a akvakultúrny fond"
+3BE1,Fond na spravodlivú transformáciu
+3BF1,Európska územná spolupráca (Interreg VI-A SK-AT)
+3BG1,Trhovo orientované výdavky mimo SP SPP
+3BH1,Európska územná spolupráca (Interreg VI-A SK-CZ)
+13PO,Prostriedky Plánu obnovy a odolnosti
+3P01,Plán obnovy a odolnosti
+3P02,Plán obnovy a odolnosti - prostriedky na úhradu DPH
+13SP,Prostriedky na spolufinancovanie zo ŠR
+13J2,Národné vyrovnávacie platby
+13J3,Medziročný nárast pohľadávky voči EÚ
+13J5,Trhovo orientované výdavky
+13J8,Medziročný nárast pohľadávky na ostatné priame platby
+13K2,Rozvoj vidieka
+13S2,Európsky fond regionálneho rozvoja (vrátane spolufinancovania zo ŠR k Programu cezhraničnej spolupráce Slovenská republika - Česká republika 2007 - 2013)
+13S3,Európsky fond regionálneho rozvoja - pro rata
+13T2,Európsky sociálny fond
+13U2,Kohézny fond
+3AA2,Európsky fond regionálneho rozvoja
+3AA3,Európsky fond regionálneho rozvoja - pro rata
+3AB2,Kohézny fond
+3AC2,Európsky sociálny fond
+3AC3,Európsky sociálny fond - pro rata
+3AD2,Medziročný nárast pohľadávky na priame platby voči EÚ
+3AE2,Medziročný nárast pohľadávky na ostatné priame platby
+3AF2,Trhovo orientované výdavky
+3AG2,Európsky poľnohospodársky fond pre rozvoj vidieka
+3AH2,Európsky námorný a rybársky fond
+3AI2,Prechodná vnútroštátna pomoc
+3AK2,Fond európskej pomoci pre najodkázanejšie osoby (FEAD)
+3AM2,"Európska územná spolupráca (Interreg V-A SK-AT, Interreg V-A SK-CZ)"
+3AW2,EPFRV - NG
+3AY2,ESF - REACT - EU
+3AZ2,ERDF - REACT - EU
+3BI2,Dodatočný príspevok
+3AP2,Trhovo orientované výdavky
+3AR2,Európsky poľnohospodársky fond pre rozvoj vidieka
+3AS2,Prechodná vnútroštátna pomoc
+3AT2,Fond pre azyl a migráciu
+3AU2,Fond pre vnútornú bezpečnosť
+3AV2,Nástroj pre riadenie hraníc a víza
+3BA2,Európsky fond regionálneho rozvoja
+3BA3,Európsky fond regionálneho rozvoja - pro rata
+3BB2,Európsky sociálny fond +
+3BB3,Európsky sociálny fond + - pro rata
+3BC2,Kohézny fond
+3BD2,"Európsky námorný, rybolovný a akvakultúrny fond"
+3BE2,Fond na spravodlivú transformáciu
+3BF2,Európska územná spolupráca (Interreg VI-A SK-AT)
+3BG2,Trhovo orientované výdavky mimo SP SPP
+3BH2,Európska územná spolupráca (Interreg VI-A SK-CZ)
+13E2,Spolufinancovanie zo štátneho rozpočtu k finančnému mechanizmu EHP
+13E4,Spolufinancovanie zo štátneho rozpočtu k finančnému mechanizmu Nórskeho kráľovstva
+13N2,Spolufinancovanie zo štátneho rozpočtu k Švajčiarskemu finančnému mechanizmu
+13R2,"Riadenie migrácie, ochrana hraníc"
+13R4,"Iné - k programu Sloboda, bezpečnosť a spravodlivosť"
+3AJ2,"Európska územná spolupráca, programy nadnárodnej spolupráce a programy medziregionálnej spolupráce PO 14 - 20"
+3AJ4,"Európska územná spolupráca, programy nadnárodnej spolupráce a programy medziregionálnej spolupráce PO 21 - 27"
+13GS,Programy priamo riadené EÚ (typ účtu 19 - Účet grantov programov EÚ)
+13G2,Nástroj na prepájanie Európy (CEF)
+13B2,"Predvstupové fondy (PHARE, ISPA, SAPARD, Prechodný fond)"
+13B5,Programy európskej územnej spolupráce programového obdobia 2007 - 2013
+13B6,Finančný nástroj pre životné prostredie LIFE+
+15,Zahraničné granty a prostriedky poskytnuté na základe medzinárodných zmlúv
+11A4,Odstavenie bloku V1 Jaslovské Bohunice
+11E1,Finančný mechanizmus EHP (príspevok krajín EFTA)
+11E3,Nórsky finančný mechanizmus (príspevok Nórskeho kráľovstva)
+11N1,Švajčiarsky finančný mechanizmus (príspevok Švajčiarskej konfederácie)
+11R1,"Riadenie migrácie, ochrana hraníc"
+11R3,"Iné - k programu Sloboda, bezpečnosť a spravodlivosť"
+1AJ1,"Európska územná spolupráca, programy nadnárodnej spolupráce a programy medziregionálnej spolupráce PO 14 - 20"
+1AJ3,"Európska územná spolupráca, programy nadnárodnej spolupráce a programy medziregionálnej spolupráce PO 21 - 27"
+11GR,Programy priamo riadené EÚ (typ účtu 19 - Účet grantov programov EÚ)
+11G1,Nástroj na prepájanie Európy (CEF)
+35,Iné zdroje zo zahraničia z programov mimo EÚ (napr. NATO)
+37,Programy európskej územnej spolupráce programového obdobia 2007 - 2013
+38,Finančný nástroj pre životné prostredie LIFE+
+13A4,Odstavenie bloku V1 Jaslovské Bohunice
+13E1,Finančný mechanizmus EHP (príspevok krajín EFTA)
+13E3,Nórsky finančný mechanizmus (príspevok Nórskeho kráľovstva)
+13N1,Švajčiarsky finančný mechanizmus (príspevok Švajčiarskej konfederácie)
+13R1,"Riadenie migrácie, ochrana hraníc"
+13R3,"Iné - k programu Sloboda, bezpečnosť a spravodlivosť"
+3AJ1,"Európska územná spolupráca, programy nadnárodnej spolupráce a programy medziregionálnej spolupráce PO 14 - 20"
+3AJ3,"Európska územná spolupráca, programy nadnárodnej spolupráce a programy medziregionálnej spolupráce PO 21 - 27"
+13GR,Programy priamo riadené EÚ (typ účtu 19 - Účet grantov programov EÚ)
+13G1,Nástroj na prepájanie Európy (CEF)
+11GA,Európsky fond regionálneho rozvoja (2. programové obdobie)
+11GB,Európsky sociálny fond (2. programové obdobie)
+11GC,Kohézny fond (2. programové obdobie)
+11GD,Európsky poľnohospodársky fond pre rozvoj vidieka - EAFRD (2. programové obdobie)
+11GE,Európsky fond regionálneho rozvoja (3. programové obdobie)
+11GF,Kohézny fond (3. programové obdobie)
+11GG,Európsky sociálny fond (3. programové obdobie)
+11GH,Európsky poľnohospodársky fond pre rozvoj vidieka (3. programové obdobie)
+11GJ,Európsky fond pre námorné a rybné hospodárstvo (3. programové obdobie)
+11N3,"Spolufinancovanie k EHP, NFM a ŠFM"
+11GK,Spolufinancovanie k projektom 4. programového obdobia
+13GA,Európsky fond regionálneho rozvoja (2. programové obdobie)
+13GB,Európsky sociálny fond (2. programové obdobie)
+13GC,Kohézny fond (2. programové obdobie)
+13GD,Európsky poľnohospodársky fond pre rozvoj vidieka - EAFRD (2. programové obdobie)
+13GE,Európsky fond regionálneho rozvoja (3. programové obdobie)
+13GF,Kohézny fond (3. programové obdobie)
+13GG,Európsky sociálny fond (3. programové obdobie)
+13GH,Európsky poľnohospodársky fond pre rozvoj vidieka (3. programové obdobie)
+13GJ,Európsky fond pre námorné a rybné hospodárstvo (3. programové obdobie)
+13N3,"Spolufinancovanie k EHP, NFM a ŠFM"
+13GK,Spolufinancovanie k projektom 4. programového obdobia
+40,"Vlastné príjmy obcí a VÚC, Sociálnej poisťovne, zdravotných poisťovní a ostatných subjektov verejnej správy (napr. prevod podielu dane z príjmov fyzických osôb, miestne dane a poplatky atď.)"
+41,Vlastné príjmy
+42,Zdroje zo zisku
+43,Zdroje z predaja majetku
+44,Príspevky prijaté na združenú výstavbu
+45,Dotácie poskytnuté zo štátneho fondu
+46,Iné zdroje vyššie neuvedené
+48,Verejné zdravotné poistenie
+50,Bankové úvery
+51,Bankové úvery so štátnou zárukou
+52,Bankové úvery bez štátnej záruky
+60,"Zdroje z MH manažmentu, a. s. - právny nástupca FNM"
+70,Iné zdroje a vybrané finančné prostriedky a ostatné príjmy
+71,Iné zdroje
+72,"Vybrané finančné prostriedky a ostatné príjmy (používajú obce, VÚC a ich organizácie)"
+72a,Od iných subjektov na základe darovacej zmluvy
+72b,Na základe zmluvy o združení
+72c,"Od iných subjektov, napr. formou dotácie alebo grantu"
+72d,Získané z rozdielu medzi výnosmi a nákladmi z podnikateľskej činnosti po zdanení
+72e,Z poistného plnenia zo zmluvného poistenia alebo zo zákonného poistenia
+72f,Súvisiace so stravovaním vrátane úhrad stravy
+72g,Od fyzickej osoby alebo právnickej osoby podľa osobitného predpisu
+72h,"Od úradu práce, sociálnych vecí a rodiny podľa osobitného predpisu"
+72i,Od účastníkov konania o obnove evidencie niektorých pozemkov a právnych vzťahov k nim
+72j,Ostatné príjmy vyššie neuvedené

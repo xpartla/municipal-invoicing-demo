@@ -3,6 +3,7 @@
 | Check | Severity |
 |---|---|
 | a budget position's EK is not in the year's EK list | error |
+| a budget position names a položka that has podpoložky (`612000`) | warning |
 | a budget position's zdroj is not among the funding sources | error |
 | a position's oddiel and trieda are not in COFOG | error |
 | an account's SU is not in the framework chart | warning |
@@ -13,7 +14,14 @@ checked. Inactive rows are not checked: the engine never sees them.
 EK codes. The classification goes down to the položka (three digits) and, where it has
 them, the podpoložka (six). A budget writes six digits, so a položka without podpoložky is
 written with `000` (`611000` for položka 611). Main categories and categories (`600`,
-`630`) end in zero, položky never do, so `630000` is not a valid EK.
+`630`) end in zero, položky never do, so `630000` is not a valid EK. A položka that has
+podpoložky written with `000` (`612000` for 612, which has 612001 and 612002) names a real
+položka without the detail the classification asks for: a warning, not an error (2026-11-08,
+pending the user's confirmation).
+
+Synthetic accounts. The framework chart leaves some classes and groups for the entity to fill
+(class 8, groups 75 to 79 and 90 to 99 list no accounts), so any account in such a class or
+group is known.
 """
 
 from collections.abc import Iterable, Mapping
@@ -39,6 +47,8 @@ class Severity(StrEnum):
 
 class FindingCode(StrEnum):
     UNKNOWN_EK = "unknown_ek"
+    EK_NOT_DETAILED = "ek_not_detailed"
+    """A položka with podpoložky, written with `000`."""
     UNKNOWN_ZDROJ = "unknown_zdroj"
     UNKNOWN_FUNCTION = "unknown_function"
     UNKNOWN_SYNTHETIC_ACCOUNT = "unknown_synthetic_account"
@@ -61,6 +71,8 @@ class Finding:
     def message(self) -> str:
         if self.code is FindingCode.GLOBAL_LIST_MISSING:
             return f"no active {self.value} list for the year; {self.field} not checked"
+        if self.code is FindingCode.EK_NOT_DETAILED:
+            return f"{self.kind} {self.key}: EK {self.value} names a položka that has podpoložky"
         return f"{self.kind} {self.key}: {self.field} {self.value} is not in the global list"
 
 
@@ -74,7 +86,7 @@ class GlobalLists:
     """(oddiel, trieda) as a budget key writes them."""
     funding_sources: frozenset[str] | None = None
     framework_accounts: frozenset[str] | None = None
-    """Synthetic accounts (three digits)."""
+    """Every code of the chart: classes (one digit), groups (two), synthetic accounts (three)."""
 
     @classmethod
     def of(cls, year: int, versions: Mapping[ListKind, CodeListVersion]) -> "GlobalLists":
@@ -107,25 +119,42 @@ class GlobalLists:
             else frozenset(e.code for e in sources if isinstance(e, FundingSourceEntry)),
             framework_accounts=None
             if framework is None
-            else frozenset(
-                e.code
-                for e in framework
-                if isinstance(e, FrameworkAccountEntry) and len(e.code) == 3
-            ),
+            else frozenset(e.code for e in framework if isinstance(e, FrameworkAccountEntry)),
         )
+
+    def _polozka_of(self, ek: str) -> str | None:
+        """The položka a six-digit EK ending in `000` names, when the list has it."""
+        codes = self.ek or frozenset()
+        polozka = ek[:3]
+        if ek.endswith("000") and polozka in codes and polozka[2] != "0":
+            return polozka
+        return None
+
+    def _has_podpolozky(self, polozka: str) -> bool:
+        return any(len(code) == 6 and code.startswith(polozka) for code in self.ek or ())
 
     def knows_ek(self, ek: str) -> bool:
         """Whether a six-digit budget EK is in the list (see the module's note)."""
-        codes = self.ek or frozenset()
-        if ek in codes:
+        if ek in (self.ek or ()):
             return True
-        polozka = ek[:3]
-        return (
-            ek.endswith("000")
-            and polozka in codes
-            and polozka[2] != "0"
-            and not any(len(code) == 6 and code.startswith(polozka) for code in codes)
-        )
+        polozka = self._polozka_of(ek)
+        return polozka is not None and not self._has_podpolozky(polozka)
+
+    def lacks_podpolozka(self, ek: str) -> bool:
+        """Whether the EK names a položka that has podpoložky (`612000`)."""
+        polozka = self._polozka_of(ek)
+        return polozka is not None and self._has_podpolozky(polozka)
+
+    def knows_su(self, su: str) -> bool:
+        """Whether a synthetic account is in the chart, or in a class or group the chart
+        leaves to the entity."""
+        codes = self.framework_accounts or frozenset()
+        if su in codes:
+            return True
+        group, cls = su[:2], su[:1]
+        if group in codes:
+            return not any(len(code) == 3 and code.startswith(group) for code in codes)
+        return cls in codes and not any(len(code) > 1 and code.startswith(cls) for code in codes)
 
 
 def _missing(kind: ListKind, field: str, global_kind: ListKind) -> Finding:
@@ -148,7 +177,18 @@ def _budget(version: CodeListVersion, lists: GlobalLists) -> list[Finding]:
         found.append(_missing(kind, "function", ListKind.COFOG))
     for entry in version.active_entries():
         assert isinstance(entry, BudgetEntry)
-        if lists.ek is not None and not lists.knows_ek(entry.ek):
+        if lists.ek is not None and lists.lacks_podpolozka(entry.ek):
+            found.append(
+                Finding(
+                    Severity.WARNING,
+                    FindingCode.EK_NOT_DETAILED,
+                    kind,
+                    entry.key,
+                    "ek",
+                    entry.ek,
+                )
+            )
+        elif lists.ek is not None and not lists.knows_ek(entry.ek):
             found.append(
                 Finding(Severity.ERROR, FindingCode.UNKNOWN_EK, kind, entry.key, "ek", entry.ek)
             )
@@ -183,7 +223,7 @@ def _accounts(version: CodeListVersion, lists: GlobalLists) -> list[Finding]:
     found = []
     for entry in version.active_entries():
         assert isinstance(entry, AccountEntry)
-        if entry.su not in lists.framework_accounts:
+        if not lists.knows_su(entry.su):
             found.append(
                 Finding(
                     Severity.WARNING,

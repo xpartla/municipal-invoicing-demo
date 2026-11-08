@@ -10,6 +10,8 @@ from riso.codelists.application import (
     BundleEntity,
     CodelistsUnitOfWork,
     build_bundle,
+    customer_findings,
+    global_lists,
     reference_bundle,
     versions_from_bundle,
 )
@@ -20,6 +22,8 @@ __all__ = [
     "BundleEntity",
     "CodelistsUnitOfWork",
     "build_bundle",
+    "customer_findings",
+    "global_lists",
     "reference_bundle",
     "versions_from_bundle",
 ]
