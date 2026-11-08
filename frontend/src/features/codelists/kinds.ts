@@ -130,3 +130,20 @@ export function valueText(value: unknown): string {
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   return JSON.stringify(value);
 }
+
+export interface CodelistsSearch {
+  kind?: CustomerKind;
+  q?: string;
+  year?: number;
+}
+
+/** `?kind=accounts&q=518 010&year=2026`: the tab, the search and the year to open with (the
+ * health report's links). */
+export function codelistsSearch(search: Record<string, unknown>): CodelistsSearch {
+  const year = Number(search.year);
+  return {
+    kind: typeof search.kind === 'string' && isCustomerKind(search.kind) ? search.kind : undefined,
+    q: typeof search.q === 'string' ? search.q : undefined,
+    year: Number.isInteger(year) && year >= 2000 && year <= 2100 ? year : undefined,
+  };
+}

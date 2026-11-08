@@ -238,6 +238,25 @@ describe('Číselníky', () => {
     expect(await within(changes).findByText('Popis: Pošta → Telekom')).toBeInTheDocument();
   });
 
+  it('opens on the tab, year and search a link names', async () => {
+    const { calls } = codelistsApi('user', {
+      [`GET ${base}/accounts/entries`]: {
+        body: { version: version('v-accounts', 2, 'accounts'), items: [], total: 0 },
+      },
+    });
+    await renderApp(`/c/${BOLDOG.id}/codelists?kind=accounts&q=%22518%20010%22&year=2026`);
+    expect(await screen.findByRole('tab', { name: 'Účtový rozvrh' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(screen.getByLabelText('Hľadať')).toHaveValue('518 010');
+    await waitFor(() => {
+      expect(
+        calls.some((c) => c.path.includes('/accounts/entries') && c.path.includes('q=518')),
+      ).toBe(true);
+    });
+  });
+
   it('offers to start a list the year does not have', async () => {
     const user = userEvent.setup();
     codelistsApi('user');

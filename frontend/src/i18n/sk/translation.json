@@ -518,5 +518,159 @@
       "framework_accounts": "Rámcová účtová osnova pre obce, VÚC a nimi zriadené organizácie podľa opatrenia MF SR č. MF/014454/2022-36 v znení opatrenia č. MF/014915/2023-361."
     },
     "checklistTable": "Globálne číselníky podľa rokov"
+  },
+  "system": {
+    "title": "Systém",
+    "tabs": {
+      "parameters": "Parametre",
+      "conventions": "Účtovacie zvyklosti",
+      "series": "Číselné rady",
+      "health": "Kontrola znalostí"
+    },
+    "series": {
+      "soon": "Číselné rady dokladov s počítadlami a použitými číslami pribudnú spolu s faktúrami v databáze."
+    },
+    "parameters": {
+      "intro": "Nastavenia, ktoré návrh zaúčtovania používa pre faktúry roka: či je obec platiteľom DPH, predvolený zdroj, rada a účet záväzku, a rada a účet záväzku školskej jedálne.",
+      "none": "Pre rok {{year}} parametre ešte nie sú; uložením ich vytvoríte.",
+      "zdrojShape": "Zdroj má 2 až 4 znaky a začína číslicou, napr. 41 alebo 72f.",
+      "accountShape": "Účet v tvare SÚ AÚ, napr. 321 000.",
+      "fields": {
+        "vat_payer": "Obec je platiteľom DPH",
+        "default_zdroj": "Predvolený zdroj",
+        "default_series": "Predvolená rada",
+        "default_dal": "Účet záväzku (DAL)",
+        "canteen_series": "Rada školskej jedálne",
+        "canteen_dal": "Účet záväzku školskej jedálne (DAL)"
+      },
+      "hints": {
+        "default_zdroj": "Zdroj, keď faktúru neplatí dotácia, napr. 41.",
+        "default_series": "Číselná rada dodávateľských faktúr, napr. FD.",
+        "default_dal": "Účet záväzku voči dodávateľovi, napr. 321 000.",
+        "canteen_series": "Rada pre potraviny školskej jedálne, napr. FDŠJ.",
+        "canteen_dal": "Účet záväzku školskej jedálne, napr. 321 080."
+      }
+    },
+    "conventions": {
+      "intro": "Vlastné pravidlá obce pre návrh zaúčtovania. Pri každom syntetickom účte sa pravidlá skúšajú v poradí: prvé, ktorého podmienky platia všetky, určí analytický účet; ak neplatí žiadne, použije sa predvolený. Ak pravidlo uvádza účet, ktorý v účtovom rozvrhu nie je, návrh použije analytiku 000 alebo jediný analytický účet, inak riadok pošle na kontrolu.",
+      "sides": {
+        "debit": "Analytické účty na strane MD",
+        "credit": "Analytické účty na strane DAL"
+      },
+      "noRules": "Žiadne pravidlá; návrh použije analytiku 000.",
+      "account": "SÚ {{su}}",
+      "default": "Predvolený AÚ",
+      "removeAccount": "Odstrániť SÚ {{su}}",
+      "rulesOf": "Pravidlá pre SÚ {{su}}",
+      "order": "Poradie",
+      "au": "AÚ",
+      "when": "Podmienky",
+      "always": "vždy",
+      "note": "Poznámka",
+      "up": "Posunúť pravidlo {{n}} pre SÚ {{su}} vyššie",
+      "down": "Posunúť pravidlo {{n}} pre SÚ {{su}} nižšie",
+      "editRule": "Upraviť pravidlo {{n}} pre SÚ {{su}}",
+      "removeRule": "Odstrániť pravidlo {{n}} pre SÚ {{su}}",
+      "addRule": "Pridať pravidlo pre SÚ {{su}}",
+      "newAccount": "Nový syntetický účet",
+      "addAccount": "Pridať účet",
+      "conditions": {
+        "concepts": "Pojmy",
+        "function": "Funkcia",
+        "ek": "EK začína",
+        "zdroj": "Zdroj",
+        "terms": "Slová"
+      },
+      "rule": {
+        "add": "Nové pravidlo pre SÚ {{su}}",
+        "edit": "Pravidlo pre SÚ {{su}}",
+        "intro": "Pravidlo platí, keď platia všetky vyplnené podmienky; v každej stačí jedna z uvedených hodnôt.",
+        "apply": "Použiť",
+        "hints": {
+          "concepts": "Pojmy, ktoré faktúra obsahuje, napr. telecom, electricity.",
+          "function": "Oddiel a trieda položky rozpočtu, napr. 09 601.",
+          "ek": "Začiatok ekonomickej klasifikácie, napr. 632 alebo 632005.",
+          "zdroj": "Zdroj položky rozpočtu, napr. 1BA1.",
+          "terms": "Slová vo faktúre alebo v popise položky; hviezdička nahrádza koncovku, napr. chodnik*."
+        }
+      },
+      "canteen": {
+        "title": "Školská jedáleň",
+        "intro": "Potraviny pre školskú jedáleň idú na vlastnú položku rozpočtu a vlastný účet, v rade a so záväzkom z parametrov.",
+        "enabled": "Pravidlo pre potraviny školskej jedálne",
+        "fields": {
+          "function": "Funkcia",
+          "ek": "EK",
+          "zdroj": "Zdroj",
+          "analytika": "Analytika",
+          "md": "Účet MD",
+          "alternatives": "Ďalšie analytiky",
+          "concepts": "Pojmy"
+        }
+      },
+      "concepts": {
+        "title": "Vlastné pojmy",
+        "intro": "Pojmy, ktoré poznajú len pravidlá tejto obce, napr. jej obecný podnik. Pojem nájde ktorékoľvek zo svojich slov.",
+        "name": "Pojem",
+        "terms": "Slová pojmu {{name}}",
+        "remove": "Odstrániť pojem {{name}}",
+        "new": "Nový pojem",
+        "add": "Pridať pojem"
+      },
+      "transfers": {
+        "title": "Transfery",
+        "never": "Zdroje, ktoré nikdy nečakajú transfer",
+        "hint": "Okrem zdrojov, ktoré transfer nečakajú podľa všeobecného pravidla (41, 43, 52, 72f)."
+      },
+      "invalid": "Zvyklosti sa nedali uložiť",
+      "conflict": "Medzitým zvyklosti niekto uložil. Načítajte ich znova a zmeny zopakujte.",
+      "reload": "Načítať znova",
+      "revision": "Revízia {{revision}}",
+      "save": "Uložiť zvyklosti",
+      "discard": "Zahodiť zmeny",
+      "saved": "Zvyklosti sú uložené; ďalšie návrhy ich použijú."
+    },
+    "health": {
+      "title": "Kontrola znalostí",
+      "intro": "Čo bráni návrhu zaúčtovania, alebo čo by navrhol mimo číselníkov: chýbajúce číselníky, zvyklosti s neexistujúcimi účtmi, položky rozpočtu bez pravidla a predchádzajúce faktúry mimo aktívnych číselníkov.",
+      "none": "Všetko je v poriadku.",
+      "severity": "Závažnosť",
+      "finding": "Zistenie",
+      "where": "Kde",
+      "severities": {
+        "error": "chyba",
+        "warning": "upozornenie",
+        "info": "poznámka"
+      },
+      "canteen": "školská jedáleň",
+      "debit": "MD, SÚ {{su}}",
+      "credit": "DAL, SÚ {{su}}",
+      "openConventions": "Účtovacie zvyklosti",
+      "openList": "{{list}}",
+      "codes": {
+        "knowledge_missing": "Pre rok {{year}} nie sú všeobecné pravidlá návrhu.",
+        "list_missing": "Pre rok {{year}} chýba číselník: {{list}}.",
+        "global_list_missing": "Pre rok {{year}} chýba globálny číselník: {{list}}.",
+        "convention_missing_account": "Zvyklosť ({{where}}) uvádza účet {{subject}}, ktorý v účtovom rozvrhu nie je.",
+        "convention_missing_position": "Pravidlo školskej jedálne uvádza položku {{subject}}, ktorá v rozpočte nie je.",
+        "ek_without_bridge_one": "EK {{subject}} nemá pravidlo pre syntetický účet; jej {{count}} položka sa nenavrhuje.",
+        "ek_without_bridge_few": "EK {{subject}} nemá pravidlo pre syntetický účet; jej {{count}} položky sa nenavrhujú.",
+        "ek_without_bridge_many": "EK {{subject}} nemá pravidlo pre syntetický účet; jej {{count}} položiek sa nenavrhuje.",
+        "ek_without_bridge_other": "EK {{subject}} nemá pravidlo pre syntetický účet; jej {{count}} položiek sa nenavrhuje.",
+        "precedent_outside_lists": "Predchádzajúca faktúra ({{where}}) uvádza {{subject}}, čo v aktívnych číselníkoch nie je."
+      },
+      "errors_one": "{{count}} chyba",
+      "errors_few": "{{count}} chyby",
+      "errors_many": "{{count}} chýb",
+      "errors_other": "{{count}} chýb",
+      "warnings_one": "{{count}} upozornenie",
+      "warnings_few": "{{count}} upozornenia",
+      "warnings_many": "{{count}} upozornení",
+      "warnings_other": "{{count}} upozornení",
+      "notes_one": "{{count}} poznámka",
+      "notes_few": "{{count}} poznámky",
+      "notes_many": "{{count}} poznámok",
+      "notes_other": "{{count}} poznámok"
+    }
   }
 }

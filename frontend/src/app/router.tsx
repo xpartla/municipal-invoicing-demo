@@ -24,6 +24,7 @@ import { ForgotPasswordPage } from '../routes/auth/ForgotPasswordPage';
 import { InvitationPage } from '../routes/auth/InvitationPage';
 import { LoginPage } from '../routes/auth/LoginPage';
 import { ResetPasswordPage } from '../routes/auth/ResetPasswordPage';
+import { codelistsSearch } from '../features/codelists/kinds';
 import { CodelistsPage } from '../routes/CodelistsPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
@@ -37,6 +38,7 @@ import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
 import { NotFoundPage } from '../routes/NotFoundPage';
 import { ProfilePage } from '../routes/ProfilePage';
+import { SystemPage } from '../routes/SystemPage';
 import { UsersPage } from '../routes/UsersPage';
 
 /**
@@ -181,8 +183,14 @@ const admin = (permission: Permission) => (me: Me) => onPlatform(me, permission)
 
 const customerRoutes = [
   createRoute({ getParentRoute: () => customerRoute, path: '/', component: HomePage }),
-  createRoute({ getParentRoute: () => customerRoute, path: 'codelists', component: CodelistsPage }),
-  ...(['invoices', 'exchange', 'files', 'system'] as const).map((key) =>
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'codelists',
+    component: CodelistsPage,
+    validateSearch: codelistsSearch,
+  }),
+  createRoute({ getParentRoute: () => customerRoute, path: 'system', component: SystemPage }),
+  ...(['invoices', 'exchange', 'files'] as const).map((key) =>
     createRoute({ getParentRoute: () => customerRoute, path: key, component: soon(key) }),
   ),
 ];

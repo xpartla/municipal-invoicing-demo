@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconHistory, IconPlus, IconSearch, IconUpload } from '@tabler/icons-react';
-import { useParams } from '@tanstack/react-router';
+import { useParams, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -44,11 +44,12 @@ const SIZE = 50;
 export function CodelistsPage() {
   const { t } = useTranslation();
   const { customerId } = useParams({ from: '/_app/c/$customerId' });
+  const search = useSearch({ from: '/_app/c/$customerId/codelists' });
   const { data: me } = useMe();
   const thisYear = new Date().getFullYear();
-  const [year, setYear] = useState(thisYear);
-  const [kind, setKind] = useState<CustomerKind>('budget_expense');
-  const [query, setQuery] = useState('');
+  const [year, setYear] = useState(search.year ?? thisYear);
+  const [kind, setKind] = useState<CustomerKind>(search.kind ?? 'budget_expense');
+  const [query, setQuery] = useState(search.q ?? '');
   const [debounced] = useDebouncedValue(query, 250);
   const [page, setPage] = useState(1);
   const [versionId, setVersionId] = useState<string | undefined>();
