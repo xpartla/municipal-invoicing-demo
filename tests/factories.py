@@ -67,3 +67,21 @@ def update_user(services: Services, user_id: str, change) -> None:
         change(user, uow.clock.now())
         uow.users.save(user)
         uow.commit()
+
+
+def make_session(
+    services: Services, user_id: str, *, impersonate: str | None = None
+) -> tuple[str, str]:
+    """A session for the user without going through the login (no throttle, no hashing);
+    impersonating `impersonate` when given. Returns the cookie token and the CSRF token."""
+    from riso.identity.domain import Session, hash_token
+
+    token, csrf = services.tokens.new_token(), services.tokens.new_token()
+    with services.uow() as uow:
+        now = uow.clock.now()
+        session = Session.start(uow.ids.new(), hash_token(token), csrf, user_id, now)
+        if impersonate is not None:
+            session.start_impersonation(impersonate, "test", now)
+        uow.sessions.add(session)
+        uow.commit()
+    return token, csrf

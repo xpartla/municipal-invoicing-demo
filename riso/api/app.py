@@ -55,10 +55,11 @@ from riso.reference import (
     parse_number,
 )
 from riso.store import StateStore
+from riso.tenancy.api.routes import router as tenancy_router
 
 log = logging.getLogger(__name__)
 
-ROUTERS = [identity_router, admin_router]
+ROUTERS = [identity_router, tenancy_router, admin_router]
 """The phase 2 routers. They are mounted with or without a database, so the OpenAPI document
 and the permission matrix see the same routes; without one they answer 503."""
 

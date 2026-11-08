@@ -69,7 +69,7 @@
           "identity"
         ],
         "summary": "Auth.Logout All",
-        "description": "Ends every session of the caller, this one included.",
+        "description": "Ends every session of the caller, this one included. Refused while impersonating.",
         "operationId": "auth.logout_all",
         "responses": {
           "204": {
@@ -375,6 +375,92 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AcceptedOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "summary": "Customers.Get",
+        "description": "The customer's profile.",
+        "operationId": "customers.get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/{provider_id}": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "summary": "Providers.Get",
+        "description": "The provider and its active customers.",
+        "operationId": "providers.get",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderOverviewOut"
                 }
               }
             }
@@ -997,6 +1083,34 @@
           "row"
         ],
         "title": "Account"
+      },
+      "AddressOut": {
+        "properties": {
+          "street": {
+            "type": "string",
+            "title": "Street"
+          },
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "postal_code": {
+            "type": "string",
+            "title": "Postal Code"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          }
+        },
+        "type": "object",
+        "required": [
+          "street",
+          "city",
+          "postal_code",
+          "country"
+        ],
+        "title": "AddressOut"
       },
       "Alternative": {
         "properties": {
@@ -1783,6 +1897,119 @@
           "permissions"
         ],
         "title": "CustomerAccessOut"
+      },
+      "CustomerOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "ico": {
+            "type": "string",
+            "title": "Ico"
+          },
+          "dic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dic"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AddressOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "iban": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iban"
+          },
+          "variable_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variable Number"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CustomerStatus"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "deleted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deleted At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "ico",
+          "dic",
+          "address",
+          "iban",
+          "variable_number",
+          "provider_id",
+          "status",
+          "created_at",
+          "deleted_at"
+        ],
+        "title": "CustomerOut"
+      },
+      "CustomerStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "deleted"
+        ],
+        "title": "CustomerStatus"
       },
       "DocumentRef": {
         "properties": {
@@ -3364,6 +3591,87 @@
         ],
         "title": "PostingLine",
         "description": "One line of Zaúčtovanie záväzku."
+      },
+      "ProviderOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "ico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ico"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProviderStatus"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "removed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Removed At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "ico",
+          "status",
+          "created_at",
+          "removed_at"
+        ],
+        "title": "ProviderOut"
+      },
+      "ProviderOverviewOut": {
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/ProviderOut"
+          },
+          "customers": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerOut"
+            },
+            "type": "array",
+            "title": "Customers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "customers"
+        ],
+        "title": "ProviderOverviewOut"
+      },
+      "ProviderStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "removed"
+        ],
+        "title": "ProviderStatus"
       },
       "Rate": {
         "properties": {

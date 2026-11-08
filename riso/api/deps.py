@@ -17,7 +17,7 @@ Cookies (plan §5.3):
 """
 
 import secrets
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Annotated, cast
 
 from fastapi import Depends, HTTPException, Request, Response
@@ -29,7 +29,7 @@ from riso.identity.application.access import MembershipPolicy
 from riso.identity.application.auth import Authenticated, authenticate
 from riso.identity.domain import ABSOLUTE_LIMIT, Permission
 from riso.shared.context import RequestContext
-from riso.shared.errors import PermissionDenied, Unauthenticated
+from riso.shared.errors import NotFound, PermissionDenied, Unauthenticated
 
 SESSION_COOKIE = "riso_session"
 CSRF_COOKIE = CSRF_COOKIE_NAME
@@ -106,29 +106,88 @@ def _caller(request: Request, services: Annotated[Services, Depends(_services)])
     return Caller(auth, policy, ctx)
 
 
-def any_caller(caller: Annotated[Caller, Depends(_caller)]) -> Caller:
-    """Public routes: anyone, logged in or not."""
-    return caller
+# Access dependencies ----------------------------------------------------------------------
+#
+# Each route declares exactly one of these, first among its parameters. They are callable
+# instances carrying their scope and permission, so the permission-matrix test can check that
+# a route enforces what its entry in `permissions_matrix.MATRIX` says.
 
 
-def self_context(caller: Annotated[Caller, Depends(_caller)]) -> Caller:
-    """The caller's own account: any logged-in user."""
-    caller.required()
-    return caller
+@dataclass(frozen=True, slots=True)
+class PublicAccess:
+    """Anyone, logged in or not."""
+
+    scope: Scope = Scope.PUBLIC
+    permission: Permission | None = None
+    personal: bool = False
+
+    def __call__(self, caller: Annotated[Caller, Depends(_caller)]) -> Caller:
+        return caller
 
 
-AnyCaller = Annotated[Caller, Depends(any_caller)]
-SelfCaller = Annotated[Caller, Depends(self_context)]
+@dataclass(frozen=True, slots=True)
+class SelfAccess:
+    """The caller's own account: any logged-in user (401 otherwise). With `personal`, the
+    route changes a credential and refuses an impersonating admin (403, plan §5.4)."""
+
+    personal: bool = False
+    scope: Scope = Scope.SELF
+    permission: Permission | None = None
+
+    def __call__(self, caller: Annotated[Caller, Depends(_caller)]) -> Caller:
+        caller.required()
+        if self.personal and caller.ctx.impersonating:
+            raise PermissionDenied("not while impersonating")
+        return caller
+
+
+@dataclass(frozen=True, slots=True)
+class CustomerAccess:
+    """`/api/customers/{customer_id}/…`: the customer must be reachable (404 otherwise, so its
+    existence does not leak), and the permission held in it (403 otherwise). The request
+    context gets the acting customer."""
+
+    permission: Permission
+    scope: Scope = Scope.CUSTOMER
+    personal: bool = False
+
+    def __call__(self, customer_id: str, caller: Annotated[Caller, Depends(_caller)]) -> Caller:
+        auth = caller.required()
+        assert caller.policy is not None
+        if not caller.policy.can_access_customer(customer_id):
+            raise NotFound(f"no customer {customer_id}")
+        ctx = replace(caller.ctx, customer_id=customer_id)
+        ctx.require(self.permission, customer_id)
+        return Caller(auth, caller.policy, ctx)
+
+
+@dataclass(frozen=True, slots=True)
+class ProviderAccess:
+    """`/api/providers/{provider_id}/…`: the caller is staff of the provider, or an admin
+    (404 otherwise), and holds the permission there (403 otherwise)."""
+
+    permission: Permission
+    scope: Scope = Scope.PROVIDER
+    personal: bool = False
+
+    def __call__(self, provider_id: str, caller: Annotated[Caller, Depends(_caller)]) -> Caller:
+        caller.required()
+        policy = caller.policy
+        assert policy is not None
+        if not policy.is_admin and provider_id not in policy.provider_ids:
+            raise NotFound(f"no provider {provider_id}")
+        caller.ctx.require(self.permission, provider_id=provider_id)
+        return caller
 
 
 @dataclass(frozen=True, slots=True)
 class PlatformAccess:
     """Platform routes (`/api/admin/…`): a logged-in caller holding the permission on the
-    platform, which only admins do; 401 or 403 otherwise. The matrix test reads `scope` and
-    `permission` off the route's dependencies."""
+    platform, which only admins do; 401 or 403 otherwise."""
 
     permission: Permission
     scope: Scope = Scope.PLATFORM
+    personal: bool = False
 
     def __call__(self, caller: Annotated[Caller, Depends(_caller)]) -> Caller:
         caller.required()
@@ -136,8 +195,33 @@ class PlatformAccess:
         return caller
 
 
+Access = PublicAccess | SelfAccess | CustomerAccess | ProviderAccess | PlatformAccess
+ACCESS_TYPES = (PublicAccess, SelfAccess, CustomerAccess, ProviderAccess, PlatformAccess)
+
+
+def public_context() -> PublicAccess:
+    return PublicAccess()
+
+
+def self_context(*, personal: bool = False) -> SelfAccess:
+    return SelfAccess(personal)
+
+
+def customer_context(permission: Permission) -> CustomerAccess:
+    return CustomerAccess(permission)
+
+
+def provider_context(permission: Permission) -> ProviderAccess:
+    return ProviderAccess(permission)
+
+
 def platform_context(permission: Permission) -> PlatformAccess:
     return PlatformAccess(permission)
+
+
+AnyCaller = Annotated[Caller, Depends(PublicAccess())]
+SelfCaller = Annotated[Caller, Depends(SelfAccess())]
+PersonalCaller = Annotated[Caller, Depends(SelfAccess(personal=True))]
 
 
 # Cookies ----------------------------------------------------------------------------------

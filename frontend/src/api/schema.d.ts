@@ -56,7 +56,7 @@ export interface paths {
         put?: never;
         /**
          * Auth.Logout All
-         * @description Ends every session of the caller, this one included.
+         * @description Ends every session of the caller, this one included. Refused while impersonating.
          */
         post: operations["auth.logout_all"];
         delete?: never;
@@ -241,6 +241,46 @@ export interface paths {
          * @description Mails a confirmation link to the new address. Refused while impersonating.
          */
         post: operations["me.request_email_change"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Customers.Get
+         * @description The customer's profile.
+         */
+        get: operations["customers.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/providers/{provider_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Providers.Get
+         * @description The provider and its active customers.
+         */
+        get: operations["providers.get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -491,6 +531,17 @@ export interface components {
              * @description Row in the exported sheet
              */
             row: number;
+        };
+        /** AddressOut */
+        AddressOut: {
+            /** Street */
+            street: string;
+            /** City */
+            city: string;
+            /** Postal Code */
+            postal_code: string;
+            /** Country */
+            country: string;
         };
         /**
          * Alternative
@@ -769,6 +820,37 @@ export interface components {
             /** Permissions */
             permissions: components["schemas"]["Permission"][];
         };
+        /** CustomerOut */
+        CustomerOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Ico */
+            ico: string;
+            /** Dic */
+            dic: string | null;
+            address: components["schemas"]["AddressOut"] | null;
+            /** Iban */
+            iban: string | null;
+            /** Variable Number */
+            variable_number: string | null;
+            /** Provider Id */
+            provider_id: string | null;
+            status: components["schemas"]["CustomerStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Deleted At */
+            deleted_at: string | null;
+        };
+        /**
+         * CustomerStatus
+         * @enum {string}
+         */
+        CustomerStatus: "active" | "deleted";
         /**
          * DocumentRef
          * @description Header of the accounting document.
@@ -1309,6 +1391,34 @@ export interface components {
             /** Transfer */
             transfer?: string | null;
         };
+        /** ProviderOut */
+        ProviderOut: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Ico */
+            ico: string | null;
+            status: components["schemas"]["ProviderStatus"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Removed At */
+            removed_at: string | null;
+        };
+        /** ProviderOverviewOut */
+        ProviderOverviewOut: {
+            provider: components["schemas"]["ProviderOut"];
+            /** Customers */
+            customers: components["schemas"]["CustomerOut"][];
+        };
+        /**
+         * ProviderStatus
+         * @enum {string}
+         */
+        ProviderStatus: "active" | "removed";
         /** Rate */
         Rate: {
             /** Hits */
@@ -1896,6 +2006,68 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AcceptedOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "customers.get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "providers.get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProviderOverviewOut"];
                 };
             };
             /** @description Validation Error */

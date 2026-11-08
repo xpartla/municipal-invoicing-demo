@@ -18,6 +18,7 @@ from riso.tenancy.application.customers import (
     update_contact,
     update_identity,
 )
+from riso.tenancy.application.providers import ProviderOverview, get_provider
 from riso.tenancy.application.views import (
     AddressView,
     CustomerView,
@@ -33,6 +34,7 @@ __all__ = [
     "CustomerIdentity",
     "CustomerView",
     "ParametersView",
+    "ProviderOverview",
     "ProviderView",
     "TenancyUnitOfWork",
     "assign_variable_number",
@@ -40,6 +42,7 @@ __all__ = [
     "delete_customer",
     "get_customer",
     "get_parameters",
+    "get_provider",
     "restore_customer",
     "set_parameters",
     "update_contact",

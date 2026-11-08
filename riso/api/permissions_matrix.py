@@ -5,7 +5,9 @@ the scope the permission is checked in. `tests/api/test_permissions.py` fails fo
 without an entry, and for an entry without a route. From P2-M1 the same test generates the
 role × route × own/foreign customer matrix from this table.
 
-The demo's routes are `public` until P2-M4 replaces them: the demo has no logins.
+Each route declares its access with one dependency from `riso.api.deps` (`customer_context`
+and the others), and the matrix test checks that the dependency and the entry agree. The
+demo's routes are `public` until P2-M4 replaces them: the demo has no logins.
 """
 
 from dataclasses import dataclass
@@ -33,35 +35,52 @@ class Scope(StrEnum):
 @dataclass(frozen=True, slots=True)
 class RouteAccess:
     scope: Scope
-    permission: str | None = None
+    permission: Permission | None = None
     """The permission checked in the scope; None only for public and self routes."""
+    personal: bool = False
+    """A self route that changes a credential, refused while impersonating (plan §5.4)."""
 
 
 def public() -> RouteAccess:
     return RouteAccess(Scope.PUBLIC)
 
 
-def own() -> RouteAccess:
-    return RouteAccess(Scope.SELF)
+def own(*, personal: bool = False) -> RouteAccess:
+    return RouteAccess(Scope.SELF, personal=personal)
+
+
+def customer(permission: Permission) -> RouteAccess:
+    return RouteAccess(Scope.CUSTOMER, permission)
+
+
+def provider(permission: Permission) -> RouteAccess:
+    return RouteAccess(Scope.PROVIDER, permission)
+
+
+def platform(permission: Permission) -> RouteAccess:
+    return RouteAccess(Scope.PLATFORM, permission)
 
 
 MATRIX: dict[str, RouteAccess] = {
     # Identity: logging in and out, the caller's own account.
     "auth.login": public(),
     "auth.logout": own(),
-    "auth.logout_all": own(),
+    "auth.logout_all": own(personal=True),
     "me.get": own(),
     "me.sessions": own(),
-    "me.change_password": own(),
-    "me.request_email_change": own(),
+    "me.change_password": own(personal=True),
+    "me.request_email_change": own(personal=True),
     "auth.token_info": public(),
     "auth.accept_invitation": public(),
     "auth.request_reset": public(),
     "auth.reset_password": public(),
     "auth.confirm_email_change": public(),
     # Platform tools.
-    "outbox.list": RouteAccess(Scope.PLATFORM, Permission.OUTBOX_READ),
-    "outbox.get": RouteAccess(Scope.PLATFORM, Permission.OUTBOX_READ),
+    "outbox.list": platform(Permission.OUTBOX_READ),
+    "outbox.get": platform(Permission.OUTBOX_READ),
+    # Tenancy.
+    "customers.get": customer(Permission.CUSTOMER_READ),
+    "providers.get": provider(Permission.PROVIDER_OVERVIEW),
     # The demo (P2-M4 replaces these).
     "legacy.entities": public(),
     "legacy.reference": public(),

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Request, Response
 
 from riso.api.deps import (
     AnyCaller,
+    PersonalCaller,
     SelfCaller,
     ServicesDep,
     check_csrf,
@@ -78,8 +79,8 @@ def logout_route(response: Response, caller: SelfCaller, services: ServicesDep) 
 
 
 @router.post("/auth/logout-all", name="auth.logout_all", status_code=204)
-def logout_all_route(response: Response, caller: SelfCaller, services: ServicesDep) -> None:
-    """Ends every session of the caller, this one included."""
+def logout_all_route(response: Response, caller: PersonalCaller, services: ServicesDep) -> None:
+    """Ends every session of the caller, this one included. Refused while impersonating."""
     logout_everywhere(services.uow(), caller.required().actor_id)
     clear_session_cookies(response, services)
 
@@ -151,7 +152,7 @@ def confirm_email_route(body: TokenIn, caller: AnyCaller, services: ServicesDep)
 
 @router.post("/me/password", name="me.change_password", status_code=204)
 def change_password_route(
-    body: ChangePasswordIn, caller: SelfCaller, services: ServicesDep
+    body: ChangePasswordIn, caller: PersonalCaller, services: ServicesDep
 ) -> None:
     """Changes the password and ends the caller's other sessions. Refused while
     impersonating."""
@@ -169,7 +170,7 @@ def change_password_route(
 
 @router.post("/me/email-change", name="me.request_email_change", status_code=202)
 def email_change_route(
-    body: EmailChangeIn, caller: SelfCaller, services: ServicesDep
+    body: EmailChangeIn, caller: PersonalCaller, services: ServicesDep
 ) -> AcceptedOut:
     """Mails a confirmation link to the new address. Refused while impersonating."""
     request_email_change(
