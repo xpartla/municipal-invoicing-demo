@@ -1,0 +1,41 @@
+{
+  "app": {
+    "name": "riso",
+    "tagline": "Zaúčtovanie dodávateľských faktúr"
+  },
+  "shell": {
+    "nav": {
+      "label": "Hlavné menu",
+      "home": "Domov",
+      "invoices": "Faktúry",
+      "codelists": "Číselníky",
+      "exchange": "Importy a exporty",
+      "files": "Úložisko",
+      "messages": "Správy",
+      "system": "Systém",
+      "help": "Pomocník",
+      "profile": "Profil",
+      "logout": "Odhlásiť",
+      "soon": "Pripravujeme",
+      "legacyDemo": "Pôvodná ukážka"
+    },
+    "newInvoice": "Nová faktúra",
+    "newInvoiceSoon": "Nahrávanie faktúr pribudne v jednej z ďalších etáp.",
+    "toggleNavigation": "Zobraziť alebo skryť menu",
+    "theme": {
+      "toLight": "Prepnúť na svetlý režim",
+      "toDark": "Prepnúť na tmavý režim"
+    }
+  },
+  "home": {
+    "title": "Domov",
+    "intro": "Toto je základ novej aplikácie riso. Ďalšie obrazovky budú pribúdať postupne.",
+    "legacy": "Doterajšia ukážka s návrhmi zaúčtovania zostáva dostupná, kým ju nové obrazovky nenahradia.",
+    "legacyLink": "Otvoriť pôvodnú ukážku"
+  },
+  "notFound": {
+    "title": "Stránka sa nenašla",
+    "text": "Táto adresa neexistuje alebo bola presunutá.",
+    "home": "Späť na Domov"
+  }
+}

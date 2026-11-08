@@ -89,9 +89,28 @@ frontend_changed() {
     [[ -n "$(git status --porcelain -- frontend 2>/dev/null)" ]]
 }
 
+use_frontend_node() {
+    # The frontend needs the Node of frontend/.nvmrc. When the shell has another one, switch
+    # with nvm if it is installed; otherwise the pnpm steps report the mismatch themselves.
+    local want nvm_sh="${NVM_DIR:-$HOME/.nvm}/nvm.sh"
+    want="$(cat frontend/.nvmrc 2>/dev/null || true)"
+    [[ -z "$want" || "$(node --version 2>/dev/null)" == "v$want".* ]] && return 0
+    if [[ -s "$nvm_sh" ]]; then
+        set +u
+        # shellcheck disable=SC1090
+        source "$nvm_sh" >/dev/null && nvm use "$want" >/dev/null
+        set -u
+    fi
+    printf '\n(frontend steps use Node %s)\n' "$(node --version 2>/dev/null || echo missing)"
+}
+
 pnpm_in_frontend() {
     (cd "$root/frontend" && pnpm "$@")
 }
+
+if [[ -f frontend/package.json ]]; then
+    use_frontend_node
+fi
 
 if [[ ! -f frontend/package.json ]]; then
     skip "frontend lint, typecheck, test" "no frontend/ yet (P2-M0-T06)"

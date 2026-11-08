@@ -1,0 +1,2854 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "riso",
+    "summary": "Invoice coding demo",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/entities": {
+      "get": {
+        "summary": "Legacy.Entities",
+        "operationId": "legacy.entities",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EntitySummary"
+                  },
+                  "type": "array",
+                  "title": "Response Legacy.Entities"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reference/{entity}": {
+      "get": {
+        "summary": "Legacy.Reference",
+        "operationId": "legacy.reference",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Period"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReferenceBundle"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/invoices": {
+      "get": {
+        "summary": "Legacy.Invoices",
+        "operationId": "legacy.invoices",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InvoiceListItem"
+                  },
+                  "type": "array",
+                  "title": "Response Legacy.Invoices"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/invoices/{invoice_id}": {
+      "get": {
+        "summary": "Legacy.Invoice",
+        "operationId": "legacy.invoice",
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceDocument"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/code": {
+      "post": {
+        "summary": "Legacy.Code",
+        "operationId": "legacy.code",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CodeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodingProposal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/line": {
+      "post": {
+        "summary": "Legacy.Line",
+        "description": "The whole line a position the accountant picked brings: MD, DAL, transfer, texts.",
+        "operationId": "legacy.line",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Alternative"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/feedback": {
+      "post": {
+        "summary": "Legacy.Feedback",
+        "description": "Stores the accountant's verdict: the coding becomes the supplier's newest precedent,\nits number is used up, and the feedback is logged. A corrected coding must pass the\ndictionary checks; whether its sum matches the invoice is the accountant's call.",
+        "operationId": "legacy.feedback",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Feedback"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackReceipt"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Legacy.Feedback Log",
+        "description": "The feedback stored since the last `riso reset`, oldest first.",
+        "operationId": "legacy.feedback_log",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "00305863",
+              "title": "Entity"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FeedbackItem"
+                  },
+                  "title": "Response Legacy.Feedback Log"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/counters/{entity}": {
+      "get": {
+        "summary": "Legacy.Counters",
+        "description": "The document counters, invoice series first: the last number used, the one the\ncounter would fill in next, and the numbers taken. Only feedback moves them.",
+        "operationId": "legacy.counters",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Entity"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SeriesCounter"
+                  },
+                  "title": "Response Legacy.Counters"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/eval": {
+      "get": {
+        "summary": "Legacy.Eval",
+        "description": "The latest report of `riso eval`; runs the evaluation when there is none yet, or\nwhen asked to refresh it.",
+        "operationId": "legacy.eval",
+        "parameters": [
+          {
+            "name": "entity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "00305863",
+              "title": "Entity"
+            }
+          },
+          {
+            "name": "split",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "anchor",
+                "seed",
+                "heldout"
+              ],
+              "type": "string",
+              "default": "heldout",
+              "title": "Split"
+            }
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Refresh"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvalReport"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Account": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^\\d{3} \\d{3}$",
+            "title": "Key",
+            "description": "'SU AU', e.g. '518 001'"
+          },
+          "su": {
+            "type": "string",
+            "pattern": "^\\d{3}$",
+            "title": "Su"
+          },
+          "au": {
+            "type": "string",
+            "pattern": "^\\d{3}$",
+            "title": "Au"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "active",
+              "passive",
+              "cost",
+              "revenue"
+            ],
+            "title": "Type"
+          },
+          "activity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Activity"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "row": {
+            "type": "integer",
+            "title": "Row",
+            "description": "Row in the exported sheet"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "su",
+          "au",
+          "type",
+          "row"
+        ],
+        "title": "Account"
+      },
+      "Alternative": {
+        "properties": {
+          "budget_key": {
+            "type": "string",
+            "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
+            "title": "Budget Key"
+          },
+          "md": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{3} \\d{3}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Md",
+            "description": "Debit account it would bring"
+          },
+          "dal": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{3} \\d{3}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dal",
+            "description": "Credit account it would bring"
+          },
+          "transfer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transfer",
+            "description": "Transfer, for a grant source"
+          },
+          "budget_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget Text"
+          },
+          "posting_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posting Text"
+          },
+          "score": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score"
+          },
+          "why": {
+            "type": "string",
+            "title": "Why"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "budget_key",
+          "score",
+          "why"
+        ],
+        "title": "Alternative",
+        "description": "Another budget position for the line, with the whole line it would bring, so the UI\ncan swap it in place."
+      },
+      "BudgetLine": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
+            "title": "Key"
+          },
+          "ek": {
+            "type": "string",
+            "pattern": "^\\d{6}$",
+            "title": "Ek"
+          },
+          "zdroj": {
+            "type": "string",
+            "pattern": "^\\d[0-9A-Za-z]{1,3}$",
+            "title": "Zdroj"
+          },
+          "oddiel": {
+            "type": "string",
+            "pattern": "^\\d{2}$",
+            "title": "Oddiel"
+          },
+          "trieda": {
+            "type": "string",
+            "pattern": "^\\d{3}$",
+            "title": "Trieda"
+          },
+          "analytika": {
+            "type": "string",
+            "pattern": "^\\d{3}$",
+            "title": "Analytika"
+          },
+          "amount": {
+            "type": "number",
+            "title": "Amount",
+            "description": "EUR, at most two decimals"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "stredisko": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stredisko"
+          },
+          "transfer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transfer"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "ek",
+          "zdroj",
+          "oddiel",
+          "trieda",
+          "analytika",
+          "amount",
+          "text"
+        ],
+        "title": "BudgetLine",
+        "description": "One line of Rozpočet záväzku: the key in the software's format and its five parts,\nwhich must agree."
+      },
+      "BudgetPosition": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key",
+            "description": "'EK zdroj oddiel trieda analytika', or 'EK zdroj analytika' for income"
+          },
+          "ek": {
+            "type": "string",
+            "pattern": "^\\d{6}$",
+            "title": "Ek"
+          },
+          "zdroj": {
+            "type": "string",
+            "pattern": "^\\d[0-9A-Za-z]{1,3}$",
+            "title": "Zdroj"
+          },
+          "oddiel": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oddiel"
+          },
+          "trieda": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{3}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Trieda"
+          },
+          "analytika": {
+            "type": "string",
+            "pattern": "^\\d{3}$",
+            "title": "Analytika"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Aliases",
+            "description": "Descriptions of further rows merged into this one because they share the key"
+          },
+          "rows": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Rows",
+            "description": "Rows in the exported sheet"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "ek",
+          "zdroj",
+          "analytika",
+          "rows"
+        ],
+        "title": "BudgetPosition"
+      },
+      "CaseResult": {
+        "properties": {
+          "case_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$",
+            "title": "Case Id"
+          },
+          "tags": {
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]*$"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier"
+          },
+          "known_supplier": {
+            "type": "boolean",
+            "title": "Known Supplier",
+            "description": "The supplier had precedents when it was coded"
+          },
+          "expected_outcome": {
+            "type": "string",
+            "enum": [
+              "coded",
+              "manual_entry"
+            ],
+            "title": "Expected Outcome"
+          },
+          "expected": {
+            "items": {
+              "$ref": "#/components/schemas/LineCodes"
+            },
+            "type": "array",
+            "title": "Expected"
+          },
+          "proposed": {
+            "items": {
+              "$ref": "#/components/schemas/LineCodes"
+            },
+            "type": "array",
+            "title": "Proposed"
+          },
+          "alternatives": {
+            "items": {
+              "type": "string",
+              "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$"
+            },
+            "type": "array",
+            "title": "Alternatives",
+            "description": "The proposal's alternatives, best first"
+          },
+          "correct": {
+            "type": "boolean",
+            "title": "Correct",
+            "description": "The expected outcome is reproduced: every line's key, MD and DAL, or manual entry, and the number and booking date wherever the scan shows them"
+          },
+          "full_key": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Full Key",
+            "description": "Every budget key matches; null for manual entry"
+          },
+          "fields": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Fields",
+            "description": "Per field (ek, zdroj, cofog, analytika, md, dal): every line matches"
+          },
+          "top3": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top3",
+            "description": "The expected key is the chosen one or among the first two alternatives; single-line codings only"
+          },
+          "split_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Split Ok",
+            "description": "As many lines as expected; null for manual entry"
+          },
+          "validation_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Validation Ok",
+            "description": "Null when the proposal has no lines"
+          },
+          "number_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number Ok",
+            "description": "Null when the scan's number is unreadable"
+          },
+          "date_ok": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date Ok",
+            "description": "Null when the scan's booking date is unreadable"
+          },
+          "needs_review": {
+            "type": "boolean",
+            "title": "Needs Review"
+          },
+          "expected_review": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Review"
+          },
+          "review_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Review Reasons"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "case_id",
+          "known_supplier",
+          "expected_outcome",
+          "correct",
+          "full_key",
+          "needs_review",
+          "confidence"
+        ],
+        "title": "CaseResult"
+      },
+      "CodeRequest": {
+        "properties": {
+          "invoice": {
+            "$ref": "#/components/schemas/InvoiceDocument"
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{8}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity",
+            "description": "Defaults to the customer IČO"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "invoice"
+        ],
+        "title": "CodeRequest",
+        "description": "Body of POST /api/code."
+      },
+      "Coding": {
+        "properties": {
+          "document": {
+            "$ref": "#/components/schemas/DocumentRef"
+          },
+          "posting": {
+            "items": {
+              "$ref": "#/components/schemas/PostingLine"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Posting"
+          },
+          "budget": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetLine"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Budget"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "document",
+          "posting",
+          "budget"
+        ],
+        "title": "Coding",
+        "description": "The document header and both codings, as entered into the software."
+      },
+      "CodingProposal": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "title": "Invoice Id",
+            "description": "id of the InvoiceDocument"
+          },
+          "bundle_id": {
+            "type": "string",
+            "title": "Bundle Id",
+            "description": "Reference bundle the codes were checked against"
+          },
+          "document": {
+            "$ref": "#/components/schemas/DocumentRef"
+          },
+          "supplier": {
+            "$ref": "#/components/schemas/SupplierRef"
+          },
+          "invoice": {
+            "$ref": "#/components/schemas/InvoiceSummary"
+          },
+          "posting": {
+            "items": {
+              "$ref": "#/components/schemas/PostingLine"
+            },
+            "type": "array",
+            "title": "Posting",
+            "description": "Empty when the invoice goes to manual entry"
+          },
+          "budget": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetLine"
+            },
+            "type": "array",
+            "title": "Budget"
+          },
+          "confidence": {
+            "$ref": "#/components/schemas/Confidence"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "alternatives": {
+            "items": {
+              "$ref": "#/components/schemas/Alternative"
+            },
+            "type": "array",
+            "title": "Alternatives"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/Validation"
+          },
+          "needs_review": {
+            "type": "boolean",
+            "title": "Needs Review"
+          },
+          "review_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Review Reasons",
+            "description": "Why it needs review, e.g. 'credit note, manual entry'"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "bundle_id",
+          "document",
+          "supplier",
+          "invoice",
+          "confidence",
+          "validation",
+          "needs_review"
+        ],
+        "title": "CodingProposal"
+      },
+      "Confidence": {
+        "properties": {
+          "overall": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Overall"
+          },
+          "ek": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ek"
+          },
+          "cofog": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cofog"
+          },
+          "zdroj": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Zdroj"
+          },
+          "analytika": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Analytika"
+          },
+          "md": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Md"
+          },
+          "dal": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dal"
+          },
+          "booking_date": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking Date"
+          },
+          "document_number": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Number"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "overall"
+        ],
+        "title": "Confidence"
+      },
+      "CostCentre": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "name"
+        ],
+        "title": "CostCentre"
+      },
+      "DocumentRef": {
+        "properties": {
+          "series": {
+            "type": "string",
+            "title": "Series",
+            "description": "'FD', or 'FDŠJ' for the school canteen"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number",
+            "description": "e.g. 'FD/144/26'"
+          },
+          "booking_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking Date"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "series"
+        ],
+        "title": "DocumentRef",
+        "description": "Header of the accounting document."
+      },
+      "DocumentSeries": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "Prefix of the pattern, e.g. 'FD' or 'FDŠJ'"
+          },
+          "series_id": {
+            "type": "string",
+            "title": "Series Id",
+            "description": "'Evidenčné číslo' in the software"
+          },
+          "pattern": {
+            "type": "string",
+            "title": "Pattern",
+            "description": "e.g. 'FD/XXX/RR': X the sequence, RR the year, MM the month"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "bank_account": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bank Account"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "series_id",
+          "pattern",
+          "description"
+        ],
+        "title": "DocumentSeries"
+      },
+      "Entity": {
+        "properties": {
+          "ico": {
+            "type": "string",
+            "pattern": "^\\d{8}$",
+            "title": "Ico"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ico",
+          "name"
+        ],
+        "title": "Entity"
+      },
+      "EntitySummary": {
+        "properties": {
+          "ico": {
+            "type": "string",
+            "title": "Ico"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "bundle_id": {
+            "type": "string",
+            "title": "Bundle Id"
+          },
+          "periods": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Periods"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ico",
+          "name",
+          "bundle_id",
+          "periods"
+        ],
+        "title": "EntitySummary"
+      },
+      "EvalReport": {
+        "properties": {
+          "entity_ico": {
+            "type": "string",
+            "pattern": "^\\d{8}$",
+            "title": "Entity Ico"
+          },
+          "split": {
+            "type": "string",
+            "enum": [
+              "anchor",
+              "seed",
+              "heldout"
+            ],
+            "title": "Split"
+          },
+          "memory": {
+            "type": "string",
+            "enum": [
+              "frozen",
+              "online"
+            ],
+            "title": "Memory",
+            "description": "frozen: the anchor and seed cases feed supplier memory before any case is coded, and the coded cases never do (held-out). online: the cases are coded in booking-date order and each one feeds memory after it is coded (anchor, seed)"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "engine_version": {
+            "type": "string",
+            "title": "Engine Version"
+          },
+          "bundle_id": {
+            "type": "string",
+            "title": "Bundle Id"
+          },
+          "dataset_sha256": {
+            "type": "string",
+            "title": "Dataset Sha256",
+            "description": "Digest of the evaluated split's case files"
+          },
+          "precedent_cases": {
+            "type": "integer",
+            "title": "Precedent Cases",
+            "description": "Dataset cases fed into supplier memory"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Rate"
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "targets": {
+            "items": {
+              "$ref": "#/components/schemas/Target"
+            },
+            "type": "array",
+            "title": "Targets"
+          },
+          "by_supplier": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/Rate"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "By Supplier",
+            "description": "'known' and 'new' suppliers"
+          },
+          "by_tag": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/Rate"
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "By Tag"
+          },
+          "cases": {
+            "items": {
+              "$ref": "#/components/schemas/CaseResult"
+            },
+            "type": "array",
+            "title": "Cases"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "entity_ico",
+          "split",
+          "memory",
+          "generated_at",
+          "engine_version",
+          "bundle_id",
+          "dataset_sha256",
+          "precedent_cases",
+          "metrics",
+          "targets",
+          "by_supplier",
+          "by_tag",
+          "cases"
+        ],
+        "title": "EvalReport"
+      },
+      "Evidence": {
+        "properties": {
+          "field": {
+            "type": "string",
+            "title": "Field"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "supplier_memory",
+              "rule",
+              "lexicon",
+              "similarity",
+              "handwritten",
+              "counter",
+              "invoice"
+            ],
+            "title": "Source"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "field",
+          "source",
+          "detail"
+        ],
+        "title": "Evidence"
+      },
+      "Feedback": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "title": "Invoice Id"
+          },
+          "bundle_id": {
+            "type": "string",
+            "title": "Bundle Id"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "corrected"
+            ],
+            "title": "Action"
+          },
+          "proposal": {
+            "$ref": "#/components/schemas/CodingProposal",
+            "description": "What the engine proposed"
+          },
+          "final": {
+            "$ref": "#/components/schemas/Coding",
+            "description": "What the accountant entered into the software"
+          },
+          "supplier_ico": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{8}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Ico"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received At",
+            "description": "Set by the server"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "bundle_id",
+          "action",
+          "proposal",
+          "final"
+        ],
+        "title": "Feedback"
+      },
+      "FeedbackItem": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "title": "Invoice Id"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "document_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Number"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "action",
+          "document_number",
+          "received_at"
+        ],
+        "title": "FeedbackItem",
+        "description": "One row of GET /api/feedback."
+      },
+      "FeedbackReceipt": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "title": "Invoice Id"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "entity_ico": {
+            "type": "string",
+            "title": "Entity Ico"
+          },
+          "document_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Number"
+          },
+          "supplier_ico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Ico"
+          },
+          "precedents": {
+            "type": "integer",
+            "title": "Precedents"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Received At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "action",
+          "entity_ico",
+          "document_number",
+          "supplier_ico",
+          "precedents",
+          "received_at"
+        ],
+        "title": "FeedbackReceipt",
+        "description": "What POST /api/feedback stored."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Handwritten": {
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date",
+            "description": "The booking date"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number",
+            "description": "Sequence number of the FD document: '144' becomes FD/144/26"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Handwritten",
+        "description": "Written by hand on the scan when the invoice arrives; the position varies per scan."
+      },
+      "IngestWarning": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "duplicate_key",
+              "missing_description",
+              "skipped_row"
+            ],
+            "title": "Code"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "rows": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "source",
+          "rows",
+          "message"
+        ],
+        "title": "IngestWarning"
+      },
+      "InvoiceCustomer": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "ico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ico",
+            "description": "Picks the entity's reference data"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "InvoiceCustomer"
+      },
+      "InvoiceDocument": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$",
+            "title": "Id",
+            "description": "Stable identifier, e.g. the dataset case id"
+          },
+          "supplier": {
+            "$ref": "#/components/schemas/InvoiceSupplier"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/InvoiceCustomer"
+          },
+          "invoice": {
+            "$ref": "#/components/schemas/InvoiceHeader"
+          },
+          "handwritten": {
+            "$ref": "#/components/schemas/Handwritten"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/Totals"
+          },
+          "lines": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceLine"
+            },
+            "type": "array",
+            "title": "Lines"
+          },
+          "free_text": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Free Text",
+            "description": "Anything else the OCR captured: contract references, period served"
+          },
+          "ocr_meta": {
+            "$ref": "#/components/schemas/OcrMeta"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "supplier",
+          "customer",
+          "invoice",
+          "handwritten",
+          "totals",
+          "ocr_meta"
+        ],
+        "title": "InvoiceDocument"
+      },
+      "InvoiceHeader": {
+        "properties": {
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "issue_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue Date"
+          },
+          "delivery_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Date"
+          },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "variable_symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variable Symbol"
+          },
+          "currency": {
+            "type": "string",
+            "title": "Currency",
+            "default": "EUR"
+          },
+          "document_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "invoice",
+                  "credit_note"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Type",
+            "description": "Only when printed"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "InvoiceHeader"
+      },
+      "InvoiceLine": {
+        "properties": {
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Quantity"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "unit_price": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Price"
+          },
+          "net": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net"
+          },
+          "vat_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vat Rate"
+          },
+          "vat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vat"
+          },
+          "gross": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "description"
+        ],
+        "title": "InvoiceLine"
+      },
+      "InvoiceListItem": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "split": {
+            "type": "string",
+            "title": "Split"
+          },
+          "supplier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "issue_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue Date"
+          },
+          "gross": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "split",
+          "supplier",
+          "number",
+          "issue_date",
+          "gross"
+        ],
+        "title": "InvoiceListItem",
+        "description": "One row of the invoice picker."
+      },
+      "InvoiceSummary": {
+        "properties": {
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number"
+          },
+          "issued": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issued"
+          },
+          "delivered": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivered"
+          },
+          "due": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due"
+          },
+          "vs": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vs"
+          },
+          "gross": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross"
+          },
+          "vat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "InvoiceSummary"
+      },
+      "InvoiceSupplier": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "ico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ico",
+            "description": "As read; S1 normalises it"
+          },
+          "dic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dic"
+          },
+          "ic_dph": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ic Dph"
+          },
+          "iban": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iban"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "vat_payer": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vat Payer",
+            "description": "Only when printed, e.g. 'nie som platca DPH' or an IČ DPH"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "InvoiceSupplier"
+      },
+      "LineCodes": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
+            "title": "Key"
+          },
+          "md": {
+            "type": "string",
+            "pattern": "^\\d{3} \\d{3}$",
+            "title": "Md"
+          },
+          "dal": {
+            "type": "string",
+            "pattern": "^\\d{3} \\d{3}$",
+            "title": "Dal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "md",
+          "dal"
+        ],
+        "title": "LineCodes",
+        "description": "What the accountant types for one line: the budget key, MD and DAL."
+      },
+      "LineRequest": {
+        "properties": {
+          "invoice": {
+            "$ref": "#/components/schemas/InvoiceDocument"
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{8}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity"
+          },
+          "budget_key": {
+            "type": "string",
+            "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
+            "title": "Budget Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice",
+          "budget_key"
+        ],
+        "title": "LineRequest",
+        "description": "Body of POST /api/line: the invoice, and a position the accountant picked."
+      },
+      "OcrMeta": {
+        "properties": {
+          "source_file": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source File"
+          },
+          "page_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Page Count"
+          },
+          "synthetic": {
+            "type": "boolean",
+            "title": "Synthetic",
+            "description": "Generated for the mock dataset",
+            "default": false
+          },
+          "confidence": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Confidence",
+            "description": "OCR confidence per field, keyed by path: 'handwritten.date', 'lines[0].gross'"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "OcrMeta"
+      },
+      "PostingLine": {
+        "properties": {
+          "md": {
+            "type": "string",
+            "pattern": "^\\d{3} \\d{3}$",
+            "title": "Md"
+          },
+          "dal": {
+            "type": "string",
+            "pattern": "^\\d{3} \\d{3}$",
+            "title": "Dal"
+          },
+          "amount": {
+            "type": "number",
+            "title": "Amount",
+            "description": "EUR, at most two decimals"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "stredisko": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stredisko"
+          },
+          "transfer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transfer"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "md",
+          "dal",
+          "amount",
+          "text"
+        ],
+        "title": "PostingLine",
+        "description": "One line of Zaúčtovanie záväzku."
+      },
+      "Rate": {
+        "properties": {
+          "hits": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Hits"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "N",
+            "description": "Cases the metric applies to"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value",
+            "description": "hits / n, null when n is 0"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "hits",
+          "n",
+          "value"
+        ],
+        "title": "Rate"
+      },
+      "ReferenceBundle": {
+        "properties": {
+          "bundle_id": {
+            "type": "string",
+            "title": "Bundle Id",
+            "description": "'<IČO>/<period>', e.g. '00305863/2026-08'"
+          },
+          "entity": {
+            "$ref": "#/components/schemas/Entity"
+          },
+          "period": {
+            "type": "string",
+            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
+            "title": "Period"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceFile"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/Account"
+            },
+            "type": "array",
+            "title": "Accounts"
+          },
+          "budget_positions_expense": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetPosition"
+            },
+            "type": "array",
+            "title": "Budget Positions Expense"
+          },
+          "budget_positions_income": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetPosition"
+            },
+            "type": "array",
+            "title": "Budget Positions Income"
+          },
+          "document_series": {
+            "items": {
+              "$ref": "#/components/schemas/DocumentSeries"
+            },
+            "type": "array",
+            "title": "Document Series"
+          },
+          "transfers": {
+            "items": {
+              "$ref": "#/components/schemas/Transfer"
+            },
+            "type": "array",
+            "title": "Transfers"
+          },
+          "cost_centres": {
+            "items": {
+              "$ref": "#/components/schemas/CostCentre"
+            },
+            "type": "array",
+            "title": "Cost Centres",
+            "description": "The stredisko list; not exported, so empty in the demo"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/IngestWarning"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "bundle_id",
+          "entity",
+          "period",
+          "sources",
+          "accounts",
+          "budget_positions_expense",
+          "budget_positions_income",
+          "document_series",
+          "transfers"
+        ],
+        "title": "ReferenceBundle"
+      },
+      "SeriesCounter": {
+        "properties": {
+          "series": {
+            "type": "string",
+            "title": "Series"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "last_used": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used"
+          },
+          "next": {
+            "type": "string",
+            "title": "Next"
+          },
+          "used": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Used"
+          }
+        },
+        "type": "object",
+        "required": [
+          "series",
+          "year",
+          "last_used",
+          "next",
+          "used"
+        ],
+        "title": "SeriesCounter",
+        "description": "One row of GET /api/counters: a series' document numbers in one year."
+      },
+      "SourceFile": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "sha256": {
+            "type": "string",
+            "title": "Sha256"
+          },
+          "data_rows": {
+            "type": "integer",
+            "title": "Data Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "name",
+          "sha256",
+          "data_rows"
+        ],
+        "title": "SourceFile"
+      },
+      "SupplierRef": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "ico": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{8}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ico"
+          },
+          "known": {
+            "type": "boolean",
+            "title": "Known",
+            "description": "The supplier has precedents in supplier memory"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "known"
+        ],
+        "title": "SupplierRef"
+      },
+      "Target": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "title": "Metric"
+          },
+          "target": {
+            "type": "number",
+            "title": "Target"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "met": {
+            "type": "boolean",
+            "title": "Met"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "target",
+          "value",
+          "met"
+        ],
+        "title": "Target"
+      },
+      "Totals": {
+        "properties": {
+          "net": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Net"
+          },
+          "vat": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vat"
+          },
+          "gross": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross"
+          },
+          "vat_rates": {
+            "items": {
+              "type": "number",
+              "description": "EUR, as printed on the invoice"
+            },
+            "type": "array",
+            "title": "Vat Rates"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Totals"
+      },
+      "Transfer": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Income-side key the transfer comes from, e.g. '312001 11H 012'"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "zdroj": {
+            "type": "string",
+            "pattern": "^\\d[0-9A-Za-z]{1,3}$",
+            "title": "Zdroj"
+          },
+          "mock": {
+            "type": "boolean",
+            "title": "Mock",
+            "description": "Derived from the income side; the real list was not exported",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "zdroj"
+        ],
+        "title": "Transfer"
+      },
+      "Validation": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "checks": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Checks",
+            "description": "Checks that passed"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errors",
+            "description": "Broken invariants; ok is false"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings",
+            "description": "Set needs_review without failing validation"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ok"
+        ],
+        "title": "Validation"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

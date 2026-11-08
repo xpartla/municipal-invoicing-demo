@@ -61,6 +61,25 @@ uv run --with playwright python tests/e2e/clickthrough.py [screenshot dir]
 `riso reset` clears what the pages recorded (supplier memory, counters, the feedback log), so
 every demo starts from the same state.
 
+## Frontend
+
+The new UI is a React single-page app in `frontend/` (Vite, TypeScript, Mantine, TanStack
+Router and Query, i18next). It needs Node 24 (`frontend/.nvmrc`) and pnpm through corepack:
+
+```sh
+nvm install 24 && nvm use 24     # or any Node 24
+corepack enable pnpm
+cd frontend
+pnpm install
+pnpm dev                          # http://localhost:5173, proxying /api to riso serve --port 8001
+pnpm build                        # into ../riso/web/dist, which riso serve then serves at /
+```
+
+`pnpm lint`, `pnpm typecheck` and `pnpm test` (Vitest) check it. The typed API client is
+generated from the backend's OpenAPI document; after changing a route or its models, run
+`uv run riso export-openapi` and `pnpm gen:api`, and commit both `frontend/openapi.json` and
+`frontend/src/api/schema.d.ts` (`pnpm check:api` fails when either is stale).
+
 ## Checks
 
 `scripts/check.sh` runs the gates. Run `fast` before and after every change, and `full` at
