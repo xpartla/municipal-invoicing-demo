@@ -14,7 +14,6 @@ addresses, the password hash and the memberships go.
 The user owns its memberships, so the rule "one role per user and scope" lives here.
 """
 
-import unicodedata
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import StrEnum
@@ -22,10 +21,9 @@ from enum import StrEnum
 from riso.identity.domain.email import Email
 from riso.identity.domain.membership import Membership, MembershipScope
 from riso.identity.domain.permissions import Role, ScopeKind
-from riso.shared.errors import Conflict, InvalidState, NotFound, ValidationFailed
+from riso.shared.errors import Conflict, InvalidState, NotFound
 from riso.shared.events import DomainEvent
-
-MAX_NAME_LENGTH = 200
+from riso.shared.values import clean_name
 
 
 class UserStatus(StrEnum):
@@ -48,19 +46,6 @@ TRANSITIONS: frozenset[tuple[UserStatus, UserStatus]] = frozenset(
         (UserStatus.DELETED, UserStatus.PURGED),
     }
 )
-
-
-def clean_name(name: str, field: str = "name") -> str:
-    """A person's or organisation's name: trimmed, NFC, one to 200 characters, no control
-    characters."""
-    cleaned = unicodedata.normalize("NFC", " ".join(name.split()))
-    if not cleaned:
-        raise ValidationFailed.on(field, "required", "required")
-    if len(cleaned) > MAX_NAME_LENGTH:
-        raise ValidationFailed.on(field, f"at most {MAX_NAME_LENGTH} characters", "too_long")
-    if any(unicodedata.category(c) == "Cc" for c in cleaned):
-        raise ValidationFailed.on(field, "contains control characters", "invalid")
-    return cleaned
 
 
 @dataclass(slots=True)

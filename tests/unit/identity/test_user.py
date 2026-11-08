@@ -13,9 +13,8 @@ from riso.identity.domain import (
     ScopeKind,
     User,
     UserStatus,
-    clean_name,
 )
-from riso.shared import Conflict, InvalidState, NotFound, ValidationFailed
+from riso.shared import Conflict, InvalidState, NotFound, ValidationFailed, clean_name
 
 T0 = datetime(2026, 6, 11, 8, 0, tzinfo=UTC)
 CUSTOMER = MembershipScope.customer("c1")

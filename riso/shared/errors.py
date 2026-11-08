@@ -6,7 +6,11 @@ Messages carry IDs and states, never invoice content, names or IBANs, because th
 logs.
 """
 
+from collections.abc import Callable
 from dataclasses import dataclass
+from typing import Any, TypeVar
+
+T = TypeVar("T")
 
 
 class DomainError(Exception):
@@ -53,3 +57,40 @@ class ValidationFailed(DomainError):
     def on(cls, field: str, message: str, code: str = "invalid") -> "ValidationFailed":
         """A failure of one field."""
         return cls(message, [FieldError(field, message, code)])
+
+    @classmethod
+    def from_pydantic(
+        cls, message: str, errors: list[Any], *, prefix: str = ""
+    ) -> "ValidationFailed":
+        """From the `errors()` of a Pydantic `ValidationError`: each `loc` becomes a dotted
+        field, under `prefix` when given."""
+        found = []
+        for error in errors:
+            parts = [str(part) for part in error.get("loc", ())]
+            name = ".".join([prefix, *parts] if prefix else parts)
+            found.append(FieldError(name, str(error.get("msg", "")), str(error.get("type", ""))))
+        return cls(message, found)
+
+
+class FieldErrors:
+    """Collects the failures of several fields, so a form gets all of them at once.
+
+    errors = FieldErrors()
+    ico = errors.check(lambda: Ico.parse(cmd.ico))
+    iban = errors.check(lambda: Iban.parse(cmd.iban)) if cmd.iban else None
+    errors.raise_if_any("invalid customer")
+    """
+
+    def __init__(self) -> None:
+        self.errors: list[FieldError] = []
+
+    def check(self, parse: Callable[[], T]) -> T | None:
+        try:
+            return parse()
+        except ValidationFailed as exc:
+            self.errors.extend(exc.errors or [FieldError("", exc.message, "invalid")])
+            return None
+
+    def raise_if_any(self, message: str) -> None:
+        if self.errors:
+            raise ValidationFailed(message, list(self.errors))

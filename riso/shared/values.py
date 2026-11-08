@@ -1,16 +1,18 @@
-"""Value objects used across contexts: IČO, IBAN and money.
+"""Value objects used across contexts: IČO, IBAN, money, and names.
 
 They validate in their constructors and raise `ValidationFailed`, naming the field `ico`,
 `iban` or `amount`; a caller with a different field name passes it to `parse`.
 """
 
 import re
+import unicodedata
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 
 from riso.shared.errors import ValidationFailed
 
 CENT = Decimal("0.01")
+MAX_NAME_LENGTH = 200
 
 
 def ico_is_valid(ico: str) -> bool:
@@ -134,3 +136,16 @@ class Money:
 
     def __str__(self) -> str:
         return f"{self.amount} {self.currency}"
+
+
+def clean_name(name: str, field: str = "name", max_length: int = MAX_NAME_LENGTH) -> str:
+    """A name or a short text: runs of whitespace become one space, NFC, one to `max_length`
+    characters, no control characters."""
+    cleaned = unicodedata.normalize("NFC", " ".join(name.split()))
+    if not cleaned:
+        raise ValidationFailed.on(field, "required", "required")
+    if len(cleaned) > max_length:
+        raise ValidationFailed.on(field, f"at most {max_length} characters", "too_long")
+    if any(unicodedata.category(c) == "Cc" for c in cleaned):
+        raise ValidationFailed.on(field, "contains control characters", "invalid")
+    return cleaned

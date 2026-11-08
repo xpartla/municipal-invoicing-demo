@@ -57,7 +57,7 @@ def test_days_are_counted_in_bratislava(instant, day):
 
 
 class OnlyInvoicesOfC1:
-    def allows(self, permission: str, customer_id: str | None) -> bool:
+    def allows(self, permission: str, customer_id: str | None, provider_id: str | None) -> bool:
         return permission == "invoice.read" and customer_id == "c1"
 
 
@@ -69,6 +69,20 @@ def test_require_raises_without_the_permission():
         ctx.require("invoice.read", "c2")
     with pytest.raises(PermissionDenied):
         ctx.require("invoice.book", "c1")
+
+
+class CreateInP1:
+    def allows(self, permission: str, customer_id: str | None, provider_id: str | None) -> bool:
+        return permission == "customers.create" and provider_id == "p1" and customer_id is None
+
+
+def test_require_passes_the_provider_scope():
+    ctx = RequestContext(request_id="r1", actor_id="u1", policy=CreateInP1())
+    ctx.require("customers.create", provider_id="p1")
+    with pytest.raises(PermissionDenied, match="in provider p2"):
+        ctx.require("customers.create", provider_id="p2")
+    with pytest.raises(PermissionDenied, match="customers.create denied$"):
+        ctx.require("customers.create")
 
 
 def test_an_anonymous_context_is_denied_everything():
