@@ -44,7 +44,9 @@ class Account(Contract):
     type: AccountType
     activity: str | None = None
     description: str | None = None
-    row: int = Field(description="Row in the exported sheet")
+    row: int | None = Field(
+        default=None, description="Row in the exported sheet; none for a row added by hand"
+    )
 
     @model_validator(mode="after")
     def _key_matches_parts(self) -> "Account":
@@ -67,7 +69,10 @@ class BudgetPosition(Contract):
         default_factory=list,
         description="Descriptions of further rows merged into this one because they share the key",
     )
-    rows: list[int] = Field(min_length=1, description="Rows in the exported sheet")
+    rows: list[int] = Field(
+        default_factory=list,
+        description="Rows in the exported sheet; empty for a position added by hand",
+    )
 
     @model_validator(mode="after")
     def _key_matches_parts(self) -> "BudgetPosition":
