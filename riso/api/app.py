@@ -17,10 +17,16 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from riso import __version__, paths
-from riso.api.composition import build_services
+from riso.api.admin import router as admin_router
+from riso.api.composition import Services, build_services
 from riso.api.errors import install_error_handlers
 from riso.api.frontend import FrontendFiles
-from riso.api.middleware import RequestIdMiddleware, SecurityHeadersMiddleware
+from riso.api.middleware import (
+    CsrfCookieMiddleware,
+    RequestIdMiddleware,
+    SecurityHeadersMiddleware,
+)
+from riso.audit.api.routes import router as audit_router
 from riso.contracts import (
     Alternative,
     CodeRequest,
@@ -37,6 +43,7 @@ from riso.engine import code_invoice, code_line
 from riso.engine.s6_validate import check_coding
 from riso.engine.s8_feedback import apply_feedback
 from riso.eval import evaluate
+from riso.identity.api.routes import router as identity_router
 from riso.knowledge import UnknownKnowledge, load_knowledge
 from riso.platform.log import configure_logging
 from riso.platform.migrations import current_revision, head_revision
@@ -49,8 +56,13 @@ from riso.reference import (
     parse_number,
 )
 from riso.store import StateStore
+from riso.tenancy.api.routes import router as tenancy_router
 
 log = logging.getLogger(__name__)
+
+ROUTERS = [identity_router, tenancy_router, audit_router, admin_router]
+"""The phase 2 routers. They are mounted with or without a database, so the OpenAPI document
+and the permission matrix see the same routes; without one they answer 503."""
 
 SPA_DIR = paths.WEB_DIR / "dist"
 """Where `pnpm build` in frontend/ puts the SPA. Git-ignored."""
@@ -129,11 +141,14 @@ class SeriesCounter(BaseModel):
     used: list[str]  # the numbers of this series and year already taken, lowest first
 
 
-def create_app(settings: Settings | None = None) -> FastAPI:
+def create_app(settings: Settings | None = None, services: Services | None = None) -> FastAPI:
+    """The app. `services`, when given, replaces the ones built from `settings.platform`
+    (tests pass a frozen clock and a fast password hasher)."""
     settings = settings or Settings()
     references = LocalReferenceSource(settings.bundles_dir, settings.entities_dir)
     state = StateStore(settings.var_dir, settings.initial_state_dir)
-    services = build_services(settings.platform) if settings.platform else None
+    if services is None and settings.platform is not None:
+        services = build_services(settings.platform)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -159,8 +174,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.services = services
     install_error_handlers(app)
     # Added last runs first: the request ID wraps everything, then the headers.
+    if services is not None:
+        app.add_middleware(
+            CsrfCookieMiddleware,
+            new_token=services.tokens.new_token,
+            secure=services.settings.cookie_secure,
+        )
     app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIdMiddleware)
+    for router in ROUTERS:
+        app.include_router(router)
 
     @app.get("/api/entities", name="legacy.entities")
     def entities() -> list[EntitySummary]:

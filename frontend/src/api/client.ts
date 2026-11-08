@@ -1,6 +1,6 @@
 import createClient, { type ClientOptions, type Middleware } from 'openapi-fetch';
 
-import type { paths } from './schema';
+import type { components, paths } from './schema';
 
 /**
  * The typed API client, generated from the backend's OpenAPI document (`pnpm gen:api` after
@@ -35,6 +35,8 @@ export function createApiClient(options: ClientOptions = {}) {
   const client = createClient<paths>({
     baseUrl: globalThis.location.origin,
     credentials: 'same-origin',
+    // Looked up on every call, so the component tests can stub the global fetch.
+    fetch: (request: Request) => globalThis.fetch(request),
     ...options,
   });
   client.use(csrfMiddleware);
@@ -42,3 +44,5 @@ export function createApiClient(options: ClientOptions = {}) {
 }
 
 export const api = createApiClient();
+
+export type Schemas = components['schemas'];

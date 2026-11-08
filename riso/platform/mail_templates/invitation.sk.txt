@@ -1,0 +1,12 @@
+Subject: Pozvánka do riso: $scope
+
+Dobrý deň, $name,
+
+dostali ste prístup do aplikácie riso: $scope.
+
+Heslo si nastavíte cez tento odkaz, ktorý platí do $expires:
+$link
+
+Ak ste pozvánku nečakali, správu môžete ignorovať.
+
+riso

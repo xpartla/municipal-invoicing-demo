@@ -35,6 +35,16 @@ class ResizeObserver {
 }
 window.ResizeObserver = ResizeObserver;
 
+// jsdom has no FontFaceSet; Mantine's autosizing Textarea listens on it.
+Object.defineProperty(document, 'fonts', {
+  configurable: true,
+  value: {
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
+    ready: Promise.resolve(),
+  },
+});
+
 afterEach(() => {
   cleanup();
   window.localStorage.clear();

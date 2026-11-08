@@ -7,48 +7,93 @@ import {
   Divider,
   Group,
   NavLink,
+  ScrollArea,
   Stack,
   Text,
   Tooltip,
-  useComputedColorScheme,
-  useMantineColorScheme,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { Link, Outlet, useRouterState } from '@tanstack/react-router';
+import {
+  IconChevronsLeft,
+  IconChevronsRight,
+  IconFilePlus,
+  IconHelp,
+  IconLogout,
+  IconUser,
+  type Icon,
+} from '@tabler/icons-react';
+import {
+  Link,
+  Navigate,
+  Outlet,
+  useParams,
+  useRouter,
+  useRouterState,
+} from '@tanstack/react-router';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { tokens } from '../app/theme';
+import { useLogout, useMe, type Me } from '../features/identity/api';
+import { currentCustomerId, worksAcrossCustomers } from '../features/identity/capabilities';
+import { ColorSchemeToggle } from './ColorSchemeToggle';
+import { CustomerSwitcher } from './CustomerSwitcher';
+import { ImpersonationBanner } from './ImpersonationBanner';
+import { menuFor, type Section } from './menu';
 
 /**
- * The application frame of plan §10.1: the left navbar (a drawer on narrow screens) and the
- * content. The menu items are placeholders until the milestones that build their screens;
- * P2-M1 makes the menu depend on the caller's role.
+ * The application frame of plan §10.1: the left navbar (240 px, collapsible to icons, a
+ * drawer on narrow screens) with the customer switcher, the large Nová faktúra button, the
+ * menu per role and, at the bottom, Pomocník, Profil and Odhlásiť; the impersonation banner
+ * above the content.
  */
 
-type MenuKey = 'invoices' | 'codelists' | 'exchange' | 'files' | 'messages' | 'system';
-const PLACEHOLDERS: MenuKey[] = [
-  'invoices',
-  'codelists',
-  'exchange',
-  'files',
-  'messages',
-  'system',
-];
+const COLLAPSED_KEY = 'riso-navbar-collapsed';
+const COLLAPSED_WIDTH = 72;
+
+function readCollapsed(): boolean {
+  try {
+    return window.localStorage.getItem(COLLAPSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeCollapsed(value: boolean): void {
+  try {
+    window.localStorage.setItem(COLLAPSED_KEY, value ? '1' : '0');
+  } catch {
+    // a browser without storage keeps the navbar open
+  }
+}
 
 export function Shell() {
+  const { data: me } = useMe();
+  if (!me) return <Navigate to="/login" />;
+  return <ShellFor me={me} />;
+}
+
+function ShellFor({ me }: { me: Me }) {
   const { t } = useTranslation();
   const [opened, { toggle, close }] = useDisclosure(false);
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const params: { customerId?: string } = useParams({ strict: false });
+  const customerId = currentCustomerId(me, params.customerId);
+  const showSwitcher = worksAcrossCustomers(me) || me.customers.length > 1;
 
   return (
     <AppShell
-      header={{ height: tokens.headerHeight, collapsed: false }}
-      navbar={{ width: tokens.navbarWidth, breakpoint: 'sm', collapsed: { mobile: !opened } }}
+      header={{ height: tokens.headerHeight }}
+      navbar={{
+        width: collapsed ? COLLAPSED_WIDTH : tokens.navbarWidth,
+        breakpoint: 'sm',
+        collapsed: { mobile: !opened },
+      }}
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between">
-          <Group gap="sm">
+        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+          <Group gap="sm" wrap="nowrap">
             <Burger
               opened={opened}
               onClick={toggle}
@@ -59,80 +104,201 @@ export function Shell() {
             <Anchor component={Link} to="/" fw={700} size="lg" underline="never" onClick={close}>
               {t('app.name')}
             </Anchor>
-            <Text c="dimmed" size="sm" visibleFrom="sm">
+            <Text c="dimmed" size="sm" visibleFrom="md">
               {t('app.tagline')}
             </Text>
           </Group>
-          <ColorSchemeToggle />
+          <Group gap="sm" wrap="nowrap">
+            <Text size="sm" visibleFrom="sm" truncate maw={240}>
+              {me.user.name}
+            </Text>
+            <ColorSchemeToggle />
+          </Group>
         </Group>
       </AppShell.Header>
 
       <AppShell.Navbar p="sm" aria-label={t('shell.nav.label')}>
+        {showSwitcher && !collapsed && (
+          <AppShell.Section mb="sm">
+            <CustomerSwitcher me={me} customerId={customerId} onChosen={close} />
+          </AppShell.Section>
+        )}
         <AppShell.Section>
-          <Tooltip label={t('shell.newInvoiceSoon')} withArrow>
+          <Tooltip label={t('shell.newInvoiceSoon')} withArrow position="right">
             {/* The wrapper keeps the tooltip working on the disabled button. */}
             <div>
-              <Button fullWidth size="md" disabled>
-                {t('shell.newInvoice')}
-              </Button>
+              {collapsed ? (
+                <ActionIcon size="xl" disabled aria-label={t('shell.newInvoice')}>
+                  <IconFilePlus aria-hidden />
+                </ActionIcon>
+              ) : (
+                <Button
+                  fullWidth
+                  size="md"
+                  disabled
+                  leftSection={<IconFilePlus size={20} aria-hidden />}
+                >
+                  {t('shell.newInvoice')}
+                </Button>
+              )}
             </div>
           </Tooltip>
         </AppShell.Section>
 
-        <AppShell.Section grow mt="md">
-          <Stack gap={2}>
-            <NavLink
-              component={Link}
-              to="/"
-              label={t('shell.nav.home')}
-              active={pathname === '/'}
-              onClick={close}
-            />
-            {PLACEHOLDERS.map((key) => (
-              <NavLink
-                key={key}
-                label={t(`shell.nav.${key}`)}
-                description={t('shell.nav.soon')}
-                disabled
-                aria-disabled
-              />
-            ))}
-          </Stack>
+        <AppShell.Section grow mt="md" component={ScrollArea}>
+          <Menu me={me} customerId={customerId} collapsed={collapsed} onNavigate={close} />
         </AppShell.Section>
 
         <AppShell.Section>
           <Divider mb="xs" />
-          <NavLink component="a" href="/index.html" label={t('shell.nav.legacyDemo')} />
-          <NavLink label={t('shell.nav.help')} disabled aria-disabled />
-          <NavLink label={t('shell.nav.profile')} disabled aria-disabled />
-          <NavLink label={t('shell.nav.logout')} disabled aria-disabled />
+          <Stack gap={2}>
+            <Item
+              to="/help"
+              icon={IconHelp}
+              label={t('shell.nav.help')}
+              collapsed={collapsed}
+              onNavigate={close}
+            />
+            <Item
+              to="/profile"
+              icon={IconUser}
+              label={t('shell.nav.profile')}
+              collapsed={collapsed}
+              onNavigate={close}
+            />
+            <LogoutItem collapsed={collapsed} />
+            {!collapsed && (
+              <NavLink component="a" href="/index.html" label={t('shell.nav.legacyDemo')} />
+            )}
+            <Group justify={collapsed ? 'center' : 'flex-end'} visibleFrom="sm" mt={4}>
+              <ActionIcon
+                variant="subtle"
+                color="gray"
+                aria-label={collapsed ? t('shell.expand') : t('shell.collapse')}
+                title={collapsed ? t('shell.expand') : t('shell.collapse')}
+                onClick={() => {
+                  setCollapsed(!collapsed);
+                  writeCollapsed(!collapsed);
+                }}
+              >
+                {collapsed ? <IconChevronsRight aria-hidden /> : <IconChevronsLeft aria-hidden />}
+              </ActionIcon>
+            </Group>
+          </Stack>
         </AppShell.Section>
       </AppShell.Navbar>
 
       <AppShell.Main>
+        <ImpersonationBanner me={me} />
         <Outlet />
       </AppShell.Main>
     </AppShell>
   );
 }
 
-function ColorSchemeToggle() {
+const SECTION_LABEL: Record<Exclude<Section, 'general'>, 'customer' | 'provider' | 'admin'> = {
+  customer: 'customer',
+  provider: 'provider',
+  admin: 'admin',
+};
+
+function Menu({
+  me,
+  customerId,
+  collapsed,
+  onNavigate,
+}: {
+  me: Me;
+  customerId: string | undefined;
+  collapsed: boolean;
+  onNavigate: () => void;
+}) {
   const { t } = useTranslation();
-  const { setColorScheme } = useMantineColorScheme();
-  const computed = useComputedColorScheme('light', { getInitialValueInEffect: false });
-  const next = computed === 'dark' ? 'light' : 'dark';
-  const label = next === 'light' ? t('shell.theme.toLight') : t('shell.theme.toDark');
+  const items = menuFor(me, customerId);
+  const sections = [...new Set(items.map((item) => item.section))];
   return (
-    <ActionIcon
-      variant="default"
-      size="lg"
-      aria-label={label}
-      title={label}
+    <Stack gap="xs">
+      {sections.map((section) => (
+        <Stack gap={2} key={section}>
+          {section !== 'general' && !collapsed && (
+            <Text size="xs" fw={600} c="dimmed" tt="uppercase" px="sm" pt={4}>
+              {t(`shell.section.${SECTION_LABEL[section]}`)}
+            </Text>
+          )}
+          {items
+            .filter((item) => item.section === section)
+            .map((item) => (
+              <Item
+                key={item.key}
+                to={item.path(customerId ?? '')}
+                icon={item.icon}
+                label={t(`shell.nav.${item.key}`)}
+                collapsed={collapsed}
+                exact={item.key === 'home'}
+                onNavigate={onNavigate}
+              />
+            ))}
+        </Stack>
+      ))}
+    </Stack>
+  );
+}
+
+function Item({
+  to,
+  icon: ItemIcon,
+  label,
+  collapsed,
+  exact = false,
+  onNavigate,
+}: {
+  to: string;
+  icon: Icon;
+  label: string;
+  collapsed: boolean;
+  exact?: boolean;
+  onNavigate?: () => void;
+}) {
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const active = exact ? pathname === to : pathname === to || pathname.startsWith(`${to}/`);
+  const link = (
+    <NavLink
+      component={Link}
+      to={to}
+      label={collapsed ? undefined : label}
+      aria-label={collapsed ? label : undefined}
+      leftSection={<ItemIcon size={20} aria-hidden />}
+      active={active}
+      onClick={onNavigate}
+    />
+  );
+  return collapsed ? (
+    <Tooltip label={label} position="right" withArrow>
+      {link}
+    </Tooltip>
+  ) : (
+    link
+  );
+}
+
+function LogoutItem({ collapsed }: { collapsed: boolean }) {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const logout = useLogout();
+  const label = t('shell.nav.logout');
+  return (
+    <NavLink
+      component="button"
+      type="button"
+      label={collapsed ? undefined : label}
+      aria-label={collapsed ? label : undefined}
+      leftSection={<IconLogout size={20} aria-hidden />}
+      disabled={logout.isPending}
       onClick={() => {
-        setColorScheme(next);
+        void logout.mutateAsync().finally(() => {
+          router.history.push('/login?notice=logged-out');
+        });
       }}
-    >
-      <span aria-hidden="true">{next === 'light' ? '☀' : '☾'}</span>
-    </ActionIcon>
+    />
   );
 }

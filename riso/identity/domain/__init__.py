@@ -1,3 +1,63 @@
-"""Entities, value objects, domain services, events, repository protocols and errors of the
-identity context. Pure Python: it imports only this context's domain, `riso.shared` and
-`riso.contracts`; never SQLAlchemy, FastAPI, `riso.platform` or I/O libraries."""
+"""Entities, value objects, domain services, events, repository protocols and errors of the identity
+context. Pure Python: it imports only this context's domain, `riso.shared` and `riso.contracts`;
+never SQLAlchemy, FastAPI, `riso.platform` or I/O libraries."""
+
+from riso.identity.domain.email import Email
+from riso.identity.domain.membership import Membership, MembershipScope
+from riso.identity.domain.passwords import PasswordHasher, PasswordPolicy
+from riso.identity.domain.permissions import (
+    ROLE_PERMISSIONS,
+    ROLE_SCOPE,
+    Permission,
+    Role,
+    ScopeKind,
+)
+from riso.identity.domain.repository import (
+    LoginAttemptRepository,
+    SessionRepository,
+    TokenRepository,
+    UserRepository,
+)
+from riso.identity.domain.session import (
+    ABSOLUTE_LIMIT,
+    IDLE_TIMEOUT,
+    IMPERSONATION_LIMIT,
+    Session,
+    hash_token,
+)
+from riso.identity.domain.throttle import LoginAttempts, account_key, delay_after, ip_key
+from riso.identity.domain.token import LIFETIME, Token, TokenKind, invalid_token
+from riso.identity.domain.user import TRANSITIONS, User, UserStatus
+
+__all__ = [
+    "ABSOLUTE_LIMIT",
+    "IDLE_TIMEOUT",
+    "IMPERSONATION_LIMIT",
+    "LIFETIME",
+    "ROLE_PERMISSIONS",
+    "ROLE_SCOPE",
+    "TRANSITIONS",
+    "Email",
+    "LoginAttemptRepository",
+    "LoginAttempts",
+    "Membership",
+    "MembershipScope",
+    "PasswordHasher",
+    "PasswordPolicy",
+    "Permission",
+    "Role",
+    "ScopeKind",
+    "Session",
+    "SessionRepository",
+    "Token",
+    "TokenKind",
+    "TokenRepository",
+    "User",
+    "UserRepository",
+    "UserStatus",
+    "account_key",
+    "delay_after",
+    "hash_token",
+    "invalid_token",
+    "ip_key",
+]

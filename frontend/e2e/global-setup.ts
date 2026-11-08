@@ -5,10 +5,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { SEED_PASSWORD } from './seed';
+
 /**
- * Starts the backend for the E2E run: a temporary RISO_VAR_DIR, `riso migrate` (and
- * `riso seed` once P2-M1 adds it), then `riso serve` on a free port serving the built SPA.
- * The URL goes to the tests through RISO_E2E_URL. The returned function tears it all down.
+ * Starts the backend for the E2E run: a temporary RISO_VAR_DIR, `riso seed` (which migrates,
+ * then creates Boldog, the demo provider and a user per role, see `seed.ts`), then
+ * `riso serve` on a free port serving the built SPA. The URL goes to the tests through
+ * RISO_E2E_URL. The returned function tears it all down.
  */
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -62,12 +65,14 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     ...process.env,
     RISO_VAR_DIR: varDir,
     RISO_ENV: 'test',
+    RISO_SEED_PASSWORD: SEED_PASSWORD,
   };
   delete env.RISO_DB_URL;
-  riso(['migrate'], env);
+  riso(['seed'], env);
 
   const port = await freePort();
   const url = `http://127.0.0.1:${String(port)}`;
+  env.RISO_PUBLIC_URL = url; // the links in mail point at this server
   let output = '';
   // Its own process group, so the teardown stops uv and the server it started together.
   const server = spawn('uv', ['run', 'riso', 'serve', '--port', String(port)], {

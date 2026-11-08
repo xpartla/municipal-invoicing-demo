@@ -1,10 +1,12 @@
 """The request context every use case receives (plan §4.4).
 
 It says who acts (the principal), who really acts when an admin impersonates someone, which
-customer the request works in, and the request ID for the logs. `require()` asks the access
-policy whether a permission holds, and raises `PermissionDenied` when it does not.
+customer the request works in, the request ID and the client's address for the logs and the
+audit. `require()` asks the access policy whether a permission holds, in a customer, in a
+service provider, or (with neither) on the platform, and raises `PermissionDenied` when it
+does not.
 
-This is the skeleton from P2-M0. P2-M1 fills in the policy from memberships and roles; the
+The policy comes from the principal's memberships (`riso.identity.application.access`); the
 permissions themselves are an enum in `riso.identity.domain` (a `StrEnum`, so a plain string
 works here too).
 """
@@ -16,22 +18,23 @@ from riso.shared.errors import PermissionDenied
 
 
 class AccessPolicy(Protocol):
-    def allows(self, permission: str, customer_id: str | None) -> bool:
-        """Whether the principal holds `permission`, in `customer_id` when it is given."""
+    def allows(self, permission: str, customer_id: str | None, provider_id: str | None) -> bool:
+        """Whether the principal holds `permission` in the customer, else in the provider,
+        else (with neither) on the platform."""
         ...
 
 
 class DenyAll:
     """The policy of an anonymous request."""
 
-    def allows(self, permission: str, customer_id: str | None) -> bool:
+    def allows(self, permission: str, customer_id: str | None, provider_id: str | None) -> bool:
         return False
 
 
 class AllowAll:
     """The policy of trusted internal callers: the CLI and tests."""
 
-    def allows(self, permission: str, customer_id: str | None) -> bool:
+    def allows(self, permission: str, customer_id: str | None, provider_id: str | None) -> bool:
         return True
 
 
@@ -44,21 +47,32 @@ class RequestContext:
     """The admin behind an impersonation; None otherwise."""
     customer_id: str | None = None
     """The acting customer, from the URL; None outside customer routes."""
+    ip: str | None = None
+    """The client's address, for the audit."""
     policy: AccessPolicy = field(default_factory=DenyAll)
 
     @property
     def impersonating(self) -> bool:
         return self.real_actor_id is not None
 
-    def allows(self, permission: str, customer_id: str | None = None) -> bool:
-        return self.policy.allows(permission, customer_id)
+    def allows(
+        self, permission: str, customer_id: str | None = None, *, provider_id: str | None = None
+    ) -> bool:
+        return self.policy.allows(permission, customer_id, provider_id)
 
-    def require(self, permission: str, customer_id: str | None = None) -> None:
+    def require(
+        self, permission: str, customer_id: str | None = None, *, provider_id: str | None = None
+    ) -> None:
         """Raises `PermissionDenied` unless the principal holds the permission. Use cases call
         this first, even when the route already checked, because jobs and the CLI call them
         too."""
-        if not self.policy.allows(permission, customer_id):
-            where = f" in customer {customer_id}" if customer_id else ""
+        if not self.policy.allows(permission, customer_id, provider_id):
+            if customer_id:
+                where = f" in customer {customer_id}"
+            elif provider_id:
+                where = f" in provider {provider_id}"
+            else:
+                where = ""
             raise PermissionDenied(f"{permission} denied{where}")
 
     @classmethod

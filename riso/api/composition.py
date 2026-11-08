@@ -7,6 +7,12 @@ import os
 import socket
 from dataclasses import dataclass, field
 
+from riso.api.adapters import SpaLinks, SqlTenancyDirectory
+from riso.api.uow import AppUnitOfWork
+from riso.identity.application.access import Grant, MembershipPolicy
+from riso.identity.domain import PasswordHasher, PasswordPolicy
+from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
+from riso.identity.infrastructure.sessions import SecretsTokenGenerator
 from riso.jobs import JobRegistry, Worker, register_builtin
 from riso.jobs.infrastructure.thread import WorkerThread
 from riso.jobs.infrastructure.uow import SqlJobsUnitOfWork, jobs_uow_factory
@@ -30,7 +36,19 @@ class Services:
     ids: IdGenerator
     registry: JobRegistry
     storage: LocalFileStorage
+    hasher: PasswordHasher
+    password_policy: PasswordPolicy
+    tokens: SecretsTokenGenerator
+    directory: SqlTenancyDirectory
+    links: SpaLinks
     _threads: list[WorkerThread] = field(default_factory=list)
+
+    def uow(self, immediate: bool = True) -> AppUnitOfWork:
+        """A unit of work over every context; with BEGIN IMMEDIATE unless told otherwise."""
+        return AppUnitOfWork(self.db, clock=self.clock, ids=self.ids, immediate=immediate)
+
+    def policy(self, grants: tuple[Grant, ...]) -> MembershipPolicy:
+        return MembershipPolicy(grants, self.directory)
 
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(
@@ -60,14 +78,21 @@ def build_services(
     *,
     clock: Clock | None = None,
     registry: JobRegistry | None = None,
+    hasher: PasswordHasher | None = None,
 ) -> Services:
     settings = settings or Settings()
     clock = clock or SystemClock()
+    db = Database(settings.db_url)
     return Services(
         settings=settings,
-        db=Database(settings.db_url),
+        db=db,
         clock=clock,
         ids=UuidV7Generator(clock),
         registry=registry or build_registry(),
         storage=LocalFileStorage(settings.files_dir, clock),
+        hasher=hasher or Argon2Hasher(),
+        password_policy=default_policy(),
+        tokens=SecretsTokenGenerator(),
+        directory=SqlTenancyDirectory(db),
+        links=SpaLinks(settings.public_url),
     )

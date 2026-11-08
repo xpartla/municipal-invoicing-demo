@@ -7,6 +7,9 @@ import importlib
 MODEL_MODULES: tuple[str, ...] = (
     "riso.platform.mail",
     "riso.jobs.infrastructure.orm",
+    "riso.identity.infrastructure.orm",
+    "riso.tenancy.infrastructure.orm",
+    "riso.audit.infrastructure.orm",
 )
 
 

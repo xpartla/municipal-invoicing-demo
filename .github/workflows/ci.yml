@@ -47,9 +47,13 @@ jobs:
         with:
           cache-dependency-glob: uv.lock
       - run: uv sync --locked
-      # Coverage is reported during P2-M0 and enforced from P2-M1 (85% overall, 90% domain).
-      - name: pytest (not ocr, not e2e) with coverage
-        run: uv run pytest -m "not ocr and not e2e" --cov=riso --cov-report=term:skip-covered
+      # Coverage is enforced from P2-M1 (plan §13.2): 85% overall, 90% for the domain packages.
+      - name: pytest (not ocr, not e2e) with coverage (85% overall)
+        run: >-
+          uv run pytest -m "not ocr and not e2e" --cov=riso --cov-report=term:skip-covered
+          --cov-fail-under=85
+      - name: coverage of the domain packages (90%)
+        run: uv run coverage report --include='riso/*/domain/*' --skip-covered --fail-under=90
       - run: uv run riso check
       - name: schema drift
         run: uv run riso export-schemas --check

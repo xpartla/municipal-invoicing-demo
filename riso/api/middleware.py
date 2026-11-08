@@ -5,6 +5,7 @@ the endpoints, including the sync ones that run in the thread pool.
 """
 
 import re
+from collections.abc import Callable
 from typing import Any
 
 from starlette.datastructures import MutableHeaders
@@ -126,3 +127,42 @@ def _header(scope: Scope, name: bytes) -> str | None:
         if key == name:
             return str(value.decode("latin-1"))
     return None
+
+
+class CsrfCookieMiddleware:
+    """Gives a caller without a `riso_csrf` cookie a random one, so even the requests before
+    a login (the login itself, a password reset) carry a double-submit token. A response that
+    sets the cookie itself (login, logout) is left alone."""
+
+    def __init__(self, app: ASGIApp, *, new_token: Callable[[], str], secure: bool = False) -> None:
+        self.app = app
+        self._new_token = new_token
+        self._secure = secure
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http" or _has_cookie(scope, CSRF_COOKIE_NAME):
+            await self.app(scope, receive, send)
+            return
+
+        async def send_with_cookie(message: Message) -> None:
+            if message["type"] == "http.response.start":
+                headers = MutableHeaders(scope=message)
+                prefix = f"{CSRF_COOKIE_NAME}="
+                if not any(v.startswith(prefix) for v in headers.getlist("set-cookie")):
+                    cookie = f"{prefix}{self._new_token()}; Path=/; SameSite=lax"
+                    headers.append("set-cookie", cookie + ("; Secure" if self._secure else ""))
+            await send(message)
+
+        await self.app(scope, receive, send_with_cookie)
+
+
+CSRF_COOKIE_NAME = "riso_csrf"
+
+
+def _has_cookie(scope: Scope, name: str) -> bool:
+    for key, value in scope.get("headers", ()):
+        if key == b"cookie":
+            for part in value.decode("latin-1").split(";"):
+                if part.strip().startswith(f"{name}="):
+                    return True
+    return False
