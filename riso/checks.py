@@ -196,8 +196,8 @@ def _expected_gross(case: DatasetCase) -> Decimal | None:
     """What the coding must add up to: the invoice total, or, when the case was built with
     an unreadable or mistyped total, the sum of its entries rounded to cents."""
     invoice = case.invoice
-    entries = [line.gross for line in invoice.lines]
-    if "ocr-noise" in case.tags and entries and None not in entries:
+    entries = [line.gross for line in invoice.lines if line.gross is not None]
+    if "ocr-noise" in case.tags and entries and len(entries) == len(invoice.lines):
         return sum(entries, Decimal(0)).quantize(Decimal("0.01"))
     return invoice.totals.gross
 

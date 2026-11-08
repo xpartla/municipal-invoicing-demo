@@ -20,6 +20,7 @@ from riso.contracts import (
     Transfer,
     budget_key,
 )
+from riso.contracts.reference import AccountType
 from riso.ingest.excel import read_rows
 
 CHART_FILE = "UctovnyRozvrh.xls"
@@ -35,7 +36,7 @@ SERIES_HEADER = ["Evidenčné číslo", "Vzor dokladu", "Popis", "Bankový úče
 # Sheet rows above the data: the chart has a title, the entity and the header.
 HEADER_ROWS = {CHART_FILE: 3, EXPENSE_FILE: 1, INCOME_FILE: 1, SERIES_FILE: 1}
 
-ACCOUNT_TYPES = {
+ACCOUNT_TYPES: dict[str, AccountType] = {
     "Aktívny": "active",
     "Pasívny": "passive",
     "Nákladový": "cost",
@@ -175,6 +176,8 @@ def _budget_positions(
     for number, row in _data_rows(rows, source):
         try:
             ek, zdroj = _code(row[0], 6, "Kód"), _zdroj(row[1])
+            oddiel: str | None
+            trieda: str | None
             if with_function:
                 oddiel, trieda = _code(row[2], 2, "Oddiel"), _code(row[3], 3, "Trieda")
             else:

@@ -12,6 +12,7 @@ from riso.engine.models import (
     CandidateSet,
     ChosenLine,
     Decision,
+    DecisionRule,
     NormalisedInvoice,
     ResolvedContext,
 )
@@ -81,7 +82,7 @@ def decide(
 
 
 def _one(
-    rule: str,
+    rule: DecisionRule,
     chosen: Candidate,
     invoice: NormalisedInvoice,
     ranked: tuple[Candidate, ...],

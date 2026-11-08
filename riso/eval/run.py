@@ -93,7 +93,7 @@ def evaluate(
                 metric=name,
                 target=target,
                 value=found[name].value,
-                met=found[name].value is not None and found[name].value >= target,
+                met=_met(found[name].value, target),
             )
             for name, target in TARGETS
         ],
@@ -101,6 +101,10 @@ def evaluate(
         by_tag=by_tag(results, TAGS),
         cases=results,
     )
+
+
+def _met(value: float | None, target: float) -> bool:
+    return value is not None and value >= target
 
 
 def dataset_digest(directory: Path) -> str:

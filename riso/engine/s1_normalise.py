@@ -134,11 +134,8 @@ def _gross(
     document: InvoiceDocument, line_grosses: list[Decimal | None], issues: list[str]
 ) -> Decimal | None:
     totals = document.totals
-    entries = (
-        sum(line_grosses, Decimal(0))
-        if line_grosses and all(g is not None for g in line_grosses)
-        else None
-    )
+    known = [g for g in line_grosses if g is not None]
+    entries = sum(known, Decimal(0)) if line_grosses and len(known) == len(line_grosses) else None
     if totals.gross is not None:
         if entries is not None and abs(cents(entries) - totals.gross) > CENT:
             issues.append(

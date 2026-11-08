@@ -39,8 +39,8 @@ uv run riso eval
 Requires [uv](https://docs.astral.sh/uv/) and Python 3.12 or later.
 
 ```sh
-uv sync
-uv run pytest
+uv sync                    # the project and its dev tools (mypy, import-linter, ...)
+scripts/check.sh fast
 uv run riso serve          # http://127.0.0.1:8000
 ```
 
@@ -54,6 +54,24 @@ uv run --with playwright python tests/e2e/clickthrough.py [screenshot dir]
 
 `riso reset` clears what the pages recorded (supplier memory, counters, the feedback log), so
 every demo starts from the same state.
+
+## Checks
+
+`scripts/check.sh` runs the gates. Run `fast` before and after every change, and `full` at
+checkpoints that touch UI flows, the API contract, migrations or OCR:
+
+```sh
+scripts/check.sh fast    # ruff check and format, mypy, lint-imports, pytest without the ocr
+                         # and e2e markers, riso check, schema drift, migrations, and the
+                         # frontend's lint, typecheck and unit tests when frontend/ changed
+scripts/check.sh full    # fast with a coverage report, plus pytest -m ocr, the frontend
+                         # build, the API client drift check and the Playwright E2E specs
+```
+
+Every step runs and the summary names the ones that failed; the exit code is non-zero if any
+did. A step whose tool is not set up yet is skipped with a message. The pytest markers are
+`ocr`, `e2e` and `slow`. mypy is strict for the phase 2 packages (`riso.shared`,
+`riso.platform` and the bounded contexts) and at its default level for the demo packages.
 
 ## Commands
 
