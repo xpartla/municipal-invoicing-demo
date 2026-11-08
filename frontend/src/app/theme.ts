@@ -40,20 +40,27 @@ export const theme = createTheme({
   cursorType: 'pointer',
 });
 
-/** Our own CSS variables, per colour scheme. */
+/**
+ * Our own CSS variables, per colour scheme, and two of Mantine's raised to WCAG AA contrast
+ * (4.5:1 on the body background): dimmed text and links. axe checks them in the E2E specs.
+ */
 export const cssVariablesResolver: CSSVariablesResolver = (current) => ({
   variables: {
-    '--riso-navbar-width': `${tokens.navbarWidth}px`,
+    '--riso-navbar-width': `${String(tokens.navbarWidth)}px`,
   },
   light: {
     '--riso-surface': current.white,
     '--riso-canvas': current.colors.gray[0],
     '--riso-border': current.colors.gray[3],
+    '--mantine-color-dimmed': current.colors.gray[7],
+    '--mantine-color-anchor': riso[7],
   },
   dark: {
     '--riso-surface': current.colors.dark[7],
     '--riso-canvas': current.colors.dark[8],
     '--riso-border': current.colors.dark[4],
+    '--mantine-color-dimmed': current.colors.dark[1],
+    '--mantine-color-anchor': riso[3],
   },
 });
 

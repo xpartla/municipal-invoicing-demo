@@ -41,6 +41,16 @@ export default defineConfig([
     rules: { 'no-restricted-syntax': 'off' },
   },
   {
+    // Playwright: fixtures receive `use`, which is not React's, and `{}` is its idiom for a
+    // fixture without dependencies.
+    files: ['e2e/**', 'playwright.config.ts'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      'no-empty-pattern': 'off',
+      'no-restricted-syntax': 'off',
+    },
+  },
+  {
     files: ['**/*.js'],
     extends: [js.configs.recommended],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },

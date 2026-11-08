@@ -17,7 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "gen:api": "openapi-typescript openapi.json -o src/api/schema.d.ts",
-    "check:api": "uv run riso export-openapi --check && openapi-typescript openapi.json -o src/api/schema.d.ts --check"
+    "check:api": "uv run riso export-openapi --check && openapi-typescript openapi.json -o src/api/schema.d.ts --check",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@mantine/core": "^9.7.5",
@@ -31,7 +32,9 @@
     "react-i18next": "^18.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.65.0",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

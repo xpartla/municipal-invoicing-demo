@@ -75,7 +75,16 @@ pnpm dev                          # http://localhost:5173, proxying /api to riso
 pnpm build                        # into ../riso/web/dist, which riso serve then serves at /
 ```
 
-`pnpm lint`, `pnpm typecheck` and `pnpm test` (Vitest) check it. The typed API client is
+`pnpm lint`, `pnpm typecheck` and `pnpm test` (Vitest) check it. The E2E specs in
+`frontend/e2e/` run Playwright against the real backend: the global setup migrates a
+temporary database, starts `riso serve` on a free port serving the built SPA, and tears it
+down. Every spec runs at 390, 820 and 1280 px, fails on any console error, and checks
+accessibility with axe (WCAG 2.1 AA):
+
+```sh
+pnpm exec playwright install chromium   # once
+pnpm build && pnpm e2e
+``` The typed API client is
 generated from the backend's OpenAPI document; after changing a route or its models, run
 `uv run riso export-openapi` and `pnpm gen:api`, and commit both `frontend/openapi.json` and
 `frontend/src/api/schema.d.ts` (`pnpm check:api` fails when either is stale).

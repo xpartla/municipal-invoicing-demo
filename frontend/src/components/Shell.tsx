@@ -94,6 +94,7 @@ export function Shell() {
                 label={t(`shell.nav.${key}`)}
                 description={t('shell.nav.soon')}
                 disabled
+                aria-disabled
               />
             ))}
           </Stack>
@@ -102,9 +103,9 @@ export function Shell() {
         <AppShell.Section>
           <Divider mb="xs" />
           <NavLink component="a" href="/index.html" label={t('shell.nav.legacyDemo')} />
-          <NavLink label={t('shell.nav.help')} disabled />
-          <NavLink label={t('shell.nav.profile')} disabled />
-          <NavLink label={t('shell.nav.logout')} disabled />
+          <NavLink label={t('shell.nav.help')} disabled aria-disabled />
+          <NavLink label={t('shell.nav.profile')} disabled aria-disabled />
+          <NavLink label={t('shell.nav.logout')} disabled aria-disabled />
         </AppShell.Section>
       </AppShell.Navbar>
 
