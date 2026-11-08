@@ -286,8 +286,19 @@ def set_parameters(
     parameters = CustomerParameters.parse(customer_id, year, values)
     with uow:
         uow.customers.get(customer_id)
+        before = uow.parameters.get(customer_id, year)
         uow.parameters.save(parameters)
-        _audit(ctx, uow, "customer.parameters_set", customer_id, {"year": year})
+        _audit(
+            ctx,
+            uow,
+            "customer.parameters_set",
+            customer_id,
+            {
+                "year": year,
+                "before": before.values() if before else None,
+                "after": parameters.values(),
+            },
+        )
         uow.commit()
     return ParametersView.of(parameters)
 

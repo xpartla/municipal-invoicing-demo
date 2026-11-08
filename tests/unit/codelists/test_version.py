@@ -166,3 +166,24 @@ def test_the_info_summarises_the_version():
         "2026-08",
         "from the export",
     )
+
+
+def test_the_difference_between_two_versions():
+    from riso.codelists.domain.diff import diff_versions
+
+    first = _first()
+    edited = first.with_replaced("518 003", AccountEntry("518", "003", "cost", description="x"))
+    entries = (*[e for e in edited if e.key != "518 000"], AccountEntry("518", "010", "cost"))
+    second = first.succeed("v2", entries, origin=VersionOrigin.EDIT, at=LATER, actor="u1")
+    diff = diff_versions(first, second)
+    assert [e.key for e in diff.added] == ["518 010"]
+    assert [e.key for e in diff.removed] == ["518 000"]
+    assert [(c.key, c.before.description, c.after.description) for c in diff.changed] == [
+        ("518 003", None, "x")
+    ]
+    assert diff_versions(second, second).empty
+    other = CodeListVersion.first(
+        "o1", ListKind.ACCOUNTS, "c2", 2026, (), origin=VersionOrigin.SEED, at=AT, actor=None
+    )
+    with pytest.raises(ValueError):
+        diff_versions(first, other)

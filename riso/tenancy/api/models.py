@@ -1,6 +1,7 @@
 """Request and response models of the tenancy API."""
 
 from datetime import datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -8,6 +9,7 @@ from riso.tenancy.application import (
     CustomerView,
     CustomerWithLogins,
     LoginRef,
+    ParametersView,
     ProviderDetail,
     ProviderOverview,
     ProviderView,
@@ -177,3 +179,20 @@ class ProviderDetailOut(BaseModel):
             staff=[LoginOut.of(x) for x in view.staff],
             customers=[CustomerOut.of(c) for c in view.customers],
         )
+
+
+class ParametersOut(BaseModel):
+    customer_id: str
+    year: int
+    values: dict[str, Any] = Field(
+        description="vat_payer, default_zdroj, default_series, default_dal, canteen_series, "
+        "canteen_dal"
+    )
+
+    @classmethod
+    def of(cls, view: ParametersView) -> "ParametersOut":
+        return cls(customer_id=view.customer_id, year=view.year, values=view.values)
+
+
+class ParametersIn(BaseModel):
+    values: dict[str, Any]

@@ -96,6 +96,21 @@ MATRIX: dict[str, RouteAccess] = {
     "audit.list": platform(Permission.AUDIT_READ),
     # Code lists.
     "codelists.health": customer(Permission.CUSTOMER_READ),
+    "codelists.overview": customer(Permission.CUSTOMER_READ),
+    "codelists.entries": customer(Permission.CUSTOMER_READ),
+    "codelists.versions": customer(Permission.CUSTOMER_READ),
+    "codelists.diff": customer(Permission.CUSTOMER_READ),
+    "codelists.add_entry": customer(Permission.CODELISTS_EDIT),
+    "codelists.edit_entry": customer(Permission.CODELISTS_EDIT),
+    "codelists.deactivate_entry": customer(Permission.CODELISTS_EDIT),
+    "codelists.reactivate_entry": customer(Permission.CODELISTS_EDIT),
+    "conventions.get": customer(Permission.CUSTOMER_READ),
+    "conventions.set": customer(Permission.CODELISTS_EDIT),
+    "parameters.get": customer(Permission.CUSTOMER_READ),
+    "parameters.set": customer(Permission.CODELISTS_EDIT),
+    "admin_codelists.checklist": platform(Permission.GLOBAL_CODELISTS),
+    "admin_codelists.entries": platform(Permission.GLOBAL_CODELISTS),
+    "admin_codelists.versions": platform(Permission.GLOBAL_CODELISTS),
     # Invoicing.
     "coding.code": customer(Permission.INVOICES_PROCESS),
     # Tenancy.

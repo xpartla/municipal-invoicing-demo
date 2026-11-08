@@ -32,11 +32,18 @@ CENT = Decimal("0.01")
 MAX_NAME = 500
 
 
-def _validated[M: BaseModel](model: type[M], values: Mapping[str, Any]) -> M:
+def _validated[M: BaseModel](
+    model: type[M], values: Mapping[str, Any], *, derived_key: bool = False
+) -> M:
+    """The contract model of the values. With `derived_key` the key was built from the parts,
+    so a failure of the key alone is a consequence of a failing part and is not reported."""
     try:
         return model.model_validate(dict(values))
     except ValidationError as exc:
-        raise ValidationFailed.from_pydantic("invalid entry", exc.errors()) from exc
+        errors = exc.errors()
+        if derived_key and any(e["loc"] != ("key",) for e in errors):
+            errors = [e for e in errors if e["loc"] != ("key",)]
+        raise ValidationFailed.from_pydantic("invalid entry", errors) from exc
 
 
 def _only(values: Mapping[str, Any], allowed: tuple[str, ...]) -> None:
@@ -121,8 +128,9 @@ class AccountEntry:
         _only(values, cls.FIELDS)
         active = _flag(values)
         data = {k: v for k, v in values.items() if k != "active"}
+        derived = "key" not in data
         data.setdefault("key", f"{data.get('su')} {data.get('au')}")
-        return cls.of(_validated(Account, data), active=active)
+        return cls.of(_validated(Account, data, derived_key=derived), active=active)
 
     @classmethod
     def of(cls, account: Account, *, active: bool = True) -> "AccountEntry":
@@ -199,6 +207,7 @@ class BudgetEntry:
         approved = _amount(values, "approved")
         adjusted = _amount(values, "adjusted")
         data = {k: v for k, v in values.items() if k not in ("active", "approved", "adjusted")}
+        derived = "key" not in data
         data.setdefault(
             "key",
             budget_key(
@@ -210,7 +219,7 @@ class BudgetEntry:
             ),
         )
         data.setdefault("rows", [])
-        position = _validated(BudgetPosition, data)
+        position = _validated(BudgetPosition, data, derived_key=derived)
         if expense and position.oddiel is None:
             raise ValidationFailed.on("oddiel", "an expense position needs its function", "missing")
         return cls.of(position, active=active, approved=approved, adjusted=adjusted)

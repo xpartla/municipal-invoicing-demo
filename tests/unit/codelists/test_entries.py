@@ -188,3 +188,12 @@ def test_entry_fields_leave_the_derived_key_out():
         "active",
     )
     assert entry_fields(ListKind.EK) == ("code", "name", "active")
+
+
+def test_a_failing_part_is_reported_without_the_key_derived_from_it():
+    with pytest.raises(ValidationFailed) as caught:
+        parse_entry(ListKind.ACCOUNTS, {"su": "5", "au": "003", "type": "cost"})
+    assert _fields(caught.value) == ["su"]
+    with pytest.raises(ValidationFailed) as caught:
+        parse_entry(ListKind.BUDGET_EXPENSE, {**EXPENSE, "ek": "63"})
+    assert _fields(caught.value) == ["ek"]

@@ -3,7 +3,7 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from riso.api.deps import (
     Caller,
@@ -14,6 +14,7 @@ from riso.api.deps import (
     provider_context,
 )
 from riso.identity import Permission
+from riso.shared.errors import ValidationFailed
 from riso.tenancy.api.models import (
     AddressIn,
     AdminCustomerIn,
@@ -23,6 +24,8 @@ from riso.tenancy.api.models import (
     CustomerIn,
     CustomerOut,
     CustomerWithLoginsOut,
+    ParametersIn,
+    ParametersOut,
     ProviderDetailOut,
     ProviderIn,
     ProviderOut,
@@ -42,11 +45,13 @@ from riso.tenancy.application import (
     customer_directory,
     delete_customer,
     get_customer,
+    get_parameters,
     get_provider,
     list_providers,
     purge_customer,
     remove_provider,
     restore_customer,
+    set_parameters,
     unassign_provider,
     update_contact,
     update_identity,
@@ -254,3 +259,34 @@ def customers_unassign(
     caller: ProviderManager, services: ServicesDep, customer_id: str
 ) -> CustomerOut:
     return CustomerOut.of(unassign_provider(caller.ctx, services.uow(), customer_id))
+
+
+ParametersYear = Annotated[int, Query(ge=2000, le=2100)]
+
+
+@router.get("/customers/{customer_id}/parameters", name="parameters.get")
+def parameters_get(
+    caller: Annotated[Caller, Depends(customer_context(Permission.CUSTOMER_READ))],
+    services: ServicesDep,
+    customer_id: str,
+    year: ParametersYear,
+) -> ParametersOut:
+    """The customer's parameters for the year (plan §6.4); 404 while it has none."""
+    found = get_parameters(caller.ctx, services.uow(immediate=False), customer_id, year)
+    return ParametersOut.of(found)
+
+
+@router.put("/customers/{customer_id}/parameters", name="parameters.set")
+def parameters_set(
+    caller: Annotated[Caller, Depends(customer_context(Permission.CODELISTS_EDIT))],
+    services: ServicesDep,
+    customer_id: str,
+    year: ParametersYear,
+    body: ParametersIn,
+) -> ParametersOut:
+    """Sets the customer's parameters for the year; 422 names each invalid field."""
+    try:
+        found = set_parameters(caller.ctx, services.uow(), customer_id, year, body.values)
+    except ValidationFailed as exc:
+        raise exc.under("values") from exc
+    return ParametersOut.of(found)
