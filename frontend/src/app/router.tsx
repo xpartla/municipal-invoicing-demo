@@ -26,11 +26,16 @@ import { LoginPage } from '../routes/auth/LoginPage';
 import { ResetPasswordPage } from '../routes/auth/ResetPasswordPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
+import { ErrorPage } from '../routes/ErrorPage';
 import { ForbiddenPage } from '../routes/ForbiddenPage';
 import { HomePage } from '../routes/HomePage';
+import { OutboxPage } from '../routes/admin/OutboxPage';
+import { ProvidersPage } from '../routes/admin/ProvidersPage';
 import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
 import { NotFoundPage } from '../routes/NotFoundPage';
+import { ProfilePage } from '../routes/ProfilePage';
+import { UsersPage } from '../routes/UsersPage';
 
 /**
  * Routes, code-based, mirroring plan §10.1. The pages before a login are public; everything
@@ -46,6 +51,7 @@ export interface RouterContext {
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: Outlet,
   notFoundComponent: NotFoundPage,
+  errorComponent: ErrorPage,
 });
 
 /** The caller, from the cache when it is there (a login or a logout set it). */
@@ -187,15 +193,15 @@ const appRoutes = [
   customerRoute.addChildren(customerRoutes),
   page('/messages', MessagesPage),
   page('/help', soon('help')),
-  page('/profile', soon('profile')),
+  page('/profile', ProfilePage),
   page('/provider', guarded(seesProviderScreens, soon('providerOverview'))),
-  page('/users', guarded(seesProviderScreens, soon('users'))),
+  page('/users', guarded(seesProviderScreens, UsersPage)),
   page('/admin', guarded(admin('providers.manage'), soon('platform'))),
-  page('/admin/providers', guarded(admin('providers.manage'), soon('providers'))),
+  page('/admin/providers', guarded(admin('providers.manage'), ProvidersPage)),
   page('/admin/codelists', guarded(admin('codelists.global'), soon('globalCodelists'))),
   page('/admin/audit', guarded(admin('audit.read'), soon('audit'))),
   page('/admin/jobs', guarded(admin('jobs.manage'), soon('jobs'))),
-  page('/admin/outbox', guarded(admin('outbox.read'), soon('outbox'))),
+  page('/admin/outbox', guarded(admin('outbox.read'), OutboxPage)),
   page('/admin/eval', guarded(admin('evaluation.read'), soon('evaluation'))),
 ];
 

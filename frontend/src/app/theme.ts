@@ -1,4 +1,5 @@
 import {
+  Badge,
   createTheme,
   localStorageColorSchemeManager,
   type CSSVariablesResolver,
@@ -38,6 +39,12 @@ export const theme = createTheme({
   headings: { fontWeight: '650' },
   defaultRadius: 'md',
   cursorType: 'pointer',
+  // Text on filled colours turns black or white by the background's luminance, so badges and
+  // buttons in every colour meet WCAG AA contrast (axe checks them).
+  autoContrast: true,
+  components: {
+    Badge: Badge.extend({ defaultProps: { variant: 'filled' } }),
+  },
 });
 
 /**

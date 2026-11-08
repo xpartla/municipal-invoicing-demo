@@ -8,9 +8,7 @@ export function ComingSoonPage({ title }: { title: string }) {
     <Stack gap="sm" maw={720}>
       <Group gap="sm">
         <Title order={1}>{title}</Title>
-        <Badge variant="light" color="gray">
-          {t('shell.nav.soon')}
-        </Badge>
+        <Badge color="gray">{t('shell.nav.soon')}</Badge>
       </Group>
       <Text>{t('comingSoon.text')}</Text>
     </Stack>

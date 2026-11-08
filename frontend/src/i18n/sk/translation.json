@@ -39,7 +39,10 @@
     "conflict": "Táto zmena je v rozpore s inými údajmi.",
     "invalid_state": "Túto akciu teraz nemožno vykonať.",
     "permission_denied": "Na túto akciu nemáte oprávnenie.",
-    "not_found": "Hľadaný záznam neexistuje."
+    "not_found": "Hľadaný záznam neexistuje.",
+    "ico_taken": "Toto IČO už má iný aktívny klient.",
+    "email_taken": "Táto adresa už patrí inému účtu.",
+    "login_exists": "Táto adresa už má prístup k tomuto klientovi. Ak je deaktivovaný, aktivujte ho."
   },
   "auth": {
     "login": {
@@ -165,6 +168,216 @@
   "notFound": {
     "title": "Stránka sa nenašla",
     "text": "Táto adresa neexistuje alebo bola presunutá.",
+    "home": "Späť na úvod"
+  },
+  "roles": {
+    "customer_viewer": "Iba na čítanie",
+    "customer_user": "Používateľ",
+    "provider_staff": "Servisný účet",
+    "platform_admin": "Administrátor"
+  },
+  "status": {
+    "invited": "Pozvaný",
+    "active": "Aktívny",
+    "deleted": "Zmazaný",
+    "purged": "Vymazaný",
+    "locked": "Zablokovaný",
+    "inactive": "Deaktivovaný",
+    "removed": "Zrušený"
+  },
+  "profile": {
+    "title": "Profil",
+    "personal": {
+      "title": "Osobné údaje",
+      "name": "Meno a priezvisko",
+      "loginEmail": "Prihlasovací e-mail",
+      "notificationEmail": "E-mail na upozornenia",
+      "notificationHint": "Ak je prázdny, upozornenia chodia na prihlasovací e-mail.",
+      "saved": "Osobné údaje sú uložené."
+    },
+    "email": {
+      "title": "Zmena prihlasovacieho e-mailu",
+      "intro": "Na novú adresu pošleme odkaz. Prihlasovací e-mail sa zmení až po jeho potvrdení.",
+      "newEmail": "Nový e-mail",
+      "currentPassword": "Súčasné heslo",
+      "submit": "Poslať potvrdenie",
+      "sent": "Na novú adresu sme poslali odkaz na potvrdenie. Platí 24 hodín."
+    },
+    "password": {
+      "title": "Zmena hesla",
+      "current": "Súčasné heslo",
+      "submit": "Zmeniť heslo",
+      "changed": "Heslo je zmenené. Ostatné prihlásenia sú ukončené."
+    },
+    "sessions": {
+      "title": "Prihlásenia",
+      "intro": "Zariadenia, v ktorých ste prihlásený.",
+      "created": "Prihlásenie",
+      "lastSeen": "Naposledy",
+      "expires": "Platí do",
+      "address": "Adresa",
+      "current": "Toto zariadenie",
+      "logoutAll": "Odhlásiť všade",
+      "confirmLogoutAll": "Odhlásiť sa zo všetkých zariadení vrátane tohto?",
+      "table": "Zoznam prihlásení"
+    },
+    "impersonating": "Počas prihlásenia za iného používateľa nemožno meniť jeho heslo, prihlasovací e-mail ani prihlásenia.",
+    "customer": {
+      "title": "Údaje klienta",
+      "choose": "Klient",
+      "name": "Názov",
+      "ico": "IČO",
+      "dic": "DIČ",
+      "street": "Ulica a číslo",
+      "city": "Obec",
+      "postalCode": "PSČ",
+      "iban": "Bankový účet (IBAN)",
+      "variableNumber": "Variabilný symbol",
+      "variableNumberHint": "Prideľuje servisný účet alebo administrátor.",
+      "identityHint": "Názov, IČO a DIČ mení servisný účet alebo administrátor.",
+      "saveContact": "Uložiť adresu a účet",
+      "saveIdentity": "Uložiť názov, IČO a DIČ",
+      "saved": "Údaje klienta sú uložené.",
+      "readOnly": "Údaje klienta môžete iba prezerať."
+    }
+  },
+  "users": {
+    "title": "Používatelia",
+    "tabs": {
+      "customers": "Klienti a prihlásenia",
+      "accounts": "Všetky účty"
+    },
+    "provider": "Servisný účet",
+    "customer": "Klient",
+    "login": "Prihlásenie",
+    "role": "Rola",
+    "status": "Stav",
+    "actions": "Akcie",
+    "open": "Otvoriť klienta",
+    "noLogins": "Klient zatiaľ nemá žiadne prihlásenie.",
+    "noCustomers": "Žiadni klienti.",
+    "variableNumber": "VS",
+    "invite": {
+      "button": "Pozvať prihlásenie",
+      "title": "Pozvať prihlásenie pre {{customer}}",
+      "email": "E-mail",
+      "name": "Meno a priezvisko",
+      "role": "Rola",
+      "submit": "Poslať pozvánku",
+      "sent": "Pozvánka je odoslaná.",
+      "granted": "Účet s touto adresou už existoval; dostal prístup a upozornenie."
+    },
+    "vs": {
+      "button": "Prideliť VS",
+      "title": "Variabilný symbol: {{customer}}",
+      "label": "Variabilný symbol",
+      "hint": "Jedna až desať číslic. Prázdne pole symbol zruší.",
+      "saved": "Variabilný symbol je uložený."
+    },
+    "login_actions": {
+      "deactivate": "Deaktivovať",
+      "reactivate": "Aktivovať",
+      "reset-link": "Poslať odkaz na heslo",
+      "deactivated": "Prihlásenie je deaktivované.",
+      "reactivated": "Prihlásenie je znova aktívne.",
+      "linkSent": "Odkaz je odoslaný.",
+      "confirmDeactivate": "Deaktivovať prístup {{name}} ku klientovi {{customer}}? Účet zostane."
+    },
+    "accounts": {
+      "search": "Hľadať podľa mena alebo e-mailu",
+      "includeDeleted": "Aj zmazané",
+      "name": "Meno",
+      "email": "E-mail",
+      "memberships": "Prístupy",
+      "none": "Žiadne účty."
+    },
+    "user_actions": {
+      "lock": "Zablokovať",
+      "unlock": "Odblokovať",
+      "logout": "Odhlásiť všade",
+      "delete": "Zmazať",
+      "restore": "Obnoviť",
+      "purge": "Vymazať natrvalo",
+      "impersonate": "Prihlásiť sa ako",
+      "done": "Hotovo.",
+      "confirm": {
+        "lock": "Zablokovať účet {{name}}? Jeho prihlásenia sa ukončia.",
+        "delete": "Zmazať účet {{name}}? Dá sa obnoviť.",
+        "purge": "Natrvalo vymazať účet {{name}}? Meno, e-maily a prístupy sa odstránia a nedajú sa obnoviť.",
+        "logout": "Ukončiť všetky prihlásenia účtu {{name}}?"
+      }
+    },
+    "impersonate": {
+      "title": "Prihlásiť sa ako {{name}}",
+      "intro": "Uvidíte presne to, čo tento používateľ, a môžete za neho pracovať. Každá akcia sa zapíše do auditu s vaším menom. Prihlásenie skončí najneskôr o 60 minút.",
+      "reason": "Dôvod",
+      "reasonHint": "Napríklad číslo hlásenia alebo čo treba overiť.",
+      "submit": "Prihlásiť sa ako {{name}}"
+    }
+  },
+  "providers": {
+    "title": "Servisné účty",
+    "create": {
+      "button": "Nový servisný účet",
+      "title": "Nový servisný účet",
+      "name": "Názov",
+      "ico": "IČO (nepovinné)",
+      "submit": "Vytvoriť",
+      "done": "Servisný účet je vytvorený."
+    },
+    "staff": "Pracovníci",
+    "customers": "Klienti",
+    "noStaff": "Zatiaľ bez pracovníkov.",
+    "noCustomers": "Zatiaľ bez klientov.",
+    "none": "Zatiaľ nie je žiadny servisný účet.",
+    "addStaff": {
+      "button": "Pridať pracovníka",
+      "title": "Pridať pracovníka do {{provider}}",
+      "email": "E-mail",
+      "name": "Meno a priezvisko",
+      "submit": "Pozvať",
+      "done": "Pracovník je pozvaný."
+    },
+    "removeStaff": {
+      "button": "Odobrať",
+      "confirm": "Odobrať {{name}} zo servisného účtu {{provider}}?",
+      "done": "Pracovník je odobratý."
+    },
+    "assign": {
+      "label": "Priradiť klienta",
+      "placeholder": "Vyberte klienta bez servisného účtu",
+      "button": "Priradiť",
+      "done": "Klient je priradený."
+    },
+    "unassign": {
+      "button": "Odobrať",
+      "confirm": "Odobrať klienta {{customer}} zo servisného účtu {{provider}}?",
+      "done": "Klient je odobratý."
+    },
+    "remove": {
+      "button": "Zrušiť servisný účet",
+      "confirm": "Zrušiť servisný účet {{provider}}? Jeho klienti ostanú bez servisného účtu a pracovníci stratia prístup.",
+      "done": "Servisný účet je zrušený."
+    }
+  },
+  "outbox": {
+    "title": "Odoslané e-maily",
+    "intro": "V tejto etape sa e-maily neodosielajú; čakajú tu. Odkazy v nich fungujú.",
+    "filter": "Príjemca",
+    "created": "Vytvorený",
+    "to": "Príjemca",
+    "subject": "Predmet",
+    "template": "Šablóna",
+    "none": "Žiadne e-maily.",
+    "open": "Zobraziť",
+    "message": "E-mail",
+    "previous": "Predchádzajúce",
+    "next": "Ďalšie",
+    "page": "Strana {{page}} z {{pages}}"
+  },
+  "errorPage": {
+    "title": "Niečo sa pokazilo",
+    "text": "Stránku sa nepodarilo zobraziť. Skúste ju načítať znova.",
     "home": "Späť na úvod"
   }
 }
