@@ -1,0 +1,130 @@
+# CI (plan §13.3): the same checks as scripts/check.sh, split into jobs. The raw exports in
+# ../data are absent here, so the tests that need them skip, as on a fresh clone. The ocr job
+# joins in P2-M5.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - "p2-*"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  UV_PYTHON: "3.13"
+  FORCE_COLOR: "1"
+
+jobs:
+  backend-lint:
+    name: backend-lint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run lint-imports
+
+  backend-test:
+    name: backend-test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+        with:
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked
+      # Coverage is reported during P2-M0 and enforced from P2-M1 (85% overall, 90% domain).
+      - name: pytest (not ocr, not e2e) with coverage
+        run: uv run pytest -m "not ocr and not e2e" --cov=riso --cov-report=term:skip-covered
+      - run: uv run riso check
+      - name: schema drift
+        run: uv run riso export-schemas --check
+      - name: migrations upgrade to head and match the models
+        run: |
+          export RISO_VAR_DIR="$(mktemp -d)"
+          uv run alembic upgrade head
+          uv run alembic check
+
+  frontend:
+    name: frontend
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: frontend/.nvmrc
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+          cache: true
+          cache_dependency_path: frontend/pnpm-lock.yaml
+      # check:api runs `riso export-openapi --check`, so the backend is needed too.
+      - uses: astral-sh/setup-uv@v10
+        with:
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - name: the API client matches riso export-openapi
+        run: pnpm check:api
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: frontend/.nvmrc
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+          cache: true
+          cache_dependency_path: frontend/pnpm-lock.yaml
+      - uses: astral-sh/setup-uv@v10
+        with:
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - name: install Chromium for Playwright
+        run: pnpm exec playwright install --with-deps chromium
+      # The global setup migrates a temporary database and starts riso serve on a free port.
+      - run: pnpm e2e
+      - name: upload Playwright traces and report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-${{ github.run_attempt }}
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          retention-days: 14
+          if-no-files-found: ignore
