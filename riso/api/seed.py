@@ -2,7 +2,9 @@
 
 It creates:
 
-- Obec Boldog (00305863), with its 2026 parameters from `data/entities/00305863.json`;
+- Obec Boldog (00305863), with its 2026 parameters from `data/entities/00305863.json`, the
+  address of its municipal office, and version 1 of each of its 2026 code lists from the
+  committed bundle `data/bundles/00305863/2026-08.json`;
 - the made-up provider "Účtovníctvo Vzor, s.r.o.", to which Boldog is assigned;
 - a second, made-up municipality assigned to the provider, so staff can switch customers;
 - a third, made-up municipality with no provider, for the isolation checks;
@@ -31,6 +33,8 @@ from sqlalchemy.engine.url import make_url
 
 from riso import paths
 from riso.api.uow import AppUnitOfWork
+from riso.codelists import versions_from_bundle
+from riso.contracts import ReferenceBundle
 from riso.identity.domain import Email, MembershipScope, PasswordPolicy, Role, User
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.orm import UserRow
@@ -41,13 +45,16 @@ from riso.shared.clock import FixedClock
 from riso.shared.errors import ValidationFailed
 from riso.shared.ids import UuidV7Generator
 from riso.shared.values import Ico
-from riso.tenancy.domain import Customer, CustomerParameters, ServiceProvider
+from riso.tenancy.domain import Address, Customer, CustomerParameters, ServiceProvider
 
 SEEDED_AT = datetime(2026, 1, 1, 7, 0, tzinfo=UTC)
 BOLDOG_ICO = "00305863"
 PROVIDER_NAME = "Účtovníctvo Vzor, s.r.o."
 SECOND_CUSTOMER = ("Obec Vzorová Lehota", "99900017")
 UNASSIGNED_CUSTOMER = ("Obec Nezávislá", "99900025")
+BOLDOG_BUNDLE = "2026-08"
+BOLDOG_ADDRESS = ("Boldog 89", "Boldog", "92526")
+"""The municipal office, as the chart of accounts' title names it (public)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +95,7 @@ def seed(
     hasher: Argon2Hasher | None = None,
     policy: PasswordPolicy | None = None,
     entities_dir: Path = paths.ENTITIES_DIR,
+    bundles_dir: Path = paths.BUNDLES_DIR,
 ) -> Seeded:
     """Migrates and seeds the database of `settings`. Refuses outside `dev` and `test`, and
     on a database that has users already unless `reset` drops it first."""
@@ -108,7 +116,7 @@ def seed(
         with db.session() as session:
             if session.scalar(select(func.count()).select_from(UserRow)):
                 raise SeedRefused("the database has users already; run `riso seed --reset`")
-        return _fill(db, settings, password, hasher or Argon2Hasher(), entities_dir)
+        return _fill(db, settings, password, hasher or Argon2Hasher(), entities_dir, bundles_dir)
     finally:
         db.dispose()
 
@@ -125,7 +133,12 @@ def _drop(settings: Settings) -> None:
 
 
 def _fill(
-    db: Database, settings: Settings, password: str | None, hasher: Argon2Hasher, entities: Path
+    db: Database,
+    settings: Settings,
+    password: str | None,
+    hasher: Argon2Hasher,
+    entities: Path,
+    bundles: Path,
 ) -> Seeded:
     clock = FixedClock(SEEDED_AT)
     ids = UuidV7Generator(clock, random.Random(20260101).getrandbits)
@@ -141,6 +154,7 @@ def _fill(
         boldog = Customer.create(ids.new(), boldog_settings["name"], Ico(BOLDOG_ICO), now)
         second = Customer.create(ids.new(), SECOND_CUSTOMER[0], Ico(SECOND_CUSTOMER[1]), now)
         alone = Customer.create(ids.new(), UNASSIGNED_CUSTOMER[0], Ico(UNASSIGNED_CUSTOMER[1]), now)
+        boldog.update_contact(Address.parse(*BOLDOG_ADDRESS), None)
         boldog.assign_to(provider)
         second.assign_to(provider)
         for customer in (boldog, second, alone):
@@ -164,6 +178,13 @@ def _fill(
             user.grant(ids.new(), scope_of[spec.role], spec.role, now)
             uow.users.add(user)
             result.users[spec.key] = (user.id, spec.email, secret)
+
+        # After the users, so their IDs stay what earlier seeds gave them.
+        bundle = ReferenceBundle.model_validate_json(
+            (bundles / BOLDOG_ICO / f"{BOLDOG_BUNDLE}.json").read_bytes()
+        )
+        for version in versions_from_bundle(bundle, boldog.id, ids, now):
+            uow.codelists.add(version)
         uow.commit()
     return result
 

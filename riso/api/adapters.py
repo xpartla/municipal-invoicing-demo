@@ -5,11 +5,13 @@ from collections.abc import Collection
 from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
+from riso.codelists import BundleEntity
 from riso.identity.application.ports import CustomerRef, ProviderRef
 from riso.identity.domain import MembershipScope, ScopeKind, UserStatus
 from riso.identity.infrastructure.repository import SqlUserRepository
 from riso.platform.db import Database
 from riso.shared.clock import Clock
+from riso.tenancy.application import CustomerView
 from riso.tenancy.application.ports import LoginRef
 from riso.tenancy.domain import CustomerStatus, ProviderStatus
 from riso.tenancy.infrastructure.orm import (
@@ -162,3 +164,18 @@ class UserLogins:
             user.remove_membership(scope)
             self._users.save(user)
         return len(users)
+
+
+def bundle_entity(customer: CustomerView) -> BundleEntity:
+    """The customer as its reference bundle names it: the address on one line, the way the
+    chart of accounts' title writes it ('Boldog 89, 925 26 Boldog')."""
+    address = customer.address
+    line = None
+    if address is not None:
+        postal = (
+            f"{address.postal_code[:3]} {address.postal_code[3:]}"
+            if address.country == "SK"
+            else address.postal_code
+        )
+        line = f"{address.street}, {postal} {address.city}"
+    return BundleEntity(ico=customer.ico, name=customer.name, address=line)
