@@ -132,6 +132,10 @@ riso/
   shared/         the kernel: IDs (UUIDv7), clock, errors, events, request context, unit of
                   work protocol, IČO, IBAN and money
   platform/       settings, the database (SQLite in WAL mode), migrations, the unit of work
+  identity/ tenancy/ codelists/ intake/ invoicing/ exchange/ reporting/ audit/ jobs/
+                  the bounded contexts of phase 2, each in layers: domain/, application/,
+                  infrastructure/, api/; other code imports only a context's __init__
+                  (.importlinter has the rules, `lint-imports` checks them)
   contracts/      Pydantic models of the JSON contracts; schemas/ is generated from them
   ingest/         S0: Excel exports to ReferenceBundle
   reference/      reading bundles and entity settings, lookups, document numbering

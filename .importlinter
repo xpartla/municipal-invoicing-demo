@@ -1,0 +1,252 @@
+# Import rules of guide §6.1, checked by `lint-imports` (part of scripts/check.sh fast).
+# Contexts: identity, tenancy, codelists, intake, invoicing, exchange, reporting, audit, jobs.
+
+[importlinter]
+root_package = riso
+include_external_packages = True
+
+[importlinter:contract:layers]
+name = Contexts are layered: api > infrastructure > application > domain
+type = layers
+containers =
+    riso.identity
+    riso.tenancy
+    riso.codelists
+    riso.intake
+    riso.invoicing
+    riso.exchange
+    riso.reporting
+    riso.audit
+    riso.jobs
+layers =
+    api
+    infrastructure
+    application
+    (domain)
+
+[importlinter:contract:domain-purity]
+name = Domain packages import no technical or I/O code and no other context
+type = forbidden
+source_modules =
+    riso.*.domain
+forbidden_modules =
+    sqlalchemy
+    alembic
+    fastapi
+    starlette
+    uvicorn
+    pydantic_settings
+    riso.platform
+    riso.api
+    riso.store
+    riso.ingest
+    riso.eval
+    riso.cli
+    riso.identity
+    riso.tenancy
+    riso.codelists
+    riso.intake
+    riso.invoicing
+    riso.exchange
+    riso.reporting
+    riso.audit
+    riso.jobs
+
+[importlinter:contract:application-purity]
+name = Application packages reach the database and the web only through ports
+type = forbidden
+source_modules =
+    riso.*.application
+forbidden_modules =
+    sqlalchemy
+    alembic
+    fastapi
+    starlette
+    uvicorn
+    riso.platform
+    riso.api
+
+[importlinter:contract:shared-kernel]
+name = The shared kernel depends on nothing else in riso and on no technical package
+type = forbidden
+source_modules =
+    riso.shared
+forbidden_modules =
+    sqlalchemy
+    alembic
+    fastapi
+    starlette
+    uvicorn
+    pydantic_settings
+    riso.platform
+    riso.api
+    riso.engine
+    riso.knowledge
+    riso.contracts
+    riso.reference
+    riso.store
+    riso.eval
+    riso.ingest
+    riso.cli
+    riso.identity
+    riso.tenancy
+    riso.codelists
+    riso.intake
+    riso.invoicing
+    riso.exchange
+    riso.reporting
+    riso.audit
+    riso.jobs
+
+[importlinter:contract:platform]
+name = The platform does not know the contexts or the API
+type = forbidden
+source_modules =
+    riso.platform
+forbidden_modules =
+    riso.api
+    riso.cli
+    riso.identity
+    riso.tenancy
+    riso.codelists
+    riso.intake
+    riso.invoicing
+    riso.exchange
+    riso.reporting
+    riso.audit
+    riso.jobs
+
+[importlinter:contract:engine-purity]
+name = The engine stays pure: no database, web, runtime state or contexts
+type = forbidden
+source_modules =
+    riso.engine
+forbidden_modules =
+    sqlalchemy
+    alembic
+    fastapi
+    starlette
+    uvicorn
+    pydantic_settings
+    riso.platform
+    riso.api
+    riso.store
+    riso.eval
+    riso.ingest
+    riso.cli
+    riso.identity
+    riso.tenancy
+    riso.codelists
+    riso.intake
+    riso.invoicing
+    riso.exchange
+    riso.reporting
+    riso.audit
+    riso.jobs
+
+[importlinter:contract:identity-boundary]
+name = Other packages use the identity context only through riso.identity (its __init__)
+type = protected
+protected_modules =
+    riso.identity.api
+    riso.identity.application
+    riso.identity.domain
+    riso.identity.infrastructure
+allowed_importers =
+    riso.identity
+    riso.api
+
+[importlinter:contract:tenancy-boundary]
+name = Other packages use the tenancy context only through riso.tenancy (its __init__)
+type = protected
+protected_modules =
+    riso.tenancy.api
+    riso.tenancy.application
+    riso.tenancy.domain
+    riso.tenancy.infrastructure
+allowed_importers =
+    riso.tenancy
+    riso.api
+
+[importlinter:contract:codelists-boundary]
+name = Other packages use the codelists context only through riso.codelists (its __init__)
+type = protected
+protected_modules =
+    riso.codelists.api
+    riso.codelists.application
+    riso.codelists.domain
+    riso.codelists.infrastructure
+allowed_importers =
+    riso.codelists
+    riso.api
+
+[importlinter:contract:intake-boundary]
+name = Other packages use the intake context only through riso.intake (its __init__)
+type = protected
+protected_modules =
+    riso.intake.api
+    riso.intake.application
+    riso.intake.domain
+    riso.intake.infrastructure
+allowed_importers =
+    riso.intake
+    riso.api
+
+[importlinter:contract:invoicing-boundary]
+name = Other packages use the invoicing context only through riso.invoicing (its __init__)
+type = protected
+protected_modules =
+    riso.invoicing.api
+    riso.invoicing.application
+    riso.invoicing.domain
+    riso.invoicing.infrastructure
+allowed_importers =
+    riso.invoicing
+    riso.api
+
+[importlinter:contract:exchange-boundary]
+name = Other packages use the exchange context only through riso.exchange (its __init__)
+type = protected
+protected_modules =
+    riso.exchange.api
+    riso.exchange.application
+    riso.exchange.domain
+    riso.exchange.infrastructure
+allowed_importers =
+    riso.exchange
+    riso.api
+
+[importlinter:contract:reporting-boundary]
+name = Other packages use the reporting context only through riso.reporting (its __init__)
+type = protected
+protected_modules =
+    riso.reporting.api
+    riso.reporting.application
+    riso.reporting.infrastructure
+allowed_importers =
+    riso.reporting
+    riso.api
+
+[importlinter:contract:audit-boundary]
+name = Other packages use the audit context only through riso.audit (its __init__)
+type = protected
+protected_modules =
+    riso.audit.api
+    riso.audit.application
+    riso.audit.domain
+    riso.audit.infrastructure
+allowed_importers =
+    riso.audit
+    riso.api
+
+[importlinter:contract:jobs-boundary]
+name = Other packages use the jobs context only through riso.jobs (its __init__)
+type = protected
+protected_modules =
+    riso.jobs.api
+    riso.jobs.application
+    riso.jobs.domain
+    riso.jobs.infrastructure
+allowed_importers =
+    riso.jobs
+    riso.api
