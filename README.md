@@ -28,8 +28,12 @@ customer's lists per year in versions (a row edit makes a new one), the 2026 glo
 COFOG, funding sources, the framework chart) and the validation against them, Boldog's coding
 conventions out of the knowledge base, coding from the database (`POST
 /api/customers/{id}/code`, `riso eval --source db`), the knowledge health report, and the
-Číselníky and Systém screens. The import tool, invoices, OCR and e-invoices follow. The demo
-below keeps working until its pages are replaced.
+Číselníky and Systém screens. P2-M3 adds the import tool: CSV, XLSX and XLS files mapped
+column by column (with templates chosen by the headers, built in for TOPSET's exports), a dry
+run whose report lists errors per row, and apply as a new version; past bookings as supplier
+precedents; and creating a customer as a copy of another (Importy a exporty, Nový klient).
+Invoices, OCR and e-invoices follow. The demo below keeps working until its pages are
+replaced.
 
 M3 is done: the web app and the feedback loop. The proposal page lays the coding out like the
 accounting software's two tabs, with a copy button on every value and line, the evidence
@@ -219,6 +223,12 @@ at `/docs` while the server runs. In short:
 - Customer data lives under `/api/customers/{customer_id}/…`, provider routes under
   `/api/providers/{provider_id}/…`, admin tools under `/api/admin/…`. A customer the caller
   cannot reach answers 404; a missing permission 403; no session 401.
+- An import is a run: `POST /api/customers/{id}/imports` (multipart `file`, `import_type`,
+  `year`), then `GET …/preview`, `PUT …/mapping`, `POST …/dry-run` and `POST …/apply`
+  (`confirm_errors` lets errors against the global lists through). The dry run and the apply
+  are jobs of the worker; the run's state and report show their outcome. The global lists'
+  imports are the same under `/api/admin/imports`. `POST /api/providers/{id}/customers/copy`
+  starts a copy, followed at `GET /api/customers/{id}/jobs/{job_id}`.
 
 The interactive documentation is at `/docs` while the server runs.
 
