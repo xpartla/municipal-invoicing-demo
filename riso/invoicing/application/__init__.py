@@ -8,5 +8,41 @@ from riso.invoicing.application.coding import (
     booking_year,
     code_document,
 )
+from riso.invoicing.application.numbering import (
+    SeriesView,
+    UsedNumberView,
+    list_series,
+    preview_number,
+    set_last_used,
+    take_number,
+)
+from riso.invoicing.application.state import (
+    PastPrecedent,
+    add_past_bookings,
+    copy_memory,
+    counters,
+    restore_state,
+    supplier_memory,
+)
+from riso.invoicing.application.uow import InvoicingUnitOfWork, SeriesPatterns
 
-__all__ = ["ReferenceData", "SupplierState", "booking_year", "code_document"]
+__all__ = [
+    "InvoicingUnitOfWork",
+    "PastPrecedent",
+    "ReferenceData",
+    "SeriesPatterns",
+    "SeriesView",
+    "SupplierState",
+    "UsedNumberView",
+    "add_past_bookings",
+    "booking_year",
+    "code_document",
+    "copy_memory",
+    "counters",
+    "list_series",
+    "preview_number",
+    "restore_state",
+    "set_last_used",
+    "supplier_memory",
+    "take_number",
+]

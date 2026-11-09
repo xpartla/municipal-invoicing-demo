@@ -1519,11 +1519,54 @@ export interface paths {
         /**
          * Coding.Code
          * @description The engine's proposal for the invoice, coded with the customer's code lists,
-         *     parameters and conventions for the invoice's booking year. Nothing is stored. (Supplier
-         *     memory and counters come from the demo's files until P2-M4.) 409 when the customer has no
-         *     lists or parameters for that year.
+         *     parameters and conventions for the invoice's booking year, and its supplier memory and
+         *     counters. Nothing is stored. 409 when the customer has no lists or parameters for that
+         *     year.
          */
         post: operations["coding.code"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/number-series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Number Series.List
+         * @description The year's number series (plan §7.2): those of the document series list, used or
+         *     not, then any other with a counter; each with its counter, the next number, the numbers
+         *     held and the gaps between them.
+         */
+        get: operations["number_series.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/number-series/{series}/{year}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Number Series.Set Last Used
+         * @description Edits the counter (audited), until it syncs with TOPSET. 422 below a number held;
+         *     404 for a series the year's list does not have.
+         */
+        put: operations["number_series.set_last_used"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3183,6 +3226,14 @@ export interface components {
          * @enum {string}
          */
         JobStatus: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+        /** LastUsedIn */
+        LastUsedIn: {
+            /**
+             * Last Used
+             * @description The new counter: the last sequence used
+             */
+            last_used: number;
+        };
         /**
          * LineCodes
          * @description What the accountant types for one line: the budget key, MD and DAL.
@@ -3309,6 +3360,49 @@ export interface components {
             role: components["schemas"]["Role"];
             /** Active */
             active: boolean;
+        };
+        /** NumberSeriesListOut */
+        NumberSeriesListOut: {
+            /** Year */
+            year: number;
+            /** Items */
+            items: components["schemas"]["NumberSeriesOut"][];
+        };
+        /** NumberSeriesOut */
+        NumberSeriesOut: {
+            /** Series */
+            series: string;
+            /** Year */
+            year: number;
+            /** Pattern */
+            pattern: string;
+            /**
+             * Last Used
+             * @description The counter: the last sequence used
+             */
+            last_used: number;
+            /** Last Used Number */
+            last_used_number: string | null;
+            /**
+             * Next Number
+             * @description What the counter gives next
+             */
+            next_number: string;
+            /**
+             * Used
+             * @description The numbers held, lowest first
+             */
+            used: components["schemas"]["UsedNumberOut"][];
+            /**
+             * Gaps
+             * @description Free numbers between the lowest and the highest held
+             */
+            gaps: string[];
+            /**
+             * Stored
+             * @description False for a series of the year's list never used yet
+             */
+            stored: boolean;
         };
         /** OcrMeta */
         OcrMeta: {
@@ -3868,6 +3962,26 @@ export interface components {
              * @enum {string}
              */
             op: "trim";
+        };
+        /** UsedNumberOut */
+        UsedNumberOut: {
+            /** Number */
+            number: string;
+            /** Sequence */
+            sequence: number;
+            /**
+             * Kind
+             * @description A booked invoice's; one kept for an unbooked invoice; or used outside riso
+             * @enum {string}
+             */
+            kind: "booked" | "reserved" | "external";
+            /** Invoice Id */
+            invoice_id: string | null;
+            /**
+             * Frozen
+             * @description Never moves: exported, paid or used outside riso
+             */
+            frozen: boolean;
         };
         /** UserOut */
         UserOut: {
@@ -6937,6 +7051,77 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CodingProposal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "number_series.list": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NumberSeriesListOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "number_series.set_last_used": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                series: string;
+                year: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LastUsedIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NumberSeriesOut"];
                 };
             };
             /** @description Validation Error */

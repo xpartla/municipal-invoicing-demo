@@ -15,14 +15,15 @@ class TableReader(Protocol):
 
 
 class SupplierMemorySource(Protocol):
-    """The customer's supplier memory: the demo's files until P2-M4 moves it."""
+    """The customer's supplier memory."""
 
     def memory(self, customer_id: str) -> SupplierMemory: ...
 
 
 class PrecedentSink(SupplierMemorySource, Protocol):
-    """Where a past-bookings import goes: the customer's supplier memory and counters. The
-    first adapter writes the demo's files; P2-M4-T02 switches it to the database."""
+    """Where a past-bookings import and a customer copy go: the customer's supplier memory
+    and number series (the invoicing context's, on the database since P2-M4-T02). It works
+    in the unit of work that offers it, so its changes commit with the import or the copy."""
 
     def counters(self, customer_id: str) -> Counters: ...
 

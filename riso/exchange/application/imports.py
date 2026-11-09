@@ -36,7 +36,7 @@ from riso.codelists import (
     apply_import,
     check_import,
 )
-from riso.exchange.application.ports import CustomerDirectory, PrecedentSink, TableReader
+from riso.exchange.application.ports import CustomerDirectory, TableReader
 from riso.exchange.application.templates import ChosenTemplate
 from riso.exchange.application.uow import ExchangeUnitOfWork
 from riso.exchange.domain.bookings import BookingsPlan, parse_bookings, plan_bookings
@@ -518,13 +518,11 @@ class ImportJobs:
         uow: Callable[[], ExchangeUnitOfWork],
         storage: FileStorage,
         reader: TableReader,
-        precedents: PrecedentSink,
         customers: CustomerDirectory,
     ) -> None:
         self._uow = uow
         self._storage = storage
         self._reader = reader
-        self._state = precedents
         self._customers = customers
 
     def register(self, registry: JobRegistry) -> JobRegistry:
@@ -621,7 +619,7 @@ class ImportJobs:
             (errors if issue.severity == "error" else warnings).append(issue)
         if not check.entries and not errors:
             errors.append(Issue(severity="error", code="no_entries", message="no entries"))
-        warnings += self._precedents(run, check)
+        warnings += self._precedents(uow, run, check)
         report = DryRunReport(
             checked_at=now,
             rows_read=mapped.rows_read,
@@ -678,8 +676,8 @@ class ImportJobs:
         }
         plan = plan_bookings(
             bookings,
-            self._state.memory(customer_id),
-            self._state.counters(customer_id),
+            uow.precedents.memory(customer_id),
+            uow.precedents.counters(customer_id),
             series=series,
             positions=frozenset(
                 e.key for e in active_entries(uow, customer_id, "budget_expense", year)
@@ -720,7 +718,9 @@ class ImportJobs:
         )
         return _Outcome(report, plan=plan)
 
-    def _precedents(self, run: ImportRun, check: ImportCheck) -> list[Issue]:
+    def _precedents(
+        self, uow: ExchangeUnitOfWork, run: ImportRun, check: ImportCheck
+    ) -> list[Issue]:
         """Warnings for supplier precedents naming a position or an account the import
         removes (the engine then treats them as incompatible)."""
         removed = check.removed_keys
@@ -731,7 +731,7 @@ class ImportJobs:
             return []
         suppliers: defaultdict[str, set[str]] = defaultdict(set)
         precedents: defaultdict[str, int] = defaultdict(int)
-        for supplier in self._state.memory(run.customer_id).suppliers:
+        for supplier in uow.precedents.memory(run.customer_id).suppliers:
             for precedent in supplier.precedents:
                 codes = {
                     code
@@ -861,11 +861,10 @@ class ImportJobs:
         plan: BookingsPlan,
         report: DryRunReport,
     ) -> dict[str, Any]:
-        """Writes the plan through the sink, then records the run. The sink's files are
-        written before the commit: a retry after a failed commit finds the bookings present
-        and adds nothing twice."""
+        """Writes the plan to the supplier memory and the number series and records the
+        run, in one transaction."""
         assert run.customer_id is not None
-        self._state.add(run.customer_id, plan)
+        uow.precedents.add(run.customer_id, plan)
         run.applied(job_id, None, uow.clock.now())
         uow.imports.save(run)
         _audit(

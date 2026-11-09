@@ -4739,7 +4739,7 @@
           "invoicing"
         ],
         "summary": "Coding.Code",
-        "description": "The engine's proposal for the invoice, coded with the customer's code lists,\nparameters and conventions for the invoice's booking year. Nothing is stored. (Supplier\nmemory and counters come from the demo's files until P2-M4.) 409 when the customer has no\nlists or parameters for that year.",
+        "description": "The engine's proposal for the invoice, coded with the customer's code lists,\nparameters and conventions for the invoice's booking year, and its supplier memory and\ncounters. Nothing is stored. 409 when the customer has no lists or parameters for that\nyear.",
         "operationId": "coding.code",
         "parameters": [
           {
@@ -4769,6 +4769,143 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CodingProposal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/number-series": {
+      "get": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Number Series.List",
+        "description": "The year's number series (plan §7.2): those of the document series list, used or\nnot, then any other with a counter; each with its counter, the next number, the numbers\nheld and the gaps between them.",
+        "operationId": "number_series.list",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NumberSeriesListOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/number-series/{series}/{year}": {
+      "put": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Number Series.Set Last Used",
+        "description": "Edits the counter (audited), until it syncs with TOPSET. 422 below a number held;\n404 for a series the year's list does not have.",
+        "operationId": "number_series.set_last_used",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "series",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 16,
+              "title": "Series"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2100,
+              "minimum": 2000,
+              "title": "Year"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LastUsedIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NumberSeriesOut"
                 }
               }
             }
@@ -9553,6 +9690,22 @@
         ],
         "title": "JobStatus"
       },
+      "LastUsedIn": {
+        "properties": {
+          "last_used": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Last Used",
+            "description": "The new counter: the last sequence used"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "last_used"
+        ],
+        "title": "LastUsedIn"
+      },
       "LineCodes": {
         "properties": {
           "key": {
@@ -9922,6 +10075,98 @@
           "active"
         ],
         "title": "MembershipOut"
+      },
+      "NumberSeriesListOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NumberSeriesOut"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "items"
+        ],
+        "title": "NumberSeriesListOut"
+      },
+      "NumberSeriesOut": {
+        "properties": {
+          "series": {
+            "type": "string",
+            "title": "Series"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "pattern": {
+            "type": "string",
+            "title": "Pattern"
+          },
+          "last_used": {
+            "type": "integer",
+            "title": "Last Used",
+            "description": "The counter: the last sequence used"
+          },
+          "last_used_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used Number"
+          },
+          "next_number": {
+            "type": "string",
+            "title": "Next Number",
+            "description": "What the counter gives next"
+          },
+          "used": {
+            "items": {
+              "$ref": "#/components/schemas/UsedNumberOut"
+            },
+            "type": "array",
+            "title": "Used",
+            "description": "The numbers held, lowest first"
+          },
+          "gaps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Gaps",
+            "description": "Free numbers between the lowest and the highest held"
+          },
+          "stored": {
+            "type": "boolean",
+            "title": "Stored",
+            "description": "False for a series of the year's list never used yet"
+          }
+        },
+        "type": "object",
+        "required": [
+          "series",
+          "year",
+          "pattern",
+          "last_used",
+          "last_used_number",
+          "next_number",
+          "used",
+          "gaps",
+          "stored"
+        ],
+        "title": "NumberSeriesOut"
       },
       "OcrMeta": {
         "properties": {
@@ -11406,6 +11651,53 @@
         "additionalProperties": false,
         "type": "object",
         "title": "Trim"
+      },
+      "UsedNumberOut": {
+        "properties": {
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "booked",
+              "reserved",
+              "external"
+            ],
+            "title": "Kind",
+            "description": "A booked invoice's; one kept for an unbooked invoice; or used outside riso"
+          },
+          "invoice_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Id"
+          },
+          "frozen": {
+            "type": "boolean",
+            "title": "Frozen",
+            "description": "Never moves: exported, paid or used outside riso"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "sequence",
+          "kind",
+          "invoice_id",
+          "frozen"
+        ],
+        "title": "UsedNumberOut"
       },
       "UserOut": {
         "properties": {

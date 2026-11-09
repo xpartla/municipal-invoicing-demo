@@ -1,5 +1,5 @@
 """Past bookings through the import tool (P2-M3-T05), on a seeded database: a synthetic book
-of 20 rows becomes Boldog's supplier precedents (`source: "import"`) in the demo files, its
+of 20 rows becomes Boldog's supplier precedents (`source: "import"`) in the database, its
 numbers become used and the FD counter rises; the engine then codes a matching invoice by
 the imported precedent; importing the same book again adds nothing. The suppliers are the
 dataset's made-up sole traders, with their placeholder IČOs."""
@@ -22,10 +22,8 @@ from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.invoicing.application.coding import code_document
 from riso.platform import Settings
 from riso.shared import RequestContext
-from riso.store import StateStore
 
 PASSWORD = "Ukážkové-heslo-2026"
-BOLDOG = "00305863"
 KOSENIE, KOMINAR, REVIZIE, VZOROVA = "11223341", "23456787", "24680249", "12345679"
 GREENERY = "635006 41 06 200 000"
 SERVICES = "637004 41 01 110 000"
@@ -104,7 +102,7 @@ def env(tmp_path):
         user = uow.users.get(done.users["user"][0])
         grants = tuple(Grant(m.scope.kind, m.scope.id, m.role) for m in user.active_memberships())
     ctx = RequestContext("test", user.id, policy=services.policy(grants))
-    yield services, done.customers["Obec Boldog"], ctx, StateStore(settings.var_dir)
+    yield services, done.customers["Obec Boldog"], ctx, services.supplier_state()
     services.close()
 
 
@@ -122,7 +120,7 @@ def _kosenie_invoice():
 def test_a_book_of_20_rows_becomes_precedents_used_numbers_and_counters(env):
     services, boldog, ctx, state = env
     assert len(BOOK) == 20
-    before_memory, before_counters = state.supplier_memory(BOLDOG), state.counters(BOLDOG)
+    before_memory, before_counters = state.memory(boldog), state.counters(boldog)
 
     run = _import(services, ctx, boldog)
     assert run.template_id == "builtin:generic-bookings"
@@ -139,7 +137,7 @@ def test_a_book_of_20_rows_becomes_precedents_used_numbers_and_counters(env):
     }
     assert report.numbers_used == 13
 
-    memory, counters = state.supplier_memory(BOLDOG), state.counters(BOLDOG)
+    memory, counters = state.memory(boldog), state.counters(boldog)
     kosenie = memory.find(KOSENIE)
     assert [p.document_number for p in kosenie.precedents] == [
         "FD/118/26", "FD/101/26", "FDŠJ/004/26", "FD/090/26",
@@ -191,17 +189,17 @@ def test_the_engine_codes_a_matching_invoice_by_the_imported_precedent(env):
 def test_importing_the_same_book_twice_adds_nothing(env):
     services, boldog, ctx, state = env
     _import(services, ctx, boldog)
-    memory, counters = state.supplier_memory(BOLDOG), state.counters(BOLDOG)
+    memory, counters = state.memory(boldog), state.counters(boldog)
     again = _import(services, ctx, boldog)
     assert again.state is RunState.APPLIED
     assert (again.report.diff.added, again.report.diff.unchanged) == (0, 14)
     assert again.report.counters == () and again.report.numbers_used == 0
-    assert state.supplier_memory(BOLDOG) == memory and state.counters(BOLDOG) == counters
+    assert state.memory(boldog) == memory and state.counters(boldog) == counters
 
 
 def test_a_book_with_bad_rows_does_not_apply(env):
     services, boldog, ctx, state = env
-    before = state.supplier_memory(BOLDOG)
+    before = state.memory(boldog)
     bad = [
         BOOK[0],
         _line(KOSENIE, "Tomáš Ukážkový", "FD/300/26", "1.9.2026", "10,00", "1",
@@ -214,4 +212,4 @@ def test_a_book_with_bad_rows_does_not_apply(env):
         ("string_pattern_mismatch", (3,)),
         ("missing", (4,)),
     }
-    assert state.supplier_memory(BOLDOG) == before
+    assert state.memory(boldog) == before

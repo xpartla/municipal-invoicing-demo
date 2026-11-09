@@ -5,7 +5,8 @@ It creates:
 - Obec Boldog (00305863), with its 2026 parameters from `data/entities/00305863.json`, the
   address of its municipal office, version 1 of each of its 2026 code lists from the
   committed bundle `data/bundles/00305863/2026-08.json`, and its 2026 conventions from
-  `data/conventions/00305863/2026.yaml`;
+  `data/conventions/00305863/2026.yaml`, and its supplier memory and number series from the
+  demo's initial state `data/initial_state/00305863/` (P2-M4-T02);
 - the made-up provider "Účtovníctvo Vzor, s.r.o.", to which Boldog is assigned;
 - a second, made-up municipality assigned to the provider, so staff can switch customers;
 - a third, made-up municipality with no provider, for the isolation checks;
@@ -41,13 +42,14 @@ from riso.api.importing import first_error, run_import
 from riso.api.uow import AppUnitOfWork
 from riso.codelists import versions_from_bundle
 from riso.codelists.domain import CustomerConventions
-from riso.contracts import ReferenceBundle
+from riso.contracts import Counters, ReferenceBundle, SupplierMemory
 from riso.exchange.domain.mapping import ImportType
 from riso.exchange.domain.run import RunState
 from riso.exchange.domain.templates import BUILTIN
 from riso.identity.domain import Email, MembershipScope, PasswordPolicy, Role, User
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.orm import UserRow
+from riso.invoicing import restore_state
 from riso.knowledge import load_conventions
 from riso.platform.db import Database
 from riso.platform.migrations import downgrade, upgrade
@@ -110,6 +112,7 @@ def seed(
     bundles_dir: Path = paths.BUNDLES_DIR,
     global_dir: Path = paths.GLOBAL_DIR,
     conventions_dir: Path = paths.CONVENTIONS_DIR,
+    initial_dir: Path = paths.INITIAL_STATE_DIR,
 ) -> Seeded:
     """Migrates and seeds the database of `settings`. Refuses outside `dev` and `test`, and
     on a database that has users already unless `reset` drops it first."""
@@ -139,6 +142,7 @@ def seed(
             bundles_dir,
             global_dir,
             conventions_dir,
+            initial_dir,
         )
     finally:
         db.dispose()
@@ -164,6 +168,7 @@ def _fill(
     bundles: Path,
     global_root: Path,
     conventions_root: Path,
+    initial_root: Path,
 ) -> Seeded:
     clock = FixedClock(SEEDED_AT)
     ids = UuidV7Generator(clock, random.Random(20260101).getrandbits)
@@ -216,6 +221,15 @@ def _fill(
                 boldog.id, year, load_conventions(BOLDOG_ICO, year, conventions_root), now, None
             )
         )
+        initial = initial_root / BOLDOG_ICO
+        if initial.is_dir():
+            restore_state(
+                uow,
+                boldog.id,
+                SupplierMemory.model_validate_json((initial / "supplier_memory.json").read_bytes()),
+                Counters.model_validate_json((initial / "counters.json").read_bytes()),
+                uow.series_patterns.patterns(boldog.id, year),
+            )
         uow.commit()
     _import_global_lists(settings, clock, ids, global_root)
     return result
