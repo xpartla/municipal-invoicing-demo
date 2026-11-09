@@ -23,6 +23,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime
 from typing import Any
+from urllib.parse import quote
 
 from pydantic import BaseModel, ConfigDict
 
@@ -52,7 +53,7 @@ from riso.exchange.domain.report import (
 )
 from riso.exchange.domain.run import ImportFile, ImportRun, RunState
 from riso.exchange.domain.suggestions import header_signature, resolve_columns, suggest_mapping
-from riso.exchange.domain.table import ReadOptions, Workbook, cell_text
+from riso.exchange.domain.table import FileFormat, ReadOptions, Workbook, cell_text
 from riso.identity import Permission
 from riso.jobs import JobContext, JobRegistry
 from riso.shared.context import RequestContext
@@ -299,6 +300,41 @@ def get_import(
     _require_read(ctx, customer_id)
     with uow:
         return ImportRunView.of(uow.imports.get(customer_id, run_id))
+
+
+MEDIA_TYPES = {
+    FileFormat.CSV: "text/csv",
+    FileFormat.XLSX: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    FileFormat.XLS: "application/vnd.ms-excel",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class ImportFileData:
+    name: str
+    data: bytes
+    media_type: str
+
+    @property
+    def quoted_name(self) -> str:
+        """The name for a `filename*=UTF-8''…` header."""
+        return quote(self.name, safe="")
+
+
+def import_file(
+    ctx: RequestContext,
+    uow: ExchangeUnitOfWork,
+    storage: FileStorage,
+    customer_id: str | None,
+    run_id: str,
+) -> ImportFileData:
+    """The run's file as it was uploaded."""
+    _require_read(ctx, customer_id)
+    with uow:
+        run = uow.imports.get(customer_id, run_id)
+    with storage.open(run.file.storage_key) as handle:
+        data = handle.read()
+    return ImportFileData(run.file.name, data, MEDIA_TYPES[run.file.format])
 
 
 def list_imports(
