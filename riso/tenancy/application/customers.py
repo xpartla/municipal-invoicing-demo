@@ -132,9 +132,10 @@ def _require_unique_ico(uow: TenancyUnitOfWork, ico: Ico, customer_id: str | Non
         raise Conflict(f"IČO {ico} is used by another active customer")
 
 
-def create_customer(
-    ctx: RequestContext, uow: TenancyUnitOfWork, cmd: CreateCustomer
-) -> CustomerView:
+def add_customer(ctx: RequestContext, uow: TenancyUnitOfWork, cmd: CreateCustomer) -> CustomerView:
+    """Creates the customer inside the caller's unit of work, which commits (a copy queues
+    its job in the same transaction). Raises `ValidationFailed` for a bad identity or
+    contact, `Conflict` for an IČO another active customer has."""
     if cmd.provider_id is None:
         ctx.require(Permission.CUSTOMERS_CREATE)
     else:
@@ -144,23 +145,30 @@ def create_customer(
     address, iban = _parse_contact(cmd.contact, errors)
     errors.raise_if_any("invalid customer")
     assert parsed is not None  # raise_if_any raised otherwise
-    with uow:
-        _require_unique_ico(uow, parsed.ico, None)
-        customer = Customer.create(
-            uow.ids.new(),
-            parsed.name,
-            parsed.ico,
-            uow.clock.now(),
-            dic=parsed.dic,
-            address=address,
-            iban=iban,
-        )
-        if cmd.provider_id is not None:
-            customer.assign_to(uow.providers.get(cmd.provider_id))
-        uow.customers.add(customer)
-        _audit(ctx, uow, "customer.created", customer.id, {"provider_id": cmd.provider_id})
-        uow.commit()
+    _require_unique_ico(uow, parsed.ico, None)
+    customer = Customer.create(
+        uow.ids.new(),
+        parsed.name,
+        parsed.ico,
+        uow.clock.now(),
+        dic=parsed.dic,
+        address=address,
+        iban=iban,
+    )
+    if cmd.provider_id is not None:
+        customer.assign_to(uow.providers.get(cmd.provider_id))
+    uow.customers.add(customer)
+    _audit(ctx, uow, "customer.created", customer.id, {"provider_id": cmd.provider_id})
     return CustomerView.of(customer)
+
+
+def create_customer(
+    ctx: RequestContext, uow: TenancyUnitOfWork, cmd: CreateCustomer
+) -> CustomerView:
+    with uow:
+        view = add_customer(ctx, uow, cmd)
+        uow.commit()
+    return view
 
 
 def get_customer(ctx: RequestContext, uow: TenancyUnitOfWork, customer_id: str) -> CustomerView:
@@ -301,6 +309,21 @@ def set_parameters(
         )
         uow.commit()
     return ParametersView.of(parameters)
+
+
+def copy_parameters(
+    ctx: RequestContext, uow: TenancyUnitOfWork, source_id: str, target_id: str, year: int
+) -> bool:
+    """Gives the target the source's parameters of the year, inside the caller's unit of
+    work (a customer copy, plan §9.3). False when the source has none or the target already
+    has some (a copy job run again changes nothing)."""
+    ctx.require(Permission.CUSTOMER_READ, source_id)
+    ctx.require(Permission.CODELISTS_EDIT, target_id)
+    source = uow.parameters.get(source_id, year)
+    if source is None or uow.parameters.get(target_id, year) is not None:
+        return False
+    uow.parameters.save(CustomerParameters.parse(target_id, year, source.values()))
+    return True
 
 
 def purge_customer(

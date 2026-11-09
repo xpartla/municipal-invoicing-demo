@@ -11,6 +11,7 @@ from riso.jobs.application import (
     JobsUnitOfWork,
     JobView,
     Worker,
+    get_customer_job,
     register_builtin,
 )
 from riso.jobs.domain import JobStatus, RetryPolicy
@@ -25,5 +26,6 @@ __all__ = [
     "JobsUnitOfWork",
     "RetryPolicy",
     "Worker",
+    "get_customer_job",
     "register_builtin",
 ]

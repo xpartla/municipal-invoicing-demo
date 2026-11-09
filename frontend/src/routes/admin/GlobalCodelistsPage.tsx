@@ -1,10 +1,22 @@
-import { Badge, Loader, Select, Stack, Table, Tabs, Text, TextInput, Title } from '@mantine/core';
+import {
+  Badge,
+  Group,
+  Loader,
+  Select,
+  Stack,
+  Table,
+  Tabs,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconSearch } from '@tabler/icons-react';
+import { IconSearch, IconUpload } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Pager } from '../../components/Pager';
+import { ButtonLink } from '../../components/RouterLinks';
 import { ScrollTable } from '../../components/ScrollTable';
 import { useEntries, useGlobalChecklist } from '../../features/codelists/api';
 import { EntryTable } from '../../features/codelists/EntryTable';
@@ -39,7 +51,16 @@ export function GlobalCodelistsPage() {
 
   return (
     <Stack gap="md">
-      <Title order={1}>{t('globalCodelists.title')}</Title>
+      <Group justify="space-between" align="flex-end">
+        <Title order={1}>{t('globalCodelists.title')}</Title>
+        <ButtonLink
+          to="/admin/codelists/import"
+          search={{ type: kind, year: shownYear }}
+          leftSection={<IconUpload size={16} aria-hidden />}
+        >
+          {t('codelists.import')}
+        </ButtonLink>
+      </Group>
       <Text maw={880}>{t('globalCodelists.intro')}</Text>
       <section aria-labelledby="checklist-title">
         <Title order={2} size="h3" id="checklist-title" mb="xs">

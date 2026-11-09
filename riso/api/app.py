@@ -44,8 +44,10 @@ from riso.engine import code_invoice, code_line
 from riso.engine.s6_validate import check_coding
 from riso.engine.s8_feedback import apply_feedback
 from riso.eval import evaluate
+from riso.exchange.api.routes import router as exchange_router
 from riso.identity.api.routes import router as identity_router
 from riso.invoicing.api.routes import router as invoicing_router
+from riso.jobs.api.routes import router as jobs_router
 from riso.knowledge import UnknownKnowledge, knowledge_for
 from riso.platform.log import configure_logging
 from riso.platform.migrations import current_revision, head_revision
@@ -66,8 +68,10 @@ ROUTERS = [
     identity_router,
     tenancy_router,
     codelists_router,
+    exchange_router,
     invoicing_router,
     audit_router,
+    jobs_router,
     admin_router,
 ]
 """The phase 2 routers. They are mounted with or without a database, so the OpenAPI document

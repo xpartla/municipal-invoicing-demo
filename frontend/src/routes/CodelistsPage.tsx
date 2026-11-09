@@ -9,7 +9,6 @@ import {
   Text,
   TextInput,
   Title,
-  Tooltip,
 } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconHistory, IconPlus, IconSearch, IconUpload } from '@tabler/icons-react';
@@ -18,6 +17,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Pager } from '../components/Pager';
+import { ButtonLink } from '../components/RouterLinks';
 import {
   useEditRow,
   useEntries,
@@ -106,13 +106,16 @@ export function CodelistsPage() {
             }}
             w={110}
           />
-          <Tooltip label={t('codelists.importSoon')} withArrow>
-            <div>
-              <Button leftSection={<IconUpload size={16} aria-hidden />} disabled>
-                {t('codelists.import')}
-              </Button>
-            </div>
-          </Tooltip>
+          {canEdit && (
+            <ButtonLink
+              to="/c/$customerId/exchange/import"
+              params={{ customerId }}
+              search={{ type: kind, year }}
+              leftSection={<IconUpload size={16} aria-hidden />}
+            >
+              {t('codelists.import')}
+            </ButtonLink>
+          )}
         </Group>
       </Group>
       <Tabs

@@ -13,13 +13,17 @@ from riso.api.deps import (
     platform_context,
     provider_context,
 )
+from riso.exchange import CopyCustomer, CopyOptions, copy_customer
 from riso.identity import Permission
 from riso.shared.errors import ValidationFailed
 from riso.tenancy.api.models import (
     AddressIn,
+    AdminCustomerCopyIn,
     AdminCustomerIn,
     AssignProviderIn,
     CustomerContactIn,
+    CustomerCopyIn,
+    CustomerCopyOut,
     CustomerIdentityIn,
     CustomerIn,
     CustomerOut,
@@ -178,6 +182,37 @@ def provider_create_customer(
     return CustomerOut.of(create_customer(caller.ctx, services.uow(), _create(body, provider_id)))
 
 
+def _copy(
+    caller: Caller, services: ServicesDep, body: CustomerCopyIn, provider_id: str | None
+) -> CustomerCopyOut:
+    started = copy_customer(
+        caller.ctx,
+        services.uow(),
+        CopyCustomer(
+            body.source_customer_id,
+            _create(body, provider_id),
+            CopyOptions.model_validate(body.options.model_dump()),
+        ),
+    )
+    return CustomerCopyOut(customer=CustomerOut.of(started.customer), job_id=started.job_id)
+
+
+@router.post(
+    "/providers/{provider_id}/customers/copy",
+    name="providers.copy_customer",
+    status_code=202,
+)
+def provider_copy_customer(
+    caller: Annotated[Caller, Depends(provider_context(Permission.CUSTOMERS_CREATE))],
+    services: ServicesDep,
+    provider_id: str,
+    body: CustomerCopyIn,
+) -> CustomerCopyOut:
+    """A new customer in the staff member's provider as a copy of one of its customers. The
+    copy runs as a job; follow it at `/api/customers/{id}/jobs/{job_id}`."""
+    return _copy(caller, services, body, provider_id)
+
+
 @router.get("/providers/{provider_id}/customers", name="providers.directory")
 def provider_directory(
     caller: Annotated[Caller, Depends(provider_context(Permission.PROVIDER_OVERVIEW))],
@@ -199,6 +234,16 @@ def admin_create_customer(
     return CustomerOut.of(
         create_customer(caller.ctx, services.uow(), _create(body, body.provider_id))
     )
+
+
+@router.post("/admin/customers/copy", name="customers.copy", status_code=202)
+def admin_copy_customer(
+    caller: Annotated[Caller, Depends(platform_context(Permission.CUSTOMERS_CREATE))],
+    services: ServicesDep,
+    body: AdminCustomerCopyIn,
+) -> CustomerCopyOut:
+    """A new customer as a copy of any customer, in a provider or unassigned (admins)."""
+    return _copy(caller, services, body, body.provider_id)
 
 
 @router.get("/admin/customers", name="customers.directory")

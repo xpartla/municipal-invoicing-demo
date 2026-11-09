@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { Shell } from '../components/Shell';
 import { meQuery, useMe, type Me } from '../features/identity/api';
 import {
+  createsCustomers,
   onPlatform,
   seesProviderScreens,
   worksAcrossCustomers,
@@ -25,17 +26,22 @@ import { InvitationPage } from '../routes/auth/InvitationPage';
 import { LoginPage } from '../routes/auth/LoginPage';
 import { ResetPasswordPage } from '../routes/auth/ResetPasswordPage';
 import { codelistsSearch } from '../features/codelists/kinds';
+import { customerImportSearch, globalImportSearch } from '../features/exchange/search';
 import { CodelistsPage } from '../routes/CodelistsPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
 import { ErrorPage } from '../routes/ErrorPage';
+import { ExchangePage } from '../routes/ExchangePage';
 import { ForbiddenPage } from '../routes/ForbiddenPage';
 import { HomePage } from '../routes/HomePage';
+import { ImportPage } from '../routes/ImportPage';
 import { GlobalCodelistsPage } from '../routes/admin/GlobalCodelistsPage';
+import { GlobalImportPage } from '../routes/admin/GlobalImportPage';
 import { OutboxPage } from '../routes/admin/OutboxPage';
 import { ProvidersPage } from '../routes/admin/ProvidersPage';
 import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
+import { NewCustomerPage } from '../routes/NewCustomerPage';
 import { NotFoundPage } from '../routes/NotFoundPage';
 import { ProfilePage } from '../routes/ProfilePage';
 import { SystemPage } from '../routes/SystemPage';
@@ -190,7 +196,14 @@ const customerRoutes = [
     validateSearch: codelistsSearch,
   }),
   createRoute({ getParentRoute: () => customerRoute, path: 'system', component: SystemPage }),
-  ...(['invoices', 'exchange', 'files'] as const).map((key) =>
+  createRoute({ getParentRoute: () => customerRoute, path: 'exchange', component: ExchangePage }),
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'exchange/import',
+    component: ImportPage,
+    validateSearch: customerImportSearch,
+  }),
+  ...(['invoices', 'files'] as const).map((key) =>
     createRoute({ getParentRoute: () => customerRoute, path: key, component: soon(key) }),
   ),
 ];
@@ -207,9 +220,16 @@ const appRoutes = [
   page('/profile', ProfilePage),
   page('/provider', guarded(seesProviderScreens, soon('providerOverview'))),
   page('/users', guarded(seesProviderScreens, UsersPage)),
+  page('/users/new', guarded(createsCustomers, NewCustomerPage)),
   page('/admin', guarded(admin('providers.manage'), soon('platform'))),
   page('/admin/providers', guarded(admin('providers.manage'), ProvidersPage)),
   page('/admin/codelists', guarded(admin('codelists.global'), GlobalCodelistsPage)),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: '/admin/codelists/import',
+    component: guarded(admin('codelists.global'), GlobalImportPage),
+    validateSearch: globalImportSearch,
+  }),
   page('/admin/audit', guarded(admin('audit.read'), soon('audit'))),
   page('/admin/jobs', guarded(admin('jobs.manage'), soon('jobs'))),
   page('/admin/outbox', guarded(admin('outbox.read'), OutboxPage)),

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from riso.codelists import BundleEntity, customer_knowledge, reference_bundle
 from riso.contracts import Counters, EntityContext, ReferenceBundle, SupplierMemory
+from riso.exchange.domain.bookings import BookingsPlan, merge_plan
 from riso.identity.application.ports import CustomerRef, ProviderRef
 from riso.identity.domain import MembershipScope, ScopeKind, UserStatus
 from riso.identity.infrastructure.repository import SqlUserRepository
@@ -230,9 +231,10 @@ class DbReferenceData:
 
 
 class DemoSupplierState:
-    """The invoicing context's `SupplierState` from the demo's files until P2-M4: the
-    customer's supplier memory and counters in `var/<IČO>/`, else `data/initial_state/`,
-    else empty."""
+    """The invoicing context's `SupplierState` and the exchange context's `PrecedentSink` on
+    the demo's files until P2-M4: the customer's supplier memory and counters in
+    `var/<IČO>/`, else `data/initial_state/`, else empty. A past-bookings import writes
+    both files under `var/<IČO>/`."""
 
     def __init__(self, store: StateStore, ico_of: Callable[[str], str]) -> None:
         self._store = store
@@ -251,6 +253,20 @@ class DemoSupplierState:
             return self._store.counters(ico)
         except FileNotFoundError:
             return Counters(entity_ico=ico, last_used={})
+
+    def copy_memory(self, source_id: str, target_id: str) -> int:
+        if self.memory(target_id).suppliers:
+            return 0
+        source = self.memory(source_id)
+        self._store.save_supplier_memory(
+            SupplierMemory(entity_ico=self._ico_of(target_id), suppliers=source.suppliers)
+        )
+        return len(source.suppliers)
+
+    def add(self, customer_id: str, plan: BookingsPlan) -> None:
+        memory, counters = merge_plan(plan, self.memory(customer_id), self.counters(customer_id))
+        self._store.save_supplier_memory(memory)
+        self._store.save_counters(counters)
 
 
 class DatabaseReferenceSource:

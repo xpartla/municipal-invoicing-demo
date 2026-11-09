@@ -33,6 +33,11 @@ export function seesProviderScreens(me: Me): boolean {
   return inAnyProvider(me, 'provider.overview') || onPlatform(me, 'provider.overview');
 }
 
+/** Nový klient: staff (into their provider) and admins (plan §5.2). */
+export function createsCustomers(me: Me): boolean {
+  return inAnyProvider(me, 'customers.create') || onPlatform(me, 'customers.create');
+}
+
 /**
  * The customer the navbar's customer items point at: the one in the URL, else a customer
  * user's only customer. Staff and admins choose one first (plan §10.1).

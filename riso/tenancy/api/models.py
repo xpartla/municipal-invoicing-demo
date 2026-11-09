@@ -117,6 +117,32 @@ class AdminCustomerIn(CustomerIn):
     provider_id: str | None = Field(default=None, max_length=36)
 
 
+class CopyOptionsIn(BaseModel):
+    """What a copy takes from the source customer (plan §9.3); the defaults are the plan's."""
+
+    year: int = Field(ge=2000, le=2100)
+    parameters: bool = True
+    code_lists: bool = True
+    conventions: bool = True
+    templates: bool = True
+    supplier_memory: bool = False
+
+
+class CustomerCopyIn(CustomerIn):
+    source_customer_id: str = Field(max_length=36)
+    options: CopyOptionsIn
+
+
+class AdminCustomerCopyIn(CustomerCopyIn):
+    provider_id: str | None = Field(default=None, max_length=36)
+
+
+class CustomerCopyOut(BaseModel):
+    customer: CustomerOut
+    job_id: str
+    """The `customer_copy` job, followed at `/api/customers/{id}/jobs/{job_id}`."""
+
+
 class VariableNumberIn(BaseModel):
     variable_number: str | None = Field(default=None, max_length=14)
 

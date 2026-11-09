@@ -1,10 +1,12 @@
-import { Select, Stack, Tabs, Title } from '@mantine/core';
+import { Group, Select, Stack, Tabs, Title } from '@mantine/core';
+import { IconBuildingPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ButtonLink } from '../components/RouterLinks';
 import { AllAccounts } from '../features/identity/AllAccounts';
 import { useMe } from '../features/identity/api';
-import { onPlatform } from '../features/identity/capabilities';
+import { createsCustomers, onPlatform } from '../features/identity/capabilities';
 import { Directory } from '../features/tenancy/Directory';
 
 /**
@@ -20,7 +22,14 @@ export function UsersPage() {
   const scope = admin ? 'all' : providerId ? { providerId } : undefined;
   return (
     <Stack gap="md">
-      <Title order={1}>{t('users.title')}</Title>
+      <Group justify="space-between" align="flex-end">
+        <Title order={1}>{t('users.title')}</Title>
+        {createsCustomers(me) && (
+          <ButtonLink to="/users/new" leftSection={<IconBuildingPlus size={16} aria-hidden />}>
+            {t('newCustomer.button')}
+          </ButtonLink>
+        )}
+      </Group>
       {!admin && me.providers.length > 1 && (
         <Select
           label={t('users.provider')}

@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import { Anchor, Badge, Group, Loader, Stack, Table, Text } from '@mantine/core';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
@@ -73,7 +74,7 @@ export function HealthView({
   );
 }
 
-type T = ReturnType<typeof useTranslation>['t'];
+type T = TFunction;
 
 function place(where: string | null | undefined, t: T): string {
   if (!where) return '';

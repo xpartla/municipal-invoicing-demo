@@ -10,7 +10,8 @@ It creates:
 - a second, made-up municipality assigned to the provider, so staff can switch customers;
 - a third, made-up municipality with no provider, for the isolation checks;
 - version 1 of each global list (EK, COFOG, funding sources, framework chart) of every year
-  in `data/global/`;
+  in `data/global/`, imported through the import tool with the built-in templates (an
+  import run each, its file in the store);
 - one user per role: an admin, a staff member of the provider, a user and a viewer of Boldog.
 
 The made-up municipalities carry placeholder IČOs that pass the check digit and are absent
@@ -35,11 +36,15 @@ from sqlalchemy import func, select
 from sqlalchemy.engine.url import make_url
 
 from riso import paths
+from riso.api.composition import build_services
+from riso.api.importing import first_error, run_import
 from riso.api.uow import AppUnitOfWork
 from riso.codelists import versions_from_bundle
 from riso.codelists.domain import CustomerConventions
-from riso.codelists.infrastructure.global_files import global_versions, global_years
 from riso.contracts import ReferenceBundle
+from riso.exchange.domain.mapping import ImportType
+from riso.exchange.domain.run import RunState
+from riso.exchange.domain.templates import BUILTIN
 from riso.identity.domain import Email, MembershipScope, PasswordPolicy, Role, User
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.orm import UserRow
@@ -48,8 +53,9 @@ from riso.platform.db import Database
 from riso.platform.migrations import downgrade, upgrade
 from riso.platform.settings import Settings
 from riso.shared.clock import FixedClock
+from riso.shared.context import RequestContext
 from riso.shared.errors import ValidationFailed
-from riso.shared.ids import UuidV7Generator
+from riso.shared.ids import IdGenerator, UuidV7Generator
 from riso.shared.values import Ico
 from riso.tenancy.domain import Address, Customer, CustomerParameters, ServiceProvider
 
@@ -210,11 +216,51 @@ def _fill(
                 boldog.id, year, load_conventions(BOLDOG_ICO, year, conventions_root), now, None
             )
         )
-        for year in global_years(global_root):
-            for version in global_versions(global_root, year, ids, now):
-                uow.codelists.add(version)
         uow.commit()
+    _import_global_lists(settings, clock, ids, global_root)
     return result
+
+
+GLOBAL_FILES: dict[ImportType, str] = {
+    ImportType.EK: "ek.csv",
+    ImportType.COFOG: "cofog.csv",
+    ImportType.FUNDING_SOURCES: "funding_sources.csv",
+    ImportType.FRAMEWORK_ACCOUNTS: "framework_accounts.csv",
+}
+"""The files of `data/global/<year>/`, header `code,name` (see its README for the sources)."""
+
+
+def global_years(root: Path) -> list[int]:
+    if not root.is_dir():
+        return []
+    return sorted(int(d.name) for d in root.iterdir() if d.is_dir() and d.name.isdigit())
+
+
+def _import_global_lists(
+    settings: Settings, clock: FixedClock, ids: IdGenerator, root: Path
+) -> None:
+    """Each global list of each year through the import tool, with its built-in template.
+    A file that does not import stops the seed, naming the file and the row."""
+    services = build_services(settings, clock=clock, ids=ids)
+    ctx = RequestContext.system("seed")
+    try:
+        for year in global_years(root):
+            for import_type, name in GLOBAL_FILES.items():
+                path = root / str(year) / name
+                if not path.is_file():
+                    continue
+                template = BUILTIN[f"builtin:global-{import_type.value}"]
+                try:
+                    data = path.read_bytes()
+                    run = run_import(
+                        services, ctx, None, import_type, year, name, data, template=template
+                    )
+                except ValidationFailed as exc:
+                    raise SeedRefused(f"{path}: {exc.message}") from exc
+                if run.state is not RunState.APPLIED:
+                    raise SeedRefused(f"{path.parent}/{first_error(run)}")
+    finally:
+        services.close()
 
 
 def _generated() -> str:
