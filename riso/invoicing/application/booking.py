@@ -23,7 +23,12 @@ from datetime import date, datetime
 from riso.contracts import Coding
 from riso.engine import check_coding, precedent_of
 from riso.identity import Permission
-from riso.invoicing.application.coding import ReferenceData, actor_of, code_stored
+from riso.invoicing.application.coding import (
+    ReferenceData,
+    actor_of,
+    code_stored,
+    recode_invoice,
+)
 from riso.invoicing.application.numbering import take_number
 from riso.invoicing.application.uow import InvoicingUnitOfWork
 from riso.invoicing.application.views import (
@@ -363,3 +368,28 @@ def mark_paid_many(
     """Marks several invoices paid on one date; each succeeds or fails on its own."""
     ctx.require(Permission.INVOICES_PROCESS, customer_id)
     return each(invoice_ids, lambda i: mark_paid(ctx, uow(), customer_id, i, paid_on))
+
+
+def recode_many(
+    ctx: RequestContext,
+    uow: Callable[[], InvoicingUnitOfWork],
+    reference: ReferenceData,
+    customer_id: str,
+    invoice_ids: list[str],
+) -> list[ItemResult]:
+    """Codes several invoices again; each succeeds or fails on its own."""
+    ctx.require(Permission.INVOICES_PROCESS, customer_id)
+    return each(invoice_ids, lambda i: recode_invoice(ctx, uow(), reference, customer_id, i))
+
+
+def discard_many(
+    ctx: RequestContext,
+    uow: Callable[[], InvoicingUnitOfWork],
+    customer_id: str,
+    invoice_ids: list[str],
+    *,
+    reason: str | None = None,
+) -> list[ItemResult]:
+    """Discards several invoices; each succeeds or fails on its own."""
+    ctx.require(Permission.INVOICES_PROCESS, customer_id)
+    return each(invoice_ids, lambda i: discard_invoice(ctx, uow(), customer_id, i, reason=reason))

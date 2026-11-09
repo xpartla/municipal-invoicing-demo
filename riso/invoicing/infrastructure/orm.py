@@ -126,6 +126,11 @@ class InvoiceRow(Base):
         Index(None, "customer_id", "booking_date"),
         Index(None, "customer_id", "supplier_ico"),
         Index(None, "customer_id", "document_number"),
+        Index(None, "customer_id", "issue_date"),
+        Index(None, "customer_id", "due_date"),
+        Index(None, "customer_id", "exported_at"),
+        Index(None, "customer_id", "paid_on"),
+        Index(None, "customer_id", "gross_cents"),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
@@ -168,6 +173,8 @@ class InvoiceRow(Base):
     gross_cents: Mapped[int | None] = mapped_column(Integer)
     currency: Mapped[str | None] = mapped_column(String(3))
     search_text: Mapped[str] = mapped_column(Text)
+    supplier_text: Mapped[str] = mapped_column(Text)
+    """The supplier's name and IČO, folded, for the supplier filter's search."""
 
 
 class InvoiceLineRow(Base):

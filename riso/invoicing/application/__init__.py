@@ -6,9 +6,11 @@ from riso.invoicing.application.booking import (
     BookInvoice,
     book_invoice,
     discard_invoice,
+    discard_many,
     mark_paid,
     mark_paid_many,
     preview_booking,
+    recode_many,
     unbook_invoice,
 )
 from riso.invoicing.application.coding import (
@@ -29,6 +31,21 @@ from riso.invoicing.application.numbering import (
     preview_number,
     set_last_used,
     take_number,
+)
+from riso.invoicing.application.queries import (
+    HistoryView,
+    InvoiceFilter,
+    InvoicePage,
+    InvoiceQueries,
+    InvoiceRowView,
+    PeopleNames,
+    QueriesUnitOfWork,
+    Sort,
+    SupplierView,
+    find_suppliers,
+    get_invoice,
+    invoice_history,
+    list_invoices,
 )
 from riso.invoicing.application.state import (
     PastPrecedent,
@@ -51,6 +68,21 @@ from riso.invoicing.application.views import (
 
 __all__ = [
     "BookInvoice",
+    "HistoryView",
+    "InvoiceFilter",
+    "InvoicePage",
+    "InvoiceQueries",
+    "InvoiceRowView",
+    "PeopleNames",
+    "QueriesUnitOfWork",
+    "Sort",
+    "SupplierView",
+    "discard_many",
+    "find_suppliers",
+    "get_invoice",
+    "invoice_history",
+    "list_invoices",
+    "recode_many",
     "BookingResult",
     "BookingView",
     "HistoryEntryView",

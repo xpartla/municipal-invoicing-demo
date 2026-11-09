@@ -29,6 +29,12 @@ from riso.shared.uow import UnitOfWork
 from riso.text import fold
 
 
+def searchable(text: str) -> str:
+    """Text as the search columns keep it: without diacritics, case folded (portable `LIKE`
+    then ignores both, on SQLite and PostgreSQL alike)."""
+    return fold(text).casefold()
+
+
 def cents(amount: Decimal | None) -> int | None:
     if amount is None:
         return None
@@ -160,7 +166,8 @@ def _values(invoice: Invoice) -> dict[str, Any]:
         "document_number": document.number if document else None,
         "gross_cents": cents(fields.totals.gross) if fields else None,
         "currency": header.currency if header else None,
-        "search_text": fold(" ".join(w for w in words if w)),
+        "search_text": searchable(" ".join(w for w in words if w)),
+        "supplier_text": searchable(" ".join(w for w in (supplier_name, supplier_ico) if w)),
     }
 
 

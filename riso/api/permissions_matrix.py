@@ -142,6 +142,13 @@ MATRIX: dict[str, RouteAccess] = {
     "admin_codelists.versions": platform(Permission.GLOBAL_CODELISTS),
     # Invoicing.
     "coding.code": customer(Permission.INVOICES_PROCESS),
+    "invoices.list": customer(Permission.CUSTOMER_READ),
+    "invoices.suppliers": customer(Permission.CUSTOMER_READ),
+    "invoices.get": customer(Permission.CUSTOMER_READ),
+    "invoices.history": customer(Permission.CUSTOMER_READ),
+    "invoices.bulk_pay": customer(Permission.INVOICES_PROCESS),
+    "invoices.bulk_recode": customer(Permission.INVOICES_PROCESS),
+    "invoices.bulk_discard": customer(Permission.INVOICES_PROCESS),
     "invoices.create": customer(Permission.INVOICES_PROCESS),
     "invoices.check": customer(Permission.INVOICES_PROCESS),
     "invoices.recode": customer(Permission.INVOICES_PROCESS),

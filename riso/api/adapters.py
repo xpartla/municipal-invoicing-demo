@@ -111,6 +111,24 @@ class SqlTenancyDirectory:
         ]
 
 
+class UserNames:
+    """The invoicing context's `PeopleNames` over identity's users, on the same session."""
+
+    def __init__(self, users: SqlUserRepository) -> None:
+        self._users = users
+
+    def names(self, user_ids: Collection[str]) -> dict[str, str]:
+        found = {}
+        for user_id in user_ids:
+            try:
+                user = self._users.get(user_id)
+            except NotFound:
+                continue
+            if user.name:
+                found[user_id] = user.name
+        return found
+
+
 class SpaLinks:
     """The SPA's pages that mail links to (`Links` port). Tokens go in the fragment."""
 

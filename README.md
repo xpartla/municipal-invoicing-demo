@@ -231,8 +231,13 @@ at `/docs` while the server runs. In short:
   are jobs of the worker; the run's state and report show their outcome. The global lists'
   imports are the same under `/api/admin/imports`. `POST /api/providers/{id}/customers/copy`
   starts a copy, followed at `GET /api/customers/{id}/jobs/{job_id}`.
-- Invoices: `POST /api/customers/{id}/invoices` enters one from typed fields (checked and
-  coded at once); under `…/invoices/{invoice_id}/`, `check`, `recode`, `line` (the whole line
+- Invoices: `GET /api/customers/{id}/invoices` is the table (filters `q`, `supplier_ico`,
+  `state`, `series`, `channel`, `needs_review`, `uploaded_by`, `<issue|due|booking|uploaded|
+  exported|paid>_from`/`_to`, `amount_min`/`_max`, `budget`, `md`, `dal`; `sort=-booking_date`;
+  `page`, `size` up to 200), `…/invoices/suppliers?q=` suggests suppliers, `GET
+  …/invoices/{invoice_id}` and `…/history` read one, and `POST …/invoices/bulk/pay|recode|discard`
+  act on several, reporting each. `POST /api/customers/{id}/invoices` enters one from typed
+  fields (checked and coded at once); under `…/invoices/{invoice_id}/`, `check`, `recode`, `line` (the whole line
   of a picked budget position), `booking-preview`, `book`, `unbook`, `discard` and `pay`.
   Booking takes the handwritten number, or a place by date of supply, and may move later
   booked invoices up (plan §2 decision 61).

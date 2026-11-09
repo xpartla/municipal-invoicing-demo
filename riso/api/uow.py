@@ -7,11 +7,12 @@ once. It lives in the composition root, the one place that may import every cont
 infrastructure.
 """
 
-from riso.api.adapters import CodelistSeriesPatterns, UowPrecedents, UserLogins
+from riso.api.adapters import CodelistSeriesPatterns, UowPrecedents, UserLogins, UserNames
 from riso.audit.infrastructure.log import SqlAuditLog, SqlAuditRecorder
 from riso.codelists.infrastructure.uow import SqlCodelistsUnitOfWork
 from riso.exchange.infrastructure.repository import SqlImportRunRepository, SqlTemplateRepository
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
+from riso.invoicing.infrastructure.queries import SqlInvoiceQueries
 from riso.invoicing.infrastructure.uow import SqlInvoicingUnitOfWork
 from riso.jobs import JobRegistry, register_builtin
 from riso.jobs.application import RepositoryJobQueue
@@ -43,6 +44,8 @@ class AppUnitOfWork(
     """Jobs queued here are committed with the change that needs them."""
     series_patterns: CodelistSeriesPatterns
     precedents: UowPrecedents
+    invoice_queries: SqlInvoiceQueries
+    people: UserNames
 
     def __init__(
         self,
@@ -76,3 +79,5 @@ class AppUnitOfWork(
         self.logins = UserLogins(self.users, self.clock)
         self.series_patterns = CodelistSeriesPatterns(self)
         self.precedents = UowPrecedents(self)
+        self.invoice_queries = SqlInvoiceQueries(self.session)
+        self.people = UserNames(self.users)

@@ -1580,7 +1580,13 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Invoices.List
+         * @description The invoice table (plan §10.3): every filter, sorting by a column (`-` for
+         *     descending; default `-uploaded_at`) and paging. Text filters ignore case and diacritics;
+         *     dates are inclusive days.
+         */
+        get: operations["invoices.list"];
         put?: never;
         /**
          * Invoices.Create
@@ -1588,6 +1594,127 @@ export interface paths {
          *     The fields' `id` is replaced by the new invoice's.
          */
         post: operations["invoices.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/suppliers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Invoices.Suppliers
+         * @description The suppliers of the customer's invoices whose name or IČO matches, most invoices
+         *     first, for the supplier filter.
+         */
+        get: operations["invoices.suppliers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/bulk/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Bulk Pay
+         * @description Marks several invoices paid on one date; each is reported on its own.
+         */
+        post: operations["invoices.bulk_pay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/bulk/recode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Bulk Recode
+         * @description Codes several invoices again; each is reported on its own.
+         */
+        post: operations["invoices.bulk_recode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/bulk/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Bulk Discard
+         * @description Discards several invoices that are not booked; each is reported on its own.
+         */
+        post: operations["invoices.bulk_discard"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Invoices.Get
+         * @description One invoice: its fields, proposal, booking, timestamps and what its state allows.
+         */
+        get: operations["invoices.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Invoices.History
+         * @description The invoice's history, oldest first: every step with who took it (plan §10.4).
+         */
+        get: operations["invoices.history"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2294,6 +2421,37 @@ export interface components {
              * @description Rows in the exported sheet; empty for a position added by hand
              */
             rows?: number[];
+        };
+        /** BulkDiscardIn */
+        BulkDiscardIn: {
+            /** Invoice Ids */
+            invoice_ids: string[];
+            /** Reason */
+            reason?: string | null;
+        };
+        /** BulkIn */
+        BulkIn: {
+            /** Invoice Ids */
+            invoice_ids: string[];
+        };
+        /** BulkOut */
+        BulkOut: {
+            /** Results */
+            results: components["schemas"]["ItemResultOut"][];
+            /** Done */
+            done: number;
+            /** Failed */
+            failed: number;
+        };
+        /** BulkPayIn */
+        BulkPayIn: {
+            /** Invoice Ids */
+            invoice_ids: string[];
+            /**
+             * Paid On
+             * Format: date
+             */
+            paid_on: string;
         };
         /** CaseResult */
         CaseResult: {
@@ -3125,6 +3283,52 @@ export interface components {
          * @enum {string}
          */
         HealthSeverity: "error" | "warning" | "info";
+        /** HistoryEntryOut */
+        HistoryEntryOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "created" | "extraction_started" | "extracted" | "extraction_failed" | "entered_manually" | "marked_duplicate" | "checked" | "coded" | "booked" | "unbooked" | "renumbered" | "exported" | "paid" | "discarded";
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /**
+             * Actor Id
+             * @description None for the system (seeding, a job)
+             */
+            actor_id: string | null;
+            /**
+             * Real Actor Id
+             * @description The admin, when impersonating
+             */
+            real_actor_id: string | null;
+            /** From State */
+            from_state: ("uploaded" | "extracting" | "extraction_failed" | "extracted" | "checked" | "needs_review" | "ready" | "booked" | "exported" | "paid" | "discarded" | "duplicate") | null;
+            /**
+             * To State
+             * @enum {string}
+             */
+            to_state: "uploaded" | "extracting" | "extraction_failed" | "extracted" | "checked" | "needs_review" | "ready" | "booked" | "exported" | "paid" | "discarded" | "duplicate";
+            /** Details */
+            details: {
+                [key: string]: unknown;
+            };
+        };
+        /** HistoryOut */
+        HistoryOut: {
+            /** Items */
+            items: components["schemas"]["HistoryEntryOut"][];
+            /**
+             * Names
+             * @description The people in the history, ID → name
+             */
+            names: {
+                [key: string]: string;
+            };
+        };
         /** ImpersonateIn */
         ImpersonateIn: {
             /** Reason */
@@ -3453,6 +3657,82 @@ export interface components {
              */
             actions: ("check" | "recode" | "book" | "unbook" | "export" | "pay" | "discard")[];
         };
+        /** InvoicePageOut */
+        InvoicePageOut: {
+            /** Items */
+            items: components["schemas"]["InvoiceRowOut"][];
+            /** Total */
+            total: number;
+        };
+        /**
+         * InvoiceRowOut
+         * @description One row of the invoice table (plan §10.3).
+         */
+        InvoiceRowOut: {
+            /** Id */
+            id: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "uploaded" | "extracting" | "extraction_failed" | "extracted" | "checked" | "needs_review" | "ready" | "booked" | "exported" | "paid" | "discarded" | "duplicate";
+            /**
+             * Channel
+             * @enum {string}
+             */
+            channel: "scan" | "digital_pdf" | "einvoice" | "manual" | "dataset";
+            /** Source Ref */
+            source_ref: string | null;
+            /** Needs Review */
+            needs_review: boolean;
+            /** Series */
+            series: string | null;
+            /**
+             * Document Number
+             * @description Booked, else proposed
+             */
+            document_number: string | null;
+            /** Booking Date */
+            booking_date: string | null;
+            /** Supplier Name */
+            supplier_name: string | null;
+            /** Supplier Ico */
+            supplier_ico: string | null;
+            /** Invoice Number */
+            invoice_number: string | null;
+            /** Variable Symbol */
+            variable_symbol: string | null;
+            /** Issue Date */
+            issue_date: string | null;
+            /** Due Date */
+            due_date: string | null;
+            /** Supply Date */
+            supply_date: string | null;
+            /** Gross */
+            gross: number | null;
+            /** Currency */
+            currency: string | null;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /** Uploaded By */
+            uploaded_by: string | null;
+            /** Exported At */
+            exported_at: string | null;
+            /** Paid On */
+            paid_on: string | null;
+            /**
+             * Budget Keys
+             * @description The booking's lines, else the proposal's
+             */
+            budget_keys: string[];
+            /** Md */
+            md: string[];
+            /** Dal */
+            dal: string[];
+        };
         /** InvoiceSummary */
         InvoiceSummary: {
             /** Number */
@@ -3520,6 +3800,20 @@ export interface components {
              * @default false
              */
             confirmable: boolean;
+        };
+        /** ItemResultOut */
+        ItemResultOut: {
+            /** Invoice Id */
+            invoice_id: string;
+            /** Ok */
+            ok: boolean;
+            /**
+             * Code
+             * @description not_found, invalid_state, conflict … when not ok
+             */
+            code: string | null;
+            /** Message */
+            message: string | null;
         };
         /** JobOut */
         JobOut: {
@@ -4203,6 +4497,15 @@ export interface components {
             email: string;
             /** Name */
             name: string;
+        };
+        /** SupplierOut */
+        SupplierOut: {
+            /** Ico */
+            ico: string | null;
+            /** Name */
+            name: string | null;
+            /** Invoices */
+            invoices: number;
         };
         /** SupplierRef */
         SupplierRef: {
@@ -7512,6 +7815,70 @@ export interface operations {
             };
         };
     };
+    "invoices.list": {
+        parameters: {
+            query?: {
+                /** @description Supplier, numbers, VS */
+                q?: string | null;
+                supplier_ico?: string | null;
+                state?: ("uploaded" | "extracting" | "extraction_failed" | "extracted" | "checked" | "needs_review" | "ready" | "booked" | "exported" | "paid" | "discarded" | "duplicate")[] | null;
+                series?: string[] | null;
+                channel?: ("scan" | "digital_pdf" | "einvoice" | "manual" | "dataset")[] | null;
+                needs_review?: boolean | null;
+                uploaded_by?: string | null;
+                issue_from?: string | null;
+                issue_to?: string | null;
+                due_from?: string | null;
+                due_to?: string | null;
+                booking_from?: string | null;
+                booking_to?: string | null;
+                uploaded_from?: string | null;
+                uploaded_to?: string | null;
+                exported_from?: string | null;
+                exported_to?: string | null;
+                paid_from?: string | null;
+                paid_to?: string | null;
+                amount_min?: number | string | null;
+                amount_max?: number | string | null;
+                /** @description Key or EK prefix */
+                budget?: string | null;
+                /** @description Prefix */
+                md?: string | null;
+                /** @description Prefix */
+                dal?: string | null;
+                /** @description e.g. -booking_date */
+                sort?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoicePageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     "invoices.create": {
         parameters: {
             query?: never;
@@ -7534,6 +7901,208 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InvoiceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.suppliers": {
+        parameters: {
+            query?: {
+                q?: string | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupplierOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.bulk_pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkPayIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.bulk_recode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.bulk_discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkDiscardIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HistoryOut"];
                 };
             };
             /** @description Validation Error */

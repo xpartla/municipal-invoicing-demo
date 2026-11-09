@@ -2,13 +2,20 @@
 
 from dataclasses import asdict
 from datetime import date, datetime
-from typing import Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from riso.contracts import Coding, CodingProposal, InvoiceDocument
-from riso.contracts.base import BudgetKey
-from riso.invoicing.application import InvoiceView, PlacementView, SeriesView
+from riso.contracts.base import Amount, BudgetKey
+from riso.invoicing.application import (
+    HistoryView,
+    InvoiceRowView,
+    InvoiceView,
+    ItemResult,
+    PlacementView,
+    SeriesView,
+)
 
 
 class UsedNumberOut(BaseModel):
@@ -178,3 +185,139 @@ class LineIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     budget_key: BudgetKey
+
+
+State = Literal[
+    "uploaded",
+    "extracting",
+    "extraction_failed",
+    "extracted",
+    "checked",
+    "needs_review",
+    "ready",
+    "booked",
+    "exported",
+    "paid",
+    "discarded",
+    "duplicate",
+]
+ChannelName = Literal["scan", "digital_pdf", "einvoice", "manual", "dataset"]
+
+
+class InvoiceRowOut(BaseModel):
+    """One row of the invoice table (plan §10.3)."""
+
+    id: str
+    state: State
+    channel: ChannelName
+    source_ref: str | None
+    needs_review: bool
+    series: str | None
+    document_number: str | None = Field(description="Booked, else proposed")
+    booking_date: date | None
+    supplier_name: str | None
+    supplier_ico: str | None
+    invoice_number: str | None
+    variable_symbol: str | None
+    issue_date: date | None
+    due_date: date | None
+    supply_date: date | None
+    gross: Amount | None
+    currency: str | None
+    uploaded_at: datetime
+    uploaded_by: str | None
+    exported_at: datetime | None
+    paid_on: date | None
+    budget_keys: list[str] = Field(description="The booking's lines, else the proposal's")
+    md: list[str]
+    dal: list[str]
+
+    @classmethod
+    def of(cls, view: InvoiceRowView) -> "InvoiceRowOut":
+        return cls.model_validate(asdict(view))
+
+
+class InvoicePageOut(BaseModel):
+    items: list[InvoiceRowOut]
+    total: int
+
+
+class SupplierOut(BaseModel):
+    ico: str | None
+    name: str | None
+    invoices: int
+
+
+class HistoryEntryOut(BaseModel):
+    kind: Literal[
+        "created",
+        "extraction_started",
+        "extracted",
+        "extraction_failed",
+        "entered_manually",
+        "marked_duplicate",
+        "checked",
+        "coded",
+        "booked",
+        "unbooked",
+        "renumbered",
+        "exported",
+        "paid",
+        "discarded",
+    ]
+    at: datetime
+    actor_id: str | None = Field(description="None for the system (seeding, a job)")
+    real_actor_id: str | None = Field(description="The admin, when impersonating")
+    from_state: State | None
+    to_state: State
+    details: dict[str, Any]
+
+
+class HistoryOut(BaseModel):
+    items: list[HistoryEntryOut]
+    names: dict[str, str] = Field(description="The people in the history, ID → name")
+
+    @classmethod
+    def of(cls, view: HistoryView) -> "HistoryOut":
+        return cls(
+            items=[HistoryEntryOut.model_validate(asdict(e)) for e in view.items],
+            names=view.names,
+        )
+
+
+InvoiceIds = Annotated[list[str], Field(min_length=1, max_length=200)]
+
+
+class BulkIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    invoice_ids: InvoiceIds
+
+
+class BulkPayIn(BulkIn):
+    paid_on: date
+
+
+class BulkDiscardIn(BulkIn):
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class ItemResultOut(BaseModel):
+    invoice_id: str
+    ok: bool
+    code: str | None = Field(description="not_found, invalid_state, conflict … when not ok")
+    message: str | None
+
+
+class BulkOut(BaseModel):
+    results: list[ItemResultOut]
+    done: int
+    failed: int
+
+    @classmethod
+    def of(cls, results: list[ItemResult]) -> "BulkOut":
+        return cls(
+            results=[ItemResultOut.model_validate(asdict(r)) for r in results],
+            done=sum(r.ok for r in results),
+            failed=sum(not r.ok for r in results),
+        )

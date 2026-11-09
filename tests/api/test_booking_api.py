@@ -117,7 +117,8 @@ def test_a_correction_must_use_codes_from_the_dictionaries(fresh):
     response = _book(fresh, user, invoice, "corrected", final)
     assert response.status_code == 422
     assert any("518 999" in e["msg"] for e in response.json()["detail"])
-    assert user.get(_url(fresh, invoice["id"], "")).status_code in (404, 405)  # no detail yet
+    detail = user.get(_url(fresh, invoice["id"])).json()
+    assert (detail["state"], detail["booking"]) == (invoice["state"], None)
     assert _memory(fresh) == before
     assert _series(fresh, user)["last_used"] == 222
 
