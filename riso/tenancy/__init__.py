@@ -4,3 +4,25 @@ and coding conventions per year. Main aggregates: Customer, ServiceProvider. (Me
 are identity's, with the roles they carry.) This module is the context's public surface:
 other contexts import only what it exports (its application API), never its domain,
 infrastructure or api modules. See plan §4.2 and guide §6.1."""
+
+from riso.tenancy.application import (
+    AddressInput,
+    CreateCustomer,
+    CustomerContact,
+    CustomerIdentity,
+    CustomerView,
+    TenancyUnitOfWork,
+    add_customer,
+    copy_parameters,
+)
+
+__all__ = [
+    "AddressInput",
+    "CreateCustomer",
+    "CustomerContact",
+    "CustomerIdentity",
+    "CustomerView",
+    "TenancyUnitOfWork",
+    "add_customer",
+    "copy_parameters",
+]

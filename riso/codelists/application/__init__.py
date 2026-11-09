@@ -17,6 +17,7 @@ from riso.codelists.application.conventions import (
     parse_conventions,
     set_conventions,
 )
+from riso.codelists.application.copying import copy_conventions, copy_lists
 from riso.codelists.application.health import knowledge_health
 from riso.codelists.application.imports import (
     CandidateEntry,
@@ -34,6 +35,8 @@ from riso.codelists.application.seeding import versions_from_bundle
 from riso.codelists.application.uow import CodelistsUnitOfWork
 
 __all__ = [
+    "copy_conventions",
+    "copy_lists",
     "CandidateEntry",
     "EntryChangeView",
     "EntryProblem",

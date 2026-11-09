@@ -32,6 +32,11 @@ class PrecedentSink(SupplierMemorySource, Protocol):
         after a retry finds its bookings present and adds nothing twice."""
         ...
 
+    def copy_memory(self, source_id: str, target_id: str) -> int:
+        """Gives the target the source's supplier memory (a customer copy) and returns how
+        many suppliers it has. A target that has a memory already keeps it (0)."""
+        ...
+
 
 class CustomerDirectory(Protocol):
     def ico_of(self, customer_id: str) -> str:

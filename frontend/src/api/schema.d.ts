@@ -702,6 +702,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/providers/{provider_id}/customers/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Providers.Copy Customer
+         * @description A new customer in the staff member's provider as a copy of one of its customers. The
+         *     copy runs as a job; follow it at `/api/customers/{id}/jobs/{job_id}`.
+         */
+        post: operations["providers.copy_customer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/customers": {
         parameters: {
             query?: never;
@@ -720,6 +741,26 @@ export interface paths {
          * @description A new customer, in a provider or unassigned (admins).
          */
         post: operations["customers.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/customers/copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Customers.Copy
+         * @description A new customer as a copy of any customer, in a provider or unassigned (admins).
+         */
+        post: operations["customers.copy"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1099,6 +1140,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Jobs.Get Customer
+         * @description The state of one of the customer's jobs (a copy, an import's dry run or apply).
+         */
+        get: operations["jobs.get_customer"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/outbox": {
         parameters: {
             query?: never;
@@ -1368,6 +1429,23 @@ export interface components {
             postal_code: string;
             /** Country */
             country: string;
+        };
+        /** AdminCustomerCopyIn */
+        AdminCustomerCopyIn: {
+            address?: components["schemas"]["AddressIn"] | null;
+            /** Iban */
+            iban?: string | null;
+            /** Name */
+            name: string;
+            /** Ico */
+            ico: string;
+            /** Dic */
+            dic?: string | null;
+            /** Source Customer Id */
+            source_customer_id: string;
+            options: components["schemas"]["CopyOptionsIn"];
+            /** Provider Id */
+            provider_id?: string | null;
         };
         /** AdminCustomerIn */
         AdminCustomerIn: {
@@ -1723,6 +1801,39 @@ export interface components {
             /** Updated By */
             updated_by: string | null;
         };
+        /**
+         * CopyOptionsIn
+         * @description What a copy takes from the source customer (plan §9.3); the defaults are the plan's.
+         */
+        CopyOptionsIn: {
+            /** Year */
+            year: number;
+            /**
+             * Parameters
+             * @default true
+             */
+            parameters: boolean;
+            /**
+             * Code Lists
+             * @default true
+             */
+            code_lists: boolean;
+            /**
+             * Conventions
+             * @default true
+             */
+            conventions: boolean;
+            /**
+             * Templates
+             * @default true
+             */
+            templates: boolean;
+            /**
+             * Supplier Memory
+             * @default false
+             */
+            supplier_memory: boolean;
+        };
         /** CostCentre */
         CostCentre: {
             /** Code */
@@ -1748,6 +1859,27 @@ export interface components {
             address?: components["schemas"]["AddressIn"] | null;
             /** Iban */
             iban?: string | null;
+        };
+        /** CustomerCopyIn */
+        CustomerCopyIn: {
+            address?: components["schemas"]["AddressIn"] | null;
+            /** Iban */
+            iban?: string | null;
+            /** Name */
+            name: string;
+            /** Ico */
+            ico: string;
+            /** Dic */
+            dic?: string | null;
+            /** Source Customer Id */
+            source_customer_id: string;
+            options: components["schemas"]["CopyOptionsIn"];
+        };
+        /** CustomerCopyOut */
+        CustomerCopyOut: {
+            customer: components["schemas"]["CustomerOut"];
+            /** Job Id */
+            job_id: string;
         };
         /** CustomerIdentityIn */
         CustomerIdentityIn: {
@@ -2301,6 +2433,38 @@ export interface components {
              */
             vat_payer?: boolean | null;
         };
+        /** JobOut */
+        JobOut: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            status: components["schemas"]["JobStatus"];
+            /** Attempts */
+            attempts: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Last Error */
+            last_error: string | null;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /**
+         * JobStatus
+         * @enum {string}
+         */
+        JobStatus: "queued" | "running" | "succeeded" | "failed" | "cancelled";
         /**
          * LineCodes
          * @description What the accountant types for one line: the budget key, MD and DAL.
@@ -4070,6 +4234,41 @@ export interface operations {
             };
         };
     };
+    "providers.copy_customer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CustomerCopyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerCopyOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     "customers.directory": {
         parameters: {
             query?: {
@@ -4121,6 +4320,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CustomerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "customers.copy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdminCustomerCopyIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CustomerCopyOut"];
                 };
             };
             /** @description Validation Error */
@@ -4938,6 +5170,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditPageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "jobs.get_customer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
                 };
             };
             /** @description Validation Error */

@@ -23,6 +23,8 @@ from riso.codelists.application import (
     apply_import,
     build_bundle,
     check_import,
+    copy_conventions,
+    copy_lists,
     customer_findings,
     customer_knowledge,
     get_conventions,
@@ -36,6 +38,8 @@ from riso.codelists.application import (
 from riso.codelists.domain import HealthCode, HealthFinding, HealthSeverity
 
 __all__ = [
+    "copy_conventions",
+    "copy_lists",
     "CandidateEntry",
     "EntryChangeView",
     "EntryProblem",

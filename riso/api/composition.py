@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 
 from riso.api.adapters import DbReferenceData, DemoSupplierState, SpaLinks, SqlTenancyDirectory
 from riso.api.uow import AppUnitOfWork
+from riso.exchange.application.copy import COPY_JOB, CopyJobs
 from riso.exchange.application.imports import ImportJobs
 from riso.exchange.infrastructure.readers import FileTableReader
 from riso.identity.application.access import Grant, MembershipPolicy
@@ -129,6 +130,9 @@ class Services:
             self.customers(),
         )
 
+    def copy_jobs(self) -> CopyJobs:
+        return CopyJobs(self.uow, self.supplier_state())
+
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(
             self.db, self.registry, clock=self.clock, ids=self.ids, immediate=immediate
@@ -179,4 +183,6 @@ def build_services(
     )
     if "import_dry_run" not in services.registry.names():
         services.import_jobs().register(services.registry)
+    if COPY_JOB not in services.registry.names():
+        services.copy_jobs().register(services.registry)
     return services

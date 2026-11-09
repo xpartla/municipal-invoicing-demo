@@ -94,6 +94,8 @@ MATRIX: dict[str, RouteAccess] = {
     "outbox.list": platform(Permission.OUTBOX_READ),
     "outbox.get": platform(Permission.OUTBOX_READ),
     "audit.list": platform(Permission.AUDIT_READ),
+    # jobs
+    "jobs.get_customer": customer(Permission.CUSTOMER_READ),
     # Code lists.
     "codelists.health": customer(Permission.CUSTOMER_READ),
     "codelists.overview": customer(Permission.CUSTOMER_READ),
@@ -122,12 +124,14 @@ MATRIX: dict[str, RouteAccess] = {
     "customers.restore": customer(Permission.CUSTOMERS_DELETE),
     "customers.purge": customer(Permission.CUSTOMERS_DELETE),
     "customers.create": platform(Permission.CUSTOMERS_CREATE),
+    "customers.copy": platform(Permission.CUSTOMERS_CREATE),
     "customers.directory": platform(Permission.PROVIDER_OVERVIEW),
     "customers.assign_provider": platform(Permission.PROVIDERS_MANAGE),
     "customers.unassign_provider": platform(Permission.PROVIDERS_MANAGE),
     "providers.get": provider(Permission.PROVIDER_OVERVIEW),
     "providers.directory": provider(Permission.PROVIDER_OVERVIEW),
     "providers.create_customer": provider(Permission.CUSTOMERS_CREATE),
+    "providers.copy_customer": provider(Permission.CUSTOMERS_CREATE),
     "providers.list": platform(Permission.PROVIDERS_MANAGE),
     "providers.create": platform(Permission.PROVIDERS_MANAGE),
     "providers.remove": platform(Permission.PROVIDERS_MANAGE),

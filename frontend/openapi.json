@@ -1585,6 +1585,59 @@
         }
       }
     },
+    "/api/providers/{provider_id}/customers/copy": {
+      "post": {
+        "tags": [
+          "tenancy"
+        ],
+        "summary": "Providers.Copy Customer",
+        "description": "A new customer in the staff member's provider as a copy of one of its customers. The\ncopy runs as a job; follow it at `/api/customers/{id}/jobs/{job_id}`.",
+        "operationId": "providers.copy_customer",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerCopyIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerCopyOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/customers": {
       "post": {
         "tags": [
@@ -1656,6 +1709,48 @@
                     "$ref": "#/components/schemas/CustomerWithLoginsOut"
                   },
                   "title": "Response Customers.Directory"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/customers/copy": {
+      "post": {
+        "tags": [
+          "tenancy"
+        ],
+        "summary": "Customers.Copy",
+        "description": "A new customer as a copy of any customer, in a provider or unassigned (admins).",
+        "operationId": "customers.copy",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminCustomerCopyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerCopyOut"
                 }
               }
             }
@@ -3336,6 +3431,58 @@
         }
       }
     },
+    "/api/customers/{customer_id}/jobs/{job_id}": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Jobs.Get Customer",
+        "description": "The state of one of the customer's jobs (a copy, an import's dry run or apply).",
+        "operationId": "jobs.get_customer",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/outbox": {
       "get": {
         "tags": [
@@ -4007,6 +4154,82 @@
           "country"
         ],
         "title": "AddressOut"
+      },
+      "AdminCustomerCopyIn": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AddressIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "iban": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 42
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iban"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Name"
+          },
+          "ico": {
+            "type": "string",
+            "maxLength": 12,
+            "title": "Ico"
+          },
+          "dic": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 14
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dic"
+          },
+          "source_customer_id": {
+            "type": "string",
+            "maxLength": 36,
+            "title": "Source Customer Id"
+          },
+          "options": {
+            "$ref": "#/components/schemas/CopyOptionsIn"
+          },
+          "provider_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 36
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "ico",
+          "source_customer_id",
+          "options"
+        ],
+        "title": "AdminCustomerCopyIn"
       },
       "AdminCustomerIn": {
         "properties": {
@@ -5047,6 +5270,47 @@
         ],
         "title": "ConventionsOut"
       },
+      "CopyOptionsIn": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "maximum": 2100.0,
+            "minimum": 2000.0,
+            "title": "Year"
+          },
+          "parameters": {
+            "type": "boolean",
+            "title": "Parameters",
+            "default": true
+          },
+          "code_lists": {
+            "type": "boolean",
+            "title": "Code Lists",
+            "default": true
+          },
+          "conventions": {
+            "type": "boolean",
+            "title": "Conventions",
+            "default": true
+          },
+          "templates": {
+            "type": "boolean",
+            "title": "Templates",
+            "default": true
+          },
+          "supplier_memory": {
+            "type": "boolean",
+            "title": "Supplier Memory",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "year"
+        ],
+        "title": "CopyOptionsIn",
+        "description": "What a copy takes from the source customer (plan §9.3); the defaults are the plan's."
+      },
       "CostCentre": {
         "properties": {
           "code": {
@@ -5136,6 +5400,87 @@
         },
         "type": "object",
         "title": "CustomerContactIn"
+      },
+      "CustomerCopyIn": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AddressIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "iban": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 42
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iban"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 200,
+            "title": "Name"
+          },
+          "ico": {
+            "type": "string",
+            "maxLength": 12,
+            "title": "Ico"
+          },
+          "dic": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 14
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dic"
+          },
+          "source_customer_id": {
+            "type": "string",
+            "maxLength": 36,
+            "title": "Source Customer Id"
+          },
+          "options": {
+            "$ref": "#/components/schemas/CopyOptionsIn"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "ico",
+          "source_customer_id",
+          "options"
+        ],
+        "title": "CustomerCopyIn"
+      },
+      "CustomerCopyOut": {
+        "properties": {
+          "customer": {
+            "$ref": "#/components/schemas/CustomerOut"
+          },
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer",
+          "job_id"
+        ],
+        "title": "CustomerCopyOut"
       },
       "CustomerIdentityIn": {
         "properties": {
@@ -6771,6 +7116,106 @@
         "additionalProperties": false,
         "type": "object",
         "title": "InvoiceSupplier"
+      },
+      "JobOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "max_attempts": {
+            "type": "integer",
+            "title": "Max Attempts"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "attempts",
+          "max_attempts",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "last_error",
+          "result"
+        ],
+        "title": "JobOut"
+      },
+      "JobStatus": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "running",
+          "succeeded",
+          "failed",
+          "cancelled"
+        ],
+        "title": "JobStatus"
       },
       "LineCodes": {
         "properties": {

@@ -254,6 +254,15 @@ class DemoSupplierState:
         except FileNotFoundError:
             return Counters(entity_ico=ico, last_used={})
 
+    def copy_memory(self, source_id: str, target_id: str) -> int:
+        if self.memory(target_id).suppliers:
+            return 0
+        source = self.memory(source_id)
+        self._store.save_supplier_memory(
+            SupplierMemory(entity_ico=self._ico_of(target_id), suppliers=source.suppliers)
+        )
+        return len(source.suppliers)
+
     def add(self, customer_id: str, plan: BookingsPlan) -> None:
         memory, counters = merge_plan(plan, self.memory(customer_id), self.counters(customer_id))
         self._store.save_supplier_memory(memory)

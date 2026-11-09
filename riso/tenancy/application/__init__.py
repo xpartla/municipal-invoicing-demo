@@ -8,7 +8,9 @@ from riso.tenancy.application.customers import (
     CustomerContact,
     CustomerIdentity,
     TenancyUnitOfWork,
+    add_customer,
     assign_variable_number,
+    copy_parameters,
     create_customer,
     delete_customer,
     get_customer,
@@ -40,6 +42,8 @@ from riso.tenancy.application.views import (
 )
 
 __all__ = [
+    "add_customer",
+    "copy_parameters",
     "CustomerWithLogins",
     "LoginRef",
     "Logins",
