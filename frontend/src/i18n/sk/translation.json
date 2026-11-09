@@ -1021,5 +1021,66 @@
       "save": "Uložiť šablónu",
       "saved": "Šablóna {{name}} je uložená."
     }
+  },
+  "newCustomer": {
+    "title": "Nový klient",
+    "button": "Nový klient",
+    "steps": {
+      "0": "Spôsob",
+      "1": "Údaje klienta",
+      "2": "Čo skopírovať",
+      "3": "Prihlásenie"
+    },
+    "mode": "Ako vytvoriť klienta",
+    "modes": {
+      "new": "Nový, bez číselníkov (doplnia sa importom)",
+      "copy": "Kópia jedného z vašich klientov (číselníky, parametre, zvyklosti a šablóny)"
+    },
+    "source": "Kopírovať z klienta",
+    "year": "Rok",
+    "yearHint": "Rok číselníkov, parametrov a zvyklostí, ktoré sa skopírujú.",
+    "provider": "Servisný účet",
+    "noProvider": "Bez servisného účtu",
+    "name": "Názov",
+    "ico": "IČO",
+    "dic": "DIČ",
+    "variableNumber": "Variabilné číslo",
+    "variableNumberHint": "Nepovinné; najviac desať číslic.",
+    "street": "Ulica a číslo",
+    "city": "Obec",
+    "postalCode": "PSČ",
+    "iban": "Bankový účet (IBAN)",
+    "addressWhole": "Vyplňte celú adresu alebo nič.",
+    "copyIntro": "Čo sa skopíruje z vybraného klienta za zvolený rok. Kópie vzniknú ako nové verzie číselníkov nového klienta.",
+    "copy": {
+      "parameters": "Parametre",
+      "codeLists": "Číselníky (aktívne verzie)",
+      "conventions": "Účtovacie zvyklosti",
+      "templates": "Šablóny mapovania klienta",
+      "supplierMemory": "Pamäť dodávateľov"
+    },
+    "copyHints": {
+      "parameters": "Predvolené rady, zdroj, oddiel a trieda, prahy.",
+      "codeLists": "Účtový rozvrh, rozpočet, rady dokladov, transfery, strediská.",
+      "conventions": "Pravidlá, podľa ktorých sa navrhuje zaúčtovanie.",
+      "templates": "Šablóny servisného účtu a globálne vidí nový klient aj tak.",
+      "supplierMemory": "Predchádzajúce zaúčtovania dodávateľov. Predvolene vypnuté: analytické účty sa medzi obcami líšia."
+    },
+    "neverCopied": "Faktúry, číselné rady s počítadlami a prihlásenia sa nekopírujú nikdy.",
+    "invite": "Pozvať prvé prihlásenie",
+    "back": "Späť",
+    "next": "Ďalej",
+    "submitNew": "Vytvoriť klienta",
+    "submitCopy": "Vytvoriť kópiu",
+    "created": "Klient {{name}} je vytvorený",
+    "createdText": "IČO {{ico}}.",
+    "copyTitle": "Kopírovanie",
+    "copying": "Kopíruje sa…",
+    "copyDone": "Hotovo: skopírovaných číselníkov {{lists}}, šablón {{templates}}.",
+    "copyFailed": "Kopírovanie zlyhalo. Klient je vytvorený; číselníky doplňte importom alebo kópiu zopakujte.",
+    "variableNumberFailed": "Variabilné číslo sa nepriradilo; priraďte ho na stránke Používatelia.",
+    "inviteFailed": "Pozvánka sa neodoslala; pozvite prihlásenie na stránke Používatelia.",
+    "open": "Otvoriť klienta",
+    "toUsers": "Späť na Používateľov"
   }
 }

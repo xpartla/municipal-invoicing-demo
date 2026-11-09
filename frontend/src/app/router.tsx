@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { Shell } from '../components/Shell';
 import { meQuery, useMe, type Me } from '../features/identity/api';
 import {
+  createsCustomers,
   onPlatform,
   seesProviderScreens,
   worksAcrossCustomers,
@@ -40,6 +41,7 @@ import { OutboxPage } from '../routes/admin/OutboxPage';
 import { ProvidersPage } from '../routes/admin/ProvidersPage';
 import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
+import { NewCustomerPage } from '../routes/NewCustomerPage';
 import { NotFoundPage } from '../routes/NotFoundPage';
 import { ProfilePage } from '../routes/ProfilePage';
 import { SystemPage } from '../routes/SystemPage';
@@ -218,6 +220,7 @@ const appRoutes = [
   page('/profile', ProfilePage),
   page('/provider', guarded(seesProviderScreens, soon('providerOverview'))),
   page('/users', guarded(seesProviderScreens, UsersPage)),
+  page('/users/new', guarded(createsCustomers, NewCustomerPage)),
   page('/admin', guarded(admin('providers.manage'), soon('platform'))),
   page('/admin/providers', guarded(admin('providers.manage'), ProvidersPage)),
   page('/admin/codelists', guarded(admin('codelists.global'), GlobalCodelistsPage)),

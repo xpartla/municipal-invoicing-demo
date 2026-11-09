@@ -78,10 +78,11 @@ export function useDirectory(scope: { providerId: string } | 'all' | undefined) 
 
 export const providersKey = ['providers'] as const;
 
-export function useProviders() {
+export function useProviders(enabled = true) {
   return useQuery({
     queryKey: providersKey,
     queryFn: () => unwrap(api.GET('/api/admin/providers')),
+    enabled,
   });
 }
 
@@ -150,4 +151,120 @@ export function useUnassignProvider() {
   return useProviderMutation((customerId: string) =>
     unwrap(api.DELETE('/api/admin/customers/{customer_id}/provider', { params: path(customerId) })),
   );
+}
+
+// Creating a customer, new or as a copy (plan §9.3) --------------------------------------
+
+export interface NewCustomer {
+  identity: Schemas['CustomerIn'];
+  /** Where the customer goes: the staff member's provider, or (admins) a provider or none. */
+  target: { providerId: string; asAdmin: boolean } | { providerId: null; asAdmin: true };
+  copy: { sourceId: string; options: Schemas['CopyOptionsIn'] } | null;
+  variableNumber: string | null;
+  invite: Schemas['InviteIn'] | null;
+}
+
+export interface CustomerCreated {
+  customer: Customer;
+  /** The copy's job; none for a new customer. */
+  jobId: string | null;
+  /** What did not go through after the customer was created (it stays created). */
+  failed: { variableNumber?: unknown; invite?: unknown };
+}
+
+/** Creates the customer (or starts its copy), then assigns the variable number and invites
+ * the first login when given. A failure after the customer exists is reported, not thrown:
+ * the customer is there and the step can be done again on Používatelia. */
+export function useCreateCustomer() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      identity,
+      target,
+      copy,
+      variableNumber,
+      invite,
+    }: NewCustomer): Promise<CustomerCreated> => {
+      let customer: Customer;
+      let jobId: string | null = null;
+      if (copy) {
+        const body = { ...identity, source_customer_id: copy.sourceId, options: copy.options };
+        const started = target.asAdmin
+          ? await unwrap(
+              api.POST('/api/admin/customers/copy', {
+                body: { ...body, provider_id: target.providerId },
+              }),
+            )
+          : await unwrap(
+              api.POST('/api/providers/{provider_id}/customers/copy', {
+                params: { path: { provider_id: target.providerId } },
+                body,
+              }),
+            );
+        customer = started.customer;
+        jobId = started.job_id;
+      } else {
+        customer = target.asAdmin
+          ? await unwrap(
+              api.POST('/api/admin/customers', {
+                body: { ...identity, provider_id: target.providerId },
+              }),
+            )
+          : await unwrap(
+              api.POST('/api/providers/{provider_id}/customers', {
+                params: { path: { provider_id: target.providerId } },
+                body: identity,
+              }),
+            );
+      }
+      const failed: CustomerCreated['failed'] = {};
+      if (variableNumber) {
+        try {
+          customer = await unwrap(
+            api.PUT('/api/customers/{customer_id}/variable-number', {
+              params: path(customer.id),
+              body: { variable_number: variableNumber },
+            }),
+          );
+        } catch (error) {
+          failed.variableNumber = error;
+        }
+      }
+      if (invite) {
+        try {
+          await unwrap(
+            api.POST('/api/customers/{customer_id}/logins', {
+              params: path(customer.id),
+              body: invite,
+            }),
+          );
+        } catch (error) {
+          failed.invite = error;
+        }
+      }
+      return { customer, jobId, failed };
+    },
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: ['directory'] });
+      await client.invalidateQueries({ queryKey: meKey });
+    },
+  });
+}
+
+/** A customer's job (the copy), polled every second until it ends. */
+export function useCustomerJob(customerId: string | undefined, jobId: string | null | undefined) {
+  return useQuery({
+    queryKey: ['job', customerId, jobId],
+    queryFn: () =>
+      unwrap(
+        api.GET('/api/customers/{customer_id}/jobs/{job_id}', {
+          params: { path: { customer_id: customerId ?? '', job_id: jobId ?? '' } },
+        }),
+      ),
+    enabled: customerId !== undefined && jobId != null,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === 'succeeded' || status === 'failed' || status === 'cancelled' ? false : 1000;
+    },
+  });
 }
