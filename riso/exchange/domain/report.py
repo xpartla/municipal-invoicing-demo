@@ -2,7 +2,9 @@
 
 It says how many rows were read and how many entries they make, lists the errors (each with
 its rows and field) and the warnings, the difference from the active version, and a preview
-of the first entries.
+of the first entries. For past bookings the entries are the bookings, the difference counts
+the new ones (`added`) and those the memory already has (`unchanged`), and the report also
+says which counters rise and how many numbers become used.
 
 Errors are of two kinds (plan §2 decision 58). A hard error (an unreadable row, a malformed
 code, a file of another customer's) always refuses applying. An error against the year's
@@ -59,6 +61,16 @@ class ReportDiff(BaseModel):
     changed_sample: tuple[EntryChangeSample, ...] = ()
 
 
+class CounterChange(BaseModel):
+    """A counter a past-bookings import raises: `FD/2026` from 120 to 140."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    key: str
+    before: int
+    after: int
+
+
 class DryRunReport(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -72,6 +84,9 @@ class DryRunReport(BaseModel):
     file_ico: str | None = None
     period: str | None = None
     """The month the file describes, from the file; the new version's period."""
+    counters: tuple[CounterChange, ...] = ()
+    numbers_used: int = 0
+    """Past bookings: the document numbers applying marks used."""
 
     @property
     def ok(self) -> bool:

@@ -65,9 +65,11 @@
           "type": "array"
         },
         "source": {
+          "description": "Where the precedent comes from: a booking screenshot, the feedback of a booked proposal, or an import of past bookings",
           "enum": [
             "screenshot",
-            "feedback"
+            "feedback",
+            "import"
           ],
           "title": "Source",
           "type": "string"

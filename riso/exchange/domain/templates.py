@@ -157,6 +157,21 @@ TOPSET_CHART_HEADER = ("SU", "AU", "Typ účtu", "Zarad. SÚV", "Zarad. VZaS", "
 TOPSET_BUDGET_HEADER = ("Kód", "Zdroj", "Oddiel", "Trieda", "Analytika", "Popis")
 TOPSET_SERIES_HEADER = ("Evidenčné číslo", "Vzor dokladu", "Popis", "Bankový účet")
 GLOBAL_HEADER = ("code", "name")
+BOOKINGS_HEADER = (
+    "IČO dodávateľa",
+    "Dodávateľ",
+    "Číslo dokladu",
+    "Dátum zaúčtovania",
+    "Suma",
+    "VS",
+    "Rozpočtová položka",
+    "MD",
+    "DAL",
+    "Text rozpočtu",
+    "Text účtovania",
+)
+"""The generic book of received invoices: one row per line (plan §2 decision 59). The
+TOPSET template waits for a real export (plan §15)."""
 
 TRIM = (Trim(),)
 
@@ -259,6 +274,27 @@ BUILTIN: dict[str, MappingTemplate] = {
                     "pattern": FieldSource(column="Vzor dokladu", transforms=TRIM),
                     "description": FieldSource(column="Popis", transforms=TRIM),
                     "bank_account": FieldSource(column="Bankový účet", transforms=TRIM),
+                },
+            ),
+        ),
+        _builtin(
+            "generic-bookings",
+            "Kniha došlých faktúr – všeobecný formát",
+            BOOKINGS_HEADER,
+            ColumnMapping(
+                import_type=ImportType.PAST_BOOKINGS,
+                fields={
+                    "supplier_ico": FieldSource(column="IČO dodávateľa", transforms=_pad(8)),
+                    "supplier_name": FieldSource(column="Dodávateľ", transforms=TRIM),
+                    "document_number": FieldSource(column="Číslo dokladu", transforms=TRIM),
+                    "booking_date": FieldSource(column="Dátum zaúčtovania"),
+                    "amount": FieldSource(column="Suma"),
+                    "variable_symbol": FieldSource(column="VS", transforms=TRIM),
+                    "budget_key": FieldSource(column="Rozpočtová položka", transforms=TRIM),
+                    "md": FieldSource(column="MD", transforms=TRIM),
+                    "dal": FieldSource(column="DAL", transforms=TRIM),
+                    "budget_text": FieldSource(column="Text rozpočtu", transforms=TRIM),
+                    "posting_text": FieldSource(column="Text účtovania", transforms=TRIM),
                 },
             ),
         ),

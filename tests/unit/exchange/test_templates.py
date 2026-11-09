@@ -96,6 +96,7 @@ def test_the_narrowest_scope_then_the_newest_wins():
 
 def test_the_built_ins():
     assert sorted(BUILTIN) == [
+        "builtin:generic-bookings",
         "builtin:global-cofog",
         "builtin:global-ek",
         "builtin:global-framework_accounts",

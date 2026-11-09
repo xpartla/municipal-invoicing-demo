@@ -25,6 +25,7 @@ from riso.codelists.application.imports import (
     ImportSource,
     ImportWarning,
     ListFinding,
+    active_entries,
     apply_import,
     check_import,
 )
@@ -42,6 +43,7 @@ __all__ = [
     "ImportWarning",
     "ListFinding",
     "VersionView",
+    "active_entries",
     "apply_import",
     "check_import",
     "ConventionsView",

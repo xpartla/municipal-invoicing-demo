@@ -9,6 +9,7 @@ from hypothesis import strategies as st
 from pydantic import ValidationError
 
 from riso.codelists.domain import ListKind, entry_fields
+from riso.contracts import Precedent, PrecedentLine
 from riso.exchange.domain.mapping import (
     SCHEMAS,
     ColumnMapping,
@@ -30,6 +31,8 @@ from riso.shared import ValidationFailed
 
 def test_the_target_fields_are_the_code_list_entries_fields():
     for import_type, schema in SCHEMAS.items():
+        if not import_type.makes_list:
+            continue
         kind = ListKind(import_type.value)
         produced = set(schema.names) | set(schema.constants)
         if schema.row_field:
@@ -44,6 +47,20 @@ def test_the_target_fields_are_the_code_list_entries_fields():
         ImportType.FUNDING_SOURCES,
         ImportType.FRAMEWORK_ACCOUNTS,
     }
+
+
+def test_the_past_bookings_fields_are_the_precedents():
+    schema = SCHEMAS[ImportType.PAST_BOOKINGS]
+    lines = set(schema.line_fields)
+    assert lines == set(PrecedentLine.model_fields)
+    head = set(schema.names) - lines
+    assert head - {"supplier_ico", "supplier_name"} <= set(Precedent.model_fields)
+    assert [f.name for f in schema.key_fields] == ["supplier_ico", "document_number"]
+    assert not ImportType.PAST_BOOKINGS.makes_list and not ImportType.PAST_BOOKINGS.is_global
+    with pytest.raises(ValidationError, match="group their rows"):
+        ColumnMapping(import_type=ImportType.ACCOUNTS, duplicates="lines")
+    with pytest.raises(ValidationError, match="group their rows"):
+        ColumnMapping(import_type=ImportType.PAST_BOOKINGS, duplicates="first")
 
 
 # Transforms -----------------------------------------------------------------------------

@@ -12,6 +12,10 @@ writes the report. Besides the code lists' findings it reports a file naming ano
 import removes (warnings). The apply repeats the check: the list must still be at the version
 the dry run compared with and the findings must still allow it; otherwise the run goes back
 to `mapped` with the reason. Every write is audited.
+
+A past-bookings import (P2-M3-T05) makes no version: its bookings are checked through the
+contracts and compared with the supplier memory and the counters
+(`riso.exchange.domain.bookings`), and applying writes them through the `PrecedentSink`.
 """
 
 from collections import defaultdict
@@ -27,17 +31,20 @@ from riso.codelists import (
     ImportCheck,
     ImportSource,
     ImportWarning,
+    active_entries,
     apply_import,
     check_import,
 )
-from riso.exchange.application.ports import CustomerDirectory, SupplierMemorySource, TableReader
+from riso.exchange.application.ports import CustomerDirectory, PrecedentSink, TableReader
 from riso.exchange.application.templates import ChosenTemplate
 from riso.exchange.application.uow import ExchangeUnitOfWork
+from riso.exchange.domain.bookings import BookingsPlan, parse_bookings, plan_bookings
 from riso.exchange.domain.mapping import ColumnMapping, ImportType
 from riso.exchange.domain.records import MappedTable, map_table
 from riso.exchange.domain.report import (
     PREVIEW,
     SAMPLE,
+    CounterChange,
     DryRunReport,
     EntryChangeSample,
     Issue,
@@ -456,6 +463,16 @@ class _Prepared:
     mapped: MappedTable
 
 
+@dataclass(frozen=True, slots=True)
+class _Outcome:
+    report: DryRunReport
+    check: ImportCheck | None = None
+    """A list import's check; None for past bookings and for a file that does not read."""
+    candidates: tuple[CandidateEntry, ...] = ()
+    plan: BookingsPlan | None = None
+    """A past-bookings import's plan."""
+
+
 class ImportJobs:
     """The handlers of `import_dry_run` and `import_apply`. Both are idempotent: they act
     only for the job the run waits for."""
@@ -465,13 +482,13 @@ class ImportJobs:
         uow: Callable[[], ExchangeUnitOfWork],
         storage: FileStorage,
         reader: TableReader,
-        memory: SupplierMemorySource,
+        precedents: PrecedentSink,
         customers: CustomerDirectory,
     ) -> None:
         self._uow = uow
         self._storage = storage
         self._reader = reader
-        self._memory = memory
+        self._state = precedents
         self._customers = customers
 
     def register(self, registry: JobRegistry) -> JobRegistry:
@@ -496,13 +513,11 @@ class ImportJobs:
 
     def _report(
         self, uow: ExchangeUnitOfWork, run: ImportRun, prepared: _Prepared | Issue
-    ) -> tuple[DryRunReport, ImportCheck | None, list[CandidateEntry]]:
+    ) -> _Outcome:
         now = uow.clock.now()
         if isinstance(prepared, Issue):
-            return (
-                DryRunReport(checked_at=now, rows_read=0, entries=0, errors=(prepared,)),
-                None,
-                [],
+            return _Outcome(
+                DryRunReport(checked_at=now, rows_read=0, entries=0, errors=(prepared,))
             )
         mapped = prepared.mapped
         errors = [
@@ -540,7 +555,9 @@ class ImportJobs:
                     value=facts.period,
                 )
             )
-        candidates = [CandidateEntry(r.key, r.rows, r.values) for r in mapped.records]
+        if not run.import_type.makes_list:
+            return self._bookings_report(uow, run, mapped, errors, warnings)
+        candidates = tuple(CandidateEntry(r.key, r.rows, r.values) for r in mapped.records)
         rows = {c.key: c.rows for c in candidates}
         check = check_import(uow, run.customer_id, run.import_type.value, run.year, candidates)
         errors += [
@@ -593,7 +610,79 @@ class ImportJobs:
             file_ico=facts.ico,
             period=facts.period,
         )
-        return report, check, candidates
+        return _Outcome(report, check, candidates)
+
+    def _bookings_report(
+        self,
+        uow: ExchangeUnitOfWork,
+        run: ImportRun,
+        mapped: MappedTable,
+        errors: list[Issue],
+        warnings: list[Issue],
+    ) -> _Outcome:
+        """A past-bookings import: the bookings through the contracts, then compared with
+        the supplier memory, the counters and the year's lists."""
+        assert run.customer_id is not None
+        customer_id, year = run.customer_id, run.year
+        bookings, problems = parse_bookings(mapped.records)
+        errors += [
+            Issue(
+                severity="error",
+                code=p.code,
+                message=f"{p.key}: {p.field + ': ' if p.field else ''}{p.message}",
+                rows=p.rows,
+                field=p.field,
+                key=p.key,
+            )
+            for p in problems
+        ]
+        series = {
+            str(e.values["code"]): str(e.values["pattern"])
+            for e in active_entries(uow, customer_id, "document_series", year)
+        }
+        plan = plan_bookings(
+            bookings,
+            self._state.memory(customer_id),
+            self._state.counters(customer_id),
+            series=series,
+            positions=frozenset(
+                e.key for e in active_entries(uow, customer_id, "budget_expense", year)
+            ),
+            accounts=frozenset(e.key for e in active_entries(uow, customer_id, "accounts", year)),
+        )
+        warnings += [
+            Issue(
+                severity="warning",
+                code=w.code,
+                message=w.message,
+                rows=w.rows,
+                key=w.key,
+                value=w.value,
+            )
+            for w in plan.warnings
+        ]
+        if not bookings and not errors:
+            errors.append(Issue(severity="error", code="no_entries", message="no bookings"))
+        report = DryRunReport(
+            checked_at=uow.clock.now(),
+            rows_read=mapped.rows_read,
+            entries=len(bookings),
+            errors=tuple(errors),
+            warnings=tuple(warnings),
+            diff=ReportDiff(
+                added=len(plan.new),
+                unchanged=len(plan.present),
+                added_sample=tuple(b.summary() for b in plan.new[:SAMPLE]),
+            ),
+            preview=tuple(b.summary() for b in bookings[:PREVIEW]),
+            file_ico=mapped.facts.ico,
+            period=mapped.facts.period,
+            counters=tuple(
+                CounterChange(key=c.key, before=c.before, after=c.after) for c in plan.counters
+            ),
+            numbers_used=len(plan.numbers),
+        )
+        return _Outcome(report, plan=plan)
 
     def _precedents(self, run: ImportRun, check: ImportCheck) -> list[Issue]:
         """Warnings for supplier precedents naming a position or an account the import
@@ -606,7 +695,7 @@ class ImportJobs:
             return []
         suppliers: defaultdict[str, set[str]] = defaultdict(set)
         precedents: defaultdict[str, int] = defaultdict(int)
-        for supplier in self._memory.memory(run.customer_id).suppliers:
+        for supplier in self._state.memory(run.customer_id).suppliers:
             for precedent in supplier.precedents:
                 codes = {
                     code
@@ -638,7 +727,8 @@ class ImportJobs:
         prepared = self._prepare(run)
         with self._uow() as uow:
             run = uow.imports.get(payload.customer_id, payload.run_id)
-            report, check, _ = self._report(uow, run, prepared)
+            outcome = self._report(uow, run, prepared)
+            report, check = outcome.report, outcome.check
             based_on = check.active.id if check and check.active else None
             if not run.record_dry_run(job.job_id, report, based_on, uow.clock.now()):
                 return {"skipped": True}
@@ -671,11 +761,15 @@ class ImportJobs:
             if not (run.applying and run.awaits(job.job_id)):
                 return {"skipped": True}
             now = uow.clock.now()
-            report, check, candidates = self._report(uow, run, prepared)
+            outcome = self._report(uow, run, prepared)
+            report, check = outcome.report, outcome.check
             reason = None
-            if check is None or isinstance(prepared, Issue):
+            if isinstance(prepared, Issue) or (run.import_type.makes_list and check is None):
                 reason = "the file no longer reads with the mapping"
-            elif (check.active.id if check.active else None) != run.based_on_version_id:
+            elif (
+                check is not None
+                and (check.active.id if check.active else None) != run.based_on_version_id
+            ):
                 reason = "the list changed since the dry run"
             elif not report.can_apply(confirm_errors=run.errors_confirmed):
                 reason = "the findings changed since the dry run"
@@ -685,13 +779,15 @@ class ImportJobs:
                 _audit(uow, ctx, "imports.apply_refused", run, job_id=job.job_id, reason=reason)
                 uow.commit()
                 return {"refused": reason}
+            if outcome.plan is not None:
+                return self._apply_bookings(uow, ctx, run, job.job_id, outcome.plan, report)
             version = apply_import(
                 ctx,
                 uow,
                 run.customer_id,
                 run.import_type.value,
                 run.year,
-                candidates,
+                outcome.candidates,
                 expected_version_id=run.based_on_version_id,
                 import_run_id=run.id,
                 source=ImportSource(
@@ -719,3 +815,33 @@ class ImportJobs:
             )
             uow.commit()
         return {"version_id": version.id, "number": version.number}
+
+    def _apply_bookings(
+        self,
+        uow: ExchangeUnitOfWork,
+        ctx: RequestContext,
+        run: ImportRun,
+        job_id: str,
+        plan: BookingsPlan,
+        report: DryRunReport,
+    ) -> dict[str, Any]:
+        """Writes the plan through the sink, then records the run. The sink's files are
+        written before the commit: a retry after a failed commit finds the bookings present
+        and adds nothing twice."""
+        assert run.customer_id is not None
+        self._state.add(run.customer_id, plan)
+        run.applied(job_id, None, uow.clock.now())
+        uow.imports.save(run)
+        _audit(
+            uow,
+            ctx,
+            "imports.applied",
+            run,
+            job_id=job_id,
+            bookings=len(plan.new),
+            skipped=len(plan.present),
+            numbers_used=len(plan.numbers),
+            counters={c.key: c.after for c in plan.counters},
+        )
+        uow.commit()
+        return {"bookings": len(plan.new), "skipped": len(plan.present)}

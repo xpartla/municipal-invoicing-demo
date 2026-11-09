@@ -31,7 +31,10 @@ class Precedent(Contract):
         default=None, description="Of the supplier's invoice; catches booking it twice"
     )
     lines: list[PrecedentLine] = Field(min_length=1)
-    source: Literal["screenshot", "feedback"]
+    source: Literal["screenshot", "feedback", "import"] = Field(
+        description="Where the precedent comes from: a booking screenshot, the feedback of a"
+        " booked proposal, or an import of past bookings"
+    )
 
 
 class SupplierRecord(Contract):

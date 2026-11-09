@@ -11,7 +11,10 @@ and gives two kinds of warning:
 
 A record's `values` are ready for the code list's entry parser: the mapped fields, the row
 numbers (`row` or `rows`), the aliases of a merged budget position and the type's constants.
-The parser (`riso.codelists`) then checks them against the contracts.
+The parser (`riso.codelists`) then checks them against the contracts. A past booking's record
+has its `lines`, one per row, for the bookings parser (`bookings.py`); when a later row of a
+booking gives another supplier name, date, amount or VS, the first row's is kept (warning
+`booking_differs`).
 """
 
 import re
@@ -22,6 +25,7 @@ from typing import Any
 
 from riso.exchange.domain.mapping import (
     ColumnMapping,
+    DateValue,
     FieldKind,
     TargetField,
     TransformError,
@@ -91,6 +95,8 @@ def _convert(target: TargetField, value: CellValue) -> Any:
     """The final value of a field from what the transforms left."""
     if target.kind is FieldKind.DECIMAL:
         return parse_decimal(value)
+    if target.kind is FieldKind.DATE:
+        return DateValue().apply(value)
     text = as_text(value)
     if text is None or not text.strip():
         return None
@@ -121,6 +127,7 @@ class _Group:
     rows: list[int] = field(default_factory=list)
     descriptions: list[str | None] = field(default_factory=list)
     sums: dict[str, Decimal | None] = field(default_factory=dict)
+    lines: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _facts(table: Table, mapping: ColumnMapping) -> tuple[FileFacts, list[RowWarning]]:
@@ -156,6 +163,8 @@ def map_table(table: Table, mapping: ColumnMapping) -> MappedTable:
     rule = mapping.duplicate_rule
     key_fields = schema.key_fields
     description = schema.description
+    line_fields = schema.line_fields
+    head_fields = [f.name for f in schema.fields if f.name not in line_fields and not f.key]
     errors: list[RowError] = []
     warnings: list[RowWarning] = []
     groups: dict[str, _Group] = {}
@@ -196,6 +205,7 @@ def map_table(table: Table, mapping: ColumnMapping) -> MappedTable:
             continue
 
         key = key_of(values, key_fields)
+        line = {name: values.pop(name, None) for name in line_fields}
         group = groups.get(key)
         if group is None:
             groups[key] = _Group(
@@ -204,9 +214,28 @@ def map_table(table: Table, mapping: ColumnMapping) -> MappedTable:
                 [row.number],
                 [values.get(description) if description else None],
                 {f.name: values.get(f.name) for f in schema.fields if f.kind is FieldKind.DECIMAL},
+                [line] if line_fields else [],
             )
             continue
-        if rule == "first":
+        if rule == "lines":
+            group.rows.append(row.number)
+            group.descriptions.append(None)
+            group.lines.append(line)
+            differs = [
+                name
+                for name in head_fields
+                if values.get(name) is not None and values[name] != group.record_values.get(name)
+            ]
+            if differs:
+                warnings.append(
+                    RowWarning(
+                        "booking_differs",
+                        (group.rows[0], row.number),
+                        f"{schema.noun} {key}: row {row.number} gives another "
+                        f"{', '.join(differs)}; the first row's is kept",
+                    )
+                )
+        elif rule == "first":
             warnings.append(
                 RowWarning(
                     "duplicate_key",
@@ -236,7 +265,7 @@ def map_table(table: Table, mapping: ColumnMapping) -> MappedTable:
     for group in groups.values():
         texts = list(dict.fromkeys(d for d in group.descriptions if d))
         no_description += [n for n, d in zip(group.rows, group.descriptions, strict=True) if not d]
-        if len(group.rows) > 1:
+        if rule == "merge" and len(group.rows) > 1:
             warnings.append(
                 RowWarning(
                     "duplicate_key",
@@ -250,8 +279,11 @@ def map_table(table: Table, mapping: ColumnMapping) -> MappedTable:
             values["row"] = group.rows[0]
         elif schema.row_field == "rows":
             values["rows"] = list(group.rows)
+        if schema.type.is_budget:
             values["description"] = texts[0] if texts else None
             values["aliases"] = texts[1:]
+        if line_fields:
+            values["lines"] = group.lines
         records.append(Record(group.key, values, tuple(group.rows)))
 
     source = mapping.source(description) if description else None

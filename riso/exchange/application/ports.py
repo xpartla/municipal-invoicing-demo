@@ -2,7 +2,8 @@
 
 from typing import Protocol
 
-from riso.contracts import SupplierMemory
+from riso.contracts import Counters, SupplierMemory
+from riso.exchange.domain.bookings import BookingsPlan
 from riso.exchange.domain.table import ReadOptions, Workbook
 
 
@@ -17,6 +18,19 @@ class SupplierMemorySource(Protocol):
     """The customer's supplier memory: the demo's files until P2-M4 moves it."""
 
     def memory(self, customer_id: str) -> SupplierMemory: ...
+
+
+class PrecedentSink(SupplierMemorySource, Protocol):
+    """Where a past-bookings import goes: the customer's supplier memory and counters. The
+    first adapter writes the demo's files; P2-M4-T02 switches it to the database."""
+
+    def counters(self, customer_id: str) -> Counters: ...
+
+    def add(self, customer_id: str, plan: BookingsPlan) -> None:
+        """Adds the plan's new precedents, marks its numbers used and raises its counters.
+        The plan was made against the current memory and counters, so applying it again
+        after a retry finds its bookings present and adds nothing twice."""
+        ...
 
 
 class CustomerDirectory(Protocol):

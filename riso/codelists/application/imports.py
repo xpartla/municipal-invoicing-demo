@@ -196,6 +196,15 @@ def check_import(
     )
 
 
+def active_entries(
+    uow: CodelistsUnitOfWork, customer_id: str | None, kind: str, year: int
+) -> tuple[EntryView, ...]:
+    """The entries of the list's active version for the year (none without one). Call inside
+    the unit of work."""
+    active = uow.codelists.active(customer_id, _kind(kind, customer_id), year)
+    return tuple(EntryView.of(e) for e in active.entries) if active else ()
+
+
 def apply_import(
     ctx: RequestContext,
     uow: CodelistsUnitOfWork,

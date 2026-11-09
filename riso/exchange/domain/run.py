@@ -78,7 +78,7 @@ class ImportApplied(DomainEvent):
     customer_id: str | None
     import_type: ImportType
     year: int
-    version_id: str
+    version_id: str | None
     errors_confirmed: bool
 
 
@@ -205,8 +205,9 @@ class ImportRun:
         self.errors_confirmed = bool(self.report.errors) and confirm_errors
         self.last_error, self.updated_at = None, at
 
-    def applied(self, job_id: str, version_id: str, at: datetime) -> bool:
-        """The awaited apply made `version_id`. False for a job the run no longer waits for."""
+    def applied(self, job_id: str, version_id: str | None, at: datetime) -> bool:
+        """The awaited apply made `version_id` (None for past bookings, which make no
+        version). False for a job the run no longer waits for."""
         if not (self.applying and self.awaits(job_id)):
             return False
         assert self.report is not None

@@ -16,7 +16,8 @@ order. The transform vocabulary is small and declarative, never a script:
 
 Row options: rows whose key fields are all empty are skipped (with a warning), and rows that
 repeat a key are merged into one with the further descriptions as aliases (budgets, as
-`riso ingest` does), keep the first, or are errors.
+`riso ingest` does), keep the first, or are errors. Past bookings have one row per line:
+rows sharing the supplier's IČO and the document number are the lines of one booking.
 
 Facts: TOPSET writes the period and the IČO in a title row above the header; a mapping can
 read them from there (`Fact`), so the import can check the file belongs to the customer.
@@ -56,10 +57,17 @@ class ImportType(StrEnum):
     COFOG = "cofog"
     FUNDING_SOURCES = "funding_sources"
     FRAMEWORK_ACCOUNTS = "framework_accounts"
+    PAST_BOOKINGS = "past_bookings"
+    """A book of received invoices (kniha došlých faktúr): supplier precedents, not a list."""
 
     @property
     def is_global(self) -> bool:
         return self in GLOBAL_TYPES
+
+    @property
+    def makes_list(self) -> bool:
+        """Whether applying makes a code list version (every type but past bookings)."""
+        return self is not ImportType.PAST_BOOKINGS
 
     @property
     def is_budget(self) -> bool:
@@ -76,6 +84,7 @@ class FieldKind(StrEnum):
     """Text that must match a code pattern (checked by the code list's contract)."""
     TEXT = "text"
     DECIMAL = "decimal"
+    DATE = "date"
     ACCOUNT_TYPE = "account_type"
 
 
@@ -112,6 +121,9 @@ class TargetSchema:
     """The field whose emptiness the `missing_description` warning reports."""
     constants: Mapping[str, Any] = field(default_factory=dict)
     """Fields every entry of the type gets (an imported transfer is not a mock)."""
+    line_fields: tuple[str, ...] = ()
+    """The fields each row gives one line of (past bookings); the others are the record's,
+    from its first row."""
 
     def target(self, name: str) -> TargetField:
         for target in self.fields:
@@ -128,7 +140,7 @@ class TargetSchema:
         return tuple(f for f in self.fields if f.key)
 
 
-Duplicates = Literal["merge", "first", "error"]
+Duplicates = Literal["merge", "first", "error", "lines"]
 
 _DESCRIPTION = ("popis", "nazov", "text", "pomenovanie", "description", "name")
 _NAME = ("nazov", "popis", "text", "pomenovanie", "name", "description")
@@ -331,6 +343,95 @@ SCHEMAS: dict[ImportType, TargetSchema] = {
     ImportType.COFOG: _code_name(ImportType.COFOG, "code"),
     ImportType.FUNDING_SOURCES: _code_name(ImportType.FUNDING_SOURCES, "code"),
     ImportType.FRAMEWORK_ACCOUNTS: _code_name(ImportType.FRAMEWORK_ACCOUNTS, "code"),
+    ImportType.PAST_BOOKINGS: TargetSchema(
+        ImportType.PAST_BOOKINGS,
+        (
+            TargetField(
+                "supplier_ico",
+                FieldKind.CODE,
+                required=True,
+                key=True,
+                width=8,
+                synonyms=("ico dodavatela", "ico", "ico partnera", "supplier ico", "company id"),
+            ),
+            TargetField(
+                "document_number",
+                FieldKind.TEXT,
+                required=True,
+                key=True,
+                synonyms=(
+                    "cislo dokladu",
+                    "doklad",
+                    "interne cislo",
+                    "evidencne cislo",
+                    "document number",
+                    "document",
+                ),
+            ),
+            TargetField(
+                "supplier_name",
+                FieldKind.TEXT,
+                synonyms=(
+                    "nazov dodavatela",
+                    "dodavatel",
+                    "obchodny partner",
+                    "partner",
+                    "supplier name",
+                    "supplier",
+                ),
+            ),
+            TargetField(
+                "booking_date",
+                FieldKind.DATE,
+                synonyms=(
+                    "datum zauctovania",
+                    "datum uctovania",
+                    "datum prijatia",
+                    "datum",
+                    "booking date",
+                    "date",
+                ),
+            ),
+            TargetField(
+                "amount",
+                FieldKind.DECIMAL,
+                synonyms=("suma", "suma celkom", "celkom", "spolu", "amount", "total"),
+            ),
+            TargetField(
+                "variable_symbol",
+                FieldKind.TEXT,
+                synonyms=("variabilny symbol", "vs", "variable symbol"),
+            ),
+            TargetField(
+                "budget_key",
+                FieldKind.CODE,
+                required=True,
+                synonyms=(
+                    "rozpoctova polozka",
+                    "rozpoctova klasifikacia",
+                    "rozpocet",
+                    "budget key",
+                    "budget",
+                ),
+            ),
+            TargetField("md", FieldKind.CODE, required=True, synonyms=("md", "ma dat", "debit")),
+            TargetField("dal", FieldKind.CODE, required=True, synonyms=("dal", "credit")),
+            TargetField(
+                "budget_text",
+                FieldKind.TEXT,
+                synonyms=("text rozpoctu", "text polozky", "budget text"),
+            ),
+            TargetField(
+                "posting_text",
+                FieldKind.TEXT,
+                synonyms=("text uctovania", "text", "popis", "posting text", "description"),
+            ),
+        ),
+        "booking",
+        row_field="rows",
+        duplicates="lines",
+        line_fields=("budget_key", "md", "dal", "budget_text", "posting_text"),
+    ),
 }
 assert set(SCHEMAS) == set(ImportType)
 
@@ -579,6 +680,9 @@ class ColumnMapping(BaseModel):
             raise ValueError(f"not fields of {self.import_type.value}: {unknown}")
         if self.duplicates == "merge" and not self.import_type.is_budget:
             raise ValueError("only budget positions can be merged")
+        lines = schema.duplicates == "lines"
+        if self.duplicates is not None and (self.duplicates == "lines") != lines:
+            raise ValueError("past bookings, and only they, group their rows into lines")
         names = [fact.name for fact in self.facts]
         if len(names) != len(set(names)):
             raise ValueError("a fact is read once")
