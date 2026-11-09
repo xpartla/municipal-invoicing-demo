@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Pager } from '../components/Pager';
+import { ExportHistory } from '../features/invoices/ExportHistory';
 import { AnchorLink, ButtonLink } from '../components/RouterLinks';
 import { ScrollTable } from '../components/ScrollTable';
 import {
@@ -33,8 +34,8 @@ const STATE_COLORS: Record<ImportRun['state'], string> = {
 };
 
 /** Importy a exporty (plan §10.7): the customer's import runs with their state, report and
- * file; "Nový import"; the mapping templates the customer may use. Exports come with the
- * invoices (P2-M4). */
+ * file; "Nový import"; the export runs with their files (P2-M4); the mapping templates the
+ * customer may use. */
 export function ExchangePage() {
   const { t } = useTranslation();
   const { customerId } = useParams({ from: '/_app/c/$customerId' });
@@ -131,12 +132,7 @@ export function ExchangePage() {
           </>
         )}
       </Stack>
-      <Stack gap="sm">
-        <Title order={2} size="h3">
-          {t('exchange.exports.title')}
-        </Title>
-        <Text>{t('exchange.exports.soon')}</Text>
-      </Stack>
+      <ExportHistory customerId={customerId} />
       {canUseTemplates && <Templates customerId={customerId} />}
     </Stack>
   );
