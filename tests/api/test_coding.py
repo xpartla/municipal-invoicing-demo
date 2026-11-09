@@ -8,10 +8,10 @@ from riso.contracts import CodingProposal
 from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.eval import compare, evaluate
+from riso.eval.files import initial_counters, initial_memory
 from riso.knowledge import knowledge_for
 from riso.reference import LocalReferenceSource
 from riso.shared import AllowAll, RequestContext
-from riso.store import StateStore
 from tests.api.conftest import SEED_PASSWORD, ApiClient
 
 PASSWORD = SEED_PASSWORD
@@ -27,14 +27,14 @@ def _client(app, done, key="user"):
 
 def _from_files(case, var_dir) -> CodingProposal:
     """What `riso code` gives, with the same (initial) supplier state as the route."""
-    source, state = LocalReferenceSource(), StateStore(var_dir)
+    source = LocalReferenceSource()
     entity = source.context(BOLDOG)
     return code_invoice(
         case.invoice,
         entity=entity,
         bundle=source.bundle(BOLDOG, entity.reference_period),
-        memory=state.supplier_memory(BOLDOG),
-        counters=state.counters(BOLDOG),
+        memory=initial_memory(BOLDOG),
+        counters=initial_counters(BOLDOG),
         knowledge=knowledge_for(BOLDOG, entity.budget_year),
     )
 

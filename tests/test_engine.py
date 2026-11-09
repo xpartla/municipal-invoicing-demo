@@ -20,9 +20,9 @@ from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.engine.s8_feedback import add_precedent, apply_feedback
 from riso.eval import coded_lines
+from riso.eval.files import initial_counters, initial_memory
 from riso.knowledge import knowledge_for
 from riso.reference import ReferenceIndex
-from riso.store import StateStore
 
 BOLDOG = "00305863"
 NEW_SUPPLIER = "11111119"  # passes the IČO check digit and is in no supplier memory
@@ -31,13 +31,12 @@ ANCHORS = ["anchor-accounting", "anchor-dog-shelter", "anchor-dpo", "anchor-tele
 
 @pytest.fixture(scope="module")
 def setting(source, tmp_path_factory):
-    state = StateStore(var_dir=tmp_path_factory.mktemp("var"))
     return {
         "entity": source.context(BOLDOG),
         "bundle": source.bundle(BOLDOG),
         "knowledge": knowledge_for(BOLDOG, 2026),
-        "memory": state.supplier_memory(BOLDOG),
-        "counters": state.counters(BOLDOG),
+        "memory": initial_memory(BOLDOG),
+        "counters": initial_counters(BOLDOG),
     }
 
 

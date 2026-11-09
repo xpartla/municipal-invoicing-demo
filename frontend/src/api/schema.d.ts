@@ -2051,74 +2051,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/entities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Legacy.Entities */
-        get: operations["legacy.entities"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/reference/{entity}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Legacy.Reference */
-        get: operations["legacy.reference"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/invoices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Legacy.Invoices */
-        get: operations["legacy.invoices"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/invoices/{invoice_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Legacy.Invoice */
-        get: operations["legacy.invoice"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/code": {
         parameters: {
             query?: never;
@@ -2128,75 +2060,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Legacy.Code */
+        /**
+         * Legacy.Code
+         * @description The proposal for a posted invoice, coded with the committed bundle, the knowledge
+         *     and the initial supplier memory and counters (`data/initial_state`), as `riso code`
+         *     and the evaluation code it. Nothing is stored; customers' invoices are coded through
+         *     `/api/customers/{id}/…`.
+         */
         post: operations["legacy.code"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/line": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Legacy.Line
-         * @description The whole line a position the accountant picked brings: MD, DAL, transfer, texts.
-         */
-        post: operations["legacy.line"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/feedback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Legacy.Feedback Log
-         * @description The feedback stored since the last `riso reset`, oldest first.
-         */
-        get: operations["legacy.feedback_log"];
-        put?: never;
-        /**
-         * Legacy.Feedback
-         * @description Stores the accountant's verdict: the coding becomes the supplier's newest precedent,
-         *     its number is used up, and the feedback is logged. A corrected coding must pass the
-         *     dictionary checks; whether its sum matches the invoice is the accountant's call.
-         */
-        post: operations["legacy.feedback"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/counters/{entity}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Legacy.Counters
-         * @description The document counters, invoice series first: the last number used, the one the
-         *     counter would fill in next, and the numbers taken. Only feedback moves them.
-         */
-        get: operations["legacy.counters"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2232,32 +2103,6 @@ export interface components {
         AcceptedOut: {
             /** Detail */
             detail: string;
-        };
-        /** Account */
-        Account: {
-            /**
-             * Key
-             * @description 'SU AU', e.g. '518 001'
-             */
-            key: string;
-            /** Su */
-            su: string;
-            /** Au */
-            au: string;
-            /**
-             * Type
-             * @enum {string}
-             */
-            type: "active" | "passive" | "cost" | "revenue";
-            /** Activity */
-            activity?: string | null;
-            /** Description */
-            description?: string | null;
-            /**
-             * Row
-             * @description Row in the exported sheet; none for a row added by hand
-             */
-            row?: number | null;
         };
         /** AddressIn */
         AddressIn: {
@@ -2475,36 +2320,6 @@ export interface components {
             stredisko?: string | null;
             /** Transfer */
             transfer?: string | null;
-        };
-        /** BudgetPosition */
-        BudgetPosition: {
-            /**
-             * Key
-             * @description 'EK zdroj oddiel trieda analytika', or 'EK zdroj analytika' for income
-             */
-            key: string;
-            /** Ek */
-            ek: string;
-            /** Zdroj */
-            zdroj: string;
-            /** Oddiel */
-            oddiel?: string | null;
-            /** Trieda */
-            trieda?: string | null;
-            /** Analytika */
-            analytika: string;
-            /** Description */
-            description?: string | null;
-            /**
-             * Aliases
-             * @description Descriptions of further rows merged into this one because they share the key
-             */
-            aliases?: string[];
-            /**
-             * Rows
-             * @description Rows in the exported sheet; empty for a position added by hand
-             */
-            rows?: number[];
         };
         /** BulkDiscardIn */
         BulkDiscardIn: {
@@ -2809,13 +2624,6 @@ export interface components {
              */
             supplier_memory: boolean;
         };
-        /** CostCentre */
-        CostCentre: {
-            /** Code */
-            code: string;
-            /** Name */
-            name: string;
-        };
         /**
          * CounterChange
          * @description A counter a past-bookings import raises: `FD/2026` from 120 to 140.
@@ -2987,28 +2795,6 @@ export interface components {
             /** Booking Date */
             booking_date?: string | null;
         };
-        /** DocumentSeries */
-        DocumentSeries: {
-            /**
-             * Code
-             * @description Prefix of the pattern, e.g. 'FD' or 'FDŠJ'
-             */
-            code: string;
-            /**
-             * Series Id
-             * @description 'Evidenčné číslo' in the software
-             */
-            series_id: string;
-            /**
-             * Pattern
-             * @description e.g. 'FD/XXX/RR': X the sequence, RR the year, MM the month
-             */
-            pattern: string;
-            /** Description */
-            description: string;
-            /** Bank Account */
-            bank_account?: string | null;
-        };
         /** DryRunReport */
         DryRunReport: {
             /**
@@ -3059,26 +2845,6 @@ export interface components {
             new_email: string;
             /** Current Password */
             current_password: string;
-        };
-        /** Entity */
-        Entity: {
-            /** Ico */
-            ico: string;
-            /** Name */
-            name: string;
-            /** Address */
-            address?: string | null;
-        };
-        /** EntitySummary */
-        EntitySummary: {
-            /** Ico */
-            ico: string;
-            /** Name */
-            name: string;
-            /** Bundle Id */
-            bundle_id: string;
-            /** Periods */
-            periods: string[];
         };
         /** EntryChangeOut */
         EntryChangeOut: {
@@ -3380,68 +3146,6 @@ export interface components {
             /** Pattern */
             pattern: string;
         };
-        /** Feedback */
-        Feedback: {
-            /** Invoice Id */
-            invoice_id: string;
-            /** Bundle Id */
-            bundle_id: string;
-            /**
-             * Action
-             * @enum {string}
-             */
-            action: "accepted" | "corrected";
-            /** @description What the engine proposed */
-            proposal: components["schemas"]["CodingProposal"];
-            /** @description What the accountant entered into the software */
-            final: components["schemas"]["Coding"];
-            /** Supplier Ico */
-            supplier_ico?: string | null;
-            /**
-             * Received At
-             * @description Set by the server
-             */
-            received_at?: string | null;
-            /** Note */
-            note?: string | null;
-        };
-        /**
-         * FeedbackItem
-         * @description One row of GET /api/feedback.
-         */
-        FeedbackItem: {
-            /** Invoice Id */
-            invoice_id: string;
-            /** Action */
-            action: string;
-            /** Document Number */
-            document_number: string | null;
-            /** Received At */
-            received_at: string | null;
-        };
-        /**
-         * FeedbackReceipt
-         * @description What POST /api/feedback stored.
-         */
-        FeedbackReceipt: {
-            /** Invoice Id */
-            invoice_id: string;
-            /** Action */
-            action: string;
-            /** Entity Ico */
-            entity_ico: string;
-            /** Document Number */
-            document_number: string | null;
-            /** Supplier Ico */
-            supplier_ico: string | null;
-            /** Precedents */
-            precedents: number;
-            /**
-             * Received At
-             * Format: date-time
-             */
-            received_at: string;
-        };
         /**
          * FieldKind
          * @enum {string}
@@ -3684,20 +3388,6 @@ export interface components {
          * @enum {string}
          */
         ImportType: "accounts" | "budget_expense" | "budget_income" | "document_series" | "transfers" | "cost_centres" | "ek" | "cofog" | "funding_sources" | "framework_accounts" | "past_bookings";
-        /** IngestWarning */
-        IngestWarning: {
-            /**
-             * Code
-             * @enum {string}
-             */
-            code: "duplicate_key" | "missing_description" | "skipped_row";
-            /** Source */
-            source: string;
-            /** Rows */
-            rows: number[];
-            /** Message */
-            message: string;
-        };
         /**
          * Intake
          * @description How the invoice came in (plan §4.3).
@@ -3803,24 +3493,6 @@ export interface components {
             vat?: number | null;
             /** Gross */
             gross?: number | null;
-        };
-        /**
-         * InvoiceListItem
-         * @description One row of the invoice picker.
-         */
-        InvoiceListItem: {
-            /** Id */
-            id: string;
-            /** Split */
-            split: string;
-            /** Supplier */
-            supplier: string | null;
-            /** Number */
-            number: string | null;
-            /** Issue Date */
-            issue_date: string | null;
-            /** Gross */
-            gross: number | null;
         };
         /** InvoiceOut */
         InvoiceOut: {
@@ -4105,17 +3777,6 @@ export interface components {
         };
         /** LineIn */
         LineIn: {
-            /** Budget Key */
-            budget_key: string;
-        };
-        /**
-         * LineRequest
-         * @description Body of POST /api/line: the invoice, and a position the accountant picked.
-         */
-        LineRequest: {
-            invoice: components["schemas"]["InvoiceDocument"];
-            /** Entity */
-            entity?: string | null;
             /** Budget Key */
             budget_key: string;
         };
@@ -4513,36 +4174,6 @@ export interface components {
             /** Reason */
             reason?: string | null;
         };
-        /** ReferenceBundle */
-        ReferenceBundle: {
-            /**
-             * Bundle Id
-             * @description '<IČO>/<period>', e.g. '00305863/2026-08'
-             */
-            bundle_id: string;
-            entity: components["schemas"]["Entity"];
-            /** Period */
-            period: string;
-            /** Sources */
-            sources: components["schemas"]["SourceFile"][];
-            /** Accounts */
-            accounts: components["schemas"]["Account"][];
-            /** Budget Positions Expense */
-            budget_positions_expense: components["schemas"]["BudgetPosition"][];
-            /** Budget Positions Income */
-            budget_positions_income: components["schemas"]["BudgetPosition"][];
-            /** Document Series */
-            document_series: components["schemas"]["DocumentSeries"][];
-            /** Transfers */
-            transfers: components["schemas"]["Transfer"][];
-            /**
-             * Cost Centres
-             * @description The stredisko list; not exported, so empty in the demo
-             */
-            cost_centres?: components["schemas"]["CostCentre"][];
-            /** Warnings */
-            warnings?: components["schemas"]["IngestWarning"][];
-        };
         /**
          * ReportDiff
          * @description The difference from the active version (none: everything is new).
@@ -4637,22 +4268,6 @@ export interface components {
             /** Permissions */
             permissions: components["schemas"]["Permission"][];
         };
-        /**
-         * SeriesCounter
-         * @description One row of GET /api/counters: a series' document numbers in one year.
-         */
-        SeriesCounter: {
-            /** Series */
-            series: string;
-            /** Year */
-            year: number;
-            /** Last Used */
-            last_used: string | null;
-            /** Next */
-            next: string;
-            /** Used */
-            used: string[];
-        };
         /** SessionOut */
         SessionOut: {
             /** Id */
@@ -4700,15 +4315,6 @@ export interface components {
             old: string;
             /** New */
             new: string;
-        };
-        /** SourceFile */
-        SourceFile: {
-            /** Name */
-            name: string;
-            /** Sha256 */
-            sha256: string;
-            /** Data Rows */
-            data_rows: number;
         };
         /** Split */
         Split: {
@@ -4852,24 +4458,6 @@ export interface components {
             gross?: number | null;
             /** Vat Rates */
             vat_rates?: number[];
-        };
-        /** Transfer */
-        Transfer: {
-            /**
-             * Id
-             * @description Income-side key the transfer comes from, e.g. '312001 11H 012'
-             */
-            id: string;
-            /** Name */
-            name: string;
-            /** Zdroj */
-            zdroj: string;
-            /**
-             * Mock
-             * @description Derived from the income side; the real list was not exported
-             * @default true
-             */
-            mock: boolean;
         };
         /** Trim */
         Trim: {
@@ -8937,110 +8525,6 @@ export interface operations {
             };
         };
     };
-    "legacy.entities": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntitySummary"][];
-                };
-            };
-        };
-    };
-    "legacy.reference": {
-        parameters: {
-            query?: {
-                period?: string | null;
-            };
-            header?: never;
-            path: {
-                entity: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReferenceBundle"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    "legacy.invoices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceListItem"][];
-                };
-            };
-        };
-    };
-    "legacy.invoice": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                invoice_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["InvoiceDocument"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     "legacy.code": {
         parameters: {
             query?: never;
@@ -9061,134 +8545,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CodingProposal"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    "legacy.line": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LineRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Alternative"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    "legacy.feedback_log": {
-        parameters: {
-            query?: {
-                entity?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedbackItem"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    "legacy.feedback": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["Feedback"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FeedbackReceipt"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    "legacy.counters": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SeriesCounter"][];
                 };
             };
             /** @description Validation Error */

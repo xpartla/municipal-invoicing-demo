@@ -82,14 +82,35 @@ def code_document(
     """The engine's proposal for the document, coded as the customer's invoice."""
     ctx.require(Permission.INVOICES_PROCESS, customer_id)
     year = booking_year(document, today)
+    entity, bundle = _setting(ctx, reference, customer_id, year)
     return code_invoice(
         document,
-        entity=reference.entity_context(ctx, customer_id, year),
-        bundle=reference.bundle(ctx, customer_id, year),
+        entity=entity,
+        bundle=bundle,
         memory=state.memory(customer_id),
         counters=state.counters(customer_id),
         knowledge=reference.knowledge(ctx, customer_id, year),
     )
+
+
+def _setting(
+    ctx: RequestContext, reference: ReferenceData, customer_id: str, year: int
+) -> tuple[EntityContext, ReferenceBundle]:
+    """The customer's parameters and lists of the year. Raises `InvalidState` when a series
+    the parameters name (default, canteen) is not in the document series list: the list can
+    change after the parameters are set, and the engine needs the series' pattern."""
+    entity = reference.entity_context(ctx, customer_id, year)
+    bundle = reference.bundle(ctx, customer_id, year)
+    known = {series.code for series in bundle.document_series}
+    unknown = [
+        s for s in dict.fromkeys((entity.default_series, entity.canteen_series)) if s not in known
+    ]
+    if unknown:
+        raise InvalidState(
+            f"the parameters of {year} name the series {', '.join(unknown)}, which the "
+            "document series list does not have"
+        )
+    return entity, bundle
 
 
 def actor_of(ctx: RequestContext) -> Actor:
@@ -124,8 +145,7 @@ def code_stored(
     customer_id, at = invoice.customer_id, uow.clock.now()
     year = booking_year(invoice.fields, local_date(at))
     try:
-        entity = reference.entity_context(ctx, customer_id, year)
-        bundle = reference.bundle(ctx, customer_id, year)
+        entity, bundle = _setting(ctx, reference, customer_id, year)
         knowledge = reference.knowledge(ctx, customer_id, year)
         versions, revision = reference.basis(ctx, customer_id, year)
     except InvalidState as exc:

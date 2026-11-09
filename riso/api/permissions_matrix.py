@@ -7,7 +7,7 @@ role × route × own/foreign customer matrix from this table.
 
 Each route declares its access with one dependency from `riso.api.deps` (`customer_context`
 and the others), and the matrix test checks that the dependency and the entry agree. The
-demo's routes are `public` until P2-M4 replaces them: the demo has no logins.
+two routes kept from the demo (`legacy.code`, `legacy.eval`) are `public`, as they were.
 """
 
 from dataclasses import dataclass
@@ -188,16 +188,8 @@ MATRIX: dict[str, RouteAccess] = {
     "providers.remove": platform(Permission.PROVIDERS_MANAGE),
     "providers.add_staff": platform(Permission.PROVIDERS_MANAGE),
     "providers.remove_staff": platform(Permission.PROVIDERS_MANAGE),
-    # The demo (P2-M4 replaces these).
-    "legacy.entities": public(),
-    "legacy.reference": public(),
-    "legacy.invoices": public(),
-    "legacy.invoice": public(),
+    # Kept from the demo (P2-M4-T10): the committed bundle's coding and the evaluation's report.
     "legacy.code": public(),
-    "legacy.line": public(),
-    "legacy.feedback": public(),
-    "legacy.feedback_log": public(),
-    "legacy.counters": public(),
     "legacy.eval": public(),
 }
 

@@ -1,5 +1,5 @@
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -46,7 +46,7 @@ async function waitUntilUp(url: string, server: ChildProcess, log: () => string)
       throw new Error(`riso serve exited with ${String(server.exitCode)}:\n${log()}`);
     }
     try {
-      const response = await fetch(`${url}/api/entities`);
+      const response = await fetch(`${url}/openapi.json`);
       if (response.ok) return;
     } catch {
       // not listening yet
@@ -81,8 +81,14 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     detached: true,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  server.stdout.on('data', (chunk: Buffer) => (output += chunk.toString()));
-  server.stderr.on('data', (chunk: Buffer) => (output += chunk.toString()));
+  // RISO_E2E_SERVER_LOG names a file that gets the server's output too, for a failure's traceback.
+  const serverLog = process.env.RISO_E2E_SERVER_LOG;
+  const keep = (chunk: Buffer) => {
+    output += chunk.toString();
+    if (serverLog) appendFileSync(serverLog, chunk);
+  };
+  server.stdout.on('data', keep);
+  server.stderr.on('data', keep);
 
   const stop = async () => {
     if (server.pid !== undefined && server.exitCode === null) {

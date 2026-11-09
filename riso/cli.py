@@ -1,4 +1,4 @@
-"""Command line: riso ingest | check | export-schemas | export-openapi | reset | serve | code |
+"""Command line: riso ingest | check | export-schemas | export-openapi | serve | code |
 eval | migrate | worker."""
 
 import argparse
@@ -51,9 +51,7 @@ def main(argv: list[str] | None = None) -> int:
     openapi.add_argument("--out", type=Path, default=None, help="default frontend/openapi.json")
     openapi.add_argument("--check", action="store_true", help="only report a stale file")
 
-    commands.add_parser("reset", help="restore the runtime state from data/initial_state")
-
-    serve = commands.add_parser("serve", help="run the API and the pages")
+    serve = commands.add_parser("serve", help="run the API and the built frontend")
     serve.add_argument("--host", default="127.0.0.1")
     serve.add_argument("--port", type=int, default=8000)
     serve.add_argument("--reload", action="store_true")
@@ -110,7 +108,6 @@ def main(argv: list[str] | None = None) -> int:
         "check": _check,
         "export-schemas": _export_schemas,
         "export-openapi": _export_openapi,
-        "reset": _reset,
         "serve": _serve,
         "code": _code,
         "eval": _eval,
@@ -221,15 +218,6 @@ def _export_openapi(args: argparse.Namespace) -> int:
     return 0
 
 
-def _reset(args: argparse.Namespace) -> int:
-    from riso.store import StateStore
-
-    store = StateStore()
-    entities = store.reset()
-    print(f"restored {', '.join(entities)} in {_shown(store.var_dir)}")
-    return 0
-
-
 def _serve(args: argparse.Namespace) -> int:
     import uvicorn
 
@@ -244,18 +232,19 @@ def _serve(args: argparse.Namespace) -> int:
 
 
 def _code(args: argparse.Namespace) -> int:
-    """Codes each file with the current runtime state. For a dataset case it also says
-    whether the codes match the expected ones, and exits with 1 when any does not."""
+    """Codes each file with the committed bundle and the initial supplier memory and counters
+    (`data/initial_state`), as the evaluation starts. For a dataset case it also says whether
+    the codes match the expected ones, and exits with 1 when any does not."""
     import json
 
     from riso.contracts import DatasetCase, InvoiceDocument
     from riso.engine import code_invoice
     from riso.eval import compare
+    from riso.eval.files import initial_counters, initial_memory
     from riso.knowledge import knowledge_for
     from riso.reference import LocalReferenceSource
-    from riso.store import StateStore
 
-    references, state = LocalReferenceSource(), StateStore()
+    references = LocalReferenceSource()
     mismatches = 0
     for path in args.invoices:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -268,8 +257,8 @@ def _code(args: argparse.Namespace) -> int:
                 document,
                 entity=entity,
                 bundle=references.bundle(ico, entity.reference_period),
-                memory=state.supplier_memory(ico),
-                counters=state.counters(ico),
+                memory=initial_memory(ico),
+                counters=initial_counters(ico),
                 knowledge=knowledge_for(ico, entity.budget_year),
             )
         except LookupError as exc:
@@ -315,8 +304,8 @@ def _eval(args: argparse.Namespace) -> int:
     """Codes the split, prints the metrics and stores the report in var/<IČO>/, where
     GET /api/eval finds it."""
     from riso.eval import evaluate
+    from riso.eval.files import save_report
     from riso.eval.report import render
-    from riso.store import StateStore
 
     try:
         if args.source == "db":
@@ -329,7 +318,7 @@ def _eval(args: argparse.Namespace) -> int:
     if not report.cases:
         print(f"riso eval: no {args.split} cases", file=sys.stderr)
         return 2
-    path = StateStore().save_eval(report)
+    path = save_report(report)
     if args.json:
         print(report.model_dump_json(indent=2))
     else:

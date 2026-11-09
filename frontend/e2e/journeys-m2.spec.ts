@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
+import { copyBoldog } from './pages/customers';
 import { loginAs, openNav } from './pages/login';
-import { CUSTOMERS } from './seed';
 
 // The journeys of P2-M2 (plan §13.2). The three widths run in parallel on one seeded
 // database, so the journeys that write take a list and a parameter of their own per width.
@@ -52,19 +52,20 @@ test('2. editing a row makes a new version and keeps the old one in the history'
   await expect(history.getByRole('region', { name: 'Zmeny z verzie 1 na 2' })).toContainText(text);
 });
 
+// Journey 3 changes the parameters in a copy of Boldog: Boldog's own are read by the other
+// specs (a series without a pattern stops its coding, P2-M4-T10).
+const PARAMETER_OF: Record<string, { field: string; value: string; ico: string }> = {
+  phone: { field: 'Predvolená rada', value: 'FX', ico: '99900131' },
+  tablet: { field: 'Rada školskej jedálne', value: 'FDŠX', ico: '99900149' },
+  desktop: { field: 'Predvolený zdroj', value: '43', ico: '99900157' },
+};
+
 test('3. editing the parameters', async ({ page }, testInfo) => {
-  const field =
-    {
-      phone: 'Predvolená rada',
-      tablet: 'Rada školskej jedálne',
-      desktop: 'Predvolený zdroj',
-    }[testInfo.project.name] ?? 'Predvolený zdroj';
-  const value = { phone: 'FX', tablet: 'FDŠX', desktop: '43' }[testInfo.project.name] ?? '43';
+  const width = PARAMETER_OF[testInfo.project.name];
+  if (!width) throw new Error(`no parameter for the width ${testInfo.project.name}`);
+  const { field, value, ico } = width;
   await loginAs(page, 'staff');
-  await openNav(page);
-  await page.getByRole('navigation').getByLabel('Klient', { exact: true }).click();
-  await page.getByRole('option', { name: CUSTOMERS.boldog }).click();
-  await expect(page.getByText(`Prehľad klienta ${CUSTOMERS.boldog}`)).toBeVisible();
+  await copyBoldog(page, `Obec Parametre ${testInfo.project.name}`, ico);
   await openNav(page);
   await page.getByRole('navigation').getByRole('link', { name: 'Systém' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Systém' })).toBeVisible();

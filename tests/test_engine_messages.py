@@ -15,9 +15,9 @@ from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.engine.s6_validate import check_coding
 from riso.engine.s8_feedback import apply_feedback
+from riso.eval.files import initial_counters, initial_memory
 from riso.knowledge import knowledge_for
 from riso.reference import ReferenceIndex
-from riso.store import StateStore
 
 BOLDOG = "00305863"
 CATALOGUE_FILE = paths.REPO_ROOT / "frontend" / "src" / "i18n" / "sk" / "engine.json"
@@ -40,13 +40,12 @@ def _messages(proposal) -> list[str]:
 
 
 def test_every_message_the_dataset_produces_has_slovak_wording(source, tmp_path):
-    state = StateStore(var_dir=tmp_path)
     setting = {
         "entity": source.context(BOLDOG),
         "bundle": source.bundle(BOLDOG),
         "knowledge": knowledge_for(BOLDOG, 2026),
-        "memory": state.supplier_memory(BOLDOG),
-        "counters": state.counters(BOLDOG),
+        "memory": initial_memory(BOLDOG),
+        "counters": initial_counters(BOLDOG),
     }
     index = ReferenceIndex(setting["bundle"])
     messages = set()

@@ -291,6 +291,22 @@ def test_a_coding_without_lists_for_the_year_leaves_the_invoice_checked(fresh):
     assert "book" not in invoice["actions"]
 
 
+def test_a_series_the_lists_do_not_have_leaves_the_invoice_checked(fresh):
+    """The document series list can change after the parameters name a series; coding then
+    fails with the reason, not with a server error (found in P2-M4-T10)."""
+    user = fresh.login("user")
+    url = f"/api/customers/{fresh.boldog}/parameters"
+    values = user.get(url, params={"year": 2026}).json()["values"]
+    changed = {**values, "default_series": "FX"}
+    assert user.put(url, params={"year": 2026}, json={"values": changed}).status_code == 200
+    invoice = _invoice(fresh, user, "anchor-telekom")
+    assert invoice["state"] == "checked" and invoice["proposal"] is None
+    assert "FX" in invoice["coding_error"]
+    document = invoice["fields"]
+    coded = user.post(f"/api/customers/{fresh.boldog}/code", json=document)
+    assert coded.status_code == 409 and "FX" in coded.json()["detail"]
+
+
 def test_the_engine_reads_the_numbers_from_the_database(fresh):
     user = fresh.login("user")
     _book(fresh, user, _invoice(fresh, user, "anchor-telekom"))

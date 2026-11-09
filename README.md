@@ -32,24 +32,24 @@ conventions out of the knowledge base, coding from the database (`POST
 column by column (with templates chosen by the headers, built in for TOPSET's exports), a dry
 run whose report lists errors per row, and apply as a new version; past bookings as supplier
 precedents; and creating a customer as a copy of another (Importy a exporty, Nový klient).
-Invoices, OCR and e-invoices follow. The demo below keeps working until its pages are
-replaced.
-
-M3 is done: the web app and the feedback loop. The proposal page lays the coding out like the
-accounting software's two tabs, with a copy button on every value and line, the evidence
-behind each field, and alternatives that swap a whole line. The accountant accepts the
-proposal, or corrects it with codes picked from the municipality's dictionaries; either way
-the coding becomes the supplier's newest precedent and its number is used up, so the next
-invoice from that supplier follows it. The pages are in Slovak, including the engine's
-review reasons and evidence, which a message catalogue translates.
+P2-M4 puts the invoices in the database: each with the lifecycle of plan §7.1 (checked, then
+needing review or ready, booked, exported, paid, or discarded) and its history; supplier memory
+and number series per customer, with booking by the handwritten number or by the date of supply
+(plan §2 decision 61); the Faktúry table with filters, bulk actions and exports to CSV and
+XLSX; the invoice page with the proposal laid out like the accounting software's two tabs, a
+copy button on every value and line, the evidence, alternatives, the correction editor and the
+booking; manual entry (Nová faktúra, also from a pasted JSON); and the number series under
+Systém. The demo's Alpine pages and their routes are gone; `POST /api/code` and `GET /api/eval`
+remain. OCR and e-invoices follow.
 
 M2 measured the engine on 40 held-out synthetic invoices: every code valid, the full budget
 key right for 61.5% and the economic code for 76.9%, short of the demo targets of 85% and 90%.
 The plan lives outside this repository.
 
 ```sh
-uv run riso migrate
-uv run riso serve --port 8001       # then open http://127.0.0.1:8001
+RISO_ENV=dev RISO_SEED_PASSWORD='Ukážkové-heslo-2026' uv run riso seed --reset
+(cd frontend && pnpm install && pnpm build)
+uv run riso serve --port 8001       # then open http://127.0.0.1:8001 and log in
 uv run riso eval
 ```
 
@@ -94,20 +94,9 @@ Mail (invitations, reset links) is not sent: it waits in the outbox, which the a
 `GET /api/admin/outbox`.
 
 `riso serve` refuses to start on a database that is not migrated. It runs the jobs worker in a
-thread. When the SPA has been built into `riso/web/dist/`, it serves the SPA at `/` and at
-every client route; the demo pages keep their paths, with the invoice picker at `/index.html`.
-Without a built SPA it serves the demo pages at `/` as before.
-
-The end-to-end click-through drives the four pages in a headless browser; it starts its own
-server with empty state. Playwright is not a project dependency:
-
-```sh
-uv run --with playwright playwright install chromium     # once
-uv run --with playwright python tests/e2e/clickthrough.py [screenshot dir]
-```
-
-`riso reset` clears what the pages recorded (supplier memory, counters, the feedback log), so
-every demo starts from the same state.
+thread. It serves the SPA built into `riso/web/dist/` at `/` and at every client route; without
+a build, those paths answer 503 with a line saying how to build it. `riso seed --reset` brings
+the demo back to its starting state.
 
 ## Frontend
 
@@ -132,7 +121,11 @@ accessibility with axe (WCAG 2.1 AA):
 ```sh
 pnpm exec playwright install chromium   # once
 pnpm build && pnpm e2e
-``` The typed API client is
+```
+
+The specs include the click-through of the demo's invoice pages, ported to the new UI
+(`e2e/journeys-m4.spec.ts`). `RISO_E2E_SERVER_LOG=<file>` keeps the server's output, with the
+traceback of a 500, in that file. The typed API client is
 generated from the backend's OpenAPI document; after changing a route or its models, run
 `uv run riso export-openapi` and `pnpm gen:api`, and commit both `frontend/openapi.json` and
 `frontend/src/api/schema.d.ts` (`pnpm check:api` fails when either is stale).
@@ -164,9 +157,8 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso check` | Checks the committed data against the dictionaries: entity settings, supplier memory, counters, the knowledge base (with Boldog's conventions), every dataset case, schema drift. `--customer <IČO> [--year YYYY]` prints that customer's knowledge health report from the database instead (missing lists, conventions naming missing accounts, budget EKs without a bridge rule, precedents outside the active lists); exit 1 when it has errors |
 | `riso export-openapi` | Writes the API's OpenAPI document to `frontend/openapi.json`, which the frontend client is generated from; `--check` only reports a stale file |
 | `riso export-schemas` | Writes the contracts as JSON Schema to `schemas/`; `--check` only reports stale files |
-| `riso reset` | Restores the runtime state in `var/` from `data/initial_state/` |
-| `riso serve` | Runs the API, the pages and the jobs worker; needs `riso migrate` first |
-| `riso code <file>…` | Codes InvoiceDocuments or dataset cases and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
+| `riso serve` | Runs the API, the built SPA and the jobs worker; needs `riso migrate` first |
+| `riso code <file>…` | Codes InvoiceDocuments or dataset cases with the committed bundle and the supplier memory and counters of `data/initial_state`, and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
 | `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
@@ -201,15 +193,11 @@ uv run alembic upgrade head
 
 ## API
 
+Two routes remain from the demo, without a login:
+
 | Endpoint | Returns |
 |---|---|
-| `GET /api/entities` | Entities with reference data |
-| `GET /api/reference/{ičo}` | The ReferenceBundle |
-| `GET /api/invoices`, `GET /api/invoices/{id}` | The mock invoices, for the picker |
-| `POST /api/code` | A CodingProposal for `{invoice, entity}` |
-| `POST /api/line` | The whole line (MD, DAL, transfer, texts) a budget position brings for `{invoice, budget_key}`, for the correction pickers |
-| `POST /api/feedback` | Records an accepted or corrected proposal: checks the codes against the dictionaries, makes the coding the supplier's newest precedent, uses up its number, appends to the feedback log |
-| `GET /api/feedback` | The feedback recorded since the last `riso reset` |
+| `POST /api/code` | A CodingProposal for `{invoice, entity}`, coded with the committed bundle and the memory of `data/initial_state`; nothing is stored |
 | `GET /api/eval` | The latest EvalReport of `riso eval` (`?split=`, default `heldout`); runs it when there is none, or with `?refresh=true` |
 
 The phase 2 API (logins, customers, providers, users, the outbox and the audit) is described
@@ -248,14 +236,13 @@ at `/docs` while the server runs. In short:
   `…/exports/{id}` and `…/exports/{id}/file` read the history and the file.
 - `GET /api/customers/{id}/number-series?year=` lists the invoice series with their counters,
   the numbers held and the gaps; `PUT …/number-series/{series}/{year}` edits a counter
-  (audited). Supplier memory and number series live in the database; the demo routes above
-  still read `var/<IČO>/` until P2-M4-T10 removes them.
+  (audited). Supplier memory and number series live in the database.
 
 The interactive documentation is at `/docs` while the server runs.
 
 Every response carries an `X-Request-ID` (the client's, when it sends a well-formed one) and
-the security headers: a Content-Security-Policy without inline or evaluated scripts (the demo
-pages, which use Alpine.js, get `'unsafe-eval'` until they are replaced), `nosniff`, frame
+the security headers: a Content-Security-Policy without inline or evaluated scripts (only
+`/docs` and `/redoc` may load Swagger UI and ReDoc from their CDN), `nosniff`, frame
 denial and `Referrer-Policy: same-origin`. API responses are `Cache-Control: no-store`. Errors
 are JSON: 401, 403, 404, 409 with `{detail, code}`, 422 with a list of `{loc, msg, type}` like
 FastAPI's own validation errors, 429 with `retry_after`, and an unknown `/api` path is a JSON
@@ -281,12 +268,10 @@ riso/
   reference/      reading bundles and entity settings, lookups, document numbering
   engine/         S1 to S8, one module per stage, and the pipeline
   knowledge/      the authored knowledge base: models, loader, term matching
-  store/          runtime state: supplier memory, counters, feedback log, evaluation reports
-  api/            FastAPI app
-  web/            the demo's static pages (Slovak), app.js, vendored Alpine.js (until
-                  P2-M4-T10); the engine's messages in Slovak are in
-                  frontend/src/i18n/sk/engine.json
-  eval/           scoring proposals against expected outcomes, the metrics, the text report
+  api/            FastAPI app: composition, the frame, the permission matrix, the seed
+  web/dist/       where `pnpm build` puts the SPA (git-ignored)
+  eval/           scoring proposals against expected outcomes, the metrics, the text report,
+                  its files (the initial memory, the reports in var/<IČO>/)
   checks.py       what `riso check` runs
   dataset.py      loading the mock dataset
   text.py         diacritics folding and word matching
@@ -295,12 +280,13 @@ data/
   entities/       per-entity settings: VAT payer, default series and accounts
   invoices/       dataset cases: anchor/ (the four scans), seed/ (feeds supplier memory),
                   heldout/ (never does)
-  initial_state/  supplier memory and counters at the start of a demo
+  initial_state/  supplier memory and counters that the seed and the evaluation start from
 knowledge/2026/   EK to SU bridge, AU rules, function map, lexicon, transfer, canteen and style rules
 schemas/          JSON Schemas of the contracts
 migrations/       Alembic migrations of the database
 scripts/check.sh  the gates
-tests/            pytest; e2e/clickthrough.py is the browser click-through
+frontend/         the React SPA, its unit tests and the Playwright E2E specs (e2e/)
+tests/            pytest
 ```
 
 ## Data handling

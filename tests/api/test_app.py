@@ -9,7 +9,8 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 from riso.api import Settings, create_app
-from riso.api.middleware import CSP_DOCS, CSP_LEGACY, CSP_STRICT
+from riso.api.frontend import NOT_BUILT
+from riso.api.middleware import CSP_DOCS, CSP_STRICT
 from riso.jobs import JobStatus
 from riso.platform import Settings as PlatformSettings
 from riso.platform.migrations import upgrade
@@ -115,7 +116,7 @@ def test_an_unexpected_error_is_a_json_500_with_the_request_id(app):
 
 
 def test_api_responses_carry_the_strict_policy_and_no_caching(client):
-    response = client.get("/api/entities")
+    response = client.get("/api/eval", params={"split": "anchor"})
     assert response.status_code == 200
     headers = response.headers
     assert headers["Content-Security-Policy"] == CSP_STRICT
@@ -126,14 +127,6 @@ def test_api_responses_carry_the_strict_policy_and_no_caching(client):
     assert headers["Referrer-Policy"] == "same-origin"
     assert "frame-ancestors 'none'" in CSP_STRICT
     assert headers["Cache-Control"] == "no-store"
-
-
-def test_the_demo_pages_get_the_policy_alpine_needs(client):
-    for path in ("/", "/about.html", "/app.js"):
-        response = client.get(path)
-        assert response.status_code == 200, path
-        assert response.headers["Content-Security-Policy"] == CSP_LEGACY
-        assert response.headers["X-Content-Type-Options"] == "nosniff"
 
 
 def test_the_api_docs_get_their_own_policy(client):
@@ -152,14 +145,14 @@ def test_errors_carry_the_headers_too(client):
 
 
 def test_a_well_formed_request_id_is_kept(client):
-    response = client.get("/api/entities", headers={"X-Request-ID": "abc-123.x_y"})
+    response = client.get("/openapi.json", headers={"X-Request-ID": "abc-123.x_y"})
     assert response.headers["X-Request-ID"] == "abc-123.x_y"
 
 
 @pytest.mark.parametrize("sent", [None, "has spaces", "x" * 65, "a/b", "<script>"])
 def test_otherwise_a_new_request_id_is_made(client, sent):
     headers = {"X-Request-ID": sent} if sent else {}
-    made = client.get("/api/entities", headers=headers).headers["X-Request-ID"]
+    made = client.get("/openapi.json", headers=headers).headers["X-Request-ID"]
     assert uuid.UUID(made).version == 7
 
 
@@ -178,9 +171,11 @@ def test_a_known_api_path_with_another_method_is_405(client):
     assert client.get("/api/code").status_code == 405
 
 
-def test_without_a_spa_the_demo_is_served_as_before(client):
-    assert "Dodávateľské faktúry" in client.get("/").text
-    assert client.get("/c/123/invoices").status_code == 404
+def test_without_a_spa_a_page_says_how_to_build_it(client):
+    for path in ("/", "/c/123/invoices", "/proposal.html"):
+        response = client.get(path)
+        assert (response.status_code, response.text) == (503, NOT_BUILT), path
+        assert response.headers["Content-Security-Policy"] == CSP_STRICT
 
 
 # --- with the SPA --------------------------------------------------------------------------
@@ -213,12 +208,9 @@ def test_hashed_assets_are_cached_for_a_year(spa):
     assert response.headers["Cache-Control"] == "public, max-age=31536000, immutable"
 
 
-def test_the_demo_pages_keep_their_paths_next_to_the_spa(spa):
-    picker = spa.get("/index.html")
-    assert "Dodávateľské faktúry" in picker.text
-    assert picker.headers["Content-Security-Policy"] == CSP_LEGACY
-    assert spa.get("/proposal.html").status_code == 200
-    assert spa.get("/vendor/alpine-3.17.4.min.js").status_code == 200
+def test_the_demo_pages_are_gone(spa):
+    for path in ("/proposal.html", "/app.js", "/vendor/alpine-3.17.4.min.js"):
+        assert spa.get(path).status_code == 404, path
 
 
 def test_missing_files_are_404_not_the_spa(spa):

@@ -6,7 +6,6 @@ the endpoints, including the sync ones that run in the thread pool.
 
 import re
 from collections.abc import Callable
-from typing import Any
 
 from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
@@ -38,8 +37,6 @@ def _policy(**overrides: str) -> str:
 
 CSP_STRICT = _policy()
 """The SPA and the API: no inline or evaluated scripts."""
-CSP_LEGACY = _policy(**{"script-src": "'self' 'unsafe-eval'"})
-"""The demo's Alpine.js pages, until P2-M4 removes them: Alpine evaluates its attributes."""
 CSP_DOCS = _policy(
     **{
         "script-src": "'self' 'unsafe-inline' https://cdn.jsdelivr.net",
@@ -48,10 +45,7 @@ CSP_DOCS = _policy(
     }
 )
 """FastAPI's /docs and /redoc pages, which load Swagger UI and ReDoc from a CDN."""
-
 DOCS_PATHS = frozenset({"/docs", "/docs/oauth2-redirect", "/redoc"})
-CSP_STATE_KEY = "riso_csp"
-"""Set in `scope["state"]` by the app that served the response, to pick its policy."""
 
 SECURITY_HEADERS = {
     "X-Content-Type-Options": "nosniff",
@@ -101,19 +95,13 @@ class SecurityHeadersMiddleware:
             await self.app(scope, receive, send)
             return
         path: str = scope["path"]
-        state: dict[str, Any] = scope.setdefault("state", {})
 
         async def send_with_headers(message: Message) -> None:
             if message["type"] == "http.response.start":
                 headers = MutableHeaders(scope=message)
                 for name, value in SECURITY_HEADERS.items():
                     headers.setdefault(name, value)
-                if path in DOCS_PATHS:
-                    policy = CSP_DOCS
-                elif state.get(CSP_STATE_KEY) == "legacy":
-                    policy = CSP_LEGACY
-                else:
-                    policy = CSP_STRICT
+                policy = CSP_DOCS if path in DOCS_PATHS else CSP_STRICT
                 headers.setdefault("Content-Security-Policy", policy)
                 if path == "/api" or path.startswith("/api/"):
                     headers.setdefault("Cache-Control", "no-store")
