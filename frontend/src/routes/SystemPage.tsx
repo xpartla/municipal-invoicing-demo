@@ -1,10 +1,11 @@
-import { Group, Select, Stack, Tabs, Text, Title } from '@mantine/core';
+import { Group, Select, Stack, Tabs, Title } from '@mantine/core';
 import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useListsOverview } from '../features/codelists/api';
 import { useMe } from '../features/identity/api';
+import { NumberSeriesPanel } from '../features/invoices/NumberSeriesPanel';
 import { inCustomer } from '../features/identity/capabilities';
 import { ConventionsEditor } from '../features/system/ConventionsEditor';
 import { HealthView } from '../features/system/HealthView';
@@ -64,7 +65,7 @@ export function SystemPage() {
           <ConventionsEditor customerId={customerId} year={year} canEdit={canEdit} />
         </Tabs.Panel>
         <Tabs.Panel value="series" pt="md">
-          <Text>{t('system.series.soon')}</Text>
+          <NumberSeriesPanel customerId={customerId} year={year} canEdit={canEdit} />
         </Tabs.Panel>
         <Tabs.Panel value="health" pt="md">
           <HealthView

@@ -35,11 +35,16 @@ import { useTranslation } from 'react-i18next';
 
 import { tokens } from '../app/theme';
 import { useLogout, useMe, type Me } from '../features/identity/api';
-import { currentCustomerId, worksAcrossCustomers } from '../features/identity/capabilities';
+import {
+  currentCustomerId,
+  inCustomer,
+  worksAcrossCustomers,
+} from '../features/identity/capabilities';
 import { ColorSchemeToggle } from './ColorSchemeToggle';
 import { CustomerSwitcher } from './CustomerSwitcher';
 import { ImpersonationBanner } from './ImpersonationBanner';
 import { menuFor, type Section } from './menu';
+import { ActionIconLink, ButtonLink } from './RouterLinks';
 
 /**
  * The application frame of plan §10.1: the left navbar (240 px, collapsible to icons, a
@@ -124,25 +129,52 @@ function ShellFor({ me }: { me: Me }) {
           </AppShell.Section>
         )}
         <AppShell.Section>
-          <Tooltip label={t('shell.newInvoiceSoon')} withArrow position="right">
-            {/* The wrapper keeps the tooltip working on the disabled button. */}
-            <div>
-              {collapsed ? (
-                <ActionIcon size="xl" disabled aria-label={t('shell.newInvoice')}>
-                  <IconFilePlus aria-hidden />
-                </ActionIcon>
-              ) : (
-                <Button
-                  fullWidth
-                  size="md"
-                  disabled
-                  leftSection={<IconFilePlus size={20} aria-hidden />}
+          {customerId && inCustomer(me, customerId, 'invoices.process') ? (
+            collapsed ? (
+              <Tooltip label={t('shell.newInvoice')} withArrow position="right">
+                <ActionIconLink
+                  size="xl"
+                  to="/c/$customerId/invoices/new"
+                  params={{ customerId }}
+                  aria-label={t('shell.newInvoice')}
+                  onClick={close}
                 >
-                  {t('shell.newInvoice')}
-                </Button>
-              )}
-            </div>
-          </Tooltip>
+                  <IconFilePlus aria-hidden />
+                </ActionIconLink>
+              </Tooltip>
+            ) : (
+              <ButtonLink
+                fullWidth
+                size="md"
+                to="/c/$customerId/invoices/new"
+                params={{ customerId }}
+                leftSection={<IconFilePlus size={20} aria-hidden />}
+                onClick={close}
+              >
+                {t('shell.newInvoice')}
+              </ButtonLink>
+            )
+          ) : (
+            <Tooltip label={t('shell.newInvoiceSoon')} withArrow position="right">
+              {/* The wrapper keeps the tooltip working on the disabled button. */}
+              <div>
+                {collapsed ? (
+                  <ActionIcon size="xl" disabled aria-label={t('shell.newInvoice')}>
+                    <IconFilePlus aria-hidden />
+                  </ActionIcon>
+                ) : (
+                  <Button
+                    fullWidth
+                    size="md"
+                    disabled
+                    leftSection={<IconFilePlus size={20} aria-hidden />}
+                  >
+                    {t('shell.newInvoice')}
+                  </Button>
+                )}
+              </div>
+            </Tooltip>
+          )}
         </AppShell.Section>
 
         <AppShell.Section grow mt="md" component={ScrollArea}>

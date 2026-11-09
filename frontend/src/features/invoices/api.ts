@@ -347,3 +347,49 @@ export function useNextInvoice(customerId: string, currentId: string, enabled: b
     enabled,
   });
 }
+
+export type NumberSeries = Schemas['NumberSeriesOut'];
+export type InvoiceDocument = Schemas['InvoiceDocument'];
+
+/** The year's invoice series with their counters, used numbers and gaps (Systém). */
+export function useNumberSeries(customerId: string, year: number) {
+  return useQuery({
+    queryKey: [...numberSeriesKey(customerId), year, 'list'],
+    queryFn: () =>
+      unwrap(
+        api.GET('/api/customers/{customer_id}/number-series', {
+          params: { path: { customer_id: customerId }, query: { year } },
+        }),
+      ),
+  });
+}
+
+/** The audited edit of a series' counter (plan §7.2). */
+export function useSetLastUsed(customerId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ series, year, lastUsed }: { series: string; year: number; lastUsed: number }) =>
+      unwrap(
+        api.PUT('/api/customers/{customer_id}/number-series/{series}/{year}', {
+          params: { path: { customer_id: customerId, series, year } },
+          body: { last_used: lastUsed },
+        }),
+      ),
+    onSuccess: () => client.invalidateQueries({ queryKey: numberSeriesKey(customerId) }),
+  });
+}
+
+/** Manual entry (plan §8.5): an invoice from typed fields, checked and coded at once. */
+export function useEnterInvoice(customerId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (fields: InvoiceDocument) =>
+      unwrap(
+        api.POST('/api/customers/{customer_id}/invoices', {
+          params: { path: { customer_id: customerId } },
+          body: fields,
+        }),
+      ),
+    onSuccess: () => client.invalidateQueries({ queryKey: invoicesKey(customerId) }),
+  });
+}

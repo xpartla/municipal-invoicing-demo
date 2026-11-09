@@ -45,6 +45,7 @@ import { ProvidersPage } from '../routes/admin/ProvidersPage';
 import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
 import { NewCustomerPage } from '../routes/NewCustomerPage';
+import { NewInvoicePage } from '../routes/NewInvoicePage';
 import { NotFoundPage } from '../routes/NotFoundPage';
 import { ProfilePage } from '../routes/ProfilePage';
 import { SystemPage } from '../routes/SystemPage';
@@ -211,6 +212,11 @@ const customerRoutes = [
     path: 'invoices',
     component: InvoicesPage,
     validateSearch: invoicesSearch,
+  }),
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'invoices/new',
+    component: NewInvoicePage,
   }),
   createRoute({
     getParentRoute: () => customerRoute,

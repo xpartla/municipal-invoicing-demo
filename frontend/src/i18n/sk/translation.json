@@ -52,7 +52,8 @@
     "decimal_parsing": "Toto nie je suma.",
     "extra_forbidden": "Toto pole sa tu nepoužíva.",
     "conventions": "Zvyklosti sa nedajú použiť s globálnymi pravidlami roka.",
-    "number_frozen": "Zaúčtovanie by posunulo číslo exportovanej, uhradenej alebo importovanej faktúry. Číslo dokladu zadajte ručne (Opraviť a prijať)."
+    "number_frozen": "Zaúčtovanie by posunulo číslo exportovanej, uhradenej alebo importovanej faktúry. Číslo dokladu zadajte ručne (Opraviť a prijať).",
+    "below_used": "Počítadlo nemôže byť nižšie ako najvyššie použité číslo radu."
   },
   "auth": {
     "login": {
@@ -528,7 +529,32 @@
       "health": "Kontrola znalostí"
     },
     "series": {
-      "soon": "Číselné rady dokladov s počítadlami a použitými číslami pribudnú spolu s faktúrami v databáze."
+      "intro": "Číselné rady faktúr obce na rok. Číslo dokladu je číslo napísané rukou na faktúre; počítadlo ho doplní, len keď chýba. Kým sa počítadlo nesynchronizuje s účtovným programom, môžete jeho stav upraviť (zmena sa zapíše do auditu).",
+      "empty": "Na tento rok nie sú nastavené číselné rady (chýbajú parametre).",
+      "tableLabel": "Číselné rady",
+      "series": "Rad",
+      "pattern": "Tvar čísla",
+      "lastUsed": "Posledné použité",
+      "next": "Ďalšie",
+      "used": "Použité čísla",
+      "usedCount": "Počet: {{count}}",
+      "showUsed": "Zobraziť použité čísla radu {{series}}",
+      "gaps": "Medzery",
+      "noGaps": "bez medzier",
+      "moreGaps": "a ďalšie ({{count}})",
+      "edit": "Upraviť počítadlo",
+      "editLabel": "Upraviť počítadlo radu {{series}}",
+      "editTitle": "Počítadlo radu {{series}} v roku {{year}}",
+      "editText": "Posledné použité poradové číslo. Ďalšie doklady bez rukou písaného čísla dostanú nasledujúce. Počítadlo nemôže ísť pod najvyššie použité číslo.",
+      "lastUsedLabel": "Posledné použité poradové číslo",
+      "saved": "Počítadlo je upravené.",
+      "usedTitle": "Použité čísla radu {{series}}",
+      "kinds": {
+        "booked": "zaúčtovaná faktúra",
+        "reserved": "ponechané pre faktúru so zrušeným zaúčtovaním",
+        "external": "z importu alebo z účtovného programu"
+      },
+      "frozen": "nemenné"
     },
     "parameters": {
       "intro": "Nastavenia, ktoré návrh zaúčtovania používa pre faktúry roka: či je obec platiteľom DPH, predvolený zdroj, rada a účet záväzku, a rada a účet záväzku školskej jedálne.",
@@ -1221,6 +1247,12 @@
       "done": "Súbor je pripravený. Faktúry sú označené ako exportované.",
       "download": "Stiahnuť {{file}}",
       "failed": "Export sa nepodaril."
+    },
+    "new": {
+      "title": "Nová faktúra",
+      "intro": "Nahrávanie skenov a e-faktúr pribudne v ďalšej etape. Faktúru zatiaľ zadajte ručne; po uložení ju program navrhne zaúčtovať.",
+      "save": "Uložiť a navrhnúť",
+      "saved": "Faktúra je zadaná."
     }
   },
   "invoice": {
@@ -1438,5 +1470,46 @@
       "accepted": "návrh prijatý",
       "corrected": "opravené"
     }
+  },
+  "fieldsForm": {
+    "handwritten": "Rukou na doklade",
+    "handwrittenDate": "Dátum zaúčtovania (rukou)",
+    "handwrittenNumber": "Poradové číslo dokladu (rukou)",
+    "handwrittenNumberHint": "napr. 144 pre FD/144/26; prázdne doplní počítadlo",
+    "supplier": "Dodávateľ",
+    "supplierName": "Názov",
+    "ico": "IČO",
+    "dic": "DIČ",
+    "icDph": "IČ DPH",
+    "iban": "IBAN",
+    "address": "Adresa",
+    "header": "Faktúra",
+    "number": "Číslo faktúry",
+    "vs": "Variabilný symbol",
+    "issueDate": "Dátum vystavenia",
+    "deliveryDate": "Dátum dodania",
+    "deliveryHint": "prázdny znamená dátum vystavenia",
+    "dueDate": "Dátum splatnosti",
+    "documentType": "Druh dokladu",
+    "invoice": "Faktúra",
+    "creditNote": "Dobropis",
+    "totals": "Sumy",
+    "net": "Bez DPH",
+    "vat": "DPH",
+    "gross": "Spolu na úhradu",
+    "lines": "Položky",
+    "lineDescription": "Popis položky {{n}}",
+    "lineGross": "Suma položky {{n}}",
+    "addLine": "Pridať položku",
+    "removeLine": "Odstrániť položku {{n}}",
+    "notes": "Poznámky na faktúre",
+    "notesHint": "napr. obdobie, zmluva; každá na samostatnom riadku",
+    "amountShape": "Zadajte sumu, napr. 93,71.",
+    "paste": "Vložiť JSON",
+    "pasteTitle": "Vložiť faktúru ako JSON",
+    "pasteText": "Vložte údaje faktúry vo formáte InvoiceDocument (napríklad výstup OCR). Formulár sa nimi vyplní; pred uložením ich môžete upraviť.",
+    "pasteLabel": "JSON faktúry",
+    "pasteFill": "Vyplniť formulár",
+    "pasteInvalid": "Text nie je platný JSON faktúry."
   }
 }
