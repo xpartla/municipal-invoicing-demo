@@ -538,7 +538,7 @@
       "next": "Ďalšie",
       "used": "Použité čísla",
       "usedCount": "Počet: {{count}}",
-      "showUsed": "Zobraziť použité čísla radu {{series}}",
+      "showUsed": "Počet: {{count}} – zobraziť použité čísla radu {{series}}",
       "gaps": "Medzery",
       "noGaps": "bez medzier",
       "moreGaps": "a ďalšie ({{count}})",

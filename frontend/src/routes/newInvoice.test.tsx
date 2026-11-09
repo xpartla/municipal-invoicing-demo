@@ -65,7 +65,9 @@ describe('the number series under Systém', () => {
     expect(fd).toHaveTextContent('FD/145/26, FD/146/26');
     expect(screen.getByText('bez medzier')).toBeVisible();
     expect(screen.queryByRole('button', { name: /Upraviť počítadlo/ })).toBeNull();
-    await user.click(screen.getByRole('button', { name: 'Zobraziť použité čísla radu FD' }));
+    await user.click(
+      screen.getByRole('button', { name: 'Počet: 2 – zobraziť použité čísla radu FD' }),
+    );
     const dialog = await screen.findByRole('dialog', { name: 'Použité čísla radu FD' });
     expect(dialog).toHaveTextContent('FD/144/26zaúčtovaná faktúra');
     expect(dialog).toHaveTextContent('FD/183/26z importu alebo z účtovného programunemenné');
@@ -100,7 +102,9 @@ describe('the number series under Systém', () => {
     await user.clear(input);
     await user.type(input, '230');
     await user.click(within(dialog).getByRole('button', { name: 'Uložiť' }));
-    expect(await screen.findByText('Počítadlo je upravené.')).toBeVisible();
+    const toast = (await screen.findByText('Počítadlo je upravené.')).closest('[role="alert"]');
+    if (!(toast instanceof HTMLElement)) throw new Error('no toast');
+    expect(within(toast).getByRole('button', { name: 'Zavrieť' })).toBeVisible();
     const puts = calls.filter((c) => c.method === 'PUT');
     expect(puts.map((c) => c.body)).toEqual([{ last_used: 100 }, { last_used: 230 }]);
     expect(puts[0]?.path).toBe(`${base}/number-series/FD/2026`);

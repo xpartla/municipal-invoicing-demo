@@ -48,7 +48,10 @@ async function clipboard(page: Page): Promise<string> {
   return page.evaluate(() => navigator.clipboard.readText());
 }
 
-test('the click-through on invoices in a customer of its own', async ({ page }, testInfo) => {
+test('the click-through on invoices in a customer of its own', async ({
+  page,
+  checkA11y,
+}, testInfo) => {
   test.setTimeout(120_000);
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
   const ico = COPY_ICO[testInfo.project.name];
@@ -149,14 +152,20 @@ test('the click-through on invoices in a customer of its own', async ({ page }, 
   const table = page.getByRole('region', { name: 'Tabuľka faktúr' });
   await expect(table.getByText('Zaúčtovaná', { exact: true })).toHaveCount(3);
 
-  // A pasted text that is not JSON is refused.
+  // A pasted text that is not JSON is refused. The form and the dialog pass axe.
   await openNav(page);
   await page.getByRole('link', { name: 'Nová faktúra' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Nová faktúra' })).toBeVisible();
+  await checkA11y();
   await page.getByRole('button', { name: 'Vložiť JSON' }).click();
   const dialog = page.getByRole('dialog', { name: 'Vložiť faktúru ako JSON' });
   await dialog.getByLabel('JSON faktúry').fill('{not json');
   await dialog.getByRole('button', { name: 'Vyplniť formulár' }).click();
   await expect(dialog.getByText('Text nie je platný JSON faktúry.')).toBeVisible();
+  await checkA11y();
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await checkA11y();
+  await page.emulateMedia({ colorScheme: 'light' });
   await dialog.getByRole('button', { name: 'Zrušiť' }).click();
 
   // The counters the bookings moved.
@@ -167,11 +176,13 @@ test('the click-through on invoices in a customer of its own', async ({ page }, 
   const fd = series.getByRole('row').filter({ hasText: 'FD/XXX/RR' });
   await expect(fd).toContainText('FD/252/26');
   await expect(fd).toContainText('FD/253/26');
-  await fd.getByRole('button', { name: 'Zobraziť použité čísla radu FD' }).click();
+  await checkA11y();
+  await fd.getByRole('button', { name: /zobraziť použité čísla radu FD$/ }).click();
   const used = page.getByRole('dialog', { name: 'Použité čísla radu FD' });
   await expect(used).toContainText('FD/144/26');
   await expect(used).toContainText('FD/145/26');
   await expect(used).toContainText('FD/252/26');
+  await checkA11y();
 });
 
 test('the seeded invoices and the code lists, as a reader', async ({ page }) => {

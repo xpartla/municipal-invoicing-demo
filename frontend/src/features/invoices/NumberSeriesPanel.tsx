@@ -105,7 +105,10 @@ export function NumberSeriesPanel({
                       <Button
                         size="compact-xs"
                         variant="subtle"
-                        aria-label={t('system.series.showUsed', { series: s.series })}
+                        aria-label={t('system.series.showUsed', {
+                          series: s.series,
+                          count: s.used.length,
+                        })}
                         onClick={() => {
                           setShowing(s);
                         }}
