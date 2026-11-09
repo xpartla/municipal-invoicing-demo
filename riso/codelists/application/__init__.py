@@ -18,10 +18,32 @@ from riso.codelists.application.conventions import (
     set_conventions,
 )
 from riso.codelists.application.health import knowledge_health
+from riso.codelists.application.imports import (
+    CandidateEntry,
+    EntryProblem,
+    ImportCheck,
+    ImportSource,
+    ImportWarning,
+    ListFinding,
+    apply_import,
+    check_import,
+)
+from riso.codelists.application.lists import EntryChangeView, EntryView, VersionView
 from riso.codelists.application.seeding import versions_from_bundle
 from riso.codelists.application.uow import CodelistsUnitOfWork
 
 __all__ = [
+    "CandidateEntry",
+    "EntryChangeView",
+    "EntryProblem",
+    "EntryView",
+    "ImportCheck",
+    "ImportSource",
+    "ImportWarning",
+    "ListFinding",
+    "VersionView",
+    "apply_import",
+    "check_import",
     "ConventionsView",
     "customer_knowledge",
     "get_conventions",

@@ -1,9 +1,11 @@
 """The difference between two versions of a list (plan §6.2, §10.6): entries added, removed
-and changed, matched by key. A row whose only change is its position is not a change."""
+and changed, matched by key. A row whose only change is its position is not a change, nor
+one whose only change is the file rows it was read from (`row`, `rows`): an import of the
+same list from another file changes nothing."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
-from riso.codelists.domain.entries import Entry
+from riso.codelists.domain.entries import AccountEntry, BudgetEntry, Entry
 from riso.codelists.domain.version import CodeListVersion
 
 
@@ -25,6 +27,15 @@ class VersionDiff:
         return not (self.added or self.removed or self.changed)
 
 
+def _content(entry: Entry) -> Entry:
+    """The entry without where it was read from."""
+    if isinstance(entry, AccountEntry):
+        return replace(entry, row=None)
+    if isinstance(entry, BudgetEntry):
+        return replace(entry, rows=())
+    return entry
+
+
 def diff_versions(old: CodeListVersion, new: CodeListVersion) -> VersionDiff:
     """What changed from `old` to `new`, both of the same list (kind, owner and year), in the
     order of `new` (removed entries in the order of `old`)."""
@@ -38,6 +49,6 @@ def diff_versions(old: CodeListVersion, new: CodeListVersion) -> VersionDiff:
         changed=tuple(
             EntryChange(e.key, before[e.key], e)
             for e in new.entries
-            if e.key in before and before[e.key] != e
+            if e.key in before and _content(before[e.key]) != _content(e)
         ),
     )

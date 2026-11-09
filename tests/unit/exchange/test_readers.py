@@ -105,6 +105,12 @@ def test_decimal_commas_do_not_fool_the_delimiter():
     assert read_workbook(data).delimiter == ";"
 
 
+def test_title_rows_above_the_header_do_not_fool_the_delimiter():
+    rows = [["Rozvrh, Obdobie: 08. 2026"], ["Obec"], ["SU", "AU", "Popis"], ["518", "001", "x"]]
+    book = read_workbook(_csv(rows))
+    assert book.delimiter == ";" and book.table.header_row == 3
+
+
 def test_a_single_column_file_reads_as_one_column():
     assert detect_delimiter("Popis\nEnergie\nSlužby\n") == ","
     data = "Popis\nEnergie\nSlužby\n".encode()

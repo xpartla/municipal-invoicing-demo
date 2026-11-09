@@ -13,8 +13,9 @@ undefined) goes to charset-normalizer. The wizard can override the choice.
 
 CSV delimiter. Each of `;`, `,`, tab and `|` is tried on the first records; a delimiter that
 splits every non-empty record into the same number (more than one) of fields fits, and the
-widest fit wins (the order above breaks ties). Without a fit, the delimiter splitting the
-most records alike wins. The wizard can override it too.
+widest fit wins (the order above breaks ties). Without a fit (title rows above the header
+have one field), the delimiter splitting the most records into the same number of fields
+wins. The wizard can override it too.
 
 XLSX is read by openpyxl (read-only, cached values, through defusedxml), XLS by xlrd. A whole
 number arrives as `int`, any other number as `Decimal` (from the float's shortest repr), a
@@ -151,12 +152,13 @@ def detect_delimiter(text: str) -> str:
             for record in _records(text, delimiter, SNIFF_RECORDS)
             if any(cell.strip() for cell in record)
         ]
-        if not widths:
+        split = [width for width in widths if width > 1]
+        if not split:
             continue
-        common, count = Counter(widths).most_common(1)[0]
-        if common > 1 and count == len(widths):
+        common, count = Counter(split).most_common(1)[0]
+        if count == len(widths):
             fits.append((common, -rank, delimiter))
-        elif common > 1:
+        else:
             alike.append((count, -rank, delimiter))
     if fits:
         return max(fits)[2]
