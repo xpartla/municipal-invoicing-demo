@@ -14,10 +14,11 @@ import { loginAs, openNav } from './pages/login';
 // cases, which is the click-through's "pasted invoice". "Ako to funguje" and "Vyhodnotenie"
 // follow their pages to P2-M8 and P2-M7; the OCR's JSON is on the detail's "Údaje faktúry".
 
-const COPY_ICO: Record<string, string> = {
-  phone: '99900106',
-  tablet: '99900114',
-  desktop: '99900122',
+// One IČO per width and attempt: a retry cannot copy under the IČO its first attempt took.
+const COPY_ICO: Record<string, readonly string[]> = {
+  phone: ['99900106', '99900165'],
+  tablet: ['99900114', '99900173'],
+  desktop: ['99900122', '99900181'],
 };
 
 const DATASET = join(import.meta.dirname, '..', '..', 'data', 'invoices');
@@ -44,6 +45,14 @@ async function paste(page: Page, json: string) {
   await expect(page.getByRole('tab', { name: 'Návrh a zaúčtovanie' })).toBeVisible();
 }
 
+/**
+ * Waits until the toasts have closed (they close after 4 or 8 s): one that starts fading out
+ * during a scan has blended colours, which axe reports as low contrast.
+ */
+async function toastsClosed(page: Page) {
+  await expect(page.locator('.mantine-Notification-root')).toHaveCount(0, { timeout: 10_000 });
+}
+
 async function clipboard(page: Page): Promise<string> {
   return page.evaluate(() => navigator.clipboard.readText());
 }
@@ -54,10 +63,11 @@ test('the click-through on invoices in a customer of its own', async ({
 }, testInfo) => {
   test.setTimeout(120_000);
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
-  const ico = COPY_ICO[testInfo.project.name];
+  const ico = COPY_ICO[testInfo.project.name]?.[testInfo.retry];
   if (!ico) throw new Error(`no IČO for the width ${testInfo.project.name}`);
   await loginAs(page, 'staff');
-  await copyBoldog(page, `Obec Faktúry ${testInfo.project.name}`, ico, { memory: true });
+  const name = `Obec Faktúry ${testInfo.project.name} ${String(testInfo.retry + 1)}`;
+  await copyBoldog(page, name, ico, { memory: true });
 
   // The proposal of the Telekom anchor, with its copy buttons and its explanation.
   const telekom = caseJson('anchor', 'anchor-telekom');
@@ -156,14 +166,17 @@ test('the click-through on invoices in a customer of its own', async ({
   await openNav(page);
   await page.getByRole('link', { name: 'Nová faktúra' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Nová faktúra' })).toBeVisible();
+  await toastsClosed(page);
   await checkA11y();
   await page.getByRole('button', { name: 'Vložiť JSON' }).click();
   const dialog = page.getByRole('dialog', { name: 'Vložiť faktúru ako JSON' });
   await dialog.getByLabel('JSON faktúry').fill('{not json');
   await dialog.getByRole('button', { name: 'Vyplniť formulár' }).click();
   await expect(dialog.getByText('Text nie je platný JSON faktúry.')).toBeVisible();
+  await toastsClosed(page);
   await checkA11y();
   await page.emulateMedia({ colorScheme: 'dark' });
+  await toastsClosed(page);
   await checkA11y();
   await page.emulateMedia({ colorScheme: 'light' });
   await dialog.getByRole('button', { name: 'Zrušiť' }).click();
@@ -176,12 +189,14 @@ test('the click-through on invoices in a customer of its own', async ({
   const fd = series.getByRole('row').filter({ hasText: 'FD/XXX/RR' });
   await expect(fd).toContainText('FD/252/26');
   await expect(fd).toContainText('FD/253/26');
+  await toastsClosed(page);
   await checkA11y();
   await fd.getByRole('button', { name: /zobraziť použité čísla radu FD$/ }).click();
   const used = page.getByRole('dialog', { name: 'Použité čísla radu FD' });
   await expect(used).toContainText('FD/144/26');
   await expect(used).toContainText('FD/145/26');
   await expect(used).toContainText('FD/252/26');
+  await toastsClosed(page);
   await checkA11y();
 });
 
