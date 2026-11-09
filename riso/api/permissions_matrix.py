@@ -121,6 +121,11 @@ MATRIX: dict[str, RouteAccess] = {
     "admin_templates.list": platform(Permission.GLOBAL_CODELISTS),
     "admin_templates.update": platform(Permission.TEMPLATES_CREATE_GLOBAL),
     "admin_templates.delete": platform(Permission.TEMPLATES_CREATE_GLOBAL),
+    "exports.preview": customer(Permission.INVOICES_PROCESS),
+    "exports.start": customer(Permission.INVOICES_PROCESS),
+    "exports.list": customer(Permission.CUSTOMER_READ),
+    "exports.get": customer(Permission.CUSTOMER_READ),
+    "exports.file": customer(Permission.CUSTOMER_READ),
     # jobs
     "jobs.get_customer": customer(Permission.CUSTOMER_READ),
     # Code lists.

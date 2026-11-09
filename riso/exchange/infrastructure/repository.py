@@ -6,12 +6,13 @@ from typing import Any
 from sqlalchemy import ColumnElement, and_, func, select
 from sqlalchemy.orm import Session
 
+from riso.exchange.domain.export import ExportFile, ExportFormat, ExportRun, ExportState
 from riso.exchange.domain.mapping import ColumnMapping, ImportType
 from riso.exchange.domain.report import DryRunReport
 from riso.exchange.domain.run import ImportFile, ImportRun, RunState
 from riso.exchange.domain.table import FileFormat, ReadOptions
 from riso.exchange.domain.templates import MappingTemplate, TemplateScope
-from riso.exchange.infrastructure.orm import ImportRunRow, MappingTemplateRow
+from riso.exchange.infrastructure.orm import ExportRunRow, ImportRunRow, MappingTemplateRow
 from riso.shared.errors import NotFound
 from riso.shared.uow import UnitOfWork
 
@@ -210,3 +211,104 @@ class SqlTemplateRepository:
             .order_by(MappingTemplateRow.name, MappingTemplateRow.id)
         )
         return [_template(row) for row in rows]
+
+
+def _export_values(run: ExportRun) -> dict[str, Any]:
+    return {
+        "customer_id": run.customer_id,
+        "format": run.format.value,
+        "state": run.state.value,
+        "scope": dict(run.scope),
+        "invoice_ids": list(run.invoice_ids),
+        "job_id": run.job_id,
+        "file_key": run.file.storage_key if run.file else None,
+        "file_sha256": run.file.sha256 if run.file else None,
+        "file_name": run.file.name if run.file else None,
+        "file_size": run.file.size if run.file else None,
+        "invoices": run.invoices,
+        "rows": run.rows,
+        "again": run.again,
+        "skipped": list(run.skipped),
+        "error": run.error,
+        "created_at": run.created_at,
+        "created_by": run.created_by,
+        "updated_at": run.updated_at,
+    }
+
+
+def _export(row: ExportRunRow) -> ExportRun:
+    file = None
+    if row.file_key is not None:
+        assert row.file_sha256 is not None and row.file_name is not None
+        file = ExportFile(row.file_key, row.file_sha256, row.file_name, row.file_size or 0)
+    return ExportRun(
+        id=row.id,
+        customer_id=row.customer_id,
+        format=ExportFormat(row.format),
+        scope=row.scope,
+        invoice_ids=tuple(row.invoice_ids),
+        state=ExportState(row.state),
+        created_at=row.created_at,
+        created_by=row.created_by,
+        updated_at=row.updated_at,
+        job_id=row.job_id,
+        file=file,
+        invoices=row.invoices,
+        rows=row.rows,
+        again=row.again,
+        skipped=tuple(row.skipped),
+        error=row.error,
+    )
+
+
+class SqlExportRunRepository:
+    def __init__(self, session: Session, uow: UnitOfWork) -> None:
+        self._session = session
+        self._uow = uow
+
+    def add(self, run: ExportRun) -> None:
+        self._session.add(ExportRunRow(id=run.id, **_export_values(run)))
+        self._session.flush()
+        self._uow.track(run)
+
+    def save(self, run: ExportRun) -> None:
+        row = self._row(run.customer_id, run.id)
+        for name, value in _export_values(run).items():
+            setattr(row, name, value)
+        self._session.flush()
+        self._uow.track(run)
+
+    def _row(self, customer_id: str, run_id: str) -> ExportRunRow:
+        row = self._session.scalar(
+            select(ExportRunRow).where(
+                ExportRunRow.id == run_id, ExportRunRow.customer_id == customer_id
+            )
+        )
+        if row is None:
+            raise NotFound(f"no export {run_id}")
+        return row
+
+    def get(self, customer_id: str, run_id: str) -> ExportRun:
+        run = _export(self._row(customer_id, run_id))
+        self._uow.track(run)
+        return run
+
+    def list(self, customer_id: str, *, offset: int, limit: int) -> list[ExportRun]:
+        rows = self._session.scalars(
+            select(ExportRunRow)
+            .where(ExportRunRow.customer_id == customer_id)
+            .order_by(ExportRunRow.created_at.desc(), ExportRunRow.id.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+        return [_export(row) for row in rows]
+
+    def count(self, customer_id: str) -> int:
+        return (
+            self._session.scalar(
+                select(func.count())
+                .select_from(ExportRunRow)
+                .where(ExportRunRow.customer_id == customer_id)
+            )
+            or 0
+        )

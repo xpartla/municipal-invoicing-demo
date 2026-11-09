@@ -24,6 +24,11 @@ from riso.invoicing.application.coding import (
     recode_invoice,
 )
 from riso.invoicing.application.entry import enter_invoice
+from riso.invoicing.application.exports import (
+    ExportableInvoice,
+    exportable,
+    record_exports,
+)
 from riso.invoicing.application.numbering import (
     SeriesView,
     UsedNumberView,
@@ -68,6 +73,9 @@ from riso.invoicing.application.views import (
 
 __all__ = [
     "BookInvoice",
+    "ExportableInvoice",
+    "exportable",
+    "record_exports",
     "HistoryView",
     "InvoiceFilter",
     "InvoicePage",

@@ -4733,6 +4733,279 @@
         }
       }
     },
+    "/api/customers/{customer_id}/exports/preview": {
+      "post": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.Preview",
+        "description": "What an export of the selection or filter would hold, for the dialog: the booked,\nexported and paid invoices, how many were exported before, how many are skipped.",
+        "operationId": "exports.preview",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportPreviewOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/exports": {
+      "post": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.Start",
+        "description": "Starts an export (plan §7.4): its `export_build` job writes the CSV or XLSX of the\nbooked invoices, keeps it in storage and records the export on each invoice. Follow the\nrun (`GET …/exports/{id}`) or the job. 422 when no booked invoice is chosen.",
+        "operationId": "exports.start",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportRunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.List",
+        "description": "The customer's exports, the newest first (Importy a exporty).",
+        "operationId": "exports.list",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportRunPageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/exports/{run_id}": {
+      "get": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.Get",
+        "operationId": "exports.get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportRunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/exports/{run_id}/file": {
+      "get": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.File",
+        "description": "The export's file, as written; 404 before the job wrote it.",
+        "operationId": "exports.file",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/customers/{customer_id}/code": {
       "post": {
         "tags": [
@@ -9692,6 +9965,527 @@
           "detail"
         ],
         "title": "Evidence"
+      },
+      "ExportFilterIn": {
+        "properties": {
+          "q": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          },
+          "supplier_ico": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Ico"
+          },
+          "state": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "State"
+          },
+          "series": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "channel": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Channel"
+          },
+          "needs_review": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Needs Review"
+          },
+          "uploaded_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded By"
+          },
+          "issue_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue From"
+          },
+          "issue_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue To"
+          },
+          "due_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due From"
+          },
+          "due_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due To"
+          },
+          "booking_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking From"
+          },
+          "booking_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking To"
+          },
+          "uploaded_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded From"
+          },
+          "uploaded_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded To"
+          },
+          "exported_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exported From"
+          },
+          "exported_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exported To"
+          },
+          "paid_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid From"
+          },
+          "paid_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid To"
+          },
+          "amount_min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Min"
+          },
+          "amount_max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Max"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget"
+          },
+          "md": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Md"
+          },
+          "dal": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ExportFilterIn",
+        "description": "The invoice table's filters, named as in its query (plan §10.3)."
+      },
+      "ExportIn": {
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "title": "Format",
+            "default": "csv"
+          },
+          "invoice_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 10000,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Ids"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExportFilterIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort",
+            "description": "e.g. booking_date, -document_number"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ExportIn",
+        "description": "A selection (`invoice_ids`), else the table's filter and sort (default: by booking\ndate)."
+      },
+      "ExportPreviewOut": {
+        "properties": {
+          "invoices": {
+            "type": "integer",
+            "title": "Invoices",
+            "description": "Booked, exported or paid invoices the file would hold"
+          },
+          "again": {
+            "type": "integer",
+            "title": "Again",
+            "description": "Of those, exported before"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped",
+            "description": "Found but not booked"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoices",
+          "again",
+          "skipped"
+        ],
+        "title": "ExportPreviewOut"
+      },
+      "ExportRunOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "title": "Format"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "done",
+              "failed"
+            ],
+            "title": "State"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Scope",
+            "description": "The selection or the filter asked for"
+          },
+          "requested": {
+            "type": "integer",
+            "title": "Requested"
+          },
+          "invoices": {
+            "type": "integer",
+            "title": "Invoices"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "again": {
+            "type": "integer",
+            "title": "Again"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped"
+          },
+          "file_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Name"
+          },
+          "file_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Size"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "format",
+          "state",
+          "scope",
+          "requested",
+          "invoices",
+          "rows",
+          "again",
+          "skipped",
+          "file_name",
+          "file_size",
+          "error",
+          "job_id",
+          "created_at",
+          "created_by",
+          "updated_at"
+        ],
+        "title": "ExportRunOut"
+      },
+      "ExportRunPageOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ExportRunOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "ExportRunPageOut"
       },
       "Fact": {
         "properties": {

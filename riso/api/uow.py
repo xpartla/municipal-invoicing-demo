@@ -10,7 +10,11 @@ infrastructure.
 from riso.api.adapters import CodelistSeriesPatterns, UowPrecedents, UserLogins, UserNames
 from riso.audit.infrastructure.log import SqlAuditLog, SqlAuditRecorder
 from riso.codelists.infrastructure.uow import SqlCodelistsUnitOfWork
-from riso.exchange.infrastructure.repository import SqlImportRunRepository, SqlTemplateRepository
+from riso.exchange.infrastructure.repository import (
+    SqlExportRunRepository,
+    SqlImportRunRepository,
+    SqlTemplateRepository,
+)
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
 from riso.invoicing.infrastructure.queries import SqlInvoiceQueries
 from riso.invoicing.infrastructure.uow import SqlInvoicingUnitOfWork
@@ -40,6 +44,7 @@ class AppUnitOfWork(
     logins: UserLogins
     imports: SqlImportRunRepository
     templates: SqlTemplateRepository
+    exports: SqlExportRunRepository
     queue: RepositoryJobQueue
     """Jobs queued here are committed with the change that needs them."""
     series_patterns: CodelistSeriesPatterns
@@ -67,6 +72,7 @@ class AppUnitOfWork(
         SqlInvoicingUnitOfWork._start(self)
         self.imports = SqlImportRunRepository(self.session, self)
         self.templates = SqlTemplateRepository(self.session, self)
+        self.exports = SqlExportRunRepository(self.session, self)
         self.queue = RepositoryJobQueue(
             SqlJobRepository(self.session), self._registry, self.clock, self.ids
         )

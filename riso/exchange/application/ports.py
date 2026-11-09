@@ -1,9 +1,11 @@
 """Ports of the exchange context: what its use cases need from adapters and other contexts."""
 
+from collections.abc import Sequence
 from typing import Protocol
 
 from riso.contracts import Counters, SupplierMemory
 from riso.exchange.domain.bookings import BookingsPlan
+from riso.exchange.domain.export import Cell, Column, ExportFormat
 from riso.exchange.domain.table import ReadOptions, Workbook
 
 
@@ -47,3 +49,14 @@ class CustomerDirectory(Protocol):
     def provider_of(self, customer_id: str) -> str | None:
         """The service provider the customer is assigned to, if any."""
         ...
+
+
+class ExportWriter(Protocol):
+    """Writes an export's rows as a file of the format (plan §7.4)."""
+
+    def write(
+        self,
+        export_format: ExportFormat,
+        columns: Sequence[Column],
+        rows: Sequence[Sequence[Cell]],
+    ) -> bytes: ...

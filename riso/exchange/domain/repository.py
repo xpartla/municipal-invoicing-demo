@@ -3,6 +3,7 @@ for a global list, to the platform (None); every method takes that owner (guide 
 
 from typing import Protocol
 
+from riso.exchange.domain.export import ExportRun
 from riso.exchange.domain.run import ImportRun
 from riso.exchange.domain.templates import MappingTemplate, TemplateScope
 
@@ -40,3 +41,19 @@ class TemplateRepository(Protocol):
     def owned(self, scope: TemplateScope, owner_id: str | None) -> list[MappingTemplate]:
         """The scope's and owner's templates, by name."""
         ...
+
+
+class ExportRunRepository(Protocol):
+    def add(self, run: ExportRun) -> None: ...
+
+    def save(self, run: ExportRun) -> None: ...
+
+    def get(self, customer_id: str, run_id: str) -> ExportRun:
+        """Raises `NotFound` when the customer has no such export."""
+        ...
+
+    def list(self, customer_id: str, *, offset: int, limit: int) -> list[ExportRun]:
+        """The customer's exports, the newest first."""
+        ...
+
+    def count(self, customer_id: str) -> int: ...

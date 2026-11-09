@@ -10,8 +10,10 @@ from dataclasses import dataclass, field
 from riso.api.adapters import DbReferenceData, DbSupplierState, SpaLinks, SqlTenancyDirectory
 from riso.api.uow import AppUnitOfWork
 from riso.exchange.application.copy import COPY_JOB, CopyJobs
+from riso.exchange.application.exports import EXPORT_JOB, ExportJobs
 from riso.exchange.application.imports import ImportJobs
 from riso.exchange.infrastructure.readers import FileTableReader
+from riso.exchange.infrastructure.writers import TableWriter
 from riso.identity.application.access import Grant, MembershipPolicy
 from riso.identity.application.ports import CustomerRef
 from riso.identity.domain import PasswordHasher, PasswordPolicy
@@ -119,6 +121,9 @@ class Services:
     def copy_jobs(self) -> CopyJobs:
         return CopyJobs(self.uow)
 
+    def export_jobs(self) -> ExportJobs:
+        return ExportJobs(self.uow, self.storage, TableWriter())
+
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(
             self.db, self.registry, clock=self.clock, ids=self.ids, immediate=immediate
@@ -171,4 +176,6 @@ def build_services(
         services.import_jobs().register(services.registry)
     if COPY_JOB not in services.registry.names():
         services.copy_jobs().register(services.registry)
+    if EXPORT_JOB not in services.registry.names():
+        services.export_jobs().register(services.registry)
     return services

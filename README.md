@@ -241,6 +241,11 @@ at `/docs` while the server runs. In short:
   of a picked budget position), `booking-preview`, `book`, `unbook`, `discard` and `pay`.
   Booking takes the handwritten number, or a place by date of supply, and may move later
   booked invoices up (plan §2 decision 61).
+- Exports (plan §7.4): `POST /api/customers/{id}/exports/preview` and `POST …/exports` take
+  `{format: csv|xlsx, invoice_ids}` or `{format, filter, sort}` (the table's filters); the
+  `export_build` job writes the file (CSV: UTF-8 with BOM, `;`, decimal comma; formulas
+  neutralised), keeps it in storage and marks the invoices exported. `GET …/exports`,
+  `…/exports/{id}` and `…/exports/{id}/file` read the history and the file.
 - `GET /api/customers/{id}/number-series?year=` lists the invoice series with their counters,
   the numbers held and the gaps; `PUT …/number-series/{series}/{year}` edits a counter
   (audited). Supplier memory and number series live in the database; the demo routes above

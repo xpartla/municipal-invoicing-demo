@@ -1507,6 +1507,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/exports/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Exports.Preview
+         * @description What an export of the selection or filter would hold, for the dialog: the booked,
+         *     exported and paid invoices, how many were exported before, how many are skipped.
+         */
+        post: operations["exports.preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Exports.List
+         * @description The customer's exports, the newest first (Importy a exporty).
+         */
+        get: operations["exports.list"];
+        put?: never;
+        /**
+         * Exports.Start
+         * @description Starts an export (plan §7.4): its `export_build` job writes the CSV or XLSX of the
+         *     booked invoices, keeps it in storage and records the export on each invoice. Follow the
+         *     run (`GET …/exports/{id}`) or the job. 422 when no booked invoice is chosen.
+         */
+        post: operations["exports.start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/exports/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Exports.Get */
+        get: operations["exports.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/exports/{run_id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Exports.File
+         * @description The export's file, as written; 404 before the job wrote it.
+         */
+        get: operations["exports.file"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/customers/{customer_id}/code": {
         parameters: {
             query?: never;
@@ -3122,6 +3206,158 @@ export interface components {
             source: "supplier_memory" | "rule" | "lexicon" | "similarity" | "handwritten" | "counter" | "invoice";
             /** Detail */
             detail: string;
+        };
+        /**
+         * ExportFilterIn
+         * @description The invoice table's filters, named as in its query (plan §10.3).
+         */
+        ExportFilterIn: {
+            /** Q */
+            q?: string | null;
+            /** Supplier Ico */
+            supplier_ico?: string | null;
+            /** State */
+            state?: string[];
+            /** Series */
+            series?: string[];
+            /** Channel */
+            channel?: string[];
+            /** Needs Review */
+            needs_review?: boolean | null;
+            /** Uploaded By */
+            uploaded_by?: string | null;
+            /** Issue From */
+            issue_from?: string | null;
+            /** Issue To */
+            issue_to?: string | null;
+            /** Due From */
+            due_from?: string | null;
+            /** Due To */
+            due_to?: string | null;
+            /** Booking From */
+            booking_from?: string | null;
+            /** Booking To */
+            booking_to?: string | null;
+            /** Uploaded From */
+            uploaded_from?: string | null;
+            /** Uploaded To */
+            uploaded_to?: string | null;
+            /** Exported From */
+            exported_from?: string | null;
+            /** Exported To */
+            exported_to?: string | null;
+            /** Paid From */
+            paid_from?: string | null;
+            /** Paid To */
+            paid_to?: string | null;
+            /** Amount Min */
+            amount_min?: number | string | null;
+            /** Amount Max */
+            amount_max?: number | string | null;
+            /** Budget */
+            budget?: string | null;
+            /** Md */
+            md?: string | null;
+            /** Dal */
+            dal?: string | null;
+        };
+        /**
+         * ExportIn
+         * @description A selection (`invoice_ids`), else the table's filter and sort (default: by booking
+         *     date).
+         */
+        ExportIn: {
+            /**
+             * Format
+             * @default csv
+             * @enum {string}
+             */
+            format: "csv" | "xlsx";
+            /** Invoice Ids */
+            invoice_ids?: string[] | null;
+            filter?: components["schemas"]["ExportFilterIn"] | null;
+            /**
+             * Sort
+             * @description e.g. booking_date, -document_number
+             */
+            sort?: string | null;
+        };
+        /** ExportPreviewOut */
+        ExportPreviewOut: {
+            /**
+             * Invoices
+             * @description Booked, exported or paid invoices the file would hold
+             */
+            invoices: number;
+            /**
+             * Again
+             * @description Of those, exported before
+             */
+            again: number;
+            /**
+             * Skipped
+             * @description Found but not booked
+             */
+            skipped: number;
+        };
+        /** ExportRunOut */
+        ExportRunOut: {
+            /** Id */
+            id: string;
+            /**
+             * Format
+             * @enum {string}
+             */
+            format: "csv" | "xlsx";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "queued" | "done" | "failed";
+            /**
+             * Scope
+             * @description The selection or the filter asked for
+             */
+            scope: {
+                [key: string]: unknown;
+            };
+            /** Requested */
+            requested: number;
+            /** Invoices */
+            invoices: number;
+            /** Rows */
+            rows: number;
+            /** Again */
+            again: number;
+            /** Skipped */
+            skipped: number;
+            /** File Name */
+            file_name: string | null;
+            /** File Size */
+            file_size: number | null;
+            /** Error */
+            error: string | null;
+            /** Job Id */
+            job_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created By */
+            created_by: string | null;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** ExportRunPageOut */
+        ExportRunPageOut: {
+            /** Items */
+            items: components["schemas"]["ExportRunOut"][];
+            /** Total */
+            total: number;
         };
         /**
          * Fact
@@ -7697,6 +7933,174 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "exports.preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportPreviewOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "exports.list": {
+        parameters: {
+            query?: {
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportRunPageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "exports.start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportRunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "exports.get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExportRunOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "exports.file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
             };
             /** @description Validation Error */
             422: {
