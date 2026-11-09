@@ -6,7 +6,6 @@ copying twice. Staff copy within their provider, admins anywhere."""
 import pytest
 
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.audit.domain.event import AuditFilter
 from riso.codelists.domain import ListKind, VersionOrigin
 from riso.exchange.application.copy import COPY_JOB, CopyCustomer, CopyOptions, copy_customer
@@ -35,9 +34,9 @@ def _ctx(services, user_id):
 
 
 @pytest.fixture
-def env(tmp_path):
+def env(tmp_path, seeded_copy):
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password=PASSWORD, hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     with services.uow() as uow:
         now = services.clock.now()

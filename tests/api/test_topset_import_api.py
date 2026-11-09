@@ -9,7 +9,6 @@ from riso import paths
 from riso.api import Settings, create_app
 from riso.api.adapters import bundle_entity
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.codelists import BundleCache, reference_bundle
 from riso.contracts import ReferenceBundle
 from riso.identity.infrastructure.hashing import Argon2Hasher
@@ -27,12 +26,14 @@ FILES = (
 )
 
 
-def test_importing_topsets_exports_through_http_gives_the_committed_bundle(raw_dir, tmp_path):
+def test_importing_topsets_exports_through_http_gives_the_committed_bundle(
+    raw_dir, tmp_path, seeded_copy
+):
     committed = ReferenceBundle.model_validate_json(
         (paths.BUNDLES_DIR / "00305863" / "2026-08.json").read_bytes()
     )
     settings = PlatformSettings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password=SEED_PASSWORD, hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     app = create_app(
         Settings(var_dir=settings.var_dir, platform=settings, run_worker=False), services=services

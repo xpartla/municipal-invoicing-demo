@@ -21,6 +21,7 @@ from riso.invoicing.application.coding import (
     line_for,
     recode_invoice,
 )
+from riso.invoicing.application.entry import enter_invoice
 from riso.invoicing.application.numbering import (
     SeriesView,
     UsedNumberView,
@@ -62,6 +63,7 @@ __all__ = [
     "check_invoice",
     "code_stored",
     "discard_invoice",
+    "enter_invoice",
     "line_for",
     "mark_paid",
     "mark_paid_many",

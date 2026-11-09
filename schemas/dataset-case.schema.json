@@ -233,6 +233,41 @@
       "title": "Handwritten",
       "type": "object"
     },
+    "Intake": {
+      "additionalProperties": false,
+      "description": "How the invoice came in (plan §4.3).",
+      "properties": {
+        "channel": {
+          "enum": [
+            "scan",
+            "digital_pdf",
+            "einvoice",
+            "manual",
+            "dataset"
+          ],
+          "title": "Channel",
+          "type": "string"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The file's kind when there is one: 'pdf', 'jpeg', 'ubl' …",
+          "title": "Format"
+        }
+      },
+      "required": [
+        "channel"
+      ],
+      "title": "Intake",
+      "type": "object"
+    },
     "InvoiceCustomer": {
       "additionalProperties": false,
       "properties": {
@@ -306,6 +341,18 @@
         },
         "ocr_meta": {
           "$ref": "#/$defs/OcrMeta"
+        },
+        "intake": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Intake"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How it came in; absent in the dataset and older documents"
         }
       },
       "required": [

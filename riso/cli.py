@@ -387,7 +387,7 @@ def _seed(args: argparse.Namespace) -> int:
     except SeedRefused as exc:
         print(f"riso seed: {exc}", file=sys.stderr)
         return 2
-    print("seeded:", ", ".join(done.customers))
+    print("seeded:", ", ".join(done.customers), f"({done.invoices} invoices for Obec Boldog)")
     width = max(len(email) for _, email, _ in done.users.values())
     for key, (_, email, password) in done.users.items():
         shown = password if done.generated_passwords else "(RISO_SEED_PASSWORD)"

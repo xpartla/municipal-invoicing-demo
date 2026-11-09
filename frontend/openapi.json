@@ -4923,6 +4923,59 @@
         }
       }
     },
+    "/api/customers/{customer_id}/invoices": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Create",
+        "description": "Manual entry (plan §8.5): an invoice from typed fields, checked and coded at once.\nThe fields' `id` is replaced by the new invoice's.",
+        "operationId": "invoices.create",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/customers/{customer_id}/invoices/{invoice_id}/check": {
       "post": {
         "tags": [
@@ -9590,6 +9643,40 @@
         ],
         "title": "IngestWarning"
       },
+      "Intake": {
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "scan",
+              "digital_pdf",
+              "einvoice",
+              "manual",
+              "dataset"
+            ],
+            "title": "Channel"
+          },
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format",
+            "description": "The file's kind when there is one: 'pdf', 'jpeg', 'ubl' …"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "channel"
+        ],
+        "title": "Intake",
+        "description": "How the invoice came in (plan §4.3)."
+      },
       "InviteIn": {
         "properties": {
           "email": {
@@ -9701,6 +9788,17 @@
           },
           "ocr_meta": {
             "$ref": "#/components/schemas/OcrMeta"
+          },
+          "intake": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Intake"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How it came in; absent in the dataset and older documents"
           }
         },
         "additionalProperties": false,

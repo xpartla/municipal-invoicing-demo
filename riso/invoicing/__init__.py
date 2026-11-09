@@ -15,6 +15,7 @@ from riso.invoicing.application import (
     code_document,
     copy_memory,
     counters,
+    enter_invoice,
     restore_state,
     supplier_memory,
 )
@@ -30,6 +31,7 @@ __all__ = [
     "code_document",
     "copy_memory",
     "counters",
+    "enter_invoice",
     "restore_state",
     "supplier_memory",
 ]

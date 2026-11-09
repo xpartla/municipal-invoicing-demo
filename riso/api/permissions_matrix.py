@@ -142,6 +142,7 @@ MATRIX: dict[str, RouteAccess] = {
     "admin_codelists.versions": platform(Permission.GLOBAL_CODELISTS),
     # Invoicing.
     "coding.code": customer(Permission.INVOICES_PROCESS),
+    "invoices.create": customer(Permission.INVOICES_PROCESS),
     "invoices.check": customer(Permission.INVOICES_PROCESS),
     "invoices.recode": customer(Permission.INVOICES_PROCESS),
     "invoices.line": customer(Permission.INVOICES_PROCESS),

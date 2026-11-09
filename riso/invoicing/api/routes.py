@@ -27,6 +27,7 @@ from riso.invoicing.application import (
     check_invoice,
     code_document,
     discard_invoice,
+    enter_invoice,
     line_for,
     list_series,
     mark_paid,
@@ -97,6 +98,16 @@ def set_number_series_last_used(
 
 Process = Annotated[Caller, Depends(customer_context(Permission.INVOICES_PROCESS))]
 INVOICE = "/customers/{customer_id}/invoices/{invoice_id}"
+
+
+@router.post("/customers/{customer_id}/invoices", name="invoices.create", status_code=201)
+def create(
+    caller: Process, services: ServicesDep, customer_id: str, body: InvoiceDocument
+) -> InvoiceOut:
+    """Manual entry (plan §8.5): an invoice from typed fields, checked and coded at once.
+    The fields' `id` is replaced by the new invoice's."""
+    view = enter_invoice(caller.ctx, services.uow(), services.reference_data(), customer_id, body)
+    return InvoiceOut.of(view)
 
 
 @router.post(f"{INVOICE}/check", name="invoices.check")

@@ -11,7 +11,6 @@ import pytest
 
 from riso.api.composition import build_services
 from riso.api.importing import run_import
-from riso.api.seed import seed
 from riso.audit.domain.event import AuditFilter
 from riso.dataset import load_cases
 from riso.exchange.domain.mapping import ImportType
@@ -94,9 +93,9 @@ def _csv(rows) -> bytes:
 
 
 @pytest.fixture
-def env(tmp_path):
+def env(tmp_path, seeded_copy):
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password=PASSWORD, hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     with services.uow(immediate=False) as uow:
         user = uow.users.get(done.users["user"][0])

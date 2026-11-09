@@ -9,7 +9,6 @@ import pytest
 
 from riso import paths
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.audit.domain.event import AuditFilter
 from riso.contracts import Counters, Precedent, SupplierMemory
 from riso.identity.infrastructure.hashing import Argon2Hasher
@@ -25,9 +24,9 @@ T0 = datetime(2026, 7, 1, 8, tzinfo=UTC)
 
 
 @pytest.fixture
-def env(tmp_path):
+def env(tmp_path, seeded_copy):
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password="Ukážkové-heslo-2026", hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     yield services, done.customers["Obec Boldog"]
     services.close()

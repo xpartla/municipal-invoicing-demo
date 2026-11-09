@@ -1573,6 +1573,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/invoices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Create
+         * @description Manual entry (plan §8.5): an invoice from typed fields, checked and coded at once.
+         *     The fields' `id` is replaced by the new invoice's.
+         */
+        post: operations["invoices.create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/customers/{customer_id}/invoices/{invoice_id}/check": {
         parameters: {
             query?: never;
@@ -3237,6 +3258,22 @@ export interface components {
             /** Message */
             message: string;
         };
+        /**
+         * Intake
+         * @description How the invoice came in (plan §4.3).
+         */
+        Intake: {
+            /**
+             * Channel
+             * @enum {string}
+             */
+            channel: "scan" | "digital_pdf" | "einvoice" | "manual" | "dataset";
+            /**
+             * Format
+             * @description The file's kind when there is one: 'pdf', 'jpeg', 'ubl' …
+             */
+            format?: string | null;
+        };
         /** InviteIn */
         InviteIn: {
             /** Email */
@@ -3282,6 +3319,8 @@ export interface components {
              */
             free_text?: string[];
             ocr_meta: components["schemas"]["OcrMeta"];
+            /** @description How it came in; absent in the dataset and older documents */
+            intake?: components["schemas"]["Intake"] | null;
         };
         /** InvoiceHeader */
         InvoiceHeader: {
@@ -7460,6 +7499,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NumberSeriesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceDocument"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOut"];
                 };
             };
             /** @description Validation Error */

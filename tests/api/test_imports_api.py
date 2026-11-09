@@ -10,7 +10,6 @@ import pytest
 
 from riso.api import Settings, create_app
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.exchange.domain.templates import BOOKINGS_HEADER
 from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.platform import Settings as PlatformSettings
@@ -21,9 +20,9 @@ CHART_HEADER = ["Syntetický účet", "Analytický účet", "Druh účtu", "Náz
 
 
 @pytest.fixture
-def env(tmp_path):
+def env(tmp_path, seeded_copy):
     settings = PlatformSettings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password=SEED_PASSWORD, hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     app = create_app(
         Settings(var_dir=settings.var_dir, platform=settings, run_worker=False), services=services

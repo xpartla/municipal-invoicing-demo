@@ -10,7 +10,6 @@ import openpyxl
 import pytest
 
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.audit.domain.event import AuditFilter
 from riso.codelists.application.lists import EditEntry, edit_list
 from riso.codelists.domain import ListKind, VersionOrigin
@@ -48,9 +47,9 @@ YEAR = 2026
 
 
 @pytest.fixture
-def env(tmp_path):
+def env(tmp_path, seeded_copy):
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password=PASSWORD, hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     yield services, done
     services.close()

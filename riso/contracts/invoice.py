@@ -89,6 +89,15 @@ class OcrMeta(Contract):
         return value
 
 
+class Intake(Contract):
+    """How the invoice came in (plan §4.3)."""
+
+    channel: Literal["scan", "digital_pdf", "einvoice", "manual", "dataset"]
+    format: str | None = Field(
+        default=None, description="The file's kind when there is one: 'pdf', 'jpeg', 'ubl' …"
+    )
+
+
 class InvoiceDocument(Contract):
     id: Slug = Field(description="Stable identifier, e.g. the dataset case id")
     supplier: InvoiceSupplier
@@ -102,3 +111,6 @@ class InvoiceDocument(Contract):
         description="Anything else the OCR captured: contract references, period served",
     )
     ocr_meta: OcrMeta
+    intake: Intake | None = Field(
+        default=None, description="How it came in; absent in the dataset and older documents"
+    )

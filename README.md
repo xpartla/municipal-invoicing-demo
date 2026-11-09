@@ -72,7 +72,8 @@ RISO_ENV=dev RISO_SEED_PASSWORD='Ukážkové-heslo-2026' uv run riso seed --rese
 
 `riso seed` migrates, then creates Obec Boldog with its 2026 parameters and its 2026 code lists
 (version 1 of each, from the committed bundle `data/bundles/00305863/2026-08.json`), its supplier
-memory and number series (from `data/initial_state/00305863/`), the global
+memory and number series (from `data/initial_state/00305863/`), the dataset's 74 invoices as
+its own (channel `dataset`, checked and coded, without their expected codings), the global
 lists of each year in `data/global/` (EK, COFOG, funding sources, the framework chart; sources in
 `data/global/2026/README.md`; each goes through the import tool with its built-in template, so
 its file lands in `var/files/global/`), the made-up provider
@@ -230,6 +231,11 @@ at `/docs` while the server runs. In short:
   are jobs of the worker; the run's state and report show their outcome. The global lists'
   imports are the same under `/api/admin/imports`. `POST /api/providers/{id}/customers/copy`
   starts a copy, followed at `GET /api/customers/{id}/jobs/{job_id}`.
+- Invoices: `POST /api/customers/{id}/invoices` enters one from typed fields (checked and
+  coded at once); under `…/invoices/{invoice_id}/`, `check`, `recode`, `line` (the whole line
+  of a picked budget position), `booking-preview`, `book`, `unbook`, `discard` and `pay`.
+  Booking takes the handwritten number, or a place by date of supply, and may move later
+  booked invoices up (plan §2 decision 61).
 - `GET /api/customers/{id}/number-series?year=` lists the invoice series with their counters,
   the numbers held and the gaps; `PUT …/number-series/{series}/{year}` edits a counter
   (audited). Supplier memory and number series live in the database; the demo routes above

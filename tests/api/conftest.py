@@ -14,6 +14,7 @@ from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.platform import Settings as PlatformSettings
 from riso.platform.migrations import upgrade
 from riso.shared import FixedClock
+from tests.conftest import SEED_PASSWORD, copy_seeded
 from tests.factories import PASSWORD
 
 T0 = datetime(2026, 6, 11, 8, 0, tzinfo=UTC)
@@ -103,17 +104,13 @@ def new_client(app):
     return make
 
 
-SEED_PASSWORD = "Ukážkové-heslo-2026"
-
-
 @pytest.fixture(scope="module")
-def seeded(tmp_path_factory):
-    """The app on a database `riso seed` filled: Boldog with its lists, parameters and
-    conventions, the global lists, a login per role. (app, the seed's result, var dir)."""
-    from riso.api.seed import seed
-
+def seeded(tmp_path_factory, seed_template):
+    """The app on a database `riso seed` filled: Boldog with its lists, parameters,
+    conventions and invoices, the global lists, a login per role. (app, the seed's result,
+    var dir). Shared by the module's tests."""
     settings = PlatformSettings(var_dir=tmp_path_factory.mktemp("seeded") / "var", env="test")
-    done = seed(settings, password=SEED_PASSWORD, hasher=Argon2Hasher.fast())
+    done = copy_seeded(seed_template, settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     app = create_app(
         Settings(var_dir=settings.var_dir, platform=settings, run_worker=False), services=services
@@ -135,16 +132,6 @@ def login(seeded):
     return make
 
 
-@pytest.fixture(scope="session")
-def seeded_template(tmp_path_factory):
-    """A var directory `riso seed` filled once, copied by `fresh`."""
-    from riso.api.seed import seed
-
-    settings = PlatformSettings(var_dir=tmp_path_factory.mktemp("template") / "var", env="test")
-    done = seed(settings, password=SEED_PASSWORD, hasher=Argon2Hasher.fast())
-    return settings.var_dir, done
-
-
 class Fresh:
     """A seeded app of its own, for tests that change invoices, numbers or memory."""
 
@@ -159,10 +146,9 @@ class Fresh:
 
 
 @pytest.fixture
-def fresh(seeded_template, tmp_path):
-    source, done = seeded_template
+def fresh(seed_template, tmp_path):
     var_dir = tmp_path / "var"
-    shutil.copytree(source, var_dir)
+    done = copy_seeded(seed_template, var_dir)
     settings = PlatformSettings(var_dir=var_dir, env="test")
     services = build_services(settings, hasher=Argon2Hasher.fast())
     app = create_app(

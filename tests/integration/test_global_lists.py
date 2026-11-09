@@ -15,6 +15,7 @@ from riso.codelists.domain import FindingCode, ListKind, Severity, VersionOrigin
 from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.platform import Settings
 from riso.shared import AllowAll, RequestContext
+from tests.conftest import copy_seeded
 
 CTX = RequestContext(request_id="test", actor_id=None, policy=AllowAll())
 ROWS = {
@@ -75,9 +76,9 @@ def test_a_wrong_header_stops_the_seed(tmp_path):
 
 
 @pytest.fixture(scope="module")
-def boldog_findings(tmp_path_factory):
+def boldog_findings(tmp_path_factory, seed_template):
     settings = Settings(var_dir=tmp_path_factory.mktemp("seeded") / "var", env="test")
-    done = seed(settings, password="Ukážkové-heslo-2026", hasher=Argon2Hasher.fast())
+    done = copy_seeded(seed_template, settings.var_dir)
     services = build_services(settings)
     try:
         with services.uow(immediate=False) as uow:
