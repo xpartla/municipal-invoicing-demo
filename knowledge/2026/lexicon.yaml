@@ -173,8 +173,6 @@ concepts:
     terms: ["projektov* dokumentaci*", "projekt* stavb*", "uzemn* plan*", "studi*"]
     ek: ["716000", "637011"]
     text: "projektová dokumentácia"
-  municipal_company:
-    terms: ["obecn* podnik*", "obecn* sluzb*"]
   flat_fee:
     terms: ["pausal*", "mesacn* poplat*", "za mesiac", "mesacne"]
   grant:

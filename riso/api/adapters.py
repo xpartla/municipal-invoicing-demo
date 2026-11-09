@@ -1,17 +1,31 @@
 """Adapters between contexts, wired by the composition root."""
 
-from collections.abc import Collection
+from collections.abc import Callable, Collection
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
+from riso.codelists import BundleEntity, customer_knowledge, reference_bundle
+from riso.contracts import Counters, EntityContext, ReferenceBundle, SupplierMemory
 from riso.identity.application.ports import CustomerRef, ProviderRef
 from riso.identity.domain import MembershipScope, ScopeKind, UserStatus
 from riso.identity.infrastructure.repository import SqlUserRepository
+from riso.knowledge import KnowledgeBase
 from riso.platform.db import Database
+from riso.reference import UnknownEntity
 from riso.shared.clock import Clock
+from riso.shared.context import RequestContext
+from riso.shared.errors import InvalidState, NotFound
+from riso.shared.values import Ico
+from riso.store import StateStore
+from riso.tenancy.application import CustomerView, get_customer, get_parameters
 from riso.tenancy.application.ports import LoginRef
 from riso.tenancy.domain import CustomerStatus, ProviderStatus
+
+if TYPE_CHECKING:
+    from riso.api.uow import AppUnitOfWork
+
 from riso.tenancy.infrastructure.orm import (
     CustomerRow,
     ProviderAssignmentRow,
@@ -162,3 +176,119 @@ class UserLogins:
             user.remove_membership(scope)
             self._users.save(user)
         return len(users)
+
+
+def bundle_entity(customer: CustomerView) -> BundleEntity:
+    """The customer as its reference bundle names it: the address on one line, the way the
+    chart of accounts' title writes it ('Boldog 89, 925 26 Boldog')."""
+    address = customer.address
+    line = None
+    if address is not None:
+        postal = (
+            f"{address.postal_code[:3]} {address.postal_code[3:]}"
+            if address.country == "SK"
+            else address.postal_code
+        )
+        line = f"{address.street}, {postal} {address.city}"
+    return BundleEntity(ico=customer.ico, name=customer.name, address=line)
+
+
+class DbReferenceData:
+    """The invoicing context's `ReferenceData` from the database: the customer and its
+    parameters (tenancy), the bundle of its active code lists and its merged knowledge
+    (codelists). Each call runs its own read-only unit of work."""
+
+    def __init__(self, uow: Callable[[], "AppUnitOfWork"]) -> None:
+        self._uow = uow
+
+    def _customer(self, ctx: RequestContext, customer_id: str) -> CustomerView:
+        return get_customer(ctx, self._uow(), customer_id)
+
+    def bundle(self, ctx: RequestContext, customer_id: str, year: int) -> ReferenceBundle:
+        entity = bundle_entity(self._customer(ctx, customer_id))
+        return reference_bundle(ctx, self._uow(), customer_id, year, entity)
+
+    def entity_context(self, ctx: RequestContext, customer_id: str, year: int) -> EntityContext:
+        customer = self._customer(ctx, customer_id)
+        try:
+            parameters = get_parameters(ctx, self._uow(), customer_id, year)
+        except NotFound as exc:
+            raise InvalidState(f"customer {customer_id} has no parameters for {year}") from exc
+        period = self.bundle(ctx, customer_id, year).period
+        return EntityContext.model_validate(
+            {
+                "ico": customer.ico,
+                "name": customer.name,
+                "budget_year": year,
+                "reference_period": period,
+                **parameters.values,
+            }
+        )
+
+    def knowledge(self, ctx: RequestContext, customer_id: str, year: int) -> KnowledgeBase:
+        return customer_knowledge(ctx, self._uow(), customer_id, year)[0]
+
+
+class DemoSupplierState:
+    """The invoicing context's `SupplierState` from the demo's files until P2-M4: the
+    customer's supplier memory and counters in `var/<IČO>/`, else `data/initial_state/`,
+    else empty."""
+
+    def __init__(self, store: StateStore, ico_of: Callable[[str], str]) -> None:
+        self._store = store
+        self._ico_of = ico_of
+
+    def memory(self, customer_id: str) -> SupplierMemory:
+        ico = self._ico_of(customer_id)
+        try:
+            return self._store.supplier_memory(ico)
+        except FileNotFoundError:
+            return SupplierMemory(entity_ico=ico)
+
+    def counters(self, customer_id: str) -> Counters:
+        ico = self._ico_of(customer_id)
+        try:
+            return self._store.counters(ico)
+        except FileNotFoundError:
+            return Counters(entity_ico=ico, last_used={})
+
+
+class DatabaseReferenceSource:
+    """The evaluation's `ReferenceSource` on the database (`riso eval --source db`): the
+    active customer with the IČO, its parameters of its newest year, the bundle of its active
+    code lists for that year, and its merged knowledge. The memory stays the evaluation's
+    own (data/initial_state), never the database's."""
+
+    def __init__(
+        self, uow: Callable[[], "AppUnitOfWork"], reference: DbReferenceData, ctx: RequestContext
+    ) -> None:
+        self._uow = uow
+        self._reference = reference
+        self._ctx = ctx
+
+    def _customer(self, ico: str) -> tuple[str, int]:
+        with self._uow() as uow:
+            customer = uow.customers.find_active_by_ico(Ico(ico))
+            years = uow.parameters.years(customer.id) if customer else []
+        if customer is None or not years:
+            raise UnknownEntity(f"no customer with parameters for IČO {ico} in the database")
+        return customer.id, years[-1]
+
+    def entities(self) -> list[str]:
+        with self._uow() as uow:
+            return sorted(c.ico.value for c in uow.customers.find())
+
+    def context(self, ico: str) -> EntityContext:
+        customer_id, year = self._customer(ico)
+        return self._reference.entity_context(self._ctx, customer_id, year)
+
+    def bundle(self, ico: str, period: str | None = None) -> ReferenceBundle:
+        customer_id, year = self._customer(ico)
+        bundle = self._reference.bundle(self._ctx, customer_id, year)
+        if period is not None and period != bundle.period:
+            raise UnknownEntity(f"the database's lists for {ico} are of {bundle.period}")
+        return bundle
+
+    def knowledge(self, ico: str, year: int) -> KnowledgeBase:
+        customer_id, _ = self._customer(ico)
+        return self._reference.knowledge(self._ctx, customer_id, year)

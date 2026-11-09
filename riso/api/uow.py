@@ -9,6 +9,7 @@ infrastructure.
 
 from riso.api.adapters import UserLogins
 from riso.audit.infrastructure.log import SqlAuditLog, SqlAuditRecorder
+from riso.codelists.infrastructure.uow import SqlCodelistsUnitOfWork
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
 from riso.platform.mail import MailTemplates, OutboxMailSender, OutboxQueries, TemplateMailer
 from riso.tenancy.infrastructure.uow import SqlTenancyUnitOfWork
@@ -16,7 +17,7 @@ from riso.tenancy.infrastructure.uow import SqlTenancyUnitOfWork
 TEMPLATES = MailTemplates()
 
 
-class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork):
+class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork, SqlCodelistsUnitOfWork):
     mailer: TemplateMailer
     outbox: OutboxQueries
     audit: SqlAuditRecorder
@@ -26,6 +27,7 @@ class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork):
     def _start(self) -> None:
         SqlIdentityUnitOfWork._start(self)
         SqlTenancyUnitOfWork._start(self)
+        SqlCodelistsUnitOfWork._start(self)
         self.mailer = TemplateMailer(
             TEMPLATES, OutboxMailSender(self.session, self.clock, self.ids)
         )

@@ -16,7 +16,7 @@ from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.engine.s6_validate import check_coding
 from riso.engine.s8_feedback import apply_feedback
-from riso.knowledge import load_knowledge
+from riso.knowledge import knowledge_for
 from riso.reference import ReferenceIndex
 from riso.store import StateStore
 
@@ -73,7 +73,7 @@ def test_every_message_the_dataset_produces_has_slovak_wording(source, tmp_path)
     setting = {
         "entity": source.context(BOLDOG),
         "bundle": source.bundle(BOLDOG),
-        "knowledge": load_knowledge(2026),
+        "knowledge": knowledge_for(BOLDOG, 2026),
         "memory": state.supplier_memory(BOLDOG),
         "counters": state.counters(BOLDOG),
     }
@@ -147,7 +147,7 @@ def test_validation_errors_have_slovak_wording(index, changes):
 
 
 def test_the_catalogue_names_every_concept_function_and_check(index):
-    knowledge = load_knowledge(2026)
+    knowledge = knowledge_for(BOLDOG, 2026)
 
     assert set(knowledge.lexicon.concepts) <= set(CATALOGUE["concepts"])
     assert {f.function for f in knowledge.functions.functions} <= set(CATALOGUE["functions"])

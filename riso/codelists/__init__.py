@@ -3,3 +3,43 @@ sources, the framework chart) and each customer's versioned lists, their validat
 global ones, and the reference bundle the engine codes with. Main aggregates: CodeListVersion.
 This module is the context's public surface: other contexts import only what it exports (its
 application API), never its domain, infrastructure or api modules. See plan §4.2 and guide §6.1."""
+
+from riso.codelists.application import (
+    BUNDLES,
+    BundleCache,
+    BundleEntity,
+    CodelistsUnitOfWork,
+    ConventionsView,
+    build_bundle,
+    customer_findings,
+    customer_knowledge,
+    get_conventions,
+    global_lists,
+    knowledge_health,
+    parse_conventions,
+    reference_bundle,
+    set_conventions,
+    versions_from_bundle,
+)
+from riso.codelists.domain import HealthCode, HealthFinding, HealthSeverity
+
+__all__ = [
+    "HealthCode",
+    "HealthFinding",
+    "HealthSeverity",
+    "ConventionsView",
+    "customer_knowledge",
+    "get_conventions",
+    "parse_conventions",
+    "set_conventions",
+    "BUNDLES",
+    "BundleCache",
+    "BundleEntity",
+    "CodelistsUnitOfWork",
+    "build_bundle",
+    "customer_findings",
+    "global_lists",
+    "knowledge_health",
+    "reference_bundle",
+    "versions_from_bundle",
+]

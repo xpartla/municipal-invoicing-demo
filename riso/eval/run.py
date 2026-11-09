@@ -10,6 +10,7 @@ use."""
 
 import datetime as dt
 import hashlib
+from collections.abc import Callable
 from pathlib import Path
 
 from riso import __version__, paths
@@ -26,8 +27,8 @@ from riso.dataset import TAGS, load_cases
 from riso.engine import code_invoice
 from riso.engine.s8_feedback import add_precedent, record_number
 from riso.eval.metrics import by_supplier, by_tag, metrics, score_case
-from riso.knowledge import load_knowledge
-from riso.reference import LocalReferenceSource, ReferenceIndex
+from riso.knowledge import KnowledgeBase, knowledge_for
+from riso.reference import LocalReferenceSource, ReferenceIndex, ReferenceSource
 from riso.shared.values import ico_is_valid
 from riso.store import COUNTERS_FILE, MEMORY_FILE
 from riso.text import fold
@@ -44,8 +45,12 @@ def evaluate(
     entity: str | None = None,
     invoices_dir: Path = paths.INVOICES_DIR,
     initial_dir: Path = paths.INITIAL_STATE_DIR,
-    source: LocalReferenceSource | None = None,
+    source: ReferenceSource | None = None,
+    knowledge_of: Callable[[str, int], KnowledgeBase] = knowledge_for,
 ) -> EvalReport:
+    """`source` gives the entity's settings and bundle (the committed files by default, the
+    database with `riso eval --source db`) and `knowledge_of` its knowledge; the supplier
+    memory always starts from `initial_dir`."""
     source = source or LocalReferenceSource()
     cases = load_cases(invoices_dir)
     ico = entity or _single_entity([c for c in cases if c.split == split], split)
@@ -53,7 +58,7 @@ def evaluate(
     context = source.context(ico)
     bundle = source.bundle(ico, context.reference_period)
     index = ReferenceIndex(bundle)
-    knowledge = load_knowledge(context.budget_year)
+    knowledge = knowledge_of(ico, context.budget_year)
     memory = SupplierMemory.model_validate_json((initial_dir / ico / MEMORY_FILE).read_bytes())
     counters = Counters.model_validate_json((initial_dir / ico / COUNTERS_FILE).read_bytes())
 

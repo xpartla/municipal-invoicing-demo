@@ -69,7 +69,8 @@
     ["^picked from the budget$", "vybraté z rozpočtu"],
 
     ["^(\\S+ \\S+ \\S+ \\S+ \\S+) appears (\\d+) times; merged, keeping the descriptions \\[(.*)\\]$", "{1} sa v exporte vyskytuje {2}-krát; riadky sú zlúčené a popisy ponechané: {3}"],
-    ["^(\\d+) rows have no Popis$", "počet riadkov bez popisu: {1}"]
+    ["^(\\d+) rows have no Popis$", "počet riadkov bez popisu: {1}"],
+    ["^no analytic account: (\\d{3} \\d{3}) is not in the chart, (\\d{3} \\d{3}) is a guess$", "chýba analytický účet: {1} nie je v účtovom rozvrhu, {2} je len odhad"]
   ],
   "checks": {
     "document series": "číselná rada a číslo dokladu",

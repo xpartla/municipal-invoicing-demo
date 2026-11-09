@@ -24,17 +24,21 @@ import { ForgotPasswordPage } from '../routes/auth/ForgotPasswordPage';
 import { InvitationPage } from '../routes/auth/InvitationPage';
 import { LoginPage } from '../routes/auth/LoginPage';
 import { ResetPasswordPage } from '../routes/auth/ResetPasswordPage';
+import { codelistsSearch } from '../features/codelists/kinds';
+import { CodelistsPage } from '../routes/CodelistsPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
 import { ErrorPage } from '../routes/ErrorPage';
 import { ForbiddenPage } from '../routes/ForbiddenPage';
 import { HomePage } from '../routes/HomePage';
+import { GlobalCodelistsPage } from '../routes/admin/GlobalCodelistsPage';
 import { OutboxPage } from '../routes/admin/OutboxPage';
 import { ProvidersPage } from '../routes/admin/ProvidersPage';
 import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
 import { NotFoundPage } from '../routes/NotFoundPage';
 import { ProfilePage } from '../routes/ProfilePage';
+import { SystemPage } from '../routes/SystemPage';
 import { UsersPage } from '../routes/UsersPage';
 
 /**
@@ -179,7 +183,14 @@ const admin = (permission: Permission) => (me: Me) => onPlatform(me, permission)
 
 const customerRoutes = [
   createRoute({ getParentRoute: () => customerRoute, path: '/', component: HomePage }),
-  ...(['invoices', 'codelists', 'exchange', 'files', 'system'] as const).map((key) =>
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'codelists',
+    component: CodelistsPage,
+    validateSearch: codelistsSearch,
+  }),
+  createRoute({ getParentRoute: () => customerRoute, path: 'system', component: SystemPage }),
+  ...(['invoices', 'exchange', 'files'] as const).map((key) =>
     createRoute({ getParentRoute: () => customerRoute, path: key, component: soon(key) }),
   ),
 ];
@@ -198,7 +209,7 @@ const appRoutes = [
   page('/users', guarded(seesProviderScreens, UsersPage)),
   page('/admin', guarded(admin('providers.manage'), soon('platform'))),
   page('/admin/providers', guarded(admin('providers.manage'), ProvidersPage)),
-  page('/admin/codelists', guarded(admin('codelists.global'), soon('globalCodelists'))),
+  page('/admin/codelists', guarded(admin('codelists.global'), GlobalCodelistsPage)),
   page('/admin/audit', guarded(admin('audit.read'), soon('audit'))),
   page('/admin/jobs', guarded(admin('jobs.manage'), soon('jobs'))),
   page('/admin/outbox', guarded(admin('outbox.read'), OutboxPage)),

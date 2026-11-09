@@ -789,6 +789,295 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/parameters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Parameters.Get
+         * @description The customer's parameters for the year (plan §6.4); 404 while it has none.
+         */
+        get: operations["parameters.get"];
+        /**
+         * Parameters.Set
+         * @description Sets the customer's parameters for the year; 422 names each invalid field.
+         */
+        put: operations["parameters.set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Codelists.Health
+         * @description The knowledge health report (plan §6.5): missing lists, conventions naming missing
+         *     accounts, budget EKs without a bridge rule, precedents outside the active lists.
+         */
+        get: operations["codelists.health"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/codelists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Codelists.Overview
+         * @description The customer's lists for the year, each with its active version.
+         */
+        get: operations["codelists.overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/codelists/{kind}/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Codelists.Entries
+         * @description A page of the list's entries in their order. `q` searches the key and the text fields
+         *     regardless of case and diacritics.
+         */
+        get: operations["codelists.entries"];
+        put?: never;
+        /**
+         * Codelists.Add Entry
+         * @description Adds a row: a new version of the list. 409 when another edit came first.
+         */
+        post: operations["codelists.add_entry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/codelists/{kind}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Codelists.Versions
+         * @description The list's versions for the year, the newest first.
+         */
+        get: operations["codelists.versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/codelists/{kind}/diff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Codelists.Diff
+         * @description Entries added, removed and changed from one version to another.
+         */
+        get: operations["codelists.diff"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/codelists/{kind}/entries/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Codelists.Edit Entry
+         * @description Changes a row's fields (those given): a new version of the list.
+         */
+        put: operations["codelists.edit_entry"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/codelists/{kind}/entries/{key}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Codelists.Deactivate Entry
+         * @description Deactivates a row: it stays in the new version, the engine no longer sees it.
+         */
+        post: operations["codelists.deactivate_entry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/codelists/{kind}/entries/{key}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Codelists.Reactivate Entry */
+        post: operations["codelists.reactivate_entry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/conventions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Conventions.Get
+         * @description The customer's coding conventions for the year (revision 0 and empty while none).
+         */
+        get: operations["conventions.get"];
+        /**
+         * Conventions.Set
+         * @description Replaces the conventions for the year; 409 when someone saved since `revision`, 422
+         *     with the field when the document does not validate.
+         */
+        put: operations["conventions.set"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/codelists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin Codelists.Checklist
+         * @description Which global lists exist for which year: every year with one, this year and the next.
+         */
+        get: operations["admin_codelists.checklist"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/codelists/{kind}/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Codelists.Entries */
+        get: operations["admin_codelists.entries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/codelists/{kind}/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Admin Codelists.Versions */
+        get: operations["admin_codelists.versions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Coding.Code
+         * @description The engine's proposal for the invoice, coded with the customer's code lists,
+         *     parameters and conventions for the invoice's booking year. Nothing is stored. (Supplier
+         *     memory and counters come from the demo's files until P2-M4.) 409 when the customer has no
+         *     lists or parameters for that year.
+         */
+        post: operations["coding.code"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit": {
         parameters: {
             query?: never;
@@ -1051,9 +1340,9 @@ export interface components {
             description?: string | null;
             /**
              * Row
-             * @description Row in the exported sheet
+             * @description Row in the exported sheet; none for a row added by hand
              */
-            row: number;
+            row?: number | null;
         };
         /** AddressIn */
         AddressIn: {
@@ -1224,9 +1513,9 @@ export interface components {
             aliases?: string[];
             /**
              * Rows
-             * @description Rows in the exported sheet
+             * @description Rows in the exported sheet; empty for a position added by hand
              */
-            rows: number[];
+            rows?: number[];
         };
         /** CaseResult */
         CaseResult: {
@@ -1313,6 +1602,15 @@ export interface components {
             /** New Password */
             new_password: string;
         };
+        /** ChecklistYearOut */
+        ChecklistYearOut: {
+            /** Year */
+            year: number;
+            /** Complete */
+            complete: boolean;
+            /** Lists */
+            lists: components["schemas"]["ListSummaryOut"][];
+        };
         /**
          * CodeRequest
          * @description Body of POST /api/code.
@@ -1392,6 +1690,38 @@ export interface components {
             booking_date?: number | null;
             /** Document Number */
             document_number?: number | null;
+        };
+        /** ConventionsIn */
+        ConventionsIn: {
+            /**
+             * Revision
+             * @description The revision the editor loaded (0 for none)
+             */
+            revision: number;
+            /** Document */
+            document: {
+                [key: string]: unknown;
+            };
+        };
+        /** ConventionsOut */
+        ConventionsOut: {
+            /** Customer Id */
+            customer_id: string;
+            /** Year */
+            year: number;
+            /**
+             * Revision
+             * @description 0 while the customer has no conventions for the year
+             */
+            revision: number;
+            /** Document */
+            document: {
+                [key: string]: unknown;
+            };
+            /** Updated At */
+            updated_at: string | null;
+            /** Updated By */
+            updated_by: string | null;
         };
         /** CostCentre */
         CostCentre: {
@@ -1477,6 +1807,17 @@ export interface components {
             /** Logins */
             logins: components["schemas"]["LoginOut"][];
         };
+        /** DiffOut */
+        DiffOut: {
+            old: components["schemas"]["VersionOut"];
+            new: components["schemas"]["VersionOut"];
+            /** Added */
+            added: components["schemas"]["EntryOut"][];
+            /** Removed */
+            removed: components["schemas"]["EntryOut"][];
+            /** Changed */
+            changed: components["schemas"]["EntryChangeOut"][];
+        };
         /**
          * DocumentRef
          * @description Header of the accounting document.
@@ -1543,6 +1884,50 @@ export interface components {
             bundle_id: string;
             /** Periods */
             periods: string[];
+        };
+        /** EntryChangeOut */
+        EntryChangeOut: {
+            /** Key */
+            key: string;
+            before: components["schemas"]["EntryOut"];
+            after: components["schemas"]["EntryOut"];
+        };
+        /** EntryIn */
+        EntryIn: {
+            /**
+             * Version Id
+             * @description The active version the editor saw; null when the list has none yet
+             */
+            version_id: string | null;
+            /**
+             * Values
+             * @description The entry's fields (an edit: those to change)
+             */
+            values: {
+                [key: string]: unknown;
+            };
+        };
+        /** EntryOut */
+        EntryOut: {
+            /** Key */
+            key: string;
+            /** Active */
+            active: boolean;
+            /**
+             * Values
+             * @description The entry's fields; amounts are numbers
+             */
+            values: {
+                [key: string]: unknown;
+            };
+        };
+        /** EntryPageOut */
+        EntryPageOut: {
+            version: components["schemas"]["VersionOut"];
+            /** Items */
+            items: components["schemas"]["EntryOut"][];
+            /** Total */
+            total: number;
         };
         /** EvalReport */
         EvalReport: {
@@ -1697,6 +2082,41 @@ export interface components {
              */
             number?: string | null;
         };
+        /**
+         * HealthCode
+         * @enum {string}
+         */
+        HealthCode: "knowledge_missing" | "list_missing" | "global_list_missing" | "convention_missing_account" | "convention_missing_position" | "ek_without_bridge" | "precedent_outside_lists";
+        /** HealthFindingOut */
+        HealthFindingOut: {
+            code: components["schemas"]["HealthCode"];
+            severity: components["schemas"]["HealthSeverity"];
+            /** Subject */
+            subject: string;
+            /** Where */
+            where: string | null;
+            kind: components["schemas"]["ListKind"] | null;
+            /** Count */
+            count: number;
+            /** Message */
+            message: string;
+        };
+        /** HealthReportOut */
+        HealthReportOut: {
+            /** Year */
+            year: number;
+            /** Errors */
+            errors: number;
+            /** Warnings */
+            warnings: number;
+            /** Findings */
+            findings: components["schemas"]["HealthFindingOut"][];
+        };
+        /**
+         * HealthSeverity
+         * @enum {string}
+         */
+        HealthSeverity: "error" | "warning" | "info";
         /** ImpersonateIn */
         ImpersonateIn: {
             /** Reason */
@@ -1908,6 +2328,30 @@ export interface components {
         LinkSentOut: {
             kind: components["schemas"]["TokenKind"];
         };
+        /**
+         * ListKind
+         * @enum {string}
+         */
+        ListKind: "accounts" | "budget_expense" | "budget_income" | "document_series" | "transfers" | "cost_centres" | "ek" | "cofog" | "funding_sources" | "framework_accounts";
+        /** ListSummaryOut */
+        ListSummaryOut: {
+            kind: components["schemas"]["ListKind"];
+            /**
+             * Fields
+             * @description The fields an entry of the list has
+             */
+            fields: string[];
+            version: components["schemas"]["VersionOut"] | null;
+        };
+        /** ListsOverviewOut */
+        ListsOverviewOut: {
+            /** Year */
+            year: number;
+            /** Years */
+            years: number[];
+            /** Lists */
+            lists: components["schemas"]["ListSummaryOut"][];
+        };
         /** LoginIn */
         LoginIn: {
             /** Email */
@@ -2031,6 +2475,27 @@ export interface components {
             items: components["schemas"]["OutboxItemOut"][];
             /** Total */
             total: number;
+        };
+        /** ParametersIn */
+        ParametersIn: {
+            /** Values */
+            values: {
+                [key: string]: unknown;
+            };
+        };
+        /** ParametersOut */
+        ParametersOut: {
+            /** Customer Id */
+            customer_id: string;
+            /** Year */
+            year: number;
+            /**
+             * Values
+             * @description vat_payer, default_zdroj, default_series, default_dal, canteen_series, canteen_dal
+             */
+            values: {
+                [key: string]: unknown;
+            };
         };
         /**
          * Permission
@@ -2394,6 +2859,50 @@ export interface components {
             /** Variable Number */
             variable_number?: string | null;
         };
+        /**
+         * VersionOrigin
+         * @description What made a version.
+         * @enum {string}
+         */
+        VersionOrigin: "seed" | "import" | "edit" | "copy";
+        /** VersionOut */
+        VersionOut: {
+            /** Id */
+            id: string;
+            kind: components["schemas"]["ListKind"];
+            /** Year */
+            year: number;
+            /** Number */
+            number: number;
+            status: components["schemas"]["VersionStatus"];
+            origin: components["schemas"]["VersionOrigin"];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created By */
+            created_by: string | null;
+            /** Entry Count */
+            entry_count: number;
+            /** Period */
+            period: string | null;
+            /** Note */
+            note: string | null;
+        };
+        /** VersionRefIn */
+        VersionRefIn: {
+            /**
+             * Version Id
+             * @description The active version the editor saw
+             */
+            version_id: string;
+        };
+        /**
+         * VersionStatus
+         * @enum {string}
+         */
+        VersionStatus: "active" | "superseded";
     };
     responses: never;
     parameters: never;
@@ -3773,6 +4282,625 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CustomerOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "parameters.get": {
+        parameters: {
+            query: {
+                year: number;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParametersOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "parameters.set": {
+        parameters: {
+            query: {
+                year: number;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ParametersIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ParametersOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.health": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthReportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.overview": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListsOverviewOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.entries": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+                /** @description Default: the active one */
+                version?: string | null;
+                q?: string | null;
+                active?: boolean | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryPageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.add_entry": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.versions": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.diff": {
+        parameters: {
+            query: {
+                /** @description The older version's ID */
+                old: string;
+                /** @description The newer version's ID */
+                new: string;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiffOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.edit_entry": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.deactivate_entry": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionRefIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "codelists.reactivate_entry": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VersionRefIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "conventions.get": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConventionsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "conventions.set": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConventionsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConventionsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "admin_codelists.checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChecklistYearOut"][];
+                };
+            };
+        };
+    };
+    "admin_codelists.entries": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+                /** @description Default: the active one */
+                version?: string | null;
+                q?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryPageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "admin_codelists.versions": {
+        parameters: {
+            query?: {
+                /** @description Default: this year */
+                year?: number | null;
+            };
+            header?: never;
+            path: {
+                /** @description The list: accounts, budget_expense, … */
+                kind: components["schemas"]["ListKind"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VersionOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "coding.code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceDocument"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CodingProposal"];
                 };
             };
             /** @description Validation Error */

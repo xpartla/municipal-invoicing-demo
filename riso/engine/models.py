@@ -148,3 +148,5 @@ class Derivation(StageResult):
     evidence: tuple[Evidence, ...]
     md_confidence: float
     dal_confidence: float
+    reasons: tuple[str, ...] = ()
+    """Why the coding needs review: an analytic account that had to be guessed."""

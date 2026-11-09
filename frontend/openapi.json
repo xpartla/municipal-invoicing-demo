@@ -1896,6 +1896,1304 @@
         }
       }
     },
+    "/api/customers/{customer_id}/parameters": {
+      "get": {
+        "tags": [
+          "tenancy"
+        ],
+        "summary": "Parameters.Get",
+        "description": "The customer's parameters for the year (plan §6.4); 404 while it has none.",
+        "operationId": "parameters.get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2100,
+              "minimum": 2000,
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParametersOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "tenancy"
+        ],
+        "summary": "Parameters.Set",
+        "description": "Sets the customer's parameters for the year; 422 names each invalid field.",
+        "operationId": "parameters.set",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2100,
+              "minimum": 2000,
+              "title": "Year"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParametersIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParametersOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/health": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Health",
+        "description": "The knowledge health report (plan §6.5): missing lists, conventions naming missing\naccounts, budget EKs without a bridge rule, precedents outside the active lists.",
+        "operationId": "codelists.health",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReportOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/codelists": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Overview",
+        "description": "The customer's lists for the year, each with its active version.",
+        "operationId": "codelists.overview",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListsOverviewOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/codelists/{kind}/entries": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Entries",
+        "description": "A page of the list's entries in their order. `q` searches the key and the text fields\nregardless of case and diacritics.",
+        "operationId": "codelists.entries",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: the active one",
+              "title": "Version"
+            },
+            "description": "Default: the active one"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "active",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Active"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryPageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Add Entry",
+        "description": "Adds a row: a new version of the list. 409 when another edit came first.",
+        "operationId": "codelists.add_entry",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntryIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/codelists/{kind}/versions": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Versions",
+        "description": "The list's versions for the year, the newest first.",
+        "operationId": "codelists.versions",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VersionOut"
+                  },
+                  "title": "Response Codelists.Versions"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/codelists/{kind}/diff": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Diff",
+        "description": "Entries added, removed and changed from one version to another.",
+        "operationId": "codelists.diff",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "old",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The older version's ID",
+              "title": "Old"
+            },
+            "description": "The older version's ID"
+          },
+          {
+            "name": "new",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The newer version's ID",
+              "title": "New"
+            },
+            "description": "The newer version's ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiffOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/codelists/{kind}/entries/{key}": {
+      "put": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Edit Entry",
+        "description": "Changes a row's fields (those given): a new version of the list.",
+        "operationId": "codelists.edit_entry",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EntryIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/codelists/{kind}/entries/{key}/deactivate": {
+      "post": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Deactivate Entry",
+        "description": "Deactivates a row: it stays in the new version, the engine no longer sees it.",
+        "operationId": "codelists.deactivate_entry",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRefIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/codelists/{kind}/entries/{key}/reactivate": {
+      "post": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Codelists.Reactivate Entry",
+        "operationId": "codelists.reactivate_entry",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Key"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionRefIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VersionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/conventions": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Conventions.Get",
+        "description": "The customer's coding conventions for the year (revision 0 and empty while none).",
+        "operationId": "conventions.get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConventionsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Conventions.Set",
+        "description": "Replaces the conventions for the year; 409 when someone saved since `revision`, 422\nwith the field when the document does not validate.",
+        "operationId": "conventions.set",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConventionsIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConventionsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/codelists": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Admin Codelists.Checklist",
+        "description": "Which global lists exist for which year: every year with one, this year and the next.",
+        "operationId": "admin_codelists.checklist",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ChecklistYearOut"
+                  },
+                  "type": "array",
+                  "title": "Response Admin Codelists.Checklist"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/codelists/{kind}/entries": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Admin Codelists.Entries",
+        "operationId": "admin_codelists.entries",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: the active one",
+              "title": "Version"
+            },
+            "description": "Default: the active one"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntryPageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/codelists/{kind}/versions": {
+      "get": {
+        "tags": [
+          "codelists"
+        ],
+        "summary": "Admin Codelists.Versions",
+        "operationId": "admin_codelists.versions",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ListKind",
+              "description": "The list: accounts, budget_expense, …"
+            },
+            "description": "The list: accounts, budget_expense, …"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VersionOut"
+                  },
+                  "title": "Response Admin Codelists.Versions"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/code": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Coding.Code",
+        "description": "The engine's proposal for the invoice, coded with the customer's code lists,\nparameters and conventions for the invoice's booking year. Nothing is stored. (Supplier\nmemory and counters come from the demo's files until P2-M4.) 409 when the customer has no\nlists or parameters for that year.",
+        "operationId": "coding.code",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodingProposal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/audit": {
       "get": {
         "tags": [
@@ -2628,9 +3926,16 @@
             "title": "Description"
           },
           "row": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Row",
-            "description": "Row in the exported sheet"
+            "description": "Row in the exported sheet; none for a row added by hand"
           }
         },
         "additionalProperties": false,
@@ -2639,8 +3944,7 @@
           "key",
           "su",
           "au",
-          "type",
-          "row"
+          "type"
         ],
         "title": "Account"
       },
@@ -3156,9 +4460,8 @@
               "type": "integer"
             },
             "type": "array",
-            "minItems": 1,
             "title": "Rows",
-            "description": "Rows in the exported sheet"
+            "description": "Rows in the exported sheet; empty for a position added by hand"
           }
         },
         "additionalProperties": false,
@@ -3167,8 +4470,7 @@
           "key",
           "ek",
           "zdroj",
-          "analytika",
-          "rows"
+          "analytika"
         ],
         "title": "BudgetPosition"
       },
@@ -3380,6 +4682,32 @@
           "new_password"
         ],
         "title": "ChangePasswordIn"
+      },
+      "ChecklistYearOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "complete": {
+            "type": "boolean",
+            "title": "Complete"
+          },
+          "lists": {
+            "items": {
+              "$ref": "#/components/schemas/ListSummaryOut"
+            },
+            "type": "array",
+            "title": "Lists"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "complete",
+          "lists"
+        ],
+        "title": "ChecklistYearOut"
       },
       "CodeRequest": {
         "properties": {
@@ -3642,6 +4970,82 @@
           "overall"
         ],
         "title": "Confidence"
+      },
+      "ConventionsIn": {
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Revision",
+            "description": "The revision the editor loaded (0 for none)"
+          },
+          "document": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Document"
+          }
+        },
+        "type": "object",
+        "required": [
+          "revision",
+          "document"
+        ],
+        "title": "ConventionsIn"
+      },
+      "ConventionsOut": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "revision": {
+            "type": "integer",
+            "title": "Revision",
+            "description": "0 while the customer has no conventions for the year"
+          },
+          "document": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Document"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "updated_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer_id",
+          "year",
+          "revision",
+          "document",
+          "updated_at",
+          "updated_by"
+        ],
+        "title": "ConventionsOut"
       },
       "CostCentre": {
         "properties": {
@@ -3952,6 +5356,46 @@
         ],
         "title": "CustomerWithLoginsOut"
       },
+      "DiffOut": {
+        "properties": {
+          "old": {
+            "$ref": "#/components/schemas/VersionOut"
+          },
+          "new": {
+            "$ref": "#/components/schemas/VersionOut"
+          },
+          "added": {
+            "items": {
+              "$ref": "#/components/schemas/EntryOut"
+            },
+            "type": "array",
+            "title": "Added"
+          },
+          "removed": {
+            "items": {
+              "$ref": "#/components/schemas/EntryOut"
+            },
+            "type": "array",
+            "title": "Removed"
+          },
+          "changed": {
+            "items": {
+              "$ref": "#/components/schemas/EntryChangeOut"
+            },
+            "type": "array",
+            "title": "Changed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "old",
+          "new",
+          "added",
+          "removed",
+          "changed"
+        ],
+        "title": "DiffOut"
+      },
       "DocumentRef": {
         "properties": {
           "series": {
@@ -4116,6 +5560,105 @@
           "periods"
         ],
         "title": "EntitySummary"
+      },
+      "EntryChangeOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "before": {
+            "$ref": "#/components/schemas/EntryOut"
+          },
+          "after": {
+            "$ref": "#/components/schemas/EntryOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "before",
+          "after"
+        ],
+        "title": "EntryChangeOut"
+      },
+      "EntryIn": {
+        "properties": {
+          "version_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version Id",
+            "description": "The active version the editor saw; null when the list has none yet"
+          },
+          "values": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Values",
+            "description": "The entry's fields (an edit: those to change)"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id",
+          "values"
+        ],
+        "title": "EntryIn"
+      },
+      "EntryOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "values": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Values",
+            "description": "The entry's fields; amounts are numbers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "active",
+          "values"
+        ],
+        "title": "EntryOut"
+      },
+      "EntryPageOut": {
+        "properties": {
+          "version": {
+            "$ref": "#/components/schemas/VersionOut"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/EntryOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version",
+          "items",
+          "total"
+        ],
+        "title": "EntryPageOut"
       },
       "EvalReport": {
         "properties": {
@@ -4482,6 +6025,113 @@
         "type": "object",
         "title": "Handwritten",
         "description": "Written by hand on the scan when the invoice arrives; the position varies per scan."
+      },
+      "HealthCode": {
+        "type": "string",
+        "enum": [
+          "knowledge_missing",
+          "list_missing",
+          "global_list_missing",
+          "convention_missing_account",
+          "convention_missing_position",
+          "ek_without_bridge",
+          "precedent_outside_lists"
+        ],
+        "title": "HealthCode"
+      },
+      "HealthFindingOut": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/HealthCode"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/HealthSeverity"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "where": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Where"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ListKind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "subject",
+          "where",
+          "kind",
+          "count",
+          "message"
+        ],
+        "title": "HealthFindingOut"
+      },
+      "HealthReportOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "errors": {
+            "type": "integer",
+            "title": "Errors"
+          },
+          "warnings": {
+            "type": "integer",
+            "title": "Warnings"
+          },
+          "findings": {
+            "items": {
+              "$ref": "#/components/schemas/HealthFindingOut"
+            },
+            "type": "array",
+            "title": "Findings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "errors",
+          "warnings",
+          "findings"
+        ],
+        "title": "HealthReportOut"
+      },
+      "HealthSeverity": {
+        "type": "string",
+        "enum": [
+          "error",
+          "warning",
+          "info"
+        ],
+        "title": "HealthSeverity"
       },
       "ImpersonateIn": {
         "properties": {
@@ -5193,6 +6843,83 @@
         ],
         "title": "LinkSentOut"
       },
+      "ListKind": {
+        "type": "string",
+        "enum": [
+          "accounts",
+          "budget_expense",
+          "budget_income",
+          "document_series",
+          "transfers",
+          "cost_centres",
+          "ek",
+          "cofog",
+          "funding_sources",
+          "framework_accounts"
+        ],
+        "title": "ListKind"
+      },
+      "ListSummaryOut": {
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/ListKind"
+          },
+          "fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Fields",
+            "description": "The fields an entry of the list has"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VersionOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "fields",
+          "version"
+        ],
+        "title": "ListSummaryOut"
+      },
+      "ListsOverviewOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "years": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Years"
+          },
+          "lists": {
+            "items": {
+              "$ref": "#/components/schemas/ListSummaryOut"
+            },
+            "type": "array",
+            "title": "Lists"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "years",
+          "lists"
+        ],
+        "title": "ListsOverviewOut"
+      },
       "LoginIn": {
         "properties": {
           "email": {
@@ -5563,6 +7290,45 @@
           "total"
         ],
         "title": "OutboxPageOut"
+      },
+      "ParametersIn": {
+        "properties": {
+          "values": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Values"
+          }
+        },
+        "type": "object",
+        "required": [
+          "values"
+        ],
+        "title": "ParametersIn"
+      },
+      "ParametersOut": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "values": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Values",
+            "description": "vat_payer, default_zdroj, default_series, default_dal, canteen_series, canteen_dal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "customer_id",
+          "year",
+          "values"
+        ],
+        "title": "ParametersOut"
       },
       "Permission": {
         "type": "string",
@@ -6573,6 +8339,121 @@
         },
         "type": "object",
         "title": "VariableNumberIn"
+      },
+      "VersionOrigin": {
+        "type": "string",
+        "enum": [
+          "seed",
+          "import",
+          "edit",
+          "copy"
+        ],
+        "title": "VersionOrigin",
+        "description": "What made a version."
+      },
+      "VersionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ListKind"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "number": {
+            "type": "integer",
+            "title": "Number"
+          },
+          "status": {
+            "$ref": "#/components/schemas/VersionStatus"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/VersionOrigin"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "entry_count": {
+            "type": "integer",
+            "title": "Entry Count"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "year",
+          "number",
+          "status",
+          "origin",
+          "created_at",
+          "created_by",
+          "entry_count",
+          "period",
+          "note"
+        ],
+        "title": "VersionOut"
+      },
+      "VersionRefIn": {
+        "properties": {
+          "version_id": {
+            "type": "string",
+            "title": "Version Id",
+            "description": "The active version the editor saw"
+          }
+        },
+        "type": "object",
+        "required": [
+          "version_id"
+        ],
+        "title": "VersionRefIn"
+      },
+      "VersionStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "superseded"
+        ],
+        "title": "VersionStatus"
       }
     }
   }

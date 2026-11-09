@@ -80,7 +80,7 @@ def code_line(
     candidate = _precedent_for(context, budget_key)
     md = None
     if knowledge.su_for(position.ek) is not None:
-        md, _, _ = debit_account(position, candidate, invoice, context, index, knowledge)
+        md, _, _, _ = debit_account(position, candidate, invoice, context, index, knowledge)
     dal, _, _ = credit_account(position, candidate, context, index, knowledge)
     transfer, _ = choose_transfer(position, invoice, index, knowledge)
     budget_text, posting_text = line_texts(position, candidate, invoice, knowledge)

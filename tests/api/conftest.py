@@ -101,3 +101,35 @@ def new_client(app):
         return ApiClient(app, client=(ip, 50000))
 
     return make
+
+
+SEED_PASSWORD = "Ukážkové-heslo-2026"
+
+
+@pytest.fixture(scope="module")
+def seeded(tmp_path_factory):
+    """The app on a database `riso seed` filled: Boldog with its lists, parameters and
+    conventions, the global lists, a login per role. (app, the seed's result, var dir)."""
+    from riso.api.seed import seed
+
+    settings = PlatformSettings(var_dir=tmp_path_factory.mktemp("seeded") / "var", env="test")
+    done = seed(settings, password=SEED_PASSWORD, hasher=Argon2Hasher.fast())
+    services = build_services(settings, hasher=Argon2Hasher.fast())
+    app = create_app(
+        Settings(var_dir=settings.var_dir, platform=settings, run_worker=False), services=services
+    )
+    yield app, done, settings.var_dir
+    services.close()
+
+
+@pytest.fixture
+def login(seeded):
+    """A client logged in as a seeded user: `login("user")`, `login("viewer")` …"""
+    app, done, _ = seeded
+
+    def make(key: str) -> ApiClient:
+        client = ApiClient(app)
+        client.login(done.users[key][1], SEED_PASSWORD)
+        return client
+
+    return make

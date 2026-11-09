@@ -55,17 +55,24 @@
           "title": "Description"
         },
         "row": {
-          "description": "Row in the exported sheet",
-          "title": "Row",
-          "type": "integer"
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Row in the exported sheet; none for a row added by hand",
+          "title": "Row"
         }
       },
       "required": [
         "key",
         "su",
         "au",
-        "type",
-        "row"
+        "type"
       ],
       "title": "Account",
       "type": "object"
@@ -140,11 +147,10 @@
           "type": "array"
         },
         "rows": {
-          "description": "Rows in the exported sheet",
+          "description": "Rows in the exported sheet; empty for a position added by hand",
           "items": {
             "type": "integer"
           },
-          "minItems": 1,
           "title": "Rows",
           "type": "array"
         }
@@ -153,8 +159,7 @@
         "key",
         "ek",
         "zdroj",
-        "analytika",
-        "rows"
+        "analytika"
       ],
       "title": "BudgetPosition",
       "type": "object"

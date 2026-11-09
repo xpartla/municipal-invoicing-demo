@@ -70,6 +70,17 @@ class ValidationFailed(DomainError):
         """A failure of one field."""
         return cls(message, [FieldError(field, message, code)])
 
+    def under(self, prefix: str) -> "ValidationFailed":
+        """The same failure with every field under `prefix` (`su` becomes `values.su`), for a
+        request that nests the input."""
+        return ValidationFailed(
+            self.message,
+            [
+                FieldError(f"{prefix}.{e.field}" if e.field else prefix, e.message, e.code)
+                for e in self.errors
+            ],
+        )
+
     @classmethod
     def from_pydantic(
         cls, message: str, errors: list[Any], *, prefix: str = ""

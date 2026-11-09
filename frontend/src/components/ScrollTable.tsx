@@ -15,7 +15,14 @@ export function ScrollTable({
   children: React.ReactNode;
 }) {
   return (
-    <Box role="region" aria-label={label} tabIndex={0} style={{ overflowX: 'auto' }}>
+    <Box
+      role="region"
+      aria-label={label}
+      tabIndex={0}
+      // Relative, so absolutely placed content (a visually hidden header) scrolls with the
+      // table instead of widening the page.
+      style={{ overflowX: 'auto', position: 'relative' }}
+    >
       <Box miw={minWidth}>{children}</Box>
     </Box>
   );

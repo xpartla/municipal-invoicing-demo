@@ -197,7 +197,6 @@ class SqlParametersRepository:
             customer_id=row.customer_id,
             year=row.year,
             vat_payer=row.vat_payer,
-            reference_period=row.reference_period,
             default_zdroj=row.default_zdroj,
             default_series=row.default_series,
             default_dal=row.default_dal,

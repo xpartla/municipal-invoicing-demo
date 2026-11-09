@@ -47,7 +47,16 @@ export const theme = createTheme({
   // Mantine's default (0.3) gave white text on blue.6 at 3.6:1.
   luminanceThreshold: 0.179,
   components: {
-    Badge: Badge.extend({ defaultProps: { variant: 'filled' } }),
+    Badge: Badge.extend({
+      defaultProps: { variant: 'filled' },
+      // A filled gray badge is gray.7 in light and gray.5 in dark, either side of the
+      // threshold, but autoContrast picks one text colour for both: white, 2:1 on gray.5.
+      // The text colour follows the scheme instead (--riso-on-gray).
+      vars: (_theme, props) =>
+        props.color === 'gray' && (props.variant ?? 'filled') === 'filled'
+          ? { root: { '--badge-color': 'var(--riso-on-gray)' } }
+          : { root: {} },
+    }),
   },
 });
 
@@ -65,6 +74,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (current) => ({
     '--riso-border': current.colors.gray[3],
     '--mantine-color-dimmed': current.colors.gray[7],
     '--mantine-color-anchor': riso[7],
+    '--riso-on-gray': current.white,
   },
   dark: {
     '--riso-surface': current.colors.dark[7],
@@ -72,6 +82,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (current) => ({
     '--riso-border': current.colors.dark[4],
     '--mantine-color-dimmed': current.colors.dark[1],
     '--mantine-color-anchor': riso[3],
+    '--riso-on-gray': current.black,
   },
 });
 

@@ -27,10 +27,11 @@ def resolve(
         if supplier is not None:
             issues.append(f"supplier found by name, {supplier.name}; its IČO was not read")
 
-    canteen_food = bool(invoice.concept_names() & set(knowledge.canteen.concepts))
+    rule = knowledge.canteen  # None for a customer without a canteen rule
+    canteen_food = rule is not None and bool(invoice.concept_names() & set(rule.concepts))
     canteen = (
         canteen_food
-        or knowledge.canteen.function in invoice.named_functions()
+        or (rule is not None and rule.function in invoice.named_functions())
         or _canteen_supplier(supplier, entity)
     )
     series = entity.canteen_series if canteen else entity.default_series
@@ -55,7 +56,7 @@ def resolve(
         series=series,
         canteen=canteen,
         canteen_food=canteen_food,
-        zdroj=knowledge.canteen.zdroj if canteen_food else entity.default_zdroj,
+        zdroj=rule.zdroj if rule is not None and canteen_food else entity.default_zdroj,
         document_number=number,
         number_source=source,
         booking_date=invoice.booking_date,

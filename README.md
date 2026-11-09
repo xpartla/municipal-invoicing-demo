@@ -23,8 +23,13 @@ worker, the app's security headers and error mapping, the React SPA shell served
 `riso serve`, the gate script, the E2E harness and CI. P2-M1 adds logins and access: users,
 customers and service providers, sessions with CSRF and throttling, invitations and password
 resets through a mail outbox, roles and permissions checked on every route, impersonation for
-admins, the audit log, and `riso seed`. Code lists on the database, the import tool, invoices,
-OCR and e-invoices follow. The demo below keeps working until its pages are replaced.
+admins, the audit log, and `riso seed`. P2-M2 moves the code lists to the database: each
+customer's lists per year in versions (a row edit makes a new one), the 2026 global lists (EK,
+COFOG, funding sources, the framework chart) and the validation against them, Boldog's coding
+conventions out of the knowledge base, coding from the database (`POST
+/api/customers/{id}/code`, `riso eval --source db`), the knowledge health report, and the
+Číselníky and Systém screens. The import tool, invoices, OCR and e-invoices follow. The demo
+below keeps working until its pages are replaced.
 
 M3 is done: the web app and the feedback loop. The proposal page lays the coding out like the
 accounting software's two tabs, with a copy button on every value and line, the evidence
@@ -61,7 +66,10 @@ For a database to log in to, seed it (development only):
 RISO_ENV=dev RISO_SEED_PASSWORD='Ukážkové-heslo-2026' uv run riso seed --reset
 ```
 
-`riso seed` migrates, then creates Obec Boldog with its 2026 parameters, the made-up provider
+`riso seed` migrates, then creates Obec Boldog with its 2026 parameters and its 2026 code lists
+(version 1 of each, from the committed bundle `data/bundles/00305863/2026-08.json`), the global
+lists of each year in `data/global/` (EK, COFOG, funding sources, the framework chart; sources in
+`data/global/2026/README.md`), the made-up provider
 "Účtovníctvo Vzor, s.r.o.", two more made-up municipalities (one assigned to the provider, one
 not), and one login per role, all under the reserved `.test` domain:
 
@@ -146,7 +154,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | Command | Does |
 |---|---|
 | `riso ingest` | Builds `data/bundles/<IČO>/<period>.json` from the Excel exports in `../data` (or `--raw`, or `RISO_RAW_DIR`) |
-| `riso check` | Checks the committed data against the dictionaries: entity settings, supplier memory, counters, the knowledge base, every dataset case, schema drift |
+| `riso check` | Checks the committed data against the dictionaries: entity settings, supplier memory, counters, the knowledge base (with Boldog's conventions), every dataset case, schema drift. `--customer <IČO> [--year YYYY]` prints that customer's knowledge health report from the database instead (missing lists, conventions naming missing accounts, budget EKs without a bridge rule, precedents outside the active lists); exit 1 when it has errors |
 | `riso export-openapi` | Writes the API's OpenAPI document to `frontend/openapi.json`, which the frontend client is generated from; `--check` only reports a stale file |
 | `riso export-schemas` | Writes the contracts as JSON Schema to `schemas/`; `--check` only reports stale files |
 | `riso reset` | Restores the runtime state in `var/` from `data/initial_state/` |
@@ -155,7 +163,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
 | `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
-| `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed |
+| `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed. `--source db` takes the lists, parameters and conventions from the database of `RISO_DB_URL` (seed it first) instead of the committed files; the memory always comes from `data/initial_state`. `--customer <IČO>` picks the customer |
 
 Run them with `uv run riso …`. `uv run ruff check .` and `uv run ruff format .` keep the code
 tidy.
