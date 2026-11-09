@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Pager } from '../components/Pager';
+import { AnchorLink } from '../components/RouterLinks';
 import { useMe } from '../features/identity/api';
 import { inCustomer } from '../features/identity/capabilities';
 import { useInvoices, type ExportScope, type InvoiceRow } from '../features/invoices/api';
@@ -64,9 +65,15 @@ export function InvoicesPage() {
     return row?.document_number ?? row?.invoice_number ?? row?.supplier_name ?? id;
   };
   const renderNumber = (row: InvoiceRow) => (
-    <Text size="sm" fw={600} ff="monospace">
-      {row.document_number}
-    </Text>
+    <AnchorLink
+      to="/c/$customerId/invoices/$invoiceId"
+      params={{ customerId, invoiceId: row.id }}
+      size="sm"
+      fw={600}
+      ff="monospace"
+    >
+      {row.document_number ?? row.invoice_number ?? '—'}
+    </AnchorLink>
   );
 
   return (

@@ -178,3 +178,172 @@ export function useSeriesCodes(customerId: string, year: number) {
     },
   });
 }
+
+export type History = Schemas['HistoryOut'];
+export type Placement = Schemas['PlacementOut'];
+export type BookingInput = Schemas['BookingIn'];
+export type Entry = Schemas['EntryOut'];
+
+const invoiceKey = (customerId: string, invoiceId: string) =>
+  [...invoicesKey(customerId), 'one', invoiceId] as const;
+
+export function useInvoice(customerId: string, invoiceId: string) {
+  return useQuery({
+    queryKey: invoiceKey(customerId, invoiceId),
+    queryFn: () =>
+      unwrap(
+        api.GET('/api/customers/{customer_id}/invoices/{invoice_id}', {
+          params: { path: { customer_id: customerId, invoice_id: invoiceId } },
+        }),
+      ),
+  });
+}
+
+export function useHistory(customerId: string, invoiceId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [...invoiceKey(customerId, invoiceId), 'history'],
+    queryFn: () =>
+      unwrap(
+        api.GET('/api/customers/{customer_id}/invoices/{invoice_id}/history', {
+          params: { path: { customer_id: customerId, invoice_id: invoiceId } },
+        }),
+      ),
+    enabled,
+  });
+}
+
+export type InvoiceAction =
+  | { action: 'recode' }
+  | { action: 'unbook'; reason?: string }
+  | { action: 'discard'; reason?: string }
+  | { action: 'pay'; paidOn: string }
+  | { action: 'book'; booking: BookingInput };
+
+/**
+ * One step of the invoice's lifecycle. The invoice comes back from each; booking also gives
+ * its placement (decision 61). The list, the history and the number series are refreshed.
+ */
+export function useInvoiceAction(customerId: string, invoiceId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async (
+      step: InvoiceAction,
+    ): Promise<{ invoice: Invoice; placement?: Placement }> => {
+      const path = { customer_id: customerId, invoice_id: invoiceId };
+      const base = '/api/customers/{customer_id}/invoices/{invoice_id}' as const;
+      switch (step.action) {
+        case 'recode':
+          return { invoice: await unwrap(api.POST(`${base}/recode`, { params: { path } })) };
+        case 'unbook':
+          return {
+            invoice: await unwrap(
+              api.POST(`${base}/unbook`, {
+                params: { path },
+                body: { reason: step.reason ?? null },
+              }),
+            ),
+          };
+        case 'discard':
+          return {
+            invoice: await unwrap(
+              api.POST(`${base}/discard`, {
+                params: { path },
+                body: { reason: step.reason ?? null },
+              }),
+            ),
+          };
+        case 'pay':
+          return {
+            invoice: await unwrap(
+              api.POST(`${base}/pay`, { params: { path }, body: { paid_on: step.paidOn } }),
+            ),
+          };
+        case 'book':
+          return unwrap(api.POST(`${base}/book`, { params: { path }, body: step.booking }));
+      }
+    },
+    onSuccess: ({ invoice }) => {
+      client.setQueryData(invoiceKey(customerId, invoiceId), invoice);
+    },
+    onSettled: async () => {
+      await client.invalidateQueries({ queryKey: invoicesKey(customerId) });
+      await client.invalidateQueries({ queryKey: numberSeriesKey(customerId) });
+    },
+  });
+}
+
+/** Where booking would put the number, and what it would move (for the confirmation). */
+export function useBookingPreview(customerId: string, invoiceId: string) {
+  return useMutation({
+    mutationFn: (booking: BookingInput) =>
+      unwrap(
+        api.POST('/api/customers/{customer_id}/invoices/{invoice_id}/booking-preview', {
+          params: { path: { customer_id: customerId, invoice_id: invoiceId } },
+          body: booking,
+        }),
+      ),
+  });
+}
+
+/** The whole line a budget position the user picked brings (MD, DAL, transfer, texts). */
+export function usePickedLine(customerId: string, invoiceId: string) {
+  return useMutation({
+    mutationFn: (budgetKey: string) =>
+      unwrap(
+        api.POST('/api/customers/{customer_id}/invoices/{invoice_id}/line', {
+          params: { path: { customer_id: customerId, invoice_id: invoiceId } },
+          body: { budget_key: budgetKey },
+        }),
+      ),
+  });
+}
+
+export type WholeListKind = 'budget_expense' | 'accounts' | 'transfers' | 'document_series';
+
+/** Every entry of a list's active version for the year, read page by page once. */
+export function useWholeList(
+  customerId: string,
+  kind: WholeListKind,
+  year: number | undefined,
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: ['codelists', customerId, 'whole', kind, year],
+    queryFn: async () => {
+      const found: Entry[] = [];
+      for (let page = 1; ; page++) {
+        const part = await unwrap(
+          api.GET('/api/customers/{customer_id}/codelists/{kind}/entries', {
+            params: {
+              path: { customer_id: customerId, kind },
+              query: { year: year ?? undefined, page, size: 200 },
+            },
+          }),
+        );
+        found.push(...part.items);
+        if (found.length >= part.total || part.items.length === 0) return found;
+      }
+    },
+    enabled: enabled && year !== undefined,
+    staleTime: 5 * 60_000,
+  });
+}
+
+/** The next invoice that waits for a booking (needs review or ready), the oldest first. */
+export function useNextInvoice(customerId: string, currentId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [...invoicesKey(customerId), 'next', currentId],
+    queryFn: async () => {
+      const page = await unwrap(
+        api.GET('/api/customers/{customer_id}/invoices', {
+          params: {
+            path: { customer_id: customerId },
+            query: { state: ['needs_review', 'ready'], sort: 'uploaded_at', size: 2 },
+          },
+        }),
+      );
+      return page.items.find((row) => row.id !== currentId)?.id ?? null;
+    },
+    enabled,
+  });
+}

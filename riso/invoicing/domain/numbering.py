@@ -102,11 +102,16 @@ class Newcomer:
 class NumberFrozen(Conflict):
     """A booking's shift would move a number that never moves."""
 
+    code = "number_frozen"
+
     def __init__(self, number: str, holder: Holder) -> None:
         what = "an imported booking's" if holder.kind is HolderKind.EXTERNAL else "exported or paid"
         super().__init__(f"{number} is {what}; a booking cannot move it, set the number by hand")
         self.number = number
         self.holder = holder
+
+    def details(self) -> dict[str, object]:
+        return {"number": self.number}
 
 
 def numberable(pattern: str) -> bool:

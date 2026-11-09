@@ -23,6 +23,9 @@ def source():
     return LocalReferenceSource()
 
 
+ENGINE_MESSAGES = paths.REPO_ROOT / "frontend" / "src" / "i18n" / "sk" / "engine.json"
+
+
 def _code(case, source, *, knowledge, bundle=None):
     return code_invoice(
         case.invoice,
@@ -89,7 +92,7 @@ def test_without_000_and_with_several_aus_the_line_goes_to_review(source):
     assert reason == f"no analytic account: 518 000 is not in the chart, {md} is a guess"
     assert md.startswith("518 ") and proposal.validation.errors == []
     assert proposal.confidence.md <= 0.5
-    catalogue = json.loads((paths.WEB_DIR / "messages-sk.json").read_text(encoding="utf-8"))
+    catalogue = json.loads(ENGINE_MESSAGES.read_text(encoding="utf-8"))
     assert any(re.match(pattern, reason) for pattern, _ in catalogue["messages"])
 
 

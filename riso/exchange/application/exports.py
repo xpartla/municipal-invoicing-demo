@@ -174,7 +174,7 @@ def rows(invoices: Sequence[ExportableInvoice]) -> list[list[Cell]]:
                     budget.oddiel,
                     budget.trieda,
                     budget.analytika,
-                    post.transfer,
+                    budget.transfer or post.transfer,
                     budget.text,
                 ]
             )

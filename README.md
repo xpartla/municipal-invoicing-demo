@@ -283,8 +283,9 @@ riso/
   knowledge/      the authored knowledge base: models, loader, term matching
   store/          runtime state: supplier memory, counters, feedback log, evaluation reports
   api/            FastAPI app
-  web/            static pages (Slovak), app.js, messages-sk.json (Slovak wording of the
-                  engine's messages), vendored Alpine.js
+  web/            the demo's static pages (Slovak), app.js, vendored Alpine.js (until
+                  P2-M4-T10); the engine's messages in Slovak are in
+                  frontend/src/i18n/sk/engine.json
   eval/           scoring proposals against expected outcomes, the metrics, the text report
   checks.py       what `riso check` runs
   dataset.py      loading the mock dataset

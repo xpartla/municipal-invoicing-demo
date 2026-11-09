@@ -351,7 +351,7 @@ def each(invoice_ids: list[str], action: Callable[[str], object]) -> list[ItemRe
         try:
             action(invoice_id)
         except DomainError as exc:
-            code = next((c for kind, c in _CODES if isinstance(exc, kind)), "error")
+            code = exc.code or next((c for kind, c in _CODES if isinstance(exc, kind)), "error")
             results.append(ItemResult(invoice_id, False, code, exc.message))
         else:
             results.append(ItemResult(invoice_id, True))

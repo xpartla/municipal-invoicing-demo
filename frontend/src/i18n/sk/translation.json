@@ -51,7 +51,8 @@
     "decimal_max_places": "Najviac dve desatinné miesta.",
     "decimal_parsing": "Toto nie je suma.",
     "extra_forbidden": "Toto pole sa tu nepoužíva.",
-    "conventions": "Zvyklosti sa nedajú použiť s globálnymi pravidlami roka."
+    "conventions": "Zvyklosti sa nedajú použiť s globálnymi pravidlami roka.",
+    "number_frozen": "Zaúčtovanie by posunulo číslo exportovanej, uhradenej alebo importovanej faktúry. Číslo dokladu zadajte ručne (Opraviť a prijať)."
   },
   "auth": {
     "login": {
@@ -1220,6 +1221,222 @@
       "done": "Súbor je pripravený. Faktúry sú označené ako exportované.",
       "download": "Stiahnuť {{file}}",
       "failed": "Export sa nepodaril."
+    }
+  },
+  "invoice": {
+    "back": "Späť na faktúry",
+    "titleNumber": "Faktúra {{number}}",
+    "titleNone": "Faktúra",
+    "unknownSupplier": "Neznámy dodávateľ",
+    "tabs": {
+      "proposal": "Návrh a zaúčtovanie",
+      "fields": "Údaje faktúry",
+      "history": "História"
+    },
+    "fields": {
+      "supplier": "Dodávateľ",
+      "ico": "IČO",
+      "number": "Číslo faktúry",
+      "vs": "VS",
+      "issued": "Vystavená",
+      "supplied": "Dodanie",
+      "due": "Splatná",
+      "gross": "Suma",
+      "net": "Bez DPH",
+      "vat": "DPH",
+      "handwrittenDate": "Dátum rukou na doklade",
+      "handwrittenNumber": "Číslo rukou na doklade",
+      "lines": "Položky faktúry",
+      "line": "Položka",
+      "lineGross": "Suma",
+      "source": "Zdroj",
+      "notes": "Poznámky na faktúre"
+    },
+    "ocrJson": "Vstup z OCR (JSON)",
+    "ocrJsonText": "Údaje faktúry tak, ako ich aplikácia dostala a skontrolovala.",
+    "copyJson": "Kopírovať JSON",
+    "doc": {
+      "series": "Rad",
+      "number": "Číslo dokladu",
+      "bookingDate": "Dátum zaúčtovania"
+    },
+    "badges": {
+      "confidence": "Istota {{value}}",
+      "codesOk": "Kódy overené",
+      "codesBad": "Chyba v kódoch",
+      "review": "Na kontrolu",
+      "noReview": "Bez kontroly",
+      "known": "Známy dodávateľ",
+      "newSupplier": "Nový dodávateľ"
+    },
+    "reasons": "Prečo na kontrolu",
+    "codingError": "Návrh sa nedá vytvoriť: pre rok faktúry chýbajú číselníky alebo parametre.",
+    "manual": {
+      "title": "Ručné zaúčtovanie",
+      "text": "Program nenavrhol žiadny riadok. Doklad zadajte ručne, kódy vyberte z číselníkov.",
+      "button": "Zadať ručne"
+    },
+    "posting": {
+      "title": "Zaúčtovanie záväzku",
+      "md": "Účet MD",
+      "dal": "Účet DAL",
+      "amount": "Suma",
+      "text": "Popis"
+    },
+    "budget": {
+      "title": "Rozpočet záväzku",
+      "position": "Položka {{key}}",
+      "amount": "Suma",
+      "text": "Popis",
+      "transfer": "Transfer",
+      "parts": {
+        "ek": "EK",
+        "zdroj": "Zdroj",
+        "oddiel": "Oddiel",
+        "trieda": "Trieda",
+        "analytika": "Analytika"
+      }
+    },
+    "copy": {
+      "what": "Kopírovať: {{what}}",
+      "copied": "Skopírované",
+      "row": "Riadok",
+      "postingRow": "Kopírovať riadok zaúčtovania {{n}}",
+      "budgetRow": "Kopírovať riadok rozpočtu {{n}}"
+    },
+    "alternatives": {
+      "label": "Iná položka pre riadok {{n}}",
+      "proposed": "Navrhnutá"
+    },
+    "correct": {
+      "title": "Oprava",
+      "text": "Kódy vyberte z číselníkov obce. Po výbere položky program doplní účty a popisy podľa pravidiel; môžete ich zmeniť.",
+      "line": "Riadok {{n}}",
+      "position": "Rozpočtová položka",
+      "md": "Účet MD",
+      "dal": "Účet DAL",
+      "amount": "Suma",
+      "transfer": "Transfer",
+      "noTransfer": "bez transferu",
+      "budgetText": "Popis v rozpočte",
+      "postingText": "Popis v zaúčtovaní",
+      "addLine": "Pridať riadok",
+      "removeLine": "Odstrániť riadok {{n}}",
+      "total": "Spolu {{total}}, faktúra {{gross}}",
+      "note": "Poznámka k oprave",
+      "notePlaceholder": "Nepovinné",
+      "save": "Uložiť opravu",
+      "search": "Hľadajte kód alebo názov"
+    },
+    "problems": {
+      "noLines": "Doklad nemá žiadny riadok.",
+      "position": "Riadok {{n}}: položka „{{value}}“ nie je v rozpočte.",
+      "md": "Riadok {{n}}: účet MD „{{value}}“ nie je v účtovom rozvrhu.",
+      "dal": "Riadok {{n}}: účet DAL „{{value}}“ nie je v účtovom rozvrhu.",
+      "amount": "Riadok {{n}}: suma nie je číslo.",
+      "text": "Riadok {{n}}: chýba popis.",
+      "total": "Riadky dávajú spolu {{total}}, faktúra {{gross}}.",
+      "date": "Chýba dátum zaúčtovania."
+    },
+    "actions": {
+      "accept": "Prijať",
+      "acceptChanged": "Prijať so zmenou",
+      "correct": "Opraviť a prijať",
+      "original": "Pôvodný návrh",
+      "recode": "Navrhnúť znova",
+      "unbook": "Zrušiť zaúčtovanie",
+      "pay": "Označiť ako uhradené",
+      "export": "Exportovať",
+      "discard": "Vyradiť",
+      "next": "Ďalšia faktúra"
+    },
+    "booking": {
+      "title": "Zaúčtovanie",
+      "gets": "Doklad dostane číslo {{number}}.",
+      "moved": "Číslo {{requested}} má už faktúra dodaná skôr, preto doklad dostane {{number}}.",
+      "shifts": "Zaúčtovanie posunie čísla týchto dokladov:",
+      "reserved": "číslo ponechané pre faktúru so zrušeným zaúčtovaním",
+      "confirm": "Zaúčtovať",
+      "done": "Zaúčtované pod číslom {{number}}.",
+      "accepted": "Návrh prijatý",
+      "corrected": "Oprava uložená",
+      "bookedAs": "Zaúčtovaná {{date}}"
+    },
+    "unbook": {
+      "text": "Faktúra sa vráti na kontrolu a navrhne sa znova. Jej precedens sa z pamäte dodávateľa odstráni. Číslo sa uvoľní, ak je v rade posledné, inak ostane tejto faktúre.",
+      "reason": "Dôvod (nepovinné)",
+      "done": "Zaúčtovanie zrušené."
+    },
+    "pay": {
+      "text": "Faktúra sa označí ako uhradená. Úhrada sa nedá vrátiť.",
+      "paidOn": "Dátum úhrady",
+      "done": "Faktúra je označená ako uhradená."
+    },
+    "discard": {
+      "text": "Faktúra sa vyradí. Vyradenie sa nedá vrátiť.",
+      "reason": "Dôvod (nepovinné)",
+      "done": "Faktúra je vyradená."
+    },
+    "recoded": "Navrhnuté znova.",
+    "evidence": {
+      "title": "Prečo práve toto",
+      "confidence": "Istota po poliach",
+      "checks": "Kontroly v poriadku",
+      "warnings": "Upozornenia",
+      "fields": {
+        "ek": "EK",
+        "cofog": "Oddiel, trieda",
+        "zdroj": "Zdroj",
+        "analytika": "Analytika",
+        "md": "Účet MD",
+        "dal": "Účet DAL",
+        "transfer": "Transfer",
+        "booking_date": "Dátum zaúčtovania",
+        "document_number": "Číslo dokladu",
+        "series": "Rad",
+        "supplier": "Dodávateľ"
+      },
+      "sources": {
+        "supplier_memory": "precedens dodávateľa",
+        "rule": "pravidlo",
+        "lexicon": "slovník pojmov",
+        "similarity": "podobnosť popisu",
+        "handwritten": "rukou na doklade",
+        "counter": "počítadlo dokladov",
+        "invoice": "faktúra"
+      }
+    },
+    "history": {
+      "empty": "Zatiaľ bez histórie.",
+      "system": "systém",
+      "asUser": "{{admin}} ako {{user}}",
+      "when": "Kedy",
+      "what": "Čo",
+      "who": "Kto",
+      "details": "Podrobnosti",
+      "kinds": {
+        "created": "Vytvorená",
+        "extraction_started": "Číta sa",
+        "extracted": "Prečítaná",
+        "extraction_failed": "Nepodarilo sa prečítať",
+        "entered_manually": "Zadaná ručne",
+        "marked_duplicate": "Duplicitná",
+        "checked": "Údaje potvrdené",
+        "coded": "Navrhnutá",
+        "booked": "Zaúčtovaná",
+        "unbooked": "Zaúčtovanie zrušené",
+        "renumbered": "Prečíslovaná",
+        "exported": "Exportovaná",
+        "paid": "Uhradená",
+        "discarded": "Vyradená"
+      },
+      "number": "číslo {{number}}",
+      "renumbered": "{{from}} → {{to}}",
+      "paidOn": "uhradená {{date}}",
+      "again": "opakovaný export",
+      "reason": "dôvod: {{reason}}",
+      "accepted": "návrh prijatý",
+      "corrected": "opravené"
     }
   }
 }

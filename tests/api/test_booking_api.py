@@ -231,6 +231,7 @@ def test_a_booking_that_would_move_a_paid_number_is_refused(fresh):
     refused = _book(fresh, user, earlier)
     assert refused.status_code == 409
     assert "FD/300/26 is exported or paid" in refused.json()["detail"]
+    assert (refused.json()["code"], refused.json()["number"]) == ("number_frozen", "FD/300/26")
     fd = _series(fresh, user)
     assert [u["number"] for u in fd["used"] if u["kind"] == "booked"] == ["FD/300/26"]
 
