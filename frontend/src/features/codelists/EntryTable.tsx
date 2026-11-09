@@ -21,6 +21,8 @@ export function EntryTable({
   onAction?: (action: 'edit' | 'deactivate' | 'reactivate', entry: Entry) => void;
 }) {
   const { t } = useTranslation();
+  const accountType = (value: string) =>
+    t(`codelists.accountTypes.${value}` as 'codelists.accountTypes.active');
   const shown = fields.filter(
     (f) =>
       !f.amount || entries.some((e) => e.values[f.name] !== null && e.values[f.name] !== undefined),
@@ -53,7 +55,7 @@ export function EntryTable({
                   ff={field.code ? 'monospace' : undefined}
                   style={field.code ? { whiteSpace: 'nowrap' } : undefined}
                 >
-                  {cell(entry, field, t)}
+                  {cell(entry, field, accountType)}
                 </Table.Td>
               ))}
               <Table.Td>
@@ -99,10 +101,10 @@ export function EntryTable({
   );
 }
 
-function cell(entry: Entry, field: FieldSpec, t: ReturnType<typeof useTranslation>['t']): string {
+function cell(entry: Entry, field: FieldSpec, accountType: (value: string) => string): string {
   const value = entry.values[field.name];
   if (value === null || value === undefined) return '';
   if (field.amount) return formatAmount(value as number);
-  if (field.options) return t(`codelists.accountTypes.${valueText(value)}` as 'codelists.state');
+  if (field.options) return accountType(valueText(value));
   return valueText(value);
 }

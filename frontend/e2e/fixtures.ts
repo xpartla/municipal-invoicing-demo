@@ -41,13 +41,14 @@ export const test = base.extend<Fixtures>({
     await use(async (target = page) => {
       // A dialog or menu that is still fading in has blended colours; axe would measure
       // the contrast of a half-transparent button. Let running transitions finish first
-      // (not the endless ones, such as a loader's spin).
+      // (not the endless ones, such as a loader's spin). One cancelled meanwhile (a menu
+      // closing as a dialog opens) has ended too: its `finished` rejects with an AbortError.
       await target.evaluate(() =>
         Promise.all(
           document
             .getAnimations()
             .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
-            .map((animation) => animation.finished),
+            .map((animation) => animation.finished.catch(() => undefined)),
         ),
       );
       const results = await new AxeBuilder({ page: target })
