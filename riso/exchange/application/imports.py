@@ -30,7 +30,8 @@ from riso.codelists import (
     apply_import,
     check_import,
 )
-from riso.exchange.application.ports import CustomerIcos, SupplierMemorySource, TableReader
+from riso.exchange.application.ports import CustomerDirectory, SupplierMemorySource, TableReader
+from riso.exchange.application.templates import ChosenTemplate
 from riso.exchange.application.uow import ExchangeUnitOfWork
 from riso.exchange.domain.mapping import ColumnMapping, ImportType
 from riso.exchange.domain.records import MappedTable, map_table
@@ -172,9 +173,18 @@ class ImportPreview:
     data_rows: int
     signature: str
     suggestion: ColumnMapping
+    template_id: str | None
+    """The template the suggestion comes from; None for the headers' suggestion."""
+    template_name: str | None
 
     @classmethod
-    def of(cls, workbook: Workbook, suggestion: ColumnMapping) -> "ImportPreview":
+    def of(
+        cls,
+        workbook: Workbook,
+        suggestion: ColumnMapping,
+        template_id: str | None,
+        template_name: str | None,
+    ) -> "ImportPreview":
         table = workbook.table
         filled = [row for row in table.rows if not row.empty][:PREVIEW_ROWS]
         return cls(
@@ -193,6 +203,8 @@ class ImportPreview:
             data_rows=table.data_rows,
             signature=header_signature(table.headers),
             suggestion=suggestion,
+            template_id=template_id,
+            template_name=template_name,
         )
 
 
@@ -308,28 +320,27 @@ def preview_import(
     run_id: str,
     options: ReadOptions | None = None,
     *,
-    suggest: Callable[[Workbook, ImportType], ColumnMapping] | None = None,
+    templates: Callable[[Workbook, ImportType], ChosenTemplate | None] | None = None,
 ) -> ImportPreview:
     """The file read with `options` (else the run's, else the readers' choices) and the
-    mapping suggested for it: the run's own mapping when it fits, else `suggest` (the
-    template choice), else the headers' suggestion."""
+    mapping suggested for it: the run's own mapping when it fits the file, else the template
+    `templates` chooses by the header signature, else the headers' suggestion."""
     _require_edit(ctx, customer_id)
     with uow:
         run = uow.imports.get(customer_id, run_id)
     workbook = _read(storage, reader, run, options or run.options)
-    suggestion: ColumnMapping | None = None
     if run.mapping is not None:
         resolved = resolve_columns(run.mapping, workbook.table)
         try:
             resolved.check_against(workbook.table)
-            suggestion = resolved
         except ValidationFailed:
-            suggestion = None
-    if suggestion is None and suggest is not None:
-        suggestion = suggest(workbook, run.import_type)
-    if suggestion is None:
-        suggestion = suggest_mapping(workbook.table, run.import_type)
-    return ImportPreview.of(workbook, suggestion)
+            pass
+        else:
+            return ImportPreview.of(workbook, resolved, run.template_id, None)
+    chosen = templates(workbook, run.import_type) if templates is not None else None
+    if chosen is not None:
+        return ImportPreview.of(workbook, chosen.mapping, chosen.id, chosen.name)
+    return ImportPreview.of(workbook, suggest_mapping(workbook.table, run.import_type), None, None)
 
 
 def set_mapping(
@@ -455,13 +466,13 @@ class ImportJobs:
         storage: FileStorage,
         reader: TableReader,
         memory: SupplierMemorySource,
-        icos: CustomerIcos,
+        customers: CustomerDirectory,
     ) -> None:
         self._uow = uow
         self._storage = storage
         self._reader = reader
         self._memory = memory
-        self._icos = icos
+        self._customers = customers
 
     def register(self, registry: JobRegistry) -> JobRegistry:
         registry.register(DRY_RUN_JOB, ImportJobPayload, self.dry_run)
@@ -510,7 +521,7 @@ class ImportJobs:
         ]
         facts = mapped.facts
         if run.customer_id is not None and facts.ico is not None:
-            own = self._icos.ico_of(run.customer_id)
+            own = self._customers.ico_of(run.customer_id)
             if facts.ico != own:
                 errors.append(
                     Issue(

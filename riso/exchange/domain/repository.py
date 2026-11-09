@@ -4,6 +4,7 @@ for a global list, to the platform (None); every method takes that owner (guide 
 from typing import Protocol
 
 from riso.exchange.domain.run import ImportRun
+from riso.exchange.domain.templates import MappingTemplate, TemplateScope
 
 
 class ImportRunRepository(Protocol):
@@ -20,3 +21,22 @@ class ImportRunRepository(Protocol):
         ...
 
     def count(self, customer_id: str | None) -> int: ...
+
+
+class TemplateRepository(Protocol):
+    """Stored templates (built-in ones live in the code). `owner_id` is the customer's or the
+    provider's ID, None for a global template."""
+
+    def add(self, template: MappingTemplate) -> None: ...
+
+    def save(self, template: MappingTemplate) -> None: ...
+
+    def delete(self, template: MappingTemplate) -> None: ...
+
+    def get(self, scope: TemplateScope, owner_id: str | None, template_id: str) -> MappingTemplate:
+        """Raises `NotFound` unless the template has that scope and owner."""
+        ...
+
+    def owned(self, scope: TemplateScope, owner_id: str | None) -> list[MappingTemplate]:
+        """The scope's and owner's templates, by name."""
+        ...

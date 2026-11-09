@@ -19,7 +19,11 @@ class SupplierMemorySource(Protocol):
     def memory(self, customer_id: str) -> SupplierMemory: ...
 
 
-class CustomerIcos(Protocol):
+class CustomerDirectory(Protocol):
     def ico_of(self, customer_id: str) -> str:
         """The customer's IČO; raises `NotFound` for an unknown customer."""
+        ...
+
+    def provider_of(self, customer_id: str) -> str | None:
+        """The service provider the customer is assigned to, if any."""
         ...

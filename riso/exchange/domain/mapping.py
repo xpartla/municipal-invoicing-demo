@@ -597,7 +597,8 @@ class ColumnMapping(BaseModel):
 
     def check_against(self, table: Table) -> None:
         """Raises `ValidationFailed` when a column is not in the table or a required field
-        has no source (and cannot be derived)."""
+        has no source (and cannot be derived). A fact the file has no row for is not an
+        error: reading notes it as missing."""
         errors = []
         for name, source in self.fields.items():
             if source.column is not None and not table.has_column(source.column):
@@ -607,10 +608,5 @@ class ColumnMapping(BaseModel):
         for target in self.target_schema.fields:
             if target.required and self.source(target.name).empty and target.derive is None:
                 errors.append(FieldError(f"fields.{target.name}", "required", "missing"))
-        for fact in self.facts:
-            if fact.row >= max(table.header_row, 1):
-                errors.append(
-                    FieldError("facts", "a fact is read above the header row", "fact_row")
-                )
         if errors:
             raise ValidationFailed("the mapping does not fit the file", errors)

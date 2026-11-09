@@ -12,6 +12,7 @@ from riso.api.uow import AppUnitOfWork
 from riso.exchange.application.imports import ImportJobs
 from riso.exchange.infrastructure.readers import FileTableReader
 from riso.identity.application.access import Grant, MembershipPolicy
+from riso.identity.application.ports import CustomerRef
 from riso.identity.domain import PasswordHasher, PasswordPolicy
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.sessions import SecretsTokenGenerator
@@ -35,17 +36,23 @@ def build_registry() -> JobRegistry:
     return register_builtin(JobRegistry())
 
 
-class CustomerIcos:
-    """The exchange context's `CustomerIcos` port on the tenancy directory."""
+class CustomerDirectory:
+    """The exchange context's `CustomerDirectory` port on the tenancy directory."""
 
     def __init__(self, directory: SqlTenancyDirectory) -> None:
         self._directory = directory
 
-    def ico_of(self, customer_id: str) -> str:
+    def _customer(self, customer_id: str) -> CustomerRef:
         customer = self._directory.customer(customer_id)
         if customer is None:
             raise NotFound(f"no customer {customer_id}")
-        return customer.ico
+        return customer
+
+    def ico_of(self, customer_id: str) -> str:
+        return self._customer(customer_id).ico
+
+    def provider_of(self, customer_id: str) -> str | None:
+        return self._customer(customer_id).provider_id
 
 
 @dataclass
@@ -110,13 +117,16 @@ class Services:
             request_id, job.created_by, customer_id=job.customer_id, policy=self.policy(grants)
         )
 
+    def customers(self) -> CustomerDirectory:
+        return CustomerDirectory(self.directory)
+
     def import_jobs(self) -> ImportJobs:
         return ImportJobs(
             self.uow,
             self.storage,
             self.reader,
             self.supplier_state(),
-            CustomerIcos(self.directory),
+            self.customers(),
         )
 
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
@@ -147,6 +157,7 @@ def build_services(
     settings: Settings | None = None,
     *,
     clock: Clock | None = None,
+    ids: IdGenerator | None = None,
     registry: JobRegistry | None = None,
     hasher: PasswordHasher | None = None,
 ) -> Services:
@@ -157,7 +168,7 @@ def build_services(
         settings=settings,
         db=db,
         clock=clock,
-        ids=UuidV7Generator(clock),
+        ids=ids or UuidV7Generator(clock),
         registry=registry or build_registry(),
         storage=LocalFileStorage(settings.files_dir, clock),
         hasher=hasher or Argon2Hasher(),

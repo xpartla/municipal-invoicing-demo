@@ -10,7 +10,7 @@ infrastructure.
 from riso.api.adapters import UserLogins
 from riso.audit.infrastructure.log import SqlAuditLog, SqlAuditRecorder
 from riso.codelists.infrastructure.uow import SqlCodelistsUnitOfWork
-from riso.exchange.infrastructure.repository import SqlImportRunRepository
+from riso.exchange.infrastructure.repository import SqlImportRunRepository, SqlTemplateRepository
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
 from riso.jobs import JobRegistry, register_builtin
 from riso.jobs.application import RepositoryJobQueue
@@ -32,6 +32,7 @@ class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork, SqlCodelistsUni
     audit_log: SqlAuditLog
     logins: UserLogins
     imports: SqlImportRunRepository
+    templates: SqlTemplateRepository
     queue: RepositoryJobQueue
     """Jobs queued here are committed with the change that needs them."""
 
@@ -53,6 +54,7 @@ class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork, SqlCodelistsUni
         SqlTenancyUnitOfWork._start(self)
         SqlCodelistsUnitOfWork._start(self)
         self.imports = SqlImportRunRepository(self.session, self)
+        self.templates = SqlTemplateRepository(self.session, self)
         self.queue = RepositoryJobQueue(
             SqlJobRepository(self.session), self._registry, self.clock, self.ids
         )

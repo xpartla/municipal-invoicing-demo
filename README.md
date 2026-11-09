@@ -69,7 +69,8 @@ RISO_ENV=dev RISO_SEED_PASSWORD='Ukážkové-heslo-2026' uv run riso seed --rese
 `riso seed` migrates, then creates Obec Boldog with its 2026 parameters and its 2026 code lists
 (version 1 of each, from the committed bundle `data/bundles/00305863/2026-08.json`), the global
 lists of each year in `data/global/` (EK, COFOG, funding sources, the framework chart; sources in
-`data/global/2026/README.md`), the made-up provider
+`data/global/2026/README.md`; each goes through the import tool with its built-in template, so
+its file lands in `var/files/global/`), the made-up provider
 "Účtovníctvo Vzor, s.r.o.", two more made-up municipalities (one assigned to the provider, one
 not), and one login per role, all under the reserved `.test` domain:
 

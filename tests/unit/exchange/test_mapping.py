@@ -239,7 +239,6 @@ def test_a_mapping_is_checked_against_the_file():
     assert {(e.field, e.code) for e in caught.value.errors} == {
         ("fields.au.column", "unknown_column"),
         ("fields.type", "missing"),
-        ("facts", "fact_row"),
     }
     # A derived field needs no source: the series code comes from the pattern.
     series = ColumnMapping(
