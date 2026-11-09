@@ -28,6 +28,7 @@ def _holder(row: UsedNumberRow) -> Holder:
         supply_date=row.supply_date,
         received_at=row.received_at,
         frozen=row.frozen,
+        requested=row.requested_sequence,
     )
 
 
@@ -52,6 +53,7 @@ def _apply(row: UsedNumberRow, series: NumberSeries, holder: Holder) -> None:
     row.supply_date = holder.supply_date
     row.received_at = holder.received_at
     row.frozen = holder.frozen
+    row.requested_sequence = holder.requested
 
 
 class SqlNumberSeriesRepository:
@@ -190,6 +192,7 @@ class SqlNumberSeriesRepository:
                 number=number,
                 kind=HolderKind.EXTERNAL.value,
                 frozen=True,
+                requested_sequence=None,
             )
         )
         self._session.flush()

@@ -4923,6 +4923,492 @@
         }
       }
     },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/check": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Check",
+        "description": "Confirms the invoice's fields (they take the invoice's ID) and codes them: the\ninvoice becomes needs_review or ready, or stays checked with the reason the coding could\nnot run.",
+        "operationId": "invoices.check",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/recode": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Recode",
+        "description": "Codes the checked fields again with today's lists, conventions and memory.",
+        "operationId": "invoices.recode",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/line": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Line",
+        "description": "The whole line (MD, DAL, transfer, texts) a budget position the user picked brings for\nthis invoice, for the correction editors. 404 for a position outside the budget.",
+        "operationId": "invoices.line",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Alternative"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/booking-preview": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Preview Booking",
+        "description": "The number booking would give and the invoices it would move up, without booking.\n422 and 409 as booking.",
+        "operationId": "invoices.preview_booking",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlacementOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/book": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Book",
+        "description": "Books the proposal (`accepted`, which must be the proposal's coding) or a correction.\nThe codes must be in the year's lists (422); the number follows plan §2 decision 61 and\nmay move later booked invoices up (409 when an exported or paid one would move). The\ncoding becomes the supplier's newest precedent. All in one transaction.",
+        "operationId": "invoices.book",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookedOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/unbook": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Unbook",
+        "description": "Back to checked and coded again (plan §2 decision 62): the precedent goes; the number\nis freed when it is the series' last, else kept for this invoice.",
+        "operationId": "invoices.unbook",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/discard": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Discard",
+        "description": "Discards an invoice that is not booked. Final.",
+        "operationId": "invoices.discard",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/pay": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Pay",
+        "description": "Marks a booked or exported invoice paid on the given date. Final.",
+        "operationId": "invoices.pay",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaidIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/audit": {
       "get": {
         "tags": [
@@ -6178,6 +6664,147 @@
           "total"
         ],
         "title": "AuditPageOut"
+      },
+      "BasisOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "bundle_id": {
+            "type": "string",
+            "title": "Bundle Id"
+          },
+          "version_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Version Ids"
+          },
+          "conventions_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conventions Revision"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "bundle_id",
+          "version_ids",
+          "conventions_revision"
+        ],
+        "title": "BasisOut",
+        "description": "What the proposal was coded with (plan §6.2, decision 56)."
+      },
+      "BookedOut": {
+        "properties": {
+          "invoice": {
+            "$ref": "#/components/schemas/InvoiceOut"
+          },
+          "placement": {
+            "$ref": "#/components/schemas/PlacementOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice",
+          "placement"
+        ],
+        "title": "BookedOut"
+      },
+      "BookingIn": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "corrected"
+            ],
+            "title": "Action"
+          },
+          "coding": {
+            "$ref": "#/components/schemas/Coding",
+            "description": "The proposal's coding, or the corrected one"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "coding"
+        ],
+        "title": "BookingIn"
+      },
+      "BookingOut": {
+        "properties": {
+          "coding": {
+            "$ref": "#/components/schemas/Coding"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "corrected"
+            ],
+            "title": "Action"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "By"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "coding",
+          "action",
+          "at",
+          "by",
+          "note"
+        ],
+        "title": "BookingOut"
       },
       "BudgetLine": {
         "properties": {
@@ -9341,6 +9968,307 @@
         "title": "InvoiceListItem",
         "description": "One row of the invoice picker."
       },
+      "InvoiceOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "scan",
+              "digital_pdf",
+              "einvoice",
+              "manual",
+              "dataset"
+            ],
+            "title": "Channel"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "uploaded",
+              "extracting",
+              "extraction_failed",
+              "extracted",
+              "checked",
+              "needs_review",
+              "ready",
+              "booked",
+              "exported",
+              "paid",
+              "discarded",
+              "duplicate"
+            ],
+            "title": "State"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref",
+            "description": "The dataset case, or the uploaded file's name"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The fields, as extracted or checked"
+          },
+          "proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodingProposal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "basis": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BasisOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "coding_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coding Error",
+            "description": "Why the last coding could not run"
+          },
+          "needs_review": {
+            "type": "boolean",
+            "title": "Needs Review"
+          },
+          "booking": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BookingOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number",
+            "description": "The booked document number"
+          },
+          "paid_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid On"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Uploaded At"
+          },
+          "uploaded_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded By"
+          },
+          "checked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checked At"
+          },
+          "coded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coded At"
+          },
+          "booked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booked At"
+          },
+          "exported_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exported At"
+          },
+          "paid_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid At"
+          },
+          "discarded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discarded At"
+          },
+          "discard_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discard Reason"
+          },
+          "extraction_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extraction Error"
+          },
+          "actions": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "check",
+                "recode",
+                "book",
+                "unbook",
+                "export",
+                "pay",
+                "discard"
+              ]
+            },
+            "type": "array",
+            "title": "Actions",
+            "description": "What the invoice's state allows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "customer_id",
+          "channel",
+          "state",
+          "source_ref",
+          "document_id",
+          "fields",
+          "proposal",
+          "basis",
+          "coding_error",
+          "needs_review",
+          "booking",
+          "number",
+          "paid_on",
+          "uploaded_at",
+          "uploaded_by",
+          "checked_at",
+          "coded_at",
+          "booked_at",
+          "exported_at",
+          "paid_at",
+          "discarded_at",
+          "discard_reason",
+          "extraction_error",
+          "actions"
+        ],
+        "title": "InvoiceOut"
+      },
       "InvoiceSummary": {
         "properties": {
           "number": {
@@ -9733,6 +10661,21 @@
         ],
         "title": "LineCodes",
         "description": "What the accountant types for one line: the budget key, MD and DAL."
+      },
+      "LineIn": {
+        "properties": {
+          "budget_key": {
+            "type": "string",
+            "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
+            "title": "Budget Key"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "budget_key"
+        ],
+        "title": "LineIn"
       },
       "LineRequest": {
         "properties": {
@@ -10379,6 +11322,21 @@
         ],
         "title": "OutboxPageOut"
       },
+      "PaidIn": {
+        "properties": {
+          "paid_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Paid On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "paid_on"
+        ],
+        "title": "PaidIn"
+      },
       "ParametersIn": {
         "properties": {
           "values": {
@@ -10448,6 +11406,47 @@
           "account.own"
         ],
         "title": "Permission"
+      },
+      "PlacementOut": {
+        "properties": {
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "requested": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested",
+            "description": "The handwritten or typed number asked for"
+          },
+          "moved": {
+            "type": "boolean",
+            "title": "Moved",
+            "description": "An invoice supplied earlier holds the number asked for"
+          },
+          "shifts": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftOut"
+            },
+            "type": "array",
+            "title": "Shifts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "requested",
+          "moved",
+          "shifts"
+        ],
+        "title": "PlacementOut",
+        "description": "The number a booking gets, or would get, and the invoices it moves up (decision 61)."
       },
       "PostingLine": {
         "properties": {
@@ -10810,6 +11809,25 @@
         "type": "object",
         "title": "ReadOptionsIn",
         "description": "How to read the file; empty fields leave the choice to the reader."
+      },
+      "ReasonIn": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ReasonIn"
       },
       "ReferenceBundle": {
         "properties": {
@@ -11207,6 +12225,37 @@
           "password"
         ],
         "title": "SetPasswordIn"
+      },
+      "ShiftOut": {
+        "properties": {
+          "invoice_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Id",
+            "description": "None for a number kept for an unbooked invoice"
+          },
+          "old": {
+            "type": "string",
+            "title": "Old"
+          },
+          "new": {
+            "type": "string",
+            "title": "New"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "old",
+          "new"
+        ],
+        "title": "ShiftOut"
       },
       "SourceFile": {
         "properties": {

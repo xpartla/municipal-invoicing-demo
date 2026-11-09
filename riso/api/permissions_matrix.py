@@ -142,6 +142,14 @@ MATRIX: dict[str, RouteAccess] = {
     "admin_codelists.versions": platform(Permission.GLOBAL_CODELISTS),
     # Invoicing.
     "coding.code": customer(Permission.INVOICES_PROCESS),
+    "invoices.check": customer(Permission.INVOICES_PROCESS),
+    "invoices.recode": customer(Permission.INVOICES_PROCESS),
+    "invoices.line": customer(Permission.INVOICES_PROCESS),
+    "invoices.preview_booking": customer(Permission.INVOICES_PROCESS),
+    "invoices.book": customer(Permission.INVOICES_PROCESS),
+    "invoices.unbook": customer(Permission.INVOICES_PROCESS),
+    "invoices.discard": customer(Permission.INVOICES_PROCESS),
+    "invoices.pay": customer(Permission.INVOICES_PROCESS),
     # Number series.
     "number_series.list": customer(Permission.CUSTOMER_READ),
     "number_series.set_last_used": customer(Permission.CODELISTS_EDIT),

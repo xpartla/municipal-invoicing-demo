@@ -133,3 +133,40 @@ def login(seeded):
         return client
 
     return make
+
+
+@pytest.fixture(scope="session")
+def seeded_template(tmp_path_factory):
+    """A var directory `riso seed` filled once, copied by `fresh`."""
+    from riso.api.seed import seed
+
+    settings = PlatformSettings(var_dir=tmp_path_factory.mktemp("template") / "var", env="test")
+    done = seed(settings, password=SEED_PASSWORD, hasher=Argon2Hasher.fast())
+    return settings.var_dir, done
+
+
+class Fresh:
+    """A seeded app of its own, for tests that change invoices, numbers or memory."""
+
+    def __init__(self, app, services, done) -> None:
+        self.app, self.services, self.done = app, services, done
+        self.boldog = done.customers["Obec Boldog"]
+
+    def login(self, key: str) -> ApiClient:
+        client = ApiClient(self.app)
+        client.login(self.done.users[key][1], SEED_PASSWORD)
+        return client
+
+
+@pytest.fixture
+def fresh(seeded_template, tmp_path):
+    source, done = seeded_template
+    var_dir = tmp_path / "var"
+    shutil.copytree(source, var_dir)
+    settings = PlatformSettings(var_dir=var_dir, env="test")
+    services = build_services(settings, hasher=Argon2Hasher.fast())
+    app = create_app(
+        Settings(var_dir=var_dir, platform=settings, run_worker=False), services=services
+    )
+    yield Fresh(app, services, done)
+    services.close()

@@ -217,6 +217,8 @@ class Invoice:
     updated_at: datetime
     document_id: str | None = None
     """The uploaded file (intake's document); None for manual and dataset invoices."""
+    source_ref: str | None = None
+    """Where it came from, for people: the dataset case, or the uploaded file's name."""
     job_id: str | None = None
     """The extraction job the invoice waits for."""
     fields: InvoiceDocument | None = None
@@ -281,6 +283,7 @@ class Invoice:
         *,
         at: datetime,
         actor: Actor,
+        source_ref: str | None = None,
     ) -> "Invoice":
         """An invoice whose fields were typed (manual entry) or come from the dataset. It
         starts as extracted; checking it is the next step."""
@@ -295,6 +298,7 @@ class Invoice:
             uploaded_by=actor.id,
             updated_at=at,
             fields=fields,
+            source_ref=source_ref,
         )
         invoice._record(EventKind.CREATED, None, at, actor, {"channel": channel.value})
         return invoice
@@ -392,6 +396,19 @@ class Invoice:
         """Books the coding the user accepted or corrected, under the number the series
         gave it. An accepted coding must be the proposal's; the number is not part of that
         comparison, since the series may have moved it (plan §2 decision 61)."""
+        self.ensure_bookable(coding, action)
+        details = {"action": action, "number": number}
+        self._go(EventKind.BOOKED, at, actor, details)
+        document = coding.document.model_copy(update={"number": number})
+        self.booking = Booking(
+            coding.model_copy(update={"document": document}), action, at, actor.id, note
+        )
+
+    def ensure_bookable(self, coding: Coding, action: BookingAction) -> None:
+        """Refuses a booking before anything else is done for it: the state, and an
+        accepted coding that is not the proposal's."""
+        if not self.can(EventKind.BOOKED):
+            raise InvalidState(f"invoice {self.id} is {self.state}; it cannot be booked")
         if self.proposal is None:
             raise InvalidState(f"invoice {self.id} has no proposal")
         if action == "accepted" and _without_number(coding) != _without_number(
@@ -400,12 +417,6 @@ class Invoice:
             raise ValidationFailed.on(
                 "action", "an accepted proposal keeps its coding; use 'corrected'"
             )
-        details = {"action": action, "number": number}
-        self._go(EventKind.BOOKED, at, actor, details)
-        document = coding.document.model_copy(update={"number": number})
-        self.booking = Booking(
-            coding.model_copy(update={"document": document}), action, at, actor.id, note
-        )
 
     def unbook(self, at: datetime, actor: Actor, *, reason: str | None = None) -> Booking:
         """Back to checked; the coding follows. Returns the booking that was undone."""

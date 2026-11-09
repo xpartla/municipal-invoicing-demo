@@ -85,3 +85,46 @@ def make_session(
         uow.sessions.add(session)
         uow.commit()
     return token, csrf
+
+
+def make_invoice(
+    services: Services,
+    customer_id: str,
+    case_id: str,
+    *,
+    changes: dict | None = None,
+    check: bool = True,
+) -> str:
+    """An invoice of the customer with a dataset case's fields (channel `dataset`), checked
+    and coded unless told otherwise. `changes` updates parts of the fields, e.g.
+    `{"handwritten": {"number": "300"}}`."""
+    from riso.dataset import load_cases
+    from riso.invoicing.application import check_invoice
+    from riso.invoicing.domain.invoice import Actor, Channel, Invoice
+    from riso.shared import AllowAll, RequestContext
+
+    case = next(c for c in load_cases() if c.id == case_id)
+    invoice_id = services.ids.new()
+    data = case.invoice.model_dump(mode="json") | {"id": invoice_id}
+    for part, values in (changes or {}).items():
+        data[part] = data[part] | values
+    fields = type(case.invoice).model_validate(data)
+    with services.uow() as uow:
+        uow.invoices.add(
+            Invoice.entered(
+                invoice_id,
+                customer_id,
+                Channel.DATASET,
+                fields,
+                at=services.clock.now(),
+                actor=Actor.system(),
+                source_ref=case.id,
+            )
+        )
+        uow.commit()
+    if check:
+        ctx = RequestContext("test", None, policy=AllowAll())
+        check_invoice(
+            ctx, services.uow(), services.reference_data(), customer_id, invoice_id, fields
+        )
+    return invoice_id

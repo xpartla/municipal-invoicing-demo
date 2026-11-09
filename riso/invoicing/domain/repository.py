@@ -5,7 +5,24 @@ from collections.abc import Sequence
 from typing import Protocol
 
 from riso.contracts import Precedent, SupplierMemory
+from riso.invoicing.domain.invoice import Invoice, InvoiceEvent
 from riso.invoicing.domain.numbering import NumberSeries
+
+
+class InvoiceRepository(Protocol):
+    def add(self, invoice: Invoice) -> None: ...
+
+    def save(self, invoice: Invoice) -> None:
+        """Stores the invoice and the history entries it recorded since it was loaded."""
+        ...
+
+    def get(self, customer_id: str, invoice_id: str) -> Invoice:
+        """Raises `NotFound` when the customer has no such invoice."""
+        ...
+
+    def history(self, customer_id: str, invoice_id: str) -> list[InvoiceEvent]:
+        """The invoice's history, oldest first."""
+        ...
 
 
 class NumberSeriesRepository(Protocol):

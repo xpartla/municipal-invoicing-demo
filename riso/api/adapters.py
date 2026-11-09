@@ -235,6 +235,14 @@ class DbReferenceData:
     def knowledge(self, ctx: RequestContext, customer_id: str, year: int) -> KnowledgeBase:
         return customer_knowledge(ctx, self._uow(), customer_id, year)[0]
 
+    def basis(
+        self, ctx: RequestContext, customer_id: str, year: int
+    ) -> tuple[tuple[str, ...], int]:
+        revision = customer_knowledge(ctx, self._uow(), customer_id, year)[1]
+        with self._uow() as uow:
+            versions = uow.codelists.active_ids(customer_id, year)
+        return tuple(sorted(versions.values())), revision
+
 
 def _ico(uow: "AppUnitOfWork", customer_id: str) -> str:
     return uow.customers.get(customer_id).ico.value

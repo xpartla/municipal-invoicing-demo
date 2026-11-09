@@ -1573,6 +1573,174 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Check
+         * @description Confirms the invoice's fields (they take the invoice's ID) and codes them: the
+         *     invoice becomes needs_review or ready, or stays checked with the reason the coding could
+         *     not run.
+         */
+        post: operations["invoices.check"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/recode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Recode
+         * @description Codes the checked fields again with today's lists, conventions and memory.
+         */
+        post: operations["invoices.recode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/line": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Line
+         * @description The whole line (MD, DAL, transfer, texts) a budget position the user picked brings for
+         *     this invoice, for the correction editors. 404 for a position outside the budget.
+         */
+        post: operations["invoices.line"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/booking-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Preview Booking
+         * @description The number booking would give and the invoices it would move up, without booking.
+         *     422 and 409 as booking.
+         */
+        post: operations["invoices.preview_booking"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/book": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Book
+         * @description Books the proposal (`accepted`, which must be the proposal's coding) or a correction.
+         *     The codes must be in the year's lists (422); the number follows plan §2 decision 61 and
+         *     may move later booked invoices up (409 when an exported or paid one would move). The
+         *     coding becomes the supplier's newest precedent. All in one transaction.
+         */
+        post: operations["invoices.book"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/unbook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Unbook
+         * @description Back to checked and coded again (plan §2 decision 62): the precedent goes; the number
+         *     is freed when it is the series' last, else kept for this invoice.
+         */
+        post: operations["invoices.unbook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Discard
+         * @description Discards an invoice that is not booked. Final.
+         */
+        post: operations["invoices.discard"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Pay
+         * @description Marks a booked or exported invoice paid on the given date. Final.
+         */
+        post: operations["invoices.pay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit": {
         parameters: {
             query?: never;
@@ -1996,6 +2164,55 @@ export interface components {
             items: components["schemas"]["AuditEventOut"][];
             /** Total */
             total: number;
+        };
+        /**
+         * BasisOut
+         * @description What the proposal was coded with (plan §6.2, decision 56).
+         */
+        BasisOut: {
+            /** Year */
+            year: number;
+            /** Bundle Id */
+            bundle_id: string;
+            /** Version Ids */
+            version_ids: string[];
+            /** Conventions Revision */
+            conventions_revision: number | null;
+        };
+        /** BookedOut */
+        BookedOut: {
+            invoice: components["schemas"]["InvoiceOut"];
+            placement: components["schemas"]["PlacementOut"];
+        };
+        /** BookingIn */
+        BookingIn: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "accepted" | "corrected";
+            /** @description The proposal's coding, or the corrected one */
+            coding: components["schemas"]["Coding"];
+            /** Note */
+            note?: string | null;
+        };
+        /** BookingOut */
+        BookingOut: {
+            coding: components["schemas"]["Coding"];
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "accepted" | "corrected";
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** By */
+            by: string | null;
+            /** Note */
+            note: string | null;
         };
         /**
          * BudgetLine
@@ -3126,6 +3343,77 @@ export interface components {
             /** Gross */
             gross: number | null;
         };
+        /** InvoiceOut */
+        InvoiceOut: {
+            /** Id */
+            id: string;
+            /** Customer Id */
+            customer_id: string;
+            /**
+             * Channel
+             * @enum {string}
+             */
+            channel: "scan" | "digital_pdf" | "einvoice" | "manual" | "dataset";
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "uploaded" | "extracting" | "extraction_failed" | "extracted" | "checked" | "needs_review" | "ready" | "booked" | "exported" | "paid" | "discarded" | "duplicate";
+            /**
+             * Source Ref
+             * @description The dataset case, or the uploaded file's name
+             */
+            source_ref: string | null;
+            /** Document Id */
+            document_id: string | null;
+            /** @description The fields, as extracted or checked */
+            fields: components["schemas"]["InvoiceDocument"] | null;
+            proposal: components["schemas"]["CodingProposal"] | null;
+            basis: components["schemas"]["BasisOut"] | null;
+            /**
+             * Coding Error
+             * @description Why the last coding could not run
+             */
+            coding_error: string | null;
+            /** Needs Review */
+            needs_review: boolean;
+            booking: components["schemas"]["BookingOut"] | null;
+            /**
+             * Number
+             * @description The booked document number
+             */
+            number: string | null;
+            /** Paid On */
+            paid_on: string | null;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /** Uploaded By */
+            uploaded_by: string | null;
+            /** Checked At */
+            checked_at: string | null;
+            /** Coded At */
+            coded_at: string | null;
+            /** Booked At */
+            booked_at: string | null;
+            /** Exported At */
+            exported_at: string | null;
+            /** Paid At */
+            paid_at: string | null;
+            /** Discarded At */
+            discarded_at: string | null;
+            /** Discard Reason */
+            discard_reason: string | null;
+            /** Extraction Error */
+            extraction_error: string | null;
+            /**
+             * Actions
+             * @description What the invoice's state allows
+             */
+            actions: ("check" | "recode" | "book" | "unbook" | "export" | "pay" | "discard")[];
+        };
         /** InvoiceSummary */
         InvoiceSummary: {
             /** Number */
@@ -3245,6 +3533,11 @@ export interface components {
             md: string;
             /** Dal */
             dal: string;
+        };
+        /** LineIn */
+        LineIn: {
+            /** Budget Key */
+            budget_key: string;
         };
         /**
          * LineRequest
@@ -3477,6 +3770,14 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** PaidIn */
+        PaidIn: {
+            /**
+             * Paid On
+             * Format: date
+             */
+            paid_on: string;
+        };
         /** ParametersIn */
         ParametersIn: {
             /** Values */
@@ -3503,6 +3804,26 @@ export interface components {
          * @enum {string}
          */
         Permission: "customer.read" | "invoices.process" | "codelists.edit" | "templates.use" | "templates.create_customer" | "customer.edit_contact" | "customer.edit_identity" | "customer.assign_variable_number" | "logins.manage" | "customers.delete" | "templates.create_provider" | "customers.create" | "provider.overview" | "templates.create_global" | "providers.manage" | "users.delete" | "users.administer" | "users.impersonate" | "codelists.global" | "audit.read" | "jobs.manage" | "outbox.read" | "evaluation.read" | "customer.data_export" | "account.own";
+        /**
+         * PlacementOut
+         * @description The number a booking gets, or would get, and the invoices it moves up (decision 61).
+         */
+        PlacementOut: {
+            /** Number */
+            number: string;
+            /**
+             * Requested
+             * @description The handwritten or typed number asked for
+             */
+            requested: string | null;
+            /**
+             * Moved
+             * @description An invoice supplied earlier holds the number asked for
+             */
+            moved: boolean;
+            /** Shifts */
+            shifts: components["schemas"]["ShiftOut"][];
+        };
         /**
          * PostingLine
          * @description One line of Zaúčtovanie záväzku.
@@ -3617,6 +3938,11 @@ export interface components {
             encoding?: ("utf-8" | "windows-1250") | null;
             /** Delimiter */
             delimiter?: (";" | "," | "\t" | "|") | null;
+        };
+        /** ReasonIn */
+        ReasonIn: {
+            /** Reason */
+            reason?: string | null;
         };
         /** ReferenceBundle */
         ReferenceBundle: {
@@ -3793,6 +4119,18 @@ export interface components {
             token: string;
             /** Password */
             password: string;
+        };
+        /** ShiftOut */
+        ShiftOut: {
+            /**
+             * Invoice Id
+             * @description None for a number kept for an unbooked invoice
+             */
+            invoice_id: string | null;
+            /** Old */
+            old: string;
+            /** New */
+            new: string;
         };
         /** SourceFile */
         SourceFile: {
@@ -7122,6 +7460,290 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NumberSeriesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceDocument"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.recode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.line": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LineIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Alternative"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.preview_booking": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlacementOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.book": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookedOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.unbook": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.discard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "invoices.pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaidIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOut"];
                 };
             };
             /** @description Validation Error */

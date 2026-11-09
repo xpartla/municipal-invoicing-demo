@@ -2,11 +2,24 @@
 checks its permission first, runs in one unit of work, and returns views, never entities or ORM
 objects."""
 
+from riso.invoicing.application.booking import (
+    BookInvoice,
+    book_invoice,
+    discard_invoice,
+    mark_paid,
+    mark_paid_many,
+    preview_booking,
+    unbook_invoice,
+)
 from riso.invoicing.application.coding import (
     ReferenceData,
     SupplierState,
     booking_year,
+    check_invoice,
     code_document,
+    code_stored,
+    line_for,
+    recode_invoice,
 )
 from riso.invoicing.application.numbering import (
     SeriesView,
@@ -25,9 +38,36 @@ from riso.invoicing.application.state import (
     supplier_memory,
 )
 from riso.invoicing.application.uow import InvoicingUnitOfWork, SeriesPatterns
+from riso.invoicing.application.views import (
+    BookingResult,
+    BookingView,
+    HistoryEntryView,
+    InvoiceView,
+    ItemResult,
+    PlacementView,
+    ShiftView,
+)
 
 __all__ = [
+    "BookInvoice",
+    "BookingResult",
+    "BookingView",
+    "HistoryEntryView",
+    "InvoiceView",
     "InvoicingUnitOfWork",
+    "ItemResult",
+    "PlacementView",
+    "ShiftView",
+    "book_invoice",
+    "check_invoice",
+    "code_stored",
+    "discard_invoice",
+    "line_for",
+    "mark_paid",
+    "mark_paid_many",
+    "preview_booking",
+    "recode_invoice",
+    "unbook_invoice",
     "PastPrecedent",
     "ReferenceData",
     "SeriesPatterns",

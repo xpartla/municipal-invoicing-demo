@@ -21,8 +21,17 @@ T0 = datetime(2026, 7, 1, 8, tzinfo=UTC)
 B, R, X = HolderKind.BOOKED, HolderKind.RESERVED, HolderKind.EXTERNAL
 
 
-def held(sequence: int, day: int | None = None, kind: HolderKind = B, *, frozen=False, hour=0):
-    """A holder of `sequence` supplied on `day` of June 2026 and uploaded at `hour`."""
+def held(
+    sequence: int,
+    day: int | None = None,
+    kind: HolderKind = B,
+    *,
+    frozen=False,
+    hour=0,
+    asked: int | None = None,
+):
+    """A holder of `sequence` supplied on `day` of June 2026, uploaded at `hour`, that asked
+    for `asked` (None: placed by date)."""
     return Holder(
         id=f"h{sequence}",
         sequence=sequence,
@@ -31,6 +40,7 @@ def held(sequence: int, day: int | None = None, kind: HolderKind = B, *, frozen=
         supply_date=None if day is None else date(2026, 6, day),
         received_at=None if kind is X else T0 + timedelta(hours=hour),
         frozen=frozen or kind is X,
+        requested=asked,
     )
 
 
@@ -139,6 +149,30 @@ CASES = [
         [],
     ),
     (
+        "a third claim of one number goes after the earlier ones, moved or not",
+        [held(300, 1, asked=300), held(301, 21, asked=300, hour=1)],
+        new(21, 300, hour=5),
+        301,
+        302,
+        [],
+    ),
+    (
+        "a claim of N goes before a claim of N + 2 that sits after the moved ones",
+        [held(300, 1, asked=300), held(301, 21, asked=300), held(302, 5, asked=302)],
+        new(25, 300),
+        302,
+        302,
+        [302],
+    ),
+    (
+        "a claim supplied between two moved ones goes between them",
+        [held(300, 1, asked=300), held(301, 21, asked=300, hour=1)],
+        new(10, 300),
+        301,
+        301,
+        [301],
+    ),
+    (
         "a frozen holder supplied earlier keeps its number",
         [held(145, 10, frozen=True)],
         new(12, 145),
@@ -210,10 +244,11 @@ def test_allocating_moves_the_holders_and_raises_the_counter():
     assert by_invoice == {"inv-144": 144, "inv-new": 145, "inv-145": 146, "inv-146": 147}
     assert series.last_used == 147 and series.updated_at == T0
     mine = series.holder_of("inv-new")
-    assert mine is not None and (mine.id, mine.kind, mine.supply_date) == (
+    assert mine is not None and (mine.id, mine.kind, mine.supply_date, mine.requested) == (
         "h-new",
         B,
         date(2026, 6, 11),
+        None,
     )
 
 
@@ -221,11 +256,13 @@ def test_a_moved_handwritten_number_says_so():
     series = _series(held(145, 10), last_used=145)
     placement = series.allocate(new(12, 145), "h-new", T0, requested="FD/145/26")
     assert placement.number == "FD/146/26" and placement.moved
+    mine = series.holder_of("inv-new")
+    assert mine is not None and mine.requested == 145  # kept for the next claim of 145
 
 
 def test_a_preview_changes_nothing_and_a_frozen_one_names_the_number():
     series = _series(held(145, 10), held(146, 12, frozen=True), last_used=146)
-    with pytest.raises(NumberFrozen, match="FD/146/26 is exported") as raised:
+    with pytest.raises(NumberFrozen, match="FD/146/26 is exported or paid") as raised:
         series.preview(new(11, 145))
     assert raised.value.number == "FD/146/26"
     external = _series(held(144, 10), held(145, None, X), last_used=145)

@@ -13,8 +13,10 @@ Every number is held at most once:
 Booking places the invoice (`place`):
 
 - with a handwritten number N (or one the user typed): N if it is free. If it is held, the
-  one of the two supplied earlier keeps N (an external holder always does) and the other
-  goes to N + 1;
+  invoices are ordered by the number they asked for, then by date of supply: the newcomer
+  goes after every holder from N on that comes before it (one that asked for N and was
+  supplied earlier, or an external one at N), to the first place that is free or held by
+  one that comes after it;
 - without one: by its date of supply, right after the last holder supplied on or before
   it; before every dated holder when none is, and after the counter when there is none.
 
@@ -58,6 +60,9 @@ class Holder:
     received_at: datetime | None = None
     frozen: bool = False
     """An exported or paid invoice's number; external numbers are always frozen."""
+    requested: int | None = None
+    """The handwritten (or typed) number the booking asked for; None when it was placed by
+    date. A holder moved up keeps it."""
 
     @property
     def movable(self) -> bool:
@@ -71,6 +76,12 @@ class Holder:
             self.received_at or _EARLIEST,
             self.invoice_id or "",
         )
+
+    @property
+    def claim(self) -> tuple[int, OrderKey]:
+        """Its order among handwritten numbers: the number asked for (else the one held),
+        then the date of supply."""
+        return (self.sequence if self.requested is None else self.requested, self.key)
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,7 +103,7 @@ class NumberFrozen(Conflict):
     """A booking's shift would move a number that never moves."""
 
     def __init__(self, number: str, holder: Holder) -> None:
-        what = "an imported booking's" if holder.kind is HolderKind.EXTERNAL else "exported"
+        what = "an imported booking's" if holder.kind is HolderKind.EXTERNAL else "exported or paid"
         super().__init__(f"{number} is {what}; a booking cannot move it, set the number by hand")
         self.number = number
         self.holder = holder
@@ -116,9 +127,9 @@ def place(
     sequence as its number) when a frozen holder would have to move."""
     taken = {h.sequence: h for h in holders if h.invoice_id != newcomer.invoice_id}
     if newcomer.sequence is not None:
+        claim = (newcomer.sequence, newcomer.key)
         start = newcomer.sequence
-        holder = taken.get(start)
-        if holder is not None and holder.key <= newcomer.key:
+        while (holder := taken.get(start)) is not None and holder.claim <= claim:
             start += 1
     else:
         dated = [h for h in taken.values() if h.supply_date is not None]
@@ -288,6 +299,7 @@ class NumberSeries:
                 newcomer.invoice_id,
                 newcomer.supply_date,
                 newcomer.received_at,
+                requested=newcomer.sequence,
             )
         )
         self.last_used = max(self.last_used, self.highest)

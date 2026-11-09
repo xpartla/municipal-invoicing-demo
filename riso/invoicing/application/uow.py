@@ -3,7 +3,11 @@
 from collections.abc import Mapping
 from typing import Protocol
 
-from riso.invoicing.domain.repository import NumberSeriesRepository, SupplierMemoryRepository
+from riso.invoicing.domain.repository import (
+    InvoiceRepository,
+    NumberSeriesRepository,
+    SupplierMemoryRepository,
+)
 from riso.shared.ports import AuditRecorder
 from riso.shared.uow import UnitOfWork
 
@@ -21,6 +25,9 @@ class SeriesPatterns(Protocol):
 
 
 class InvoicingUnitOfWork(UnitOfWork, Protocol):
+    @property
+    def invoices(self) -> InvoiceRepository: ...
+
     @property
     def number_series(self) -> NumberSeriesRepository: ...
 
