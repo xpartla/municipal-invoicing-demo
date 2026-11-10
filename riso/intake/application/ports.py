@@ -26,6 +26,10 @@ class PageImage:
     dpi: int
     document_sha256: str
     """The document's content: what recorded layouts are kept by."""
+    scale: float = 1.0
+    """How much the file's page was enlarged to make this one (plan §8.2 step 1)."""
+    angle: float = 0.0
+    """Degrees it was turned (counter-clockwise) to straighten its lines."""
 
 
 class DocumentReader(Protocol):
@@ -43,8 +47,17 @@ class DocumentReader(Protocol):
         ...
 
 
+class TextLayer(Protocol):
+    def read(self, data: bytes) -> list[PageLayout] | None:
+        """A digital PDF's words from its text layer, every page's; None when a page has no
+        usable text layer (a scan), so the document is read by OCR."""
+        ...
+
+
 class PagePreparer(Protocol):
-    def prepare(self, data: bytes, media_type: MediaType, sha256: str) -> list[PageImage]:
+    def prepare(
+        self, data: bytes, media_type: MediaType, sha256: str, *, straighten: bool = True
+    ) -> list[PageImage]:
         """The document's pages, ready to be read. Raises `ReadingFailed` with the reason
         (`unreadable`, `too_many_pages`, `too_many_pixels`) when the file will not open."""
         ...

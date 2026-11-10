@@ -7,7 +7,7 @@ import pytest
 
 from riso.intake.application.ports import PageImage
 from riso.intake.domain import MediaType, sniff
-from riso.intake.infrastructure.imaging import load_pages
+from riso.intake.infrastructure.imaging import prepare_pages
 from riso.intake.infrastructure.recorded import RECORDINGS_DIR, RecordedReader
 from riso.testdata.scans import SAMPLES_DIR, load_truths
 
@@ -18,11 +18,7 @@ def _pages(name: str) -> list[PageImage]:
     data = (SAMPLES_DIR / name).read_bytes()
     media_type = sniff(data)
     assert isinstance(media_type, MediaType)
-    sha = hashlib.sha256(data).hexdigest()
-    return [
-        PageImage(image, index=i, dpi=dpi, document_sha256=sha)
-        for i, (image, dpi) in enumerate(load_pages(data, media_type))
-    ]
+    return prepare_pages(data, media_type, hashlib.sha256(data).hexdigest())
 
 
 def test_tesseract_reads_a_synthetic_scan(tesseract):
@@ -33,10 +29,11 @@ def test_tesseract_reads_a_synthetic_scan(tesseract):
     text = layout.text
     assert layout.width == page.image.width and layout.dpi == page.dpi
     assert len(layout.words) > 100
-    # The page as loaded, before T04's preprocessing: the clear print is read.
     assert "HORNBACH" in text and "Faktúra" in text
+    assert truth.document.invoice.number in text
     assert truth.document.supplier.ico in text.replace(" ", "")
     assert truth.document.supplier.dic in text
+    assert page.dpi == 300 and page.scale > 2  # a 112-dpi photo, upscaled
     assert all(0 <= w.confidence <= 1 for w in layout.words)
     assert tesseract.version.startswith("5.5.3 tessdata_best 4.1.0")
 

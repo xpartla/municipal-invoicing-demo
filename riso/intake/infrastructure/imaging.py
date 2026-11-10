@@ -14,6 +14,7 @@ from PIL import Image, ImageOps, ImageSequence
 from riso.intake.application.ports import PageImage
 from riso.intake.domain import MAX_PAGES, MediaType
 from riso.intake.domain.layout import ReadingFailed
+from riso.intake.infrastructure.normalise import normalise
 
 RENDER_DPI = 300
 A4_WIDTH_INCHES = 8.27
@@ -75,17 +76,33 @@ def _pdf_pages(data: bytes) -> list[tuple[Image.Image, int]]:
         document.close()
 
 
-def prepare_pages(data: bytes, media_type: MediaType, sha256: str) -> list[PageImage]:
-    """The document's pages as the reader gets them. The extraction and `riso ocr record`
-    both use this, so recorded layouts match the pages they replay for."""
-    return [
-        PageImage(image, index=index, dpi=dpi, document_sha256=sha256)
-        for index, (image, dpi) in enumerate(load_pages(data, media_type))
-    ]
+def prepare_pages(
+    data: bytes, media_type: MediaType, sha256: str, *, straighten: bool = True
+) -> list[PageImage]:
+    """The document's pages as the reader gets them: loaded, then normalised (grayscale,
+    about 300 dpi, contrast, straightened unless `straighten` is off, as for a digital PDF
+    whose words come with their boxes). The extraction and `riso ocr record` both use this,
+    so recorded layouts match the pages they replay for."""
+    pages = []
+    for index, (image, dpi) in enumerate(load_pages(data, media_type)):
+        done = normalise(image, dpi, straighten=straighten)
+        pages.append(
+            PageImage(
+                done.image,
+                index=index,
+                dpi=done.dpi,
+                document_sha256=sha256,
+                scale=done.scale,
+                angle=done.angle,
+            )
+        )
+    return pages
 
 
 class Pages:
     """The `PagePreparer` port."""
 
-    def prepare(self, data: bytes, media_type: MediaType, sha256: str) -> list[PageImage]:
-        return prepare_pages(data, media_type, sha256)
+    def prepare(
+        self, data: bytes, media_type: MediaType, sha256: str, *, straighten: bool = True
+    ) -> list[PageImage]:
+        return prepare_pages(data, media_type, sha256, straighten=straighten)

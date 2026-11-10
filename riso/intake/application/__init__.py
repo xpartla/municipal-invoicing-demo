@@ -2,7 +2,13 @@
 extraction job."""
 
 from riso.intake.application.extraction import EXTRACT_JOB, ExtractDocument, ExtractionJobs
-from riso.intake.application.ports import DocumentReader, PageCounter, PageImage, PagePreparer
+from riso.intake.application.ports import (
+    DocumentReader,
+    PageCounter,
+    PageImage,
+    PagePreparer,
+    TextLayer,
+)
 from riso.intake.application.uow import IntakeUnitOfWork
 from riso.intake.application.upload import (
     MAX_FILES,
@@ -26,6 +32,7 @@ __all__ = [
     "PageCounter",
     "PageImage",
     "PagePreparer",
+    "TextLayer",
     "UploadOutcome",
     "UploadedFile",
     "customer_documents",

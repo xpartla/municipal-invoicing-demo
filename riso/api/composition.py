@@ -22,6 +22,7 @@ from riso.identity.infrastructure.sessions import SecretsTokenGenerator
 from riso.intake.application import EXTRACT_JOB, DocumentReader, ExtractionJobs
 from riso.intake.infrastructure.imaging import Pages
 from riso.intake.infrastructure.pages import FilePages
+from riso.intake.infrastructure.pdftext import PdfTextLayer
 from riso.intake.infrastructure.recorded import RecordedReader
 from riso.intake.infrastructure.tesseract import TesseractReader
 from riso.jobs import JobRegistry, Worker, register_builtin
@@ -142,7 +143,7 @@ class Services:
         return self.document_reader
 
     def extraction_jobs(self) -> ExtractionJobs:
-        return ExtractionJobs(self.uow, self.storage, self.ocr_reader, Pages())
+        return ExtractionJobs(self.uow, self.storage, self.ocr_reader, Pages(), PdfTextLayer())
 
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(
