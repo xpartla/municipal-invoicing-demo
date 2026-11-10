@@ -64,6 +64,13 @@ uv run riso migrate        # create or upgrade var/riso.db
 uv run riso serve          # http://127.0.0.1:8000
 ```
 
+Reading uploaded scans needs Tesseract's models (`slk` and `eng` from `tessdata_best` 4.1.0,
+27 MB, checked by SHA-256; the `tesserocr` wheel brings Tesseract itself, no system package):
+
+```sh
+uv run riso ocr setup      # into var/tessdata (RISO_TESSDATA)
+```
+
 For a database to log in to, seed it (development only):
 
 ```sh
@@ -140,7 +147,8 @@ scripts/check.sh fast    # ruff check and format, mypy, lint-imports, pytest wit
                          # and e2e markers, riso check, schema drift, migrations, and the
                          # frontend's lint, typecheck and unit tests when frontend/ changed
 scripts/check.sh full    # fast with coverage (at least 85% overall and 90% for the domain
-                         # packages), plus pytest -m ocr, the frontend build, the API
+                         # packages), plus pytest -m ocr (needs riso ocr setup and Python
+                         # Playwright's Chromium), the frontend build, the API
                          # client drift check and the Playwright E2E specs
 ```
 
@@ -162,6 +170,8 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
 | `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
+| `riso ocr setup` | Downloads the pinned Tesseract models (`slk`, `eng` from `tessdata_best` 4.1.0) into `RISO_TESSDATA` and checks their SHA-256; a file already there with the right hash is kept |
+| `riso ocr record` | Reads the committed synthetic samples with Tesseract, preparing their pages as the extraction does, and writes their layouts to `testdata/ocr/recorded/` (`--out` elsewhere) for the fast tests and `RISO_OCR_READER=recorded`. Run it after changing the page preparation or the models |
 | `riso testdata scans` | Renders the 70 seed and held-out cases as synthetic invoice scans (plan §8.6): each through its supplier's layout in headless Chromium, with a handwritten note, an approval stamp and seeded photo or scanner damage; per case the scan, a digital PDF and its truth (`ScanTruth`), into `testdata/ocr/generated/` (git-ignored; `--out` elsewhere). `--seed` (default 2026), `--case <id>` (repeatable), `--samples` rewrites the committed samples in `testdata/ocr/samples/`. The same seed gives the same bytes with the same Chromium build. Needs the dev group's Python Playwright and its Chromium (`uv run playwright install chromium` where `~/.cache/ms-playwright` lacks build 1254) |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed. `--source db` takes the lists, parameters and conventions from the database of `RISO_DB_URL` (seed it first) instead of the committed files; the memory always comes from `data/initial_state`. `--customer <IČO>` picks the customer |
 
@@ -181,6 +191,8 @@ Environment variables, all optional:
 | `RISO_VAR_DIR` | `var/` | runtime state: the database, uploaded files, OCR models, reports |
 | `RISO_DB_URL` | `sqlite:///<var>/riso.db` | the SQLAlchemy database URL |
 | `RISO_TESSDATA` | `<var>/tessdata` | the Tesseract models |
+| `RISO_OCR_READER` | `tesseract` | how uploads are read: `tesseract`, or `recorded` to replay the layouts in `RISO_OCR_RECORDINGS` (the E2E journeys) |
+| `RISO_OCR_RECORDINGS` | `testdata/ocr/recorded` | the recorded layouts (`riso ocr record`) |
 | `RISO_SMTP_HOST`, `RISO_SMTP_PORT`, `RISO_SMTP_USER`, `RISO_SMTP_PASSWORD`, `RISO_SMTP_FROM` | unset | optional mail sending; without them mail stays in the outbox |
 | `RISO_RAW_DIR` | `../data` | the raw exports from the accounting software, for `riso ingest` and the tests that need them |
 
@@ -288,6 +300,7 @@ testdata/
   fonts/          the vendored OFL fonts of the synthetic scans (README.md has their sources)
   ocr/samples/    ten committed synthetic scans with their digital PDFs and truth
   ocr/generated/  the full synthetic set, generated (git-ignored)
+  ocr/recorded/   the samples' layouts as Tesseract read them (riso ocr record)
 knowledge/2026/   EK to SU bridge, AU rules, function map, lexicon, transfer, canteen and style rules
 schemas/          JSON Schemas of the contracts
 migrations/       Alembic migrations of the database

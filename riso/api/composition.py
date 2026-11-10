@@ -19,8 +19,11 @@ from riso.identity.application.ports import CustomerRef
 from riso.identity.domain import PasswordHasher, PasswordPolicy
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.sessions import SecretsTokenGenerator
-from riso.intake.application import EXTRACT_JOB, ExtractionJobs
+from riso.intake.application import EXTRACT_JOB, DocumentReader, ExtractionJobs
+from riso.intake.infrastructure.imaging import Pages
 from riso.intake.infrastructure.pages import FilePages
+from riso.intake.infrastructure.recorded import RecordedReader
+from riso.intake.infrastructure.tesseract import TesseractReader
 from riso.jobs import JobRegistry, Worker, register_builtin
 from riso.jobs.domain import Job
 from riso.jobs.infrastructure.thread import WorkerThread
@@ -74,6 +77,8 @@ class Services:
     links: SpaLinks
     reader: FileTableReader = field(default_factory=FileTableReader)
     pages: FilePages = field(default_factory=FilePages)
+    document_reader: DocumentReader | None = None
+    """The OCR engine (`RISO_OCR_READER`); made when first needed."""
     _threads: list[WorkerThread] = field(default_factory=list)
 
     def uow(self, immediate: bool = True) -> AppUnitOfWork:
@@ -127,8 +132,17 @@ class Services:
     def export_jobs(self) -> ExportJobs:
         return ExportJobs(self.uow, self.storage, TableWriter())
 
+    def ocr_reader(self) -> DocumentReader:
+        if self.document_reader is None:
+            if self.settings.ocr_reader == "recorded":
+                self.document_reader = RecordedReader(self.settings.ocr_recordings)
+            else:
+                assert self.settings.tessdata is not None
+                self.document_reader = TesseractReader(self.settings.tessdata)
+        return self.document_reader
+
     def extraction_jobs(self) -> ExtractionJobs:
-        return ExtractionJobs(self.uow)
+        return ExtractionJobs(self.uow, self.storage, self.ocr_reader, Pages())
 
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(
@@ -151,6 +165,8 @@ class Services:
     def close(self) -> None:
         for thread in self._threads:
             thread.stop()
+        if isinstance(self.document_reader, TesseractReader):
+            self.document_reader.close()
         self.db.dispose()
 
 

@@ -30,6 +30,7 @@ from riso.invoicing.application.exports import (
     record_exports,
 )
 from riso.invoicing.application.intake import (
+    awaits_extraction,
     fail_extraction,
     invoice_of_document,
     register_upload,
@@ -77,6 +78,7 @@ from riso.invoicing.application.views import (
 )
 
 __all__ = [
+    "awaits_extraction",
     "BookInvoice",
     "ExportableInvoice",
     "exportable",

@@ -1,5 +1,5 @@
 """Command line: riso ingest | check | export-schemas | export-openapi | serve | code |
-eval | migrate | seed | worker | testdata."""
+eval | migrate | seed | worker | ocr | testdata."""
 
 import argparse
 import sys
@@ -102,6 +102,18 @@ def main(argv: list[str] | None = None) -> int:
         "--poll", type=float, default=1.0, help="seconds between looks for new jobs"
     )
 
+    ocr = commands.add_parser("ocr", help="the OCR models and the recorded layouts")
+    ocr_steps = ocr.add_subparsers(dest="step", required=True)
+    ocr_steps.add_parser(
+        "setup", help="download the pinned Tesseract models into RISO_TESSDATA and check them"
+    )
+    record = ocr_steps.add_parser(
+        "record",
+        help="read the committed synthetic samples with Tesseract and store their layouts "
+        "for the fast tests and the E2E journeys (testdata/ocr/recorded)",
+    )
+    record.add_argument("--out", type=Path, help="default testdata/ocr/recorded")
+
     testdata = commands.add_parser("testdata", help="generate synthetic test data (development)")
     testdata_kinds = testdata.add_subparsers(dest="kind", required=True)
     scans = testdata_kinds.add_parser(
@@ -127,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
         "seed": _seed,
         "worker": _worker,
         "testdata": _testdata,
+        "ocr": _ocr,
     }
     return handlers[args.command](args)
 
@@ -461,4 +474,34 @@ def _testdata(args: argparse.Namespace) -> int:
         f"{len(truths)} scans with seed {seed} in {_shown(out)}, {total / 1e6:.1f} MB, "
         f"{elapsed:.0f} s"
     )
+    return 0
+
+
+def _ocr(args: argparse.Namespace) -> int:
+    from riso.platform.settings import Settings
+
+    settings = Settings()
+    assert settings.tessdata is not None
+    if args.step == "setup":
+        from riso.api.ocr import setup_ocr_models
+
+        try:
+            done = setup_ocr_models(settings.tessdata)
+        except (OSError, RuntimeError) as exc:
+            print(f"riso ocr setup: {exc}", file=sys.stderr)
+            return 1
+        for language, status in done:
+            print(f"  {language}: {status}")
+        print(f"the OCR models are in {_shown(settings.tessdata)}")
+        return 0
+    from riso.api.ocr import record_layouts
+    from riso.testdata.scans import SAMPLES_DIR, load_truths
+
+    scans = [SAMPLES_DIR / truth.files["scan"] for truth in load_truths(SAMPLES_DIR)]
+    try:
+        written = record_layouts(scans, settings.tessdata, args.out)
+    except RuntimeError as exc:
+        print(f"riso ocr record: {exc}", file=sys.stderr)
+        return 1
+    print(f"recorded {written} page layouts")
     return 0

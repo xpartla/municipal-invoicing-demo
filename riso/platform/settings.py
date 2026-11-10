@@ -6,6 +6,8 @@
 | `RISO_VAR_DIR` | `<repo>/var` | runtime state: the database, files, models, reports |
 | `RISO_DB_URL` | `sqlite:///<var>/riso.db` | SQLAlchemy URL |
 | `RISO_TESSDATA` | `<var>/tessdata` | Tesseract models |
+| `RISO_OCR_READER` | `tesseract` | `tesseract`, or `recorded` to replay recorded layouts (E2E) |
+| `RISO_OCR_RECORDINGS` | `<repo>/testdata/ocr/recorded` | the layouts `recorded` replays |
 | `RISO_PUBLIC_URL` | `http://localhost:8001` | the app's address, for links in mail |
 | `RISO_COOKIE_SECURE` | `false` | mark the cookies Secure (true behind HTTPS, phase 2.5) |
 | `RISO_SMTP_HOST`, `_PORT`, `_USER`, `_PASSWORD`, `_FROM` | unset | optional mail sending |
@@ -27,6 +29,8 @@ class Settings(BaseSettings):
     var_dir: Path = Field(default_factory=lambda: paths.REPO_ROOT / "var")
     db_url: str = ""
     tessdata: Path | None = None
+    ocr_reader: Literal["tesseract", "recorded"] = "tesseract"
+    ocr_recordings: Path = Field(default_factory=lambda: paths.TESTDATA_DIR / "ocr" / "recorded")
     public_url: str = "http://localhost:8001"
     cookie_secure: bool = False
     smtp_host: str | None = None

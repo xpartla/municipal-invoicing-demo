@@ -71,3 +71,10 @@ def fail_extraction(
     invoice.extraction_failed(reason, uow.clock.now(), actor_of(ctx))
     uow.invoices.save(invoice)
     return True
+
+
+def awaits_extraction(
+    uow: InvoicingUnitOfWork, customer_id: str, invoice_id: str, job_id: str
+) -> bool:
+    """Whether the invoice still waits for this job: a retry after it moved on does nothing."""
+    return uow.invoices.get(customer_id, invoice_id).awaits(job_id)
