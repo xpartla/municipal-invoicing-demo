@@ -153,7 +153,7 @@ class ExtractionJobs:
         started = time.perf_counter()
         text = self._text.read(data) if media_type is MediaType.PDF else None
         source: Source = "text_layer" if text is not None else "ocr"
-        pages = self._pages.prepare(data, media_type, sha256, straighten=text is None)
+        pages = self._pages.prepare(data, media_type, sha256, for_ocr=text is None)
         reader = self._reader()
         if text is not None:
             layouts: list[PageLayout] = text

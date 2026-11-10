@@ -152,6 +152,13 @@ scripts/check.sh full    # fast with coverage (at least 85% overall and 90% for 
                          # client drift check and the Playwright E2E specs
 ```
 
+The `ocr` CI job also downloads the models, renders the synthetic set (cached by the generator's
+and the dataset's hashes) and runs `riso ocr-eval --set synthetic --strict`; locally:
+
+```sh
+uv run riso ocr setup && uv run riso testdata scans && uv run riso ocr-eval
+```
+
 Every step runs and the summary names the ones that failed; the exit code is non-zero if any
 did. A step whose tool is not set up yet is skipped with a message. The pytest markers are
 `ocr`, `e2e` and `slow`. mypy is strict for the phase 2 packages (`riso.shared`,
@@ -172,6 +179,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
 | `riso ocr setup` | Downloads the pinned Tesseract models (`slk`, `eng` from `tessdata_best` 4.1.0) into `RISO_TESSDATA` and checks their SHA-256; a file already there with the right hash is kept |
 | `riso ocr record` | Reads the committed synthetic samples with Tesseract, preparing their pages as the extraction does, and writes their layouts to `testdata/ocr/recorded/` (`--out` elsewhere) for the fast tests and `RISO_OCR_READER=recorded`. Run it after changing the page preparation or the models |
+| `riso ocr-eval` | Measures the OCR (plan §8.6): each scan of `--set synthetic` (the generated set, `--scans` elsewhere) or `--set anchor` (the four real scans in `../data/FA.xlsx`, read in place, the report naming fields, never values) goes the extraction's way with the reader of `RISO_OCR_READER`; it prints per field how often it was right and found and the silent wrongs (wrong at confidence 0.6 or more), the time per page, the invoices right after the check step's automatic fields and the note's crop, then plan §8.6's targets; the report is kept in `var/ocr-eval-<set>.json`. `--json` prints it, `--strict` exits with 1 below a target (the `ocr` CI job) |
 | `riso testdata scans` | Renders the 70 seed and held-out cases as synthetic invoice scans (plan §8.6): each through its supplier's layout in headless Chromium, with a handwritten note, an approval stamp and seeded photo or scanner damage; per case the scan, a digital PDF and its truth (`ScanTruth`), into `testdata/ocr/generated/` (git-ignored; `--out` elsewhere). `--seed` (default 2026), `--case <id>` (repeatable), `--samples` rewrites the committed samples in `testdata/ocr/samples/`. The same seed gives the same bytes with the same Chromium build. Needs the dev group's Python Playwright and its Chromium (`uv run playwright install chromium` where `~/.cache/ms-playwright` lacks build 1254) |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed. `--source db` takes the lists, parameters and conventions from the database of `RISO_DB_URL` (seed it first) instead of the committed files; the memory always comes from `data/initial_state`. `--customer <IČO>` picks the customer |
 

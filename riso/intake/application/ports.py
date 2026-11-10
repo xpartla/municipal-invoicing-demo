@@ -73,7 +73,7 @@ class TextLayer(Protocol):
 
 class PagePreparer(Protocol):
     def prepare(
-        self, data: bytes, media_type: MediaType, sha256: str, *, straighten: bool = True
+        self, data: bytes, media_type: MediaType, sha256: str, *, for_ocr: bool = True
     ) -> list[PageImage]:
         """The document's pages, ready to be read. Raises `ReadingFailed` with the reason
         (`unreadable`, `too_many_pages`, `too_many_pixels`) when the file will not open."""

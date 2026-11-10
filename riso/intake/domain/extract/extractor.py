@@ -354,9 +354,23 @@ class FieldExtractor:
         if chosen is not None:
             iban, ok = chosen.value
             confidence = _base(chosen)
-            fields.found["supplier.iban"] = _Field(
-                iban, max(confidence, TRUSTED) if ok else min(confidence, FAILED), _evidence(chosen)
-            )
+            confidence = max(confidence, TRUSTED) if ok else min(confidence, FAILED)
+            # Several accounts on the page (a bill lists the supplier's banks): which one the
+            # invoice is paid to is the user's to confirm, as is a valid one that a misread
+            # account comes before.
+            accounts = {c.value[0] for c in everywhere}
+            first = min(everywhere, key=lambda c: (c.line.order, c.start), default=None)
+            if len(accounts) > 1 or (first is not None and not first.value[1] and ok):
+                confidence = min(confidence, 0.55)
+            # Found only without its label while the page labels an account: the labelled
+            # one was not read, and this may be another account.
+            if chosen.label is None and hits(lines, "iban"):
+                confidence = min(confidence, 0.55)
+            # Read under its label rather than beside it: on a list of accounts, the next
+            # one down is someone else's when the labelled one was not read.
+            if chosen.route == "below":
+                confidence = min(confidence, 0.55)
+            fields.found["supplier.iban"] = _Field(iban, confidence, _evidence(chosen))
         vs = _ranked(_labelled(lines, "vs", values.digit_runs, below=2))
         fields.put("invoice.variable_symbol", vs[0] if vs else None)
 
@@ -392,7 +406,14 @@ class FieldExtractor:
     # Totals -------------------------------------------------------------------------------------
 
     def _totals(self, lines: Sequence[TextLine], fields: _Fields) -> None:
-        gross = _ranked(_labelled(lines, "gross", values.amounts, below=2))
+        # A weak label ("Spolu", "Celkom") also heads a table's column, whose value below is a
+        # line's: it counts only for a value on its own line or row.
+        gross = [
+            c
+            for c in _ranked(_labelled(lines, "gross", values.amounts, below=2))
+            if c.label is None or c.label.strength == "strong" or c.route != "below"
+        ]
+        strong_labels = [h for h in hits(lines, "gross") if h.label.strength == "strong"]
         if gross:
             strong = [c for c in gross if c.label is not None and c.label.strength == "strong"]
             pool = strong or gross
@@ -403,6 +424,9 @@ class FieldExtractor:
             if count > 1:
                 confidence = max(confidence, TRUSTED)
             elif len(votes) > 1:
+                confidence = min(confidence, 0.55)
+            if strong_labels and not strong:
+                # The total's own label was found, its value not read: the rest is a guess.
                 confidence = min(confidence, 0.55)
             fields.put("totals.gross", chosen, confidence)
         if self._recap(lines, fields):
@@ -446,9 +470,12 @@ class FieldExtractor:
         net = sum((t[0] for t in chosen), Decimal(0))
         vat = sum((t[1] for t in chosen), Decimal(0))
         conf = min(w.confidence for w in line.words)
+        # As sure as the total they add up to.
+        total = fields.found["totals.gross"].confidence
+        sure = max(conf, TRUSTED) if total >= TRUSTED else min(conf, total)
         evidence = Evidence(line.page, line.box, line.text)
-        fields.found["totals.net"] = _Field(net, max(conf, TRUSTED), evidence)
-        fields.found["totals.vat"] = _Field(vat, max(conf, TRUSTED), evidence)
+        fields.found["totals.net"] = _Field(net, sure, evidence)
+        fields.found["totals.vat"] = _Field(vat, sure, evidence)
         return True
 
     # The document's number ----------------------------------------------------------------------
@@ -457,7 +484,10 @@ class FieldExtractor:
         found = [
             c
             for c in _ranked(_labelled(lines, "number", values.document_numbers, below=1))
-            if not values.dates(c.value) and not values.amounts(c.value)
+            if not values.dates(c.value)
+            and not values.amounts(c.value)
+            and not c.value.endswith(("-", "/", "."))  # cut off: the rest was not read
+            and len(c.value) >= 3
         ]
         fields.put("invoice.number", found[0] if found else None)
 
@@ -525,18 +555,21 @@ class FieldExtractor:
             fields.value(p)
             for p in ("invoice.issue_date", "invoice.delivery_date", "invoice.due_date")
         )
-        if issue is not None and due is not None:
-            if due < issue:
-                fields.doubt("invoice.due_date", 0.5)
-                fields.doubt("invoice.issue_date", 0.55)
-                fields.warnings.append("dates_out_of_order")
-            elif (due - issue).days <= 120:
-                fields.trust("invoice.issue_date")
-                fields.trust("invoice.due_date")
+        if issue is not None and due is not None and due < issue:
+            fields.doubt("invoice.due_date", 0.5)
+            fields.doubt("invoice.issue_date", 0.55)
+            fields.warnings.append("dates_out_of_order")
         if issue is not None and delivery is not None and (delivery - issue).days > 31:
             fields.doubt("invoice.delivery_date", 0.5)
             fields.warnings.append("dates_out_of_order")
+        # The number has no check digit: it is trusted when the VS, read elsewhere, repeats
+        # its digits; when they disagree both are doubtful, and alone it stays for the user.
         vs, number = fields.value("invoice.variable_symbol"), fields.value("invoice.number")
         if vs and number and vs == "".join(c for c in number if c.isdigit())[-len(vs) :]:
             fields.trust("invoice.variable_symbol")
             fields.trust("invoice.number")
+        elif vs and number:
+            fields.doubt("invoice.variable_symbol", 0.55)
+            fields.doubt("invoice.number", 0.55)
+        elif number:
+            fields.doubt("invoice.number", 0.55)

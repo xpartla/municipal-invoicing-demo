@@ -1,13 +1,15 @@
 """Preparing a page for OCR (plan §8.2 step 1, §8.1 conclusion 1): grayscale, upscaled to
 about 300 dpi (Tesseract needs it: the four anchor photos are about 90 dpi), autocontrast, and
-straightened by the angle of its text lines. The result is the page the check step shows, so
-the words' boxes are in its pixels.
+straightened by the angle of its text lines, its dark bars inverted (white text on dark is
+lost to Tesseract). The result is the page the check step shows, so the words' boxes are in
+its pixels. A page whose words come from a text layer is only made grayscale and contrasted.
 
 The angle comes from the projection profile: on a small binarised copy, the turn under which
 the rows of ink are sharpest (their sums vary most) is the text's angle; it is looked for
 within ±5° in quarter degrees, then refined to a twentieth of a degree.
 """
 
+from collections import deque
 from dataclasses import dataclass
 
 import numpy as np
@@ -60,7 +62,7 @@ def skew_angle(image: Image.Image) -> float:
     return round(angle, 2)
 
 
-def normalise(image: Image.Image, dpi: int, *, straighten: bool = True) -> Normalised:
+def normalise(image: Image.Image, dpi: int, *, for_ocr: bool = True) -> Normalised:
     gray = image.convert("L")
     scale = 1.0
     if dpi < UPSCALE_BELOW:
@@ -75,9 +77,63 @@ def normalise(image: Image.Image, dpi: int, *, straighten: bool = True) -> Norma
     else:
         scale = 1.0
     gray = ImageOps.autocontrast(gray, cutoff=1)
-    angle = skew_angle(gray) if straighten else 0.0
+    angle = skew_angle(gray) if for_ocr else 0.0
     if abs(angle) >= 0.1:
         gray = gray.rotate(angle, resample=Image.Resampling.BICUBIC, expand=True, fillcolor=255)
     else:
         angle = 0.0
+    if for_ocr:
+        inverted, _ = invert_bars(np.asarray(gray), dpi=round(dpi * scale))
+        gray = Image.fromarray(inverted)
     return Normalised(gray, round(dpi * scale), scale, angle)
+
+
+# Dark bars ----------------------------------------------------------------------------------
+
+BAR_BLOCK = 8
+BAR_DARK = 110
+
+
+def invert_bars(
+    gray: npt.NDArray[np.uint8], *, dpi: int = 300
+) -> tuple[npt.NDArray[np.uint8], int]:
+    """Dark bars and boxes with white text (a bill's "SUMA NA ÚHRADU", a payment box)
+    inverted, so Tesseract reads them, and how many were: on a grid of 8-px blocks, the
+    blocks mostly dark are joined into regions; a region at least a text line tall that
+    fills most of its box and does not touch the image's edge (a photo's surroundings) has
+    its box inverted. White letters make only small holes in a region; the white gap
+    between two stacked bars separates them."""
+    height, width = gray.shape
+    block = max(4, round(BAR_BLOCK * dpi / 300))
+    rows, cols = height // block, width // block
+    dark = gray[: rows * block, : cols * block] < BAR_DARK
+    filled = dark.reshape(rows, block, cols, block).mean(axis=(1, 3)) >= 0.5
+    seen = np.zeros_like(filled)
+    out = gray.copy()
+    count = 0
+    min_rows = max(3, round(25 * dpi / 300 / block))
+    min_cols = max(4, round(width * 0.06 / block))
+    for r0, c0 in zip(*np.nonzero(filled), strict=True):
+        if seen[r0, c0]:
+            continue
+        queue = deque([(int(r0), int(c0))])
+        seen[r0, c0] = True
+        top, left, bottom, right, cells = int(r0), int(c0), int(r0), int(c0), 0
+        while queue:
+            r, c = queue.popleft()
+            cells += 1
+            top, left, bottom, right = min(top, r), min(left, c), max(bottom, r), max(right, c)
+            for nr, nc in ((r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)):
+                if 0 <= nr < rows and 0 <= nc < cols and filled[nr, nc] and not seen[nr, nc]:
+                    seen[nr, nc] = True
+                    queue.append((nr, nc))
+        tall, wide = bottom - top + 1, right - left + 1
+        at_edge = top == 0 or left == 0 or bottom >= rows - 1 or right >= cols - 1
+        if tall < min_rows or wide < min_cols or at_edge:
+            continue
+        if cells / (tall * wide) < 0.6 or tall * wide > 0.25 * rows * cols:
+            continue
+        y0, y1, x0, x1 = top * block, (bottom + 1) * block, left * block, (right + 1) * block
+        out[y0:y1, x0:x1] = 255 - out[y0:y1, x0:x1]
+        count += 1
+    return out, count

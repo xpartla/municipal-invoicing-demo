@@ -77,15 +77,16 @@ def _pdf_pages(data: bytes) -> list[tuple[Image.Image, int]]:
 
 
 def prepare_pages(
-    data: bytes, media_type: MediaType, sha256: str, *, straighten: bool = True
+    data: bytes, media_type: MediaType, sha256: str, *, for_ocr: bool = True
 ) -> list[PageImage]:
     """The document's pages as the reader gets them: loaded, then normalised (grayscale,
-    about 300 dpi, contrast, straightened unless `straighten` is off, as for a digital PDF
-    whose words come with their boxes). The extraction and `riso ocr record` both use this,
+    about 300 dpi, contrast, and unless `for_ocr` is off, as for a digital PDF whose words
+    come with their boxes, straightened with its dark bars inverted). The extraction and
+    `riso ocr record` both use this,
     so recorded layouts match the pages they replay for."""
     pages = []
     for index, (image, dpi) in enumerate(load_pages(data, media_type)):
-        done = normalise(image, dpi, straighten=straighten)
+        done = normalise(image, dpi, for_ocr=for_ocr)
         pages.append(
             PageImage(
                 done.image,
@@ -103,6 +104,6 @@ class Pages:
     """The `PagePreparer` port."""
 
     def prepare(
-        self, data: bytes, media_type: MediaType, sha256: str, *, straighten: bool = True
+        self, data: bytes, media_type: MediaType, sha256: str, *, for_ocr: bool = True
     ) -> list[PageImage]:
-        return prepare_pages(data, media_type, sha256, straighten=straighten)
+        return prepare_pages(data, media_type, sha256, for_ocr=for_ocr)

@@ -1,5 +1,5 @@
 """Command line: riso ingest | check | export-schemas | export-openapi | serve | code |
-eval | migrate | seed | worker | ocr | testdata."""
+eval | migrate | seed | worker | ocr | ocr-eval | testdata."""
 
 import argparse
 import sys
@@ -114,6 +114,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     record.add_argument("--out", type=Path, help="default testdata/ocr/recorded")
 
+    ocr_eval = commands.add_parser(
+        "ocr-eval", help="measure the OCR on the synthetic scans or the four anchors (plan §8.6)"
+    )
+    ocr_eval.add_argument("--set", choices=("synthetic", "anchor"), default="synthetic")
+    ocr_eval.add_argument(
+        "--scans", type=Path, help="the synthetic set (default testdata/ocr/generated)"
+    )
+    ocr_eval.add_argument("--json", action="store_true", help="print the full report")
+    ocr_eval.add_argument(
+        "--strict", action="store_true", help="exit with 1 when a target of plan §8.6 is missed"
+    )
+
     testdata = commands.add_parser("testdata", help="generate synthetic test data (development)")
     testdata_kinds = testdata.add_subparsers(dest="kind", required=True)
     scans = testdata_kinds.add_parser(
@@ -140,6 +152,7 @@ def main(argv: list[str] | None = None) -> int:
         "worker": _worker,
         "testdata": _testdata,
         "ocr": _ocr,
+        "ocr-eval": _ocr_eval,
     }
     return handlers[args.command](args)
 
@@ -505,3 +518,54 @@ def _ocr(args: argparse.Namespace) -> int:
         return 1
     print(f"recorded {written} page layouts")
     return 0
+
+
+def _ocr_eval(args: argparse.Namespace) -> int:
+    from riso.api.ocr_eval import anchor_cases, format_report, run, synthetic_case
+    from riso.platform.settings import Settings
+    from riso.shared.clock import SystemClock
+
+    if args.set == "anchor":
+        workbook = paths.raw_dir() / "FA.xlsx"
+        if not workbook.is_file():
+            print(
+                f"riso ocr-eval: no {workbook} (the anchors stay outside the repository)",
+                file=sys.stderr,
+            )
+            return 1
+        cases = anchor_cases(workbook, paths.INVOICES_DIR)
+    else:
+        from riso.testdata.scans import GENERATED_DIR, load_truths
+
+        scans = args.scans or GENERATED_DIR
+        truths = load_truths(scans) if scans.is_dir() else []
+        if not truths:
+            print(
+                f"riso ocr-eval: no scans in {_shown(scans)}: run riso testdata scans",
+                file=sys.stderr,
+            )
+            return 1
+        cases = [
+            synthetic_case(
+                truth.case_id,
+                (scans / truth.files["scan"]).read_bytes(),
+                truth.document,
+                group=truth.layout,
+                note_boxes=[
+                    (n.box.x0, n.box.y0, n.box.x1, n.box.y1)
+                    for n in (truth.handwriting.date, truth.handwriting.number)
+                    if n is not None
+                ],
+                scan_size=(truth.capture.width, truth.capture.height),
+                scan_dpi=truth.capture.dpi,
+            )
+            for truth in truths
+        ]
+    report = run(cases, Settings(), args.set, SystemClock().now())
+    out = paths.var_dir() / f"ocr-eval-{args.set}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(report.model_dump_json(indent=2) + "\n")
+    print(report.model_dump_json(indent=2) if args.json else format_report(report))
+    if not args.json:
+        print(f"\nthe report is in {_shown(out)}")
+    return 1 if args.strict and not report.met else 0
