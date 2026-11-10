@@ -1,11 +1,10 @@
-import { File as NodeFile } from 'node:buffer';
-
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 import type { ImportPreview, ImportRun, Issue, Report } from '../features/exchange/api';
 import { mockApi } from '../test/api';
+import { nodeFile, nodeForms } from '../test/files';
 import { BOLDOG, meAs } from '../test/me';
 import { renderApp } from '../test/render';
 
@@ -245,26 +244,12 @@ describe('the import wizard', () => {
         body: { id: 't9', name: 'rozvrh', scope: 'customer' },
       }),
     });
-    // Under Vitest the client's Request is Node's and FormData jsdom's, which do not mix:
-    // the upload uses Node's FormData (from a Response) and Node's File, as a browser has one.
-    const form = await new Response('', {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    }).formData();
-    const NodeFormData = form.constructor as new () => FormData;
-    // Built from a form element (by the test tools, not by the app), it starts empty.
-    class EmptyFormData extends NodeFormData {
-      constructor(...ignored: unknown[]) {
-        super();
-        expect(ignored.length).toBeLessThanOrEqual(2);
-      }
-    }
-    vi.stubGlobal('FormData', EmptyFormData);
+    await nodeForms();
     const user = userEvent.setup();
     const { container } = await renderApp(`/c/${BOLDOG.id}/exchange/import?type=accounts`);
     const input = container.querySelector<HTMLInputElement>('input[type="file"]');
     if (!input) throw new Error('no file input');
-    const file = new NodeFile(['SU;AU\n518;1\n'], 'rozvrh.csv', { type: 'text/csv' });
-    await user.upload(input, file as unknown as File);
+    await user.upload(input, nodeFile('rozvrh.csv', 'text/csv', 'SU;AU\n518;1\n'));
     await user.click(screen.getByRole('button', { name: 'Nahrať a pokračovať' }));
     await waitFor(() => {
       const upload = calls.find((c) => c.method === 'POST' && c.path === base);

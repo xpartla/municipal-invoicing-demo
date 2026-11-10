@@ -127,6 +127,7 @@ describe('manual entry', () => {
     });
     const { router } = await renderApp(`/c/${BOLDOG.id}/invoices/new`);
     await screen.findByRole('heading', { level: 1, name: 'Nová faktúra' });
+    await user.click(screen.getByRole('tab', { name: 'Zadať ručne' }));
     await user.click(screen.getByRole('button', { name: 'Uložiť a navrhnúť' }));
     expect(await screen.findAllByText('Toto pole je povinné.')).toHaveLength(3);
     expect(calls.some((c) => c.method === 'POST')).toBe(false);
@@ -174,6 +175,7 @@ describe('manual entry', () => {
       },
     });
     await renderApp(`/c/${BOLDOG.id}/invoices/new`);
+    await user.click(await screen.findByRole('tab', { name: 'Zadať ručne' }));
     await user.click(await screen.findByRole('button', { name: 'Vložiť JSON' }));
     const dialog = await screen.findByRole('dialog', { name: 'Vložiť faktúru ako JSON' });
     const area = within(dialog).getByLabelText('JSON faktúry');

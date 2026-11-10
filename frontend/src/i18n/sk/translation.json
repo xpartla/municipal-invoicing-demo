@@ -146,7 +146,8 @@
       "end": "Ukončiť"
     },
     "newInvoice": "Nová faktúra",
-    "newInvoiceSoon": "Nahrávanie faktúr pribudne v jednej z ďalších etáp.",
+    "newInvoiceNotAllowed": "Faktúry tohto klienta môžete len prezerať.",
+    "newInvoiceNoCustomer": "Najprv vyberte klienta.",
     "toggleNavigation": "Zobraziť alebo skryť menu",
     "collapse": "Zbaliť menu",
     "expand": "Rozbaliť menu",
@@ -1250,9 +1251,12 @@
     },
     "new": {
       "title": "Nová faktúra",
-      "intro": "Nahrávanie skenov a e-faktúr pribudne v ďalšej etape. Faktúru zatiaľ zadajte ručne; po uložení ju program navrhne zaúčtovať.",
+      "intro": "Zadajte údaje faktúry; po uložení ju program navrhne zaúčtovať.",
       "save": "Uložiť a navrhnúť",
-      "saved": "Faktúra je zadaná."
+      "saved": "Faktúra je zadaná.",
+      "upload": "Nahrať súbory",
+      "manual": "Zadať ručne",
+      "uploadIntro": "Nahrajte sken, fotografiu alebo PDF faktúry, aj viac naraz (jedna faktúra v súbore). Program ich prečíta a pripraví na kontrolu údajov."
     }
   },
   "invoice": {
@@ -1511,5 +1515,53 @@
     "pasteLabel": "JSON faktúry",
     "pasteFill": "Vyplniť formulár",
     "pasteInvalid": "Text nie je platný JSON faktúry."
+  },
+  "intake": {
+    "zone": {
+      "label": "Nahrávanie faktúr",
+      "drop": "Pretiahnite sem súbory faktúr",
+      "limits": "PDF, JPG, PNG alebo TIFF, najviac 20 MB a 5 strán; najviac 20 súborov naraz.",
+      "choose": "Vybrať súbory",
+      "photo": "Odfotiť faktúru"
+    },
+    "list": {
+      "label": "Nahrané súbory",
+      "file": "Súbor",
+      "status": "Stav",
+      "detail": "Podrobnosti",
+      "duplicate": "Otvoriť faktúru z rovnakého súboru",
+      "check": "Skontrolovať",
+      "open": "Otvoriť"
+    },
+    "status": {
+      "uploading": "Nahráva sa",
+      "rejected": "Odmietnutý",
+      "reading": "Číta sa",
+      "ready": "Na kontrolu",
+      "failed": "Neprečítaný",
+      "done": "Spracovaný"
+    },
+    "rejected": {
+      "file_empty": "Súbor je prázdny.",
+      "file_too_large": "Súbor je väčší ako 20 MB.",
+      "file_type": "Nie je to PDF, JPG, PNG ani TIFF.",
+      "too_many_pages": "Súbor má viac ako 5 strán.",
+      "duplicate": "Rovnaký súbor už bol nahraný.",
+      "unknown": "Súbor nebol prijatý."
+    },
+    "failed": {
+      "unreadable": "Súbor sa nedá otvoriť.",
+      "too_many_pages": "Súbor má viac ako 5 strán.",
+      "too_many_pixels": "Obrázok je príliš veľký na prečítanie.",
+      "no_models": "Na serveri chýbajú modely OCR (riso ocr setup).",
+      "ocr_timeout": "Čítanie trvalo príliš dlho.",
+      "ocr_failed": "Čítanie zlyhalo.",
+      "no_recording": "Pre tento súbor nie je zaznamenané čítanie.",
+      "extraction_error": "Pri čítaní nastala chyba.",
+      "unknown": "Súbor sa nepodarilo prečítať."
+    },
+    "continue_one": "Pokračovať na kontrolu ({{count}})",
+    "continue_few": "Pokračovať na kontrolu ({{count}})",
+    "continue_other": "Pokračovať na kontrolu ({{count}})"
   }
 }

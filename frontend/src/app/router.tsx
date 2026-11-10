@@ -27,7 +27,7 @@ import { LoginPage } from '../routes/auth/LoginPage';
 import { ResetPasswordPage } from '../routes/auth/ResetPasswordPage';
 import { codelistsSearch } from '../features/codelists/kinds';
 import { customerImportSearch, globalImportSearch } from '../features/exchange/search';
-import { invoicesSearch } from '../features/invoices/search';
+import { invoicePageSearch, invoicesSearch } from '../features/invoices/search';
 import { CodelistsPage } from '../routes/CodelistsPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
@@ -222,6 +222,7 @@ const customerRoutes = [
     getParentRoute: () => customerRoute,
     path: 'invoices/$invoiceId',
     component: InvoicePage,
+    validateSearch: invoicePageSearch,
   }),
   createRoute({ getParentRoute: () => customerRoute, path: 'files', component: soon('files') }),
 ];

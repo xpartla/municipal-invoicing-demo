@@ -184,7 +184,7 @@ export type Placement = Schemas['PlacementOut'];
 export type BookingInput = Schemas['BookingIn'];
 export type Entry = Schemas['EntryOut'];
 
-const invoiceKey = (customerId: string, invoiceId: string) =>
+export const invoiceKey = (customerId: string, invoiceId: string) =>
   [...invoicesKey(customerId), 'one', invoiceId] as const;
 
 export function useInvoice(customerId: string, invoiceId: string) {
