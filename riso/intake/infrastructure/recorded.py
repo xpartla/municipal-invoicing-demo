@@ -8,13 +8,17 @@ import json
 from pathlib import Path
 
 from riso.intake.application.ports import PageImage
-from riso.intake.domain.layout import PageLayout, ReadingFailed
+from riso.intake.domain.layout import Box, PageLayout, ReadingFailed
 
 RECORDINGS_DIR = Path(__file__).resolve().parents[3] / "testdata" / "ocr" / "recorded"
 
 
-def recording_name(document_sha256: str, index: int) -> str:
-    return f"{document_sha256}-{index}.json"
+def recording_name(document_sha256: str, index: int, region: Box | None = None) -> str:
+    """`<sha256>-<page>.json`, and for a digits pass `<sha256>-<page>-digits-<box>.json`."""
+    if region is None:
+        return f"{document_sha256}-{index}.json"
+    box = "-".join(str(v) for v in region.to_list())
+    return f"{document_sha256}-{index}-digits-{box}.json"
 
 
 class RecordedReader:
@@ -38,8 +42,14 @@ class RecordedReader:
             raise ReadingFailed("no_recording", "no recorded layout for this page")
         return PageLayout.from_json(json.loads(path.read_text()))
 
-    def record(self, page: PageImage, layout: PageLayout) -> Path:
+    def read_digits(self, page: PageImage, region: Box) -> PageLayout:
+        path = self._directory / recording_name(page.document_sha256, page.index, region)
+        if not path.is_file():
+            raise ReadingFailed("no_recording", "no recorded layout for this region")
+        return PageLayout.from_json(json.loads(path.read_text()))
+
+    def record(self, page: PageImage, layout: PageLayout, region: Box | None = None) -> Path:
         self._directory.mkdir(parents=True, exist_ok=True)
-        path = self._directory / recording_name(page.document_sha256, page.index)
+        path = self._directory / recording_name(page.document_sha256, page.index, region)
         path.write_text(json.dumps(layout.to_json(), ensure_ascii=False, separators=(",", ":")))
         return path

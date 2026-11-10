@@ -6,7 +6,8 @@ from typing import Protocol
 from PIL import Image
 
 from riso.intake.domain import MediaType
-from riso.intake.domain.layout import PageLayout
+from riso.intake.domain.layout import Box, PageLayout
+from riso.intake.domain.note import NoteRegion
 
 
 class PageCounter(Protocol):
@@ -44,6 +45,17 @@ class DocumentReader(Protocol):
 
     def read(self, page: PageImage) -> PageLayout:
         """The page's words. Raises `ReadingFailed` with the reason when it cannot."""
+        ...
+
+    def read_digits(self, page: PageImage, region: Box) -> PageLayout:
+        """The region read for digits, dots and slashes only (the handwritten note), its
+        words' boxes in the page's pixels."""
+        ...
+
+
+class NoteLocator(Protocol):
+    def locate(self, page: Image.Image, layout: PageLayout) -> NoteRegion:
+        """Where the handwritten note is on the page the layout was read from."""
         ...
 
 

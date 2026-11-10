@@ -22,7 +22,7 @@ import os
 import tempfile
 import urllib.request
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -147,6 +147,23 @@ def _version() -> str:
 # --- in the app -------------------------------------------------------------------------------
 
 
+def shifted(layout: PageLayout, region: Box, page: PageImage) -> PageLayout:
+    """A crop's layout in the page's pixels."""
+    words = tuple(
+        replace(
+            w,
+            box=Box(
+                w.box.x0 + region.x0,
+                w.box.y0 + region.y0,
+                w.box.x1 + region.x0,
+                w.box.y1 + region.y0,
+            ),
+        )
+        for w in layout.words
+    )
+    return replace(layout, width=page.image.width, height=page.image.height, words=words)
+
+
 def parse_tsv(tsv: str, *, index: int, width: int, height: int, dpi: int) -> PageLayout:
     """Tesseract's TSV (level 5 rows are words) as a `PageLayout`. Lines are numbered on
     the page by (block, paragraph, line); words without text are dropped."""
@@ -189,6 +206,12 @@ class TesseractReader:
         return parse_tsv(
             tsv, index=page.index, width=image.width, height=image.height, dpi=page.dpi
         )
+
+    def read_digits(self, page: PageImage, region: Box) -> PageLayout:
+        crop = page.image.crop((region.x0, region.y0, region.x1, region.y1))
+        tsv = self._call(_tsv, str(self._tessdata), crop, page.dpi, True)
+        read = parse_tsv(tsv, index=page.index, width=crop.width, height=crop.height, dpi=page.dpi)
+        return shifted(read, region, page)
 
     def _call(self, function: Callable[..., Any], *args: Any) -> Any:
         if not models_ready(self._tessdata):
