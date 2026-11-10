@@ -77,6 +77,10 @@ def test_the_text_report_lists_the_fields_and_targets(report):
     text = format_report(report)
     assert text.startswith("synthetic: 10 cases, 10 pages, recorded")
     assert "supplier.ico" in text and "targets:" in text and "MISSED" not in text
+    # A font is easier to read than a hand (plan §8.6); real scans carry no such label.
+    assert "(handwriting in a font: optimistic)" in text
+    anchors = evaluate(_cases()[:1], RecordedReader(), eval_set="anchor", customer=BOLDOG, now=NOW)
+    assert "optimistic" not in format_report(anchors)
 
 
 def test_excluded_fields_are_not_scored():

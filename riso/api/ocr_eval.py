@@ -409,8 +409,8 @@ def format_report(report: OcrEvalReport) -> str:
         f"right after the check step's automatic fields: {report.right_after_check} of "
         f"{report.cases} invoices",
         f"note: crop holds it {report.note.held}/{report.note.measured}; read: date "
-        f"{report.note.date_read}, number {report.note.number_read} of {report.note.cases} "
-        "(handwriting in a font: optimistic)",
+        f"{report.note.date_read}, number {report.note.number_read} of {report.note.cases}"
+        + (" (handwriting in a font: optimistic)" if report.set == "synthetic" else ""),
         "",
         "targets:",
     ]
