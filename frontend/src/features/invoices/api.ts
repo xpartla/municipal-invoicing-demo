@@ -187,6 +187,10 @@ export type Entry = Schemas['EntryOut'];
 export const invoiceKey = (customerId: string, invoiceId: string) =>
   [...invoicesKey(customerId), 'one', invoiceId] as const;
 
+/** States in which an invoice still waits for its file to be read. */
+export const READING = new Set<string>(['uploaded', 'extracting']);
+
+/** The invoice; polled every two seconds while its file is read (plan §4.6). */
 export function useInvoice(customerId: string, invoiceId: string) {
   return useQuery({
     queryKey: invoiceKey(customerId, invoiceId),
@@ -196,6 +200,26 @@ export function useInvoice(customerId: string, invoiceId: string) {
           params: { path: { customer_id: customerId, invoice_id: invoiceId } },
         }),
       ),
+    refetchInterval: (query) =>
+      query.state.data && READING.has(query.state.data.state) ? 2000 : false,
+  });
+}
+
+/** Confirms the checked fields and codes them (plan §8.5 "Potvrdiť"). */
+export function useCheckInvoice(customerId: string, invoiceId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (fields: InvoiceDocument) =>
+      unwrap(
+        api.POST('/api/customers/{customer_id}/invoices/{invoice_id}/check', {
+          params: { path: { customer_id: customerId, invoice_id: invoiceId } },
+          body: fields,
+        }),
+      ),
+    onSuccess: (invoice) => {
+      client.setQueryData(invoiceKey(customerId, invoiceId), invoice);
+      return client.invalidateQueries({ queryKey: invoicesKey(customerId) });
+    },
   });
 }
 

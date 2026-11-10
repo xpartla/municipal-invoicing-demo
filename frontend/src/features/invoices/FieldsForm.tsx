@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Alert,
   Button,
+  Checkbox,
   Fieldset,
   Group,
   SegmentedControl,
@@ -10,15 +11,17 @@ import {
   Text,
   Textarea,
   TextInput,
+  type TextInputProps,
 } from '@mantine/core';
 import { IconCode, IconPlus, IconTrash } from '@tabler/icons-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { get, useFieldArray, useForm, useWatch, type Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { Dialog } from '../../components/Dialog';
 import { applyFieldErrors } from '../../lib/apiError';
+import { formatDate } from '../../lib/format';
 import { useNotify } from '../../lib/notify';
 import { useErrorText } from '../../lib/useErrorText';
 import type { InvoiceDocument } from './api';
@@ -28,11 +31,17 @@ import { documentOf, emptyValues, valuesOf, type FieldValues } from './fields';
 /**
  * The invoice's fields as a form (plan §8.5), in the check step's order: the handwritten
  * booking date and number, the supplier, the invoice header, the totals, the lines. Manual
- * entry uses it now; the check step of P2-M5 reuses it next to the document. "Vložiť JSON"
- * fills it from an InvoiceDocument (the demo's pasted invoice).
+ * entry uses it as it is, with "Vložiť JSON" to fill it from an InvoiceDocument (the demo's
+ * pasted invoice). The check step adds its aids: the note's enlarged crop above the
+ * handwritten fields and the suggestions under them, the doubtful fields in amber and the
+ * empty required ones in red, and the keyboard path: Enter confirms a field (an empty
+ * handwritten one takes its first suggestion) and goes on to the next doubtful one, Tab
+ * skips to the next doubtful one.
  */
 
-const FIELDS: readonly Path<FieldValues>[] = [
+export type FieldPath = Path<FieldValues>;
+
+const FIELDS: readonly FieldPath[] = [
   'handwritten.date',
   'handwritten.number',
   'supplier.name',
@@ -51,15 +60,40 @@ const FIELDS: readonly Path<FieldValues>[] = [
   'totals.gross',
 ];
 
+const REQUIRED: readonly FieldPath[] = ['supplier.name', 'invoice.issue_date', 'totals.gross'];
+const HANDWRITTEN = { 'handwritten.date': 'date', 'handwritten.number': 'number' } as const;
+
+export interface Suggestion {
+  value: string;
+  source: 'ocr' | 'counter';
+  plausible: boolean;
+  reasons: string[];
+}
+
+/** What the check step adds to the form. */
+export interface CheckAids {
+  /** The fields to check and why (a low confidence or a failed check), shown in amber. */
+  doubtful: Partial<Record<FieldPath, string>>;
+  /** The handwritten date and number were never confirmed (amber until they are). */
+  handwrittenToConfirm?: boolean;
+  /** The handwritten note's enlarged crop, above the two fields. */
+  note?: ReactNode;
+  suggestions?: { date: Suggestion[]; number: Suggestion[] };
+  /** A field got the focus (its box is shown on the document), or none has it. */
+  onFieldFocus?: (path: FieldPath | null) => void;
+}
+
 export function FieldsForm({
   customer,
   submitLabel,
   initial,
+  aids,
   onSubmit,
 }: {
   customer: { name: string; ico: string };
   submitLabel: string;
   initial?: FieldValues;
+  aids?: CheckAids;
   onSubmit: (document: InvoiceDocument) => Promise<void>;
 }) {
   const { t } = useTranslation();
@@ -68,6 +102,8 @@ export function FieldsForm({
   const [pasting, setPasting] = useState(false);
   const [pasted, setPasted] = useState('');
   const [pasteError, setPasteError] = useState<string | null>(null);
+  const [confirmed, setConfirmed] = useState<ReadonlySet<FieldPath>>(new Set());
+  const submitButton = useRef<HTMLButtonElement>(null);
   const schema = useMemo(() => {
     const required = z.string().trim().min(1, t('errors.required'));
     const money = z
@@ -84,14 +120,27 @@ export function FieldsForm({
         iban: free,
         address: free,
       }),
-      invoice: z.object({
-        number: free,
-        variable_symbol: free,
-        issue_date: required,
-        delivery_date: free,
-        due_date: free,
-        document_type: z.enum(['invoice', 'credit_note']),
-      }),
+      invoice: z
+        .object({
+          number: free,
+          variable_symbol: free,
+          issue_date: required,
+          delivery_date: free,
+          delivery_as_issue: z.boolean(),
+          due_date: free,
+          document_type: z.enum(['invoice', 'credit_note']),
+        })
+        .superRefine((invoice, ctx) => {
+          // Decision 61: every invoice has a date of supply; the issue date stands in only
+          // when the invoice does not print one.
+          if (!invoice.delivery_as_issue && invoice.delivery_date.trim() === '') {
+            ctx.addIssue({
+              code: 'custom',
+              path: ['delivery_date'],
+              message: t('fieldsForm.deliveryRequired'),
+            });
+          }
+        }),
       totals: z.object({ net: money, vat: money, gross: required.and(money) }),
       lines: z.array(z.object({ description: free, gross: money })),
       notes: free,
@@ -103,53 +152,194 @@ export function FieldsForm({
   });
   const lines = useFieldArray({ control: form.control, name: 'lines' });
   const { errors, isSubmitting } = form.formState;
-  const errorAt = (name: Path<FieldValues>): string | undefined => {
+  const values = useWatch({ control: form.control }) as FieldValues;
+  const errorAt = (name: FieldPath): string | undefined => {
     const found: unknown = get(errors, name);
     if (typeof found !== 'object' || found === null || !('message' in found)) return undefined;
     return typeof found.message === 'string' ? found.message : undefined;
   };
-  const documentType = useWatch({ control: form.control, name: 'invoice.document_type' });
+  const documentType = values.invoice.document_type;
+  const asIssue = values.invoice.delivery_as_issue;
 
-  const submit = form.handleSubmit(async (values) => {
+  const valueOf = (name: FieldPath): string => {
+    const found: unknown = get(values, name);
+    return typeof found === 'string' ? found : '';
+  };
+  const emptyRequired = (name: FieldPath): boolean =>
+    (REQUIRED.includes(name) || (name === 'invoice.delivery_date' && !asIssue)) &&
+    valueOf(name).trim() === '';
+  /** Amber: read with doubt, or handwritten (always the user's to confirm), not yet confirmed. */
+  const amber = (name: FieldPath): string | undefined => {
+    if (!aids || confirmed.has(name)) return undefined;
+    if (name in HANDWRITTEN && aids.handwrittenToConfirm && !aids.doubtful[name]) {
+      return t('fieldsForm.marks.handwritten');
+    }
+    return aids.doubtful[name];
+  };
+  const toCheck = (name: FieldPath): boolean =>
+    amber(name) !== undefined || (aids !== undefined && emptyRequired(name));
+
+  const confirm = (name: FieldPath) => {
+    setConfirmed((current) => (current.has(name) ? current : new Set([...current, name])));
+  };
+
+  const suggestionsOf = (name: FieldPath): Suggestion[] => {
+    const kind = (HANDWRITTEN as Record<string, 'date' | 'number' | undefined>)[name];
+    return kind && aids?.suggestions ? aids.suggestions[kind] : [];
+  };
+
+  /** The next field to check after `name`, in the form's order, that can take the focus. */
+  const nextToCheck = (name: FieldPath, skipping: FieldPath | null): FieldPath | undefined => {
+    const from = FIELDS.indexOf(name);
+    return FIELDS.slice(from + 1).find(
+      (path) =>
+        path !== skipping && toCheck(path) && !(path === 'invoice.delivery_date' && asIssue),
+    );
+  };
+
+  const keyDown = (event: KeyboardEvent<HTMLInputElement>, name: FieldPath) => {
+    if (!aids || event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const first = suggestionsOf(name)[0];
+      if (valueOf(name).trim() === '' && first) {
+        form.setValue(name, first.value, { shouldDirty: true });
+      }
+      confirm(name);
+      const next = nextToCheck(name, name);
+      if (next) form.setFocus(next);
+      else submitButton.current?.focus();
+    } else if (event.key === 'Tab' && !event.shiftKey) {
+      const next = nextToCheck(name, null);
+      if (next) {
+        event.preventDefault();
+        form.setFocus(next);
+      }
+    }
+  };
+
+  const submit = form.handleSubmit(async (filled) => {
     try {
-      await onSubmit(documentOf(values, customer));
+      await onSubmit(documentOf(filled, customer));
     } catch (error) {
       if (!applyFieldErrors(error, form.setError, FIELDS, errorText)) notify.failure(error);
     }
   });
 
-  const input = (name: Path<FieldValues>, label: string, props: object = {}) => (
-    <TextInput label={label} {...form.register(name)} error={errorAt(name)} {...props} />
-  );
+  const input = (name: FieldPath, label: string, props: Partial<TextInputProps> = {}) => {
+    const registered = form.register(name);
+    const warn = amber(name);
+    const missing = aids !== undefined && emptyRequired(name) ? t('errors.required') : undefined;
+    return (
+      <TextInput
+        label={label}
+        {...props}
+        {...registered}
+        onChange={(event) => {
+          confirm(name);
+          void registered.onChange(event);
+        }}
+        onFocus={() => aids?.onFieldFocus?.(name)}
+        onKeyDown={(event) => {
+          keyDown(event, name);
+        }}
+        description={warn ?? props.description}
+        error={errorAt(name) ?? missing}
+        data-check={warn ? 'doubtful' : undefined}
+        styles={
+          warn && !errorAt(name) && !missing
+            ? {
+                input: {
+                  borderColor: 'var(--mantine-color-orange-8)',
+                  borderWidth: 2,
+                  background: 'var(--mantine-color-orange-light)',
+                },
+              }
+            : undefined
+        }
+      />
+    );
+  };
+
+  const suggestions = (name: FieldPath, label: string) => {
+    const list = suggestionsOf(name);
+    if (list.length === 0) return null;
+    return (
+      <Group gap={6} role="group" aria-label={t('fieldsForm.suggestionsFor', { field: label })}>
+        {list.map((s) => {
+          const shown = name === 'handwritten.date' ? formatDate(s.value) : s.value;
+          const notes = [
+            ...(s.source === 'counter' ? [t('fieldsForm.fromCounter')] : []),
+            ...s.reasons.map((r) =>
+              t(`fieldsForm.reasons.${r}` as 'fieldsForm.reasons.below_counter', {
+                defaultValue: r,
+              }),
+            ),
+          ];
+          return (
+            <Button
+              key={`${s.source}-${s.value}`}
+              size="compact-sm"
+              variant={s.plausible ? 'light' : 'default'}
+              onClick={() => {
+                form.setValue(name, s.value, { shouldDirty: true, shouldValidate: true });
+                confirm(name);
+              }}
+            >
+              {notes.length ? `${shown} · ${notes.join(', ')}` : shown}
+            </Button>
+          );
+        })}
+      </Group>
+    );
+  };
+
+  const delivery = form.register('invoice.delivery_as_issue');
 
   return (
     <form onSubmit={(event) => void submit(event)} noValidate>
       <Stack gap="md">
-        <Group justify="flex-end">
-          <Button
-            variant="default"
-            size="xs"
-            leftSection={<IconCode size={14} aria-hidden />}
-            onClick={() => {
-              setPasted('');
-              setPasteError(null);
-              setPasting(true);
-            }}
-          >
-            {t('fieldsForm.paste')}
-          </Button>
-        </Group>
+        {!aids && (
+          <Group justify="flex-end">
+            <Button
+              variant="default"
+              size="xs"
+              leftSection={<IconCode size={14} aria-hidden />}
+              onClick={() => {
+                setPasted('');
+                setPasteError(null);
+                setPasting(true);
+              }}
+            >
+              {t('fieldsForm.paste')}
+            </Button>
+          </Group>
+        )}
+        {aids && (
+          <Text size="sm" c="dimmed">
+            {t('fieldsForm.keyboard')}
+          </Text>
+        )}
         <Fieldset legend={t('fieldsForm.handwritten')}>
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-            {input('handwritten.date', t('fieldsForm.handwrittenDate'), { type: 'date' })}
-            {input('handwritten.number', t('fieldsForm.handwrittenNumber'), {
-              description: t('fieldsForm.handwrittenNumberHint'),
-              inputMode: 'numeric',
-            })}
-          </SimpleGrid>
+          <Stack gap="sm">
+            {aids?.note}
+            <SimpleGrid type="container" cols={{ base: 1, '420px': 2 }} spacing="sm">
+              <Stack gap={6}>
+                {input('handwritten.date', t('fieldsForm.handwrittenDate'), { type: 'date' })}
+                {suggestions('handwritten.date', t('fieldsForm.handwrittenDate'))}
+              </Stack>
+              <Stack gap={6}>
+                {input('handwritten.number', t('fieldsForm.handwrittenNumber'), {
+                  description: t('fieldsForm.handwrittenNumberHint'),
+                  inputMode: 'numeric',
+                })}
+                {suggestions('handwritten.number', t('fieldsForm.handwrittenNumber'))}
+              </Stack>
+            </SimpleGrid>
+          </Stack>
         </Fieldset>
         <Fieldset legend={t('fieldsForm.supplier')}>
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="sm">
+          <SimpleGrid type="container" cols={{ base: 1, '420px': 2, '680px': 3 }} spacing="sm">
             {input('supplier.name', t('fieldsForm.supplierName'), { withAsterisk: true })}
             {input('supplier.ico', t('fieldsForm.ico'), { inputMode: 'numeric' })}
             {input('supplier.dic', t('fieldsForm.dic'))}
@@ -159,7 +349,7 @@ export function FieldsForm({
           </SimpleGrid>
         </Fieldset>
         <Fieldset legend={t('fieldsForm.header')}>
-          <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="sm">
+          <SimpleGrid type="container" cols={{ base: 1, '420px': 2, '680px': 3 }} spacing="sm">
             {input('invoice.number', t('fieldsForm.number'))}
             {input('invoice.variable_symbol', t('fieldsForm.vs'), { inputMode: 'numeric' })}
             <Stack gap={4}>
@@ -185,15 +375,31 @@ export function FieldsForm({
               type: 'date',
               withAsterisk: true,
             })}
-            {input('invoice.delivery_date', t('fieldsForm.deliveryDate'), {
-              type: 'date',
-              description: t('fieldsForm.deliveryHint'),
-            })}
+            <Stack gap={6}>
+              {input('invoice.delivery_date', t('fieldsForm.deliveryDate'), {
+                type: 'date',
+                withAsterisk: !asIssue,
+                disabled: asIssue,
+                description: t('fieldsForm.deliveryHint'),
+              })}
+              <Checkbox
+                size="xs"
+                label={t('fieldsForm.deliveryAsIssue')}
+                {...delivery}
+                onChange={(event) => {
+                  confirm('invoice.delivery_date');
+                  void delivery.onChange(event);
+                  if (errors.invoice?.delivery_date) {
+                    void form.trigger('invoice.delivery_date');
+                  }
+                }}
+              />
+            </Stack>
             {input('invoice.due_date', t('fieldsForm.dueDate'), { type: 'date' })}
           </SimpleGrid>
         </Fieldset>
         <Fieldset legend={t('fieldsForm.totals')}>
-          <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
+          <SimpleGrid type="container" cols={{ base: 1, '420px': 3 }} spacing="sm">
             {input('totals.net', t('fieldsForm.net'), { inputMode: 'decimal' })}
             {input('totals.vat', t('fieldsForm.vat'), { inputMode: 'decimal' })}
             {input('totals.gross', t('fieldsForm.gross'), {
@@ -253,7 +459,7 @@ export function FieldsForm({
         />
         {errors.root && <Alert color="red">{errors.root.message}</Alert>}
         <Group justify="flex-end">
-          <Button type="submit" loading={isSubmitting}>
+          <Button ref={submitButton} type="submit" loading={isSubmitting}>
             {submitLabel}
           </Button>
         </Group>

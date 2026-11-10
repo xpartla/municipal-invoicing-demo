@@ -2,7 +2,15 @@ import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/rea
 
 import { api, type Schemas } from '../../api/client';
 import { unwrap } from '../../lib/apiError';
-import { invoiceKey, invoicesKey, type Invoice, type InvoiceDocument } from '../invoices/api';
+import {
+  READING,
+  invoiceKey,
+  invoicesKey,
+  type Invoice,
+  type InvoiceDocument,
+} from '../invoices/api';
+
+export { READING };
 
 /** Uploads and their reading (plan §8.2, §10.5): documents, extractions, the check step's
  * page images and the handwritten note's crop. */
@@ -10,9 +18,6 @@ import { invoiceKey, invoicesKey, type Invoice, type InvoiceDocument } from '../
 export type UploadOutcome = Schemas['UploadItemOut'];
 export type Extraction = Schemas['ExtractionOut'];
 export type Suggestion = Schemas['SuggestionOut'];
-
-/** States in which an invoice still waits for its file to be read. */
-export const READING = new Set<string>(['uploaded', 'extracting']);
 
 export function useUploadDocuments(customerId: string) {
   const client = useQueryClient();

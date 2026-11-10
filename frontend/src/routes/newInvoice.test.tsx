@@ -130,6 +130,10 @@ describe('manual entry', () => {
     await user.click(screen.getByRole('tab', { name: 'Zadať ručne' }));
     await user.click(screen.getByRole('button', { name: 'Uložiť a navrhnúť' }));
     expect(await screen.findAllByText('Toto pole je povinné.')).toHaveLength(3);
+    // Decision 61: a date of supply, or the issue date standing in for it.
+    expect(
+      screen.getByText('Zadajte dátum dodania alebo označte, že na faktúre nie je.'),
+    ).toBeVisible();
     expect(calls.some((c) => c.method === 'POST')).toBe(false);
 
     await user.type(screen.getByLabelText('Dátum zaúčtovania (rukou)'), '2026-06-23');
@@ -137,6 +141,7 @@ describe('manual entry', () => {
     await user.type(screen.getByLabelText(/^Názov/), 'Slovak Telekom, a.s.');
     await user.type(screen.getByLabelText('IČO'), '35763469');
     await user.type(screen.getByLabelText(/^Dátum vystavenia/), '2026-06-22');
+    await user.type(screen.getByLabelText(/^Dátum dodania/), '2026-06-21');
     await user.type(screen.getByLabelText(/^Spolu na úhradu/), '93,71');
     await user.click(screen.getByRole('button', { name: 'Pridať položku' }));
     await user.type(screen.getByLabelText('Popis položky 1'), 'Poplatky');
@@ -150,7 +155,12 @@ describe('manual entry', () => {
       id: 'new',
       supplier: { name: 'Slovak Telekom, a.s.', ico: '35763469' },
       customer: { name: BOLDOG.name, ico: BOLDOG.ico },
-      invoice: { issue_date: '2026-06-22', document_type: 'invoice', currency: 'EUR' },
+      invoice: {
+        issue_date: '2026-06-22',
+        delivery_date: '2026-06-21',
+        document_type: 'invoice',
+        currency: 'EUR',
+      },
       handwritten: { date: '2026-06-23', number: '144' },
       totals: { gross: 93.71 },
       lines: [{ description: 'Poplatky', gross: 93.71 }],
