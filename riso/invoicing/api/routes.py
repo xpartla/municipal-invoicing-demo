@@ -42,6 +42,7 @@ from riso.invoicing.application import (
     code_document,
     discard_invoice,
     discard_many,
+    enter_after_failure,
     enter_invoice,
     find_suppliers,
     get_invoice,
@@ -129,6 +130,22 @@ def create(
     """Manual entry (plan §8.5): an invoice from typed fields, checked and coded at once.
     The fields' `id` is replaced by the new invoice's."""
     view = enter_invoice(caller.ctx, services.uow(), services.reference_data(), customer_id, body)
+    return InvoiceOut.of(view)
+
+
+@router.post(INVOICE + "/manual", name="invoices.enter_manually")
+def enter_manually(
+    caller: Process,
+    services: ServicesDep,
+    customer_id: str,
+    invoice_id: str,
+    body: InvoiceDocument,
+) -> InvoiceOut:
+    """Manual entry of an uploaded invoice whose file could not be read (plan §7.1): the
+    typed fields, checked and coded at once; the invoice keeps its document."""
+    view = enter_after_failure(
+        caller.ctx, services.uow(), services.reference_data(), customer_id, invoice_id, body
+    )
     return InvoiceOut.of(view)
 
 

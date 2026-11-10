@@ -7,7 +7,14 @@ import os
 import socket
 from dataclasses import dataclass, field
 
-from riso.api.adapters import DbReferenceData, DbSupplierState, SpaLinks, SqlTenancyDirectory
+from riso.api.adapters import (
+    DbReferenceData,
+    DbSupplierState,
+    DirectoryCustomers,
+    MemorySupplierNames,
+    SpaLinks,
+    SqlTenancyDirectory,
+)
 from riso.api.uow import AppUnitOfWork
 from riso.exchange.application.copy import COPY_JOB, CopyJobs
 from riso.exchange.application.exports import EXPORT_JOB, ExportJobs
@@ -20,6 +27,7 @@ from riso.identity.domain import PasswordHasher, PasswordPolicy
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.sessions import SecretsTokenGenerator
 from riso.intake.application import EXTRACT_JOB, DocumentReader, ExtractionJobs
+from riso.intake.infrastructure.handwriting import InkLocator
 from riso.intake.infrastructure.imaging import Pages
 from riso.intake.infrastructure.pages import FilePages
 from riso.intake.infrastructure.pdftext import PdfTextLayer
@@ -143,7 +151,16 @@ class Services:
         return self.document_reader
 
     def extraction_jobs(self) -> ExtractionJobs:
-        return ExtractionJobs(self.uow, self.storage, self.ocr_reader, Pages(), PdfTextLayer())
+        return ExtractionJobs(
+            self.uow,
+            self.storage,
+            self.ocr_reader,
+            Pages(),
+            PdfTextLayer(),
+            InkLocator(),
+            DirectoryCustomers(self.directory),
+            MemorySupplierNames(lambda: self.uow(immediate=False), self.directory),
+        )
 
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(

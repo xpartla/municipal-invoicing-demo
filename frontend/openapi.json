@@ -5776,6 +5776,68 @@
         }
       }
     },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/manual": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Enter Manually",
+        "description": "Manual entry of an uploaded invoice whose file could not be read (plan §7.1): the\ntyped fields, checked and coded at once; the invoice keeps its document.",
+        "operationId": "invoices.enter_manually",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/customers/{customer_id}/invoices/suppliers": {
       "get": {
         "tags": [
@@ -6729,6 +6791,225 @@
             "content": {
               "application/json": {
                 "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/documents/{document_id}/extraction": {
+      "get": {
+        "tags": [
+          "intake"
+        ],
+        "summary": "Documents.Extraction",
+        "description": "The document's newest reading: the engine, the confidence and the box of each field,\nthe warnings, and the handwritten note's crop with its suggestions (the check step,\nplan §8.5). 404 before it was read.",
+        "operationId": "documents.extraction",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/documents/{document_id}/pages/{page}": {
+      "get": {
+        "tags": [
+          "intake"
+        ],
+        "summary": "Documents.Page",
+        "description": "A page as it was read (JPEG): the boxes of the reading are in its pixels.",
+        "operationId": "documents.page",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMaximum": 5,
+              "title": "Page"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/documents/{document_id}/note": {
+      "get": {
+        "tags": [
+          "intake"
+        ],
+        "summary": "Documents.Note",
+        "description": "The handwritten note's crop (PNG), shown enlarged above the two fields.",
+        "operationId": "documents.note",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/extraction": {
+      "post": {
+        "tags": [
+          "intake"
+        ],
+        "summary": "Extraction.Retry",
+        "description": "Reads a failed invoice's document again (plan §7.1); poll the job.",
+        "operationId": "extraction.retry",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RetryOut"
+                }
               }
             }
           },
@@ -7853,6 +8134,28 @@
           "note"
         ],
         "title": "BookingOut"
+      },
+      "BoxOut": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "box": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Box"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "page",
+          "box"
+        ],
+        "title": "BoxOut"
       },
       "BudgetLine": {
         "properties": {
@@ -10217,6 +10520,100 @@
           "total"
         ],
         "title": "ExportRunPageOut"
+      },
+      "ExtractionOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "document_id": {
+            "type": "string",
+            "title": "Document Id"
+          },
+          "invoice_id": {
+            "type": "string",
+            "title": "Invoice Id"
+          },
+          "engine": {
+            "type": "string",
+            "title": "Engine"
+          },
+          "engine_version": {
+            "type": "string",
+            "title": "Engine Version"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "ocr",
+              "text_layer"
+            ],
+            "title": "Source"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "title": "Duration Ms"
+          },
+          "pages": {
+            "type": "integer",
+            "title": "Pages"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "confidence": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Confidence"
+          },
+          "evidence": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/BoxOut"
+            },
+            "type": "object",
+            "title": "Evidence"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NoteOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "document_id",
+          "invoice_id",
+          "engine",
+          "engine_version",
+          "source",
+          "created_at",
+          "duration_ms",
+          "pages",
+          "warnings",
+          "confidence",
+          "evidence",
+          "note"
+        ],
+        "title": "ExtractionOut"
       },
       "Fact": {
         "properties": {
@@ -12908,6 +13305,49 @@
         ],
         "title": "MembershipOut"
       },
+      "NoteOut": {
+        "properties": {
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "box": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Box"
+          },
+          "found": {
+            "type": "boolean",
+            "title": "Found"
+          },
+          "date": {
+            "items": {
+              "$ref": "#/components/schemas/SuggestionOut"
+            },
+            "type": "array",
+            "title": "Date"
+          },
+          "number": {
+            "items": {
+              "$ref": "#/components/schemas/SuggestionOut"
+            },
+            "type": "array",
+            "title": "Number"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "page",
+          "box",
+          "found",
+          "date",
+          "number"
+        ],
+        "title": "NoteOut"
+      },
       "NumberSeriesListOut": {
         "properties": {
           "year": {
@@ -13808,6 +14248,20 @@
         ],
         "title": "ResetRequestIn"
       },
+      "RetryOut": {
+        "properties": {
+          "job_id": {
+            "type": "string",
+            "title": "Job Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "job_id"
+        ],
+        "title": "RetryOut"
+      },
       "Role": {
         "type": "string",
         "enum": [
@@ -14075,6 +14529,42 @@
           "name"
         ],
         "title": "StaffIn"
+      },
+      "SuggestionOut": {
+        "properties": {
+          "value": {
+            "type": "string",
+            "title": "Value"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "ocr",
+              "counter"
+            ],
+            "title": "Source"
+          },
+          "plausible": {
+            "type": "boolean",
+            "title": "Plausible"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "source",
+          "plausible",
+          "reasons"
+        ],
+        "title": "SuggestionOut"
       },
       "SupplierOut": {
         "properties": {

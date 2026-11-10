@@ -23,7 +23,7 @@ from riso.invoicing.application.coding import (
     line_for,
     recode_invoice,
 )
-from riso.invoicing.application.entry import enter_invoice
+from riso.invoicing.application.entry import enter_after_failure, enter_invoice
 from riso.invoicing.application.exports import (
     ExportableInvoice,
     exportable,
@@ -31,9 +31,13 @@ from riso.invoicing.application.exports import (
 )
 from riso.invoicing.application.intake import (
     awaits_extraction,
+    complete_extraction,
+    counter_hint,
     fail_extraction,
+    failed_extraction_document,
     invoice_of_document,
     register_upload,
+    restart_extraction,
 )
 from riso.invoicing.application.numbering import (
     SeriesView,
@@ -79,6 +83,11 @@ from riso.invoicing.application.views import (
 
 __all__ = [
     "awaits_extraction",
+    "complete_extraction",
+    "counter_hint",
+    "enter_after_failure",
+    "failed_extraction_document",
+    "restart_extraction",
     "BookInvoice",
     "ExportableInvoice",
     "exportable",

@@ -3,6 +3,7 @@
 from typing import Protocol
 
 from riso.intake.domain.document import Document
+from riso.intake.domain.extraction import Extraction
 
 
 class DocumentRepository(Protocol):
@@ -18,4 +19,12 @@ class DocumentRepository(Protocol):
 
     def of_customer(self, customer_id: str) -> list[Document]:
         """Every document of the customer, the newest first."""
+        ...
+
+
+class ExtractionRepository(Protocol):
+    def add(self, extraction: Extraction) -> None: ...
+
+    def latest(self, customer_id: str, document_id: str) -> Extraction | None:
+        """The document's newest extraction, if it was read."""
         ...

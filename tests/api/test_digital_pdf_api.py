@@ -1,7 +1,7 @@
 """A digital PDF is read from its text layer, without OCR (P2-M5-T04)."""
 
 from riso.intake.application import PageImage
-from riso.intake.domain.layout import PageLayout
+from riso.intake.domain.layout import Box, PageLayout
 from riso.testdata.scans import SAMPLES_DIR
 from tests.api.conftest import Fresh
 
@@ -17,6 +17,9 @@ class NoOcr:
         self.pages.append(page.index)
         raise AssertionError("a digital PDF was sent to OCR")
 
+    def read_digits(self, page: PageImage, region: Box) -> PageLayout:
+        raise AssertionError("a digital PDF was sent to OCR")
+
 
 def test_a_digital_pdf_is_read_without_ocr(fresh: Fresh):
     reader = NoOcr()
@@ -29,5 +32,5 @@ def test_a_digital_pdf_is_read_without_ocr(fresh: Fresh):
     ).json()["items"][0]
     fresh.services.worker().run_pending()
     job = user.get(f"/api/customers/{fresh.boldog}/jobs/{item['job_id']}").json()
-    assert job["status"] == "succeeded" and job["result"]["reason"] == "not_extracted"
+    assert job["status"] == "succeeded" and job["result"]["outcome"] == "extracted"
     assert reader.pages == []

@@ -48,3 +48,12 @@ def test_a_scanned_pdf_has_no_usable_text_layer():
     scan = next(t for t in TRUTHS.values() if t.capture.format == "pdf")
     assert text_layer((SAMPLES_DIR / scan.files["scan"]).read_bytes()) is None
     assert text_layer(b"%PDF-1.4 broken") is None
+
+
+def test_a_scanners_searchable_pdf_is_told_from_a_billing_systems():
+    from riso.intake.infrastructure.pdftext import scanned
+
+    scan = next(t for t in TRUTHS.values() if t.capture.format == "pdf")
+    assert scanned((SAMPLES_DIR / scan.files["scan"]).read_bytes())
+    assert not scanned((SAMPLES_DIR / scan.files["digital_pdf"]).read_bytes())
+    assert not scanned(b"%PDF-1.4 broken")

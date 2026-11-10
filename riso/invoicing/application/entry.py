@@ -50,3 +50,38 @@ def enter_invoice(
         )
         uow.commit()
     return InvoiceView.of(invoice)
+
+
+def enter_after_failure(
+    ctx: RequestContext,
+    uow: InvoicingUnitOfWork,
+    reference: ReferenceData,
+    customer_id: str,
+    invoice_id: str,
+    fields: InvoiceDocument,
+) -> InvoiceView:
+    """The fields of an uploaded invoice whose file could not be read, typed by the user
+    (plan §7.1: extraction_failed → manual entry → extracted), checked and coded at once.
+    The invoice keeps its document; the fields say they were typed."""
+    ctx.require(Permission.INVOICES_PROCESS, customer_id)
+    actor = actor_of(ctx)
+    with uow:
+        invoice = uow.invoices.get(customer_id, invoice_id)
+        at = uow.clock.now()
+        typed = fields.model_copy(
+            update={"id": invoice_id, "intake": Intake(channel=Channel.MANUAL.value)}
+        )
+        invoice.enter_manually(typed, at, actor)
+        invoice.check(typed, at, actor)
+        code_stored(ctx, uow, reference, invoice, actor)
+        uow.invoices.save(invoice)
+        uow.audit.record(
+            ctx,
+            "invoice.entered_manually",
+            target_type="invoice",
+            target_id=invoice_id,
+            customer_id=customer_id,
+            details={"state": invoice.state.value},
+        )
+        uow.commit()
+    return InvoiceView.of(invoice)

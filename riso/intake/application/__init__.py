@@ -1,7 +1,13 @@
 """Use cases, views and ports of the intake context: uploads and their documents, and the
 extraction job."""
 
-from riso.intake.application.extraction import EXTRACT_JOB, ExtractDocument, ExtractionJobs
+from riso.intake.application.extraction import (
+    EXTRACT_JOB,
+    Customers,
+    ExtractDocument,
+    ExtractionJobs,
+    retry_extraction,
+)
 from riso.intake.application.ports import (
     DocumentReader,
     PageCounter,
@@ -18,16 +24,25 @@ from riso.intake.application.upload import (
     get_document,
     upload_documents,
 )
-from riso.intake.application.views import DocumentFile, DocumentView, UploadOutcome
+from riso.intake.application.views import (
+    DocumentFile,
+    DocumentView,
+    ExtractionView,
+    UploadOutcome,
+    extraction_image,
+    get_extraction,
+)
 
 __all__ = [
     "EXTRACT_JOB",
     "MAX_FILES",
+    "Customers",
     "DocumentFile",
     "DocumentReader",
     "DocumentView",
     "ExtractDocument",
     "ExtractionJobs",
+    "ExtractionView",
     "IntakeUnitOfWork",
     "PageCounter",
     "PageImage",
@@ -37,6 +52,9 @@ __all__ = [
     "UploadedFile",
     "customer_documents",
     "document_file",
+    "extraction_image",
     "get_document",
+    "get_extraction",
+    "retry_extraction",
     "upload_documents",
 ]

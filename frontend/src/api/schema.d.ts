@@ -1684,6 +1684,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/manual": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Invoices.Enter Manually
+         * @description Manual entry of an uploaded invoice whose file could not be read (plan §7.1): the
+         *     typed fields, checked and coded at once; the invoice keeps its document.
+         */
+        post: operations["invoices.enter_manually"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/customers/{customer_id}/invoices/suppliers": {
         parameters: {
             query?: never;
@@ -2033,6 +2054,88 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/documents/{document_id}/extraction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Documents.Extraction
+         * @description The document's newest reading: the engine, the confidence and the box of each field,
+         *     the warnings, and the handwritten note's crop with its suggestions (the check step,
+         *     plan §8.5). 404 before it was read.
+         */
+        get: operations["documents.extraction"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/documents/{document_id}/pages/{page}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Documents.Page
+         * @description A page as it was read (JPEG): the boxes of the reading are in its pixels.
+         */
+        get: operations["documents.page"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/documents/{document_id}/note": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Documents.Note
+         * @description The handwritten note's crop (PNG), shown enlarged above the two fields.
+         */
+        get: operations["documents.note"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/invoices/{invoice_id}/extraction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Extraction.Retry
+         * @description Reads a failed invoice's document again (plan §7.1); poll the job.
+         */
+        post: operations["extraction.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/customers/{customer_id}/files": {
         parameters: {
             query?: never;
@@ -2371,6 +2474,13 @@ export interface components {
             by: string | null;
             /** Note */
             note: string | null;
+        };
+        /** BoxOut */
+        BoxOut: {
+            /** Page */
+            page: number;
+            /** Box */
+            box: number[];
         };
         /**
          * BudgetLine
@@ -3228,6 +3338,44 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** ExtractionOut */
+        ExtractionOut: {
+            /** Id */
+            id: string;
+            /** Document Id */
+            document_id: string;
+            /** Invoice Id */
+            invoice_id: string;
+            /** Engine */
+            engine: string;
+            /** Engine Version */
+            engine_version: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "ocr" | "text_layer";
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Duration Ms */
+            duration_ms: number;
+            /** Pages */
+            pages: number;
+            /** Warnings */
+            warnings: string[];
+            /** Confidence */
+            confidence: {
+                [key: string]: number;
+            };
+            /** Evidence */
+            evidence: {
+                [key: string]: components["schemas"]["BoxOut"];
+            };
+            note: components["schemas"]["NoteOut"] | null;
+        };
         /**
          * Fact
          * @description A value read from a cell above the header with a pattern: `ico` (group `ico`) or
@@ -4039,6 +4187,19 @@ export interface components {
             /** Active */
             active: boolean;
         };
+        /** NoteOut */
+        NoteOut: {
+            /** Page */
+            page: number;
+            /** Box */
+            box: number[];
+            /** Found */
+            found: boolean;
+            /** Date */
+            date: components["schemas"]["SuggestionOut"][];
+            /** Number */
+            number: components["schemas"]["SuggestionOut"][];
+        };
         /** NumberSeriesListOut */
         NumberSeriesListOut: {
             /** Year */
@@ -4383,6 +4544,11 @@ export interface components {
             /** Email */
             email: string;
         };
+        /** RetryOut */
+        RetryOut: {
+            /** Job Id */
+            job_id: string;
+        };
         /**
          * Role
          * @enum {string}
@@ -4494,6 +4660,20 @@ export interface components {
             email: string;
             /** Name */
             name: string;
+        };
+        /** SuggestionOut */
+        SuggestionOut: {
+            /** Value */
+            value: string;
+            /**
+             * Source
+             * @enum {string}
+             */
+            source: "ocr" | "counter";
+            /** Plausible */
+            plausible: boolean;
+            /** Reasons */
+            reasons: string[];
         };
         /** SupplierOut */
         SupplierOut: {
@@ -8105,6 +8285,42 @@ export interface operations {
             };
         };
     };
+    "invoices.enter_manually": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvoiceDocument"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     "invoices.suppliers": {
         parameters: {
             query?: {
@@ -8677,6 +8893,135 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "documents.extraction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExtractionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "documents.page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                document_id: string;
+                page: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "documents.note": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "extraction.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                invoice_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetryOut"];
                 };
             };
             /** @description Validation Error */

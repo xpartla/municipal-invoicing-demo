@@ -11,6 +11,7 @@ at a line break or when the next character's baseline moves by more than half it
 from collections.abc import Iterator
 
 import pypdfium2 as pdfium
+import pypdfium2.raw as pdfium_c
 
 from riso.intake.domain.layout import Box, PageLayout, Word
 from riso.intake.infrastructure.imaging import RENDER_DPI
@@ -108,8 +109,30 @@ def text_layer(data: bytes) -> list[PageLayout] | None:
         document.close()
 
 
+def scanned(data: bytes) -> bool:
+    """Whether the first page is a scan with a text layer on top (a scanner's searchable
+    PDF): an image covers most of it. A billing system's PDF has none."""
+    try:
+        document = pdfium.PdfDocument(data)
+    except pdfium.PdfiumError:
+        return False
+    try:
+        page = document[0]
+        width, height = page.get_size()
+        for image in page.get_objects(filter=(pdfium_c.FPDF_PAGEOBJ_IMAGE,)):
+            left, bottom, right, top = image.get_bounds()
+            if (right - left) * (top - bottom) >= 0.8 * width * height:
+                return True
+        return False
+    finally:
+        document.close()
+
+
 class PdfTextLayer:
     """The `TextLayer` port."""
 
     def read(self, data: bytes) -> list[PageLayout] | None:
         return text_layer(data)
+
+    def scanned(self, data: bytes) -> bool:
+        return scanned(data)

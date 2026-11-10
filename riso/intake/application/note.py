@@ -8,6 +8,7 @@ from collections.abc import Collection
 from riso.intake.application.ports import DocumentReader, NoteLocator, PageImage
 from riso.intake.domain.layout import PageLayout, ReadingFailed
 from riso.intake.domain.note import (
+    NoteRegion,
     NoteSuggestions,
     date_suggestions,
     number_suggestions,
@@ -16,11 +17,17 @@ from riso.intake.domain.note import (
 
 
 def note_readings(
-    page: PageImage, layout: PageLayout, locator: NoteLocator, reader: DocumentReader
+    page: PageImage,
+    layout: PageLayout,
+    locator: NoteLocator,
+    reader: DocumentReader,
+    *,
+    region: NoteRegion | None = None,
 ) -> tuple[NoteSuggestions, list[str]]:
-    """The note's region, and what the digits pass read in each of its items (the whole
-    crop when no item was found). A reading that fails is skipped: the crop stays."""
-    region = locator.locate(page.image, layout)
+    """The note's region (located unless given), and what the digits pass read in each of
+    its items (the whole crop when no item was found). A reading that fails is skipped: the
+    crop stays."""
+    region = region or locator.locate(page.image, layout)
     readings = []
     for box in region.groups or (region.box,):
         try:

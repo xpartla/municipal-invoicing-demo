@@ -65,6 +65,11 @@ class TextLayer(Protocol):
         usable text layer (a scan), so the document is read by OCR."""
         ...
 
+    def scanned(self, data: bytes) -> bool:
+        """Whether a PDF with a text layer is a scanned page (a scanner's searchable PDF),
+        which may carry a handwritten note."""
+        ...
+
 
 class PagePreparer(Protocol):
     def prepare(

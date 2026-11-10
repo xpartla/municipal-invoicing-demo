@@ -180,7 +180,8 @@ def test_more_than_twenty_files_or_none_are_refused(fresh: Fresh):
 
 
 def test_the_extraction_job_runs_and_its_invoice_waits_for_manual_entry(fresh: Fresh):
-    """Until P2-M5-T07 wires the reading in, every extraction fails with its reason."""
+    """Here the OCR models are missing (a fresh var directory), so the reading fails with
+    its reason (`no_models`); the job itself succeeds."""
     user = fresh.login("user")
     item = _upload(user, fresh.boldog, ("a.png", _image("PNG", colour="tan"))).json()["items"][0]
     fresh.services.worker().run_pending()

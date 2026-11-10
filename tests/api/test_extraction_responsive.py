@@ -9,7 +9,7 @@ from PIL import Image
 
 from riso.api import Settings, create_app
 from riso.intake.application import PageImage
-from riso.intake.domain.layout import PageLayout
+from riso.intake.domain.layout import Box, PageLayout
 from tests.api.conftest import ApiClient, Fresh
 from tests.conftest import SEED_PASSWORD
 
@@ -27,6 +27,9 @@ class BlockingReader:
     def read(self, page: PageImage) -> PageLayout:
         self.reading.set()
         assert self.release.wait(20), "the test never released the reader"
+        return PageLayout(page.index, page.image.width, page.image.height, page.dpi, ())
+
+    def read_digits(self, page: PageImage, region: Box) -> PageLayout:
         return PageLayout(page.index, page.image.width, page.image.height, page.dpi, ())
 
 
@@ -68,4 +71,4 @@ def test_requests_are_answered_while_a_page_is_being_read(fresh: Fresh):
         while _invoice(client, fresh.boldog, item["invoice_id"])["state"] == "extracting":
             assert time.monotonic() < deadline, "the extraction never ended"
             time.sleep(0.2)
-        assert _invoice(client, fresh.boldog, item["invoice_id"])["state"] == "extraction_failed"
+        assert _invoice(client, fresh.boldog, item["invoice_id"])["state"] == "extracted"

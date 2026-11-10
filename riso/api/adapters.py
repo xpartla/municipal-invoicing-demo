@@ -370,3 +370,32 @@ class DatabaseReferenceSource:
     def knowledge(self, ico: str, year: int) -> KnowledgeBase:
         customer_id, _ = self._customer(ico)
         return self._reference.knowledge(self._ctx, customer_id, year)
+
+
+class DirectoryCustomers:
+    """The intake context's `Customers` port: a customer's IČO and name for the extractor."""
+
+    def __init__(self, directory: SqlTenancyDirectory) -> None:
+        self._directory = directory
+
+    def identity_of(self, customer_id: str) -> tuple[str, str]:
+        customer = self._directory.customer(customer_id)
+        if customer is None:
+            raise NotFound(f"no customer {customer_id}")
+        return customer.ico, customer.name
+
+
+class MemorySupplierNames:
+    """The intake context's `SupplierNames` port on the customer's supplier memory."""
+
+    def __init__(self, uow: Callable[[], "AppUnitOfWork"], directory: SqlTenancyDirectory) -> None:
+        self._uow = uow
+        self._directory = directory
+
+    def name_of(self, customer_id: str, ico: str) -> str | None:
+        customer = self._directory.customer(customer_id)
+        if customer is None:
+            return None
+        with self._uow() as uow:
+            record = supplier_memory(uow, customer_id, customer.ico).find(ico)
+        return None if record is None else record.name

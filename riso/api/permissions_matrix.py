@@ -130,6 +130,10 @@ MATRIX: dict[str, RouteAccess] = {
     "documents.upload": customer(Permission.INVOICES_PROCESS),
     "documents.get": customer(Permission.CUSTOMER_READ),
     "documents.file": customer(Permission.CUSTOMER_READ),
+    "documents.extraction": customer(Permission.CUSTOMER_READ),
+    "documents.page": customer(Permission.CUSTOMER_READ),
+    "documents.note": customer(Permission.CUSTOMER_READ),
+    "extraction.retry": customer(Permission.INVOICES_PROCESS),
     # Úložisko: the customer's files.
     "files.list": customer(Permission.CUSTOMER_READ),
     # jobs
@@ -161,6 +165,7 @@ MATRIX: dict[str, RouteAccess] = {
     "invoices.bulk_recode": customer(Permission.INVOICES_PROCESS),
     "invoices.bulk_discard": customer(Permission.INVOICES_PROCESS),
     "invoices.create": customer(Permission.INVOICES_PROCESS),
+    "invoices.enter_manually": customer(Permission.INVOICES_PROCESS),
     "invoices.check": customer(Permission.INVOICES_PROCESS),
     "invoices.recode": customer(Permission.INVOICES_PROCESS),
     "invoices.line": customer(Permission.INVOICES_PROCESS),
