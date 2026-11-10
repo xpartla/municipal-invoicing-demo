@@ -20,5 +20,9 @@ export default defineConfig({
     include: ['src/**/*.test.{ts,tsx}'],
     restoreMocks: true,
     unstubGlobals: true,
+    // The tests render the whole app in jsdom and are CPU-bound: one worker per logical core
+    // (two per physical one) only slows each test towards the 5 s timeout without finishing
+    // sooner. Half the cores ran as fast, the slowest test at 3.1 s instead of 4.5 s.
+    maxWorkers: '50%',
   },
 });
