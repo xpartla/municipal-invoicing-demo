@@ -316,6 +316,8 @@ class SqlInvoiceRepository:
                 InvoiceEventRow.customer_id == customer_id,
                 InvoiceEventRow.invoice_id == invoice_id,
             )
-            .order_by(InvoiceEventRow.at, InvoiceEventRow.id)
+            # By ID (UUIDv7, strictly increasing per generator even when the clock steps
+            # back), so the history is in the order it was written; `at` stays as recorded.
+            .order_by(InvoiceEventRow.id)
         )
         return [history_entry(row) for row in rows]
