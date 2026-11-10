@@ -1,0 +1,263 @@
+{
+  "case_id": "heldout-23-zse-ocu-ms",
+  "split": "heldout",
+  "seed": 2026,
+  "layout": "bill",
+  "files": {
+    "scan": "heldout-23-zse-ocu-ms.scan.jpg",
+    "digital_pdf": "heldout-23-zse-ocu-ms.digital.pdf"
+  },
+  "capture": {
+    "mode": "photo",
+    "format": "jpeg",
+    "dpi": 130,
+    "width": 1126,
+    "height": 1611,
+    "grayscale": false,
+    "rotation": 0.412,
+    "perspective": 4.98,
+    "blur": 0.657,
+    "noise": 7.538,
+    "jpeg_quality": 79,
+    "page": [
+      [
+        24.08,
+        37.74
+      ],
+      [
+        1096.62,
+        23.22
+      ],
+      [
+        1105.72,
+        1542.98
+      ],
+      [
+        31.26,
+        1556.86
+      ]
+    ]
+  },
+  "handwriting": {
+    "font": "caveat/Caveat-wght.ttf",
+    "placement": "split",
+    "date": {
+      "text": "23.9.26",
+      "box": {
+        "x0": 346,
+        "y0": 70,
+        "x1": 445,
+        "y1": 103
+      }
+    },
+    "number": {
+      "text": "258",
+      "box": {
+        "x0": 907,
+        "y0": 72,
+        "x1": 957,
+        "y1": 98
+      }
+    }
+  },
+  "stamp": {
+    "x0": 424,
+    "y0": 1016,
+    "x1": 629,
+    "y1": 1081
+  },
+  "document": {
+    "id": "heldout-23-zse-ocu-ms",
+    "supplier": {
+      "name": "Západoslovenská energetika, a.s.",
+      "ico": "35823551",
+      "dic": "2020285512",
+      "ic_dph": "SK2020285512",
+      "iban": "SK80 1100 0000 0026 2410 5532",
+      "address": "Čulenova 6, 816 47 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "7102298870",
+      "issue_date": "2026-09-18",
+      "delivery_date": "2026-08-31",
+      "due_date": "2026-10-02",
+      "variable_symbol": "7102298870",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-23",
+      "number": "258"
+    },
+    "totals": {
+      "net": 289.23,
+      "vat": 66.52,
+      "gross": 355.75,
+      "vat_rates": [
+        23.0
+      ]
+    },
+    "lines": [
+      {
+        "description": "OM Obecný úrad: Silová elektrina – jednotarif",
+        "quantity": 760.0,
+        "unit": "kWh",
+        "unit_price": 0.1389,
+        "net": 105.56,
+        "vat_rate": 23.0,
+        "vat": 24.28,
+        "gross": 129.84
+      },
+      {
+        "description": "OM Obecný úrad: Distribúcia – mesačná platba za rezervovanú kapacitu",
+        "quantity": 1.0,
+        "unit": "mes.",
+        "unit_price": 11.52,
+        "net": 11.52,
+        "vat_rate": 23.0,
+        "vat": 2.65,
+        "gross": 14.17
+      },
+      {
+        "description": "OM Obecný úrad: Distribúcia – variabilná zložka",
+        "quantity": 760.0,
+        "unit": "kWh",
+        "unit_price": 0.03104,
+        "net": 23.59,
+        "vat_rate": 23.0,
+        "vat": 5.43,
+        "gross": 29.02
+      },
+      {
+        "description": "OM Obecný úrad: Tarifa za prevádzkovanie systému",
+        "quantity": 760.0,
+        "unit": "kWh",
+        "unit_price": 0.02018,
+        "net": 15.34,
+        "vat_rate": 23.0,
+        "vat": 3.53,
+        "gross": 18.87
+      },
+      {
+        "description": "OM Obecný úrad: Tarifa za systémové služby",
+        "quantity": 760.0,
+        "unit": "kWh",
+        "unit_price": 0.00756,
+        "net": 5.75,
+        "vat_rate": 23.0,
+        "vat": 1.32,
+        "gross": 7.07
+      },
+      {
+        "description": "OM Obecný úrad: Odvod do Národného jadrového fondu",
+        "quantity": 760.0,
+        "unit": "kWh",
+        "unit_price": 0.00327,
+        "net": 2.49,
+        "vat_rate": 23.0,
+        "vat": 0.57,
+        "gross": 3.06
+      },
+      {
+        "description": "OM Obecný úrad: Spotrebná daň z elektriny",
+        "quantity": 760.0,
+        "unit": "kWh",
+        "unit_price": 0.00132,
+        "net": 1.0,
+        "vat_rate": 23.0,
+        "vat": 0.23,
+        "gross": 1.23
+      },
+      {
+        "description": "OM Materská škola: Silová elektrina – jednotarif",
+        "quantity": 540.0,
+        "unit": "kWh",
+        "unit_price": 0.1389,
+        "net": 75.01,
+        "vat_rate": 23.0,
+        "vat": 17.25,
+        "gross": 92.26
+      },
+      {
+        "description": "OM Materská škola: Distribúcia – mesačná platba za rezervovanú kapacitu",
+        "quantity": 1.0,
+        "unit": "mes.",
+        "unit_price": 14.75,
+        "net": 14.75,
+        "vat_rate": 23.0,
+        "vat": 3.39,
+        "gross": 18.14
+      },
+      {
+        "description": "OM Materská škola: Distribúcia – variabilná zložka",
+        "quantity": 540.0,
+        "unit": "kWh",
+        "unit_price": 0.03104,
+        "net": 16.76,
+        "vat_rate": 23.0,
+        "vat": 3.85,
+        "gross": 20.61
+      },
+      {
+        "description": "OM Materská škola: Tarifa za prevádzkovanie systému",
+        "quantity": 540.0,
+        "unit": "kWh",
+        "unit_price": 0.02018,
+        "net": 10.9,
+        "vat_rate": 23.0,
+        "vat": 2.51,
+        "gross": 13.41
+      },
+      {
+        "description": "OM Materská škola: Tarifa za systémové služby",
+        "quantity": 540.0,
+        "unit": "kWh",
+        "unit_price": 0.00756,
+        "net": 4.08,
+        "vat_rate": 23.0,
+        "vat": 0.94,
+        "gross": 5.02
+      },
+      {
+        "description": "OM Materská škola: Odvod do Národného jadrového fondu",
+        "quantity": 540.0,
+        "unit": "kWh",
+        "unit_price": 0.00327,
+        "net": 1.77,
+        "vat_rate": 23.0,
+        "vat": 0.41,
+        "gross": 2.18
+      },
+      {
+        "description": "OM Materská škola: Spotrebná daň z elektriny",
+        "quantity": 540.0,
+        "unit": "kWh",
+        "unit_price": 0.00132,
+        "net": 0.71,
+        "vat_rate": 23.0,
+        "vat": 0.16,
+        "gross": 0.87
+      }
+    ],
+    "free_text": [
+      "Súhrnná faktúra – vyúčtovanie dodávky elektriny za obdobie 01.08.2026 – 31.08.2026",
+      "Na základe Vašej žiadosti od fakturačného obdobia 08/2026 fakturujeme odberné miesta súhrnnou faktúrou.",
+      "OM Obecný úrad, Boldog 135 – EIC 24ZZS7010048213K",
+      "OM Materská škola, Boldog 120 – EIC 24ZZS7010048230F",
+      "Zákaznícke číslo: 5100388214",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "source_file": null,
+      "page_count": 1,
+      "synthetic": true,
+      "confidence": {}
+    },
+    "intake": null
+  }
+}

@@ -1,5 +1,5 @@
 """Command line: riso ingest | check | export-schemas | export-openapi | serve | code |
-eval | migrate | worker."""
+eval | migrate | seed | worker | testdata."""
 
 import argparse
 import sys
@@ -102,6 +102,18 @@ def main(argv: list[str] | None = None) -> int:
         "--poll", type=float, default=1.0, help="seconds between looks for new jobs"
     )
 
+    testdata = commands.add_parser("testdata", help="generate synthetic test data (development)")
+    testdata_kinds = testdata.add_subparsers(dest="kind", required=True)
+    scans = testdata_kinds.add_parser(
+        "scans", help="render the dataset's cases as synthetic invoice scans (plan §8.6)"
+    )
+    scans.add_argument("--out", type=Path, help="default testdata/ocr/generated")
+    scans.add_argument("--seed", type=int, help="default 2026")
+    scans.add_argument("--case", action="append", metavar="ID", help="only this case (repeatable)")
+    scans.add_argument(
+        "--samples", action="store_true", help="write the committed samples to testdata/ocr/samples"
+    )
+
     args = parser.parse_args(argv)
     handlers: dict[str, Callable[[argparse.Namespace], int]] = {
         "ingest": _ingest,
@@ -114,6 +126,7 @@ def main(argv: list[str] | None = None) -> int:
         "migrate": _migrate,
         "seed": _seed,
         "worker": _worker,
+        "testdata": _testdata,
     }
     return handlers[args.command](args)
 
@@ -421,3 +434,31 @@ def _shown(path: Path) -> str:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def _testdata(args: argparse.Namespace) -> int:
+    import time
+
+    from riso.testdata import scans
+
+    seed = args.seed if args.seed is not None else scans.DEFAULT_SEED
+    if args.samples:
+        if args.case or args.out:
+            print("riso testdata scans: --samples takes neither --case nor --out", file=sys.stderr)
+            return 2
+        out, only = scans.SAMPLES_DIR, list(scans.SAMPLE_CASES)
+    else:
+        out, only = args.out or scans.GENERATED_DIR, args.case
+    started = time.perf_counter()
+    try:
+        truths = scans.generate(out, seed=seed, only=only, progress=True)
+    except (RuntimeError, ValueError) as exc:
+        print(f"riso testdata scans: {exc}", file=sys.stderr)
+        return 1
+    elapsed = time.perf_counter() - started
+    total = scans.sizes(out)
+    print(
+        f"{len(truths)} scans with seed {seed} in {_shown(out)}, {total / 1e6:.1f} MB, "
+        f"{elapsed:.0f} s"
+    )
+    return 0

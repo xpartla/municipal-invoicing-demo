@@ -1,0 +1,140 @@
+{
+  "case_id": "heldout-35-metro-credit-note",
+  "split": "heldout",
+  "seed": 2026,
+  "layout": "classic",
+  "files": {
+    "scan": "heldout-35-metro-credit-note.scan.pdf",
+    "digital_pdf": "heldout-35-metro-credit-note.digital.pdf"
+  },
+  "capture": {
+    "mode": "scanner",
+    "format": "pdf",
+    "dpi": 128,
+    "width": 1078,
+    "height": 1522,
+    "grayscale": false,
+    "rotation": -0.106,
+    "perspective": 0.0,
+    "blur": 0.498,
+    "noise": 1.825,
+    "jpeg_quality": 65,
+    "page": [
+      [
+        15.22,
+        11.23
+      ],
+      [
+        1074.22,
+        13.18
+      ],
+      [
+        1071.45,
+        1510.18
+      ],
+      [
+        12.45,
+        1508.22
+      ]
+    ]
+  },
+  "handwriting": {
+    "font": "kalam/Kalam-Regular.ttf",
+    "placement": "split",
+    "date": {
+      "text": "6.10.26",
+      "box": {
+        "x0": 345,
+        "y0": 63,
+        "x1": 464,
+        "y1": 100
+      }
+    },
+    "number": {
+      "text": "276",
+      "box": {
+        "x0": 919,
+        "y0": 50,
+        "x1": 982,
+        "y1": 86
+      }
+    }
+  },
+  "stamp": {
+    "x0": 228,
+    "y0": 961,
+    "x1": 448,
+    "y1": 1032
+  },
+  "document": {
+    "id": "heldout-35-metro-credit-note",
+    "supplier": {
+      "name": "METRO Cash & Carry SR s. r. o.",
+      "ico": "45952671",
+      "dic": "2023165208",
+      "ic_dph": "SK2023165208",
+      "iban": "SK84 1100 0000 0029 2786 1154",
+      "address": "Senecká cesta 1881, 900 28 Ivanka pri Dunaji",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "112/0026/029914",
+      "issue_date": "2026-10-02",
+      "delivery_date": "2026-10-02",
+      "due_date": null,
+      "variable_symbol": "0026029914",
+      "currency": "EUR",
+      "document_type": "credit_note"
+    },
+    "handwritten": {
+      "date": "2026-10-06",
+      "number": "276"
+    },
+    "totals": {
+      "net": -36.54,
+      "vat": -8.4,
+      "gross": -44.94,
+      "vat_rates": [
+        23.0
+      ]
+    },
+    "lines": [
+      {
+        "description": "Vrátenie tovaru – Minerálna voda jemne perlivá 1,5 l",
+        "quantity": -24.0,
+        "unit": "ks",
+        "unit_price": 0.45,
+        "net": -10.8,
+        "vat_rate": 23.0,
+        "vat": -2.48,
+        "gross": -13.28
+      },
+      {
+        "description": "Vrátenie tovaru – Víno biele suché 0,75 l",
+        "quantity": -6.0,
+        "unit": "ks",
+        "unit_price": 4.29,
+        "net": -25.74,
+        "vat_rate": 23.0,
+        "vat": -5.92,
+        "gross": -31.66
+      }
+    ],
+    "free_text": [
+      "Dobropis k faktúre č. 112/0026/028871 – vrátenie neotvoreného tovaru",
+      "Číslo zákazníka: 41/005218",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "source_file": null,
+      "page_count": 1,
+      "synthetic": true,
+      "confidence": {}
+    },
+    "intake": null
+  }
+}

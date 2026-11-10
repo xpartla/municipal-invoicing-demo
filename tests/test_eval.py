@@ -308,6 +308,20 @@ def test_the_dataset_checks_catch_a_dishonest_split():
     ]
 
 
+def test_the_dataset_checks_catch_an_iban_failing_mod_97():
+    base = anchor("anchor-dog-shelter")
+    case = _variant(base, "heldout-iban", "heldout", booked="2026-09-03", number="241",
+                    ico="52823831", name="OZ Pomoc psíkom")  # fmt: skip
+    supplier = case.invoice.supplier.model_copy(update={"iban": "SK03 1100 0000 0029 4511 2334"})
+    invoice = case.invoice.model_copy(update={"supplier": supplier})
+    wrong = case.model_copy(update={"invoice": invoice})
+
+    assert dataset_errors([case], _counters()) == []
+    assert dataset_errors([wrong], _counters()) == [
+        "heldout-iban: supplier IBAN 'SK03 1100 0000 0029 4511 2334' fails its check digits"
+    ]
+
+
 def test_ocr_noise_cases_may_carry_a_misread_ico():
     base = anchor("anchor-dog-shelter")
     noisy = _variant(base, "heldout-noisy", "heldout", booked="2026-09-03", number="241",

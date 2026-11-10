@@ -16,6 +16,9 @@ dist/
 # Runtime state: the database, stored files, evaluation reports
 var/
 
+# The synthetic scan set (riso testdata scans); only the samples are committed
+testdata/ocr/generated/
+
 # The built SPA (`pnpm build` in frontend/); `riso serve` serves it
 riso/web/dist/
 

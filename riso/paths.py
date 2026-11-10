@@ -13,6 +13,7 @@ GLOBAL_DIR = DATA_DIR / "global"
 CONVENTIONS_DIR = DATA_DIR / "conventions"
 SCHEMAS_DIR = REPO_ROOT / "schemas"
 KNOWLEDGE_DIR = REPO_ROOT / "knowledge"
+TESTDATA_DIR = REPO_ROOT / "testdata"
 WEB_DIR = Path(__file__).resolve().parent / "web"
 
 

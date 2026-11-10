@@ -15,7 +15,7 @@ from riso.engine.s6_validate import SUPPLIER_SU, check_codes, check_coding
 from riso.eval.files import COUNTERS_FILE, MEMORY_FILE
 from riso.knowledge import KnowledgeBase, UnknownKnowledge, knowledge_for
 from riso.reference import LocalReferenceSource, ReferenceIndex, UnknownEntity, parse_number
-from riso.shared.values import ico_is_valid
+from riso.shared.values import iban_is_valid, ico_is_valid
 
 
 @dataclass(frozen=True)
@@ -161,8 +161,8 @@ def case_errors(case: DatasetCase, source: LocalReferenceSource) -> list[str]:
 def dataset_errors(cases: list[DatasetCase], counters: dict[str, Counters]) -> list[str]:
     """What holds across cases: every document number is taken once and not by the initial
     state; the seed cases are booked before the held-out ones, which never feed supplier
-    memory; synthetic cases say so; supplier IČOs pass the check digit except where a case
-    was built with OCR noise."""
+    memory; synthetic cases say so; supplier IČOs pass the check digit and IBANs the mod-97
+    check, except where a case was built with OCR noise."""
     errors = []
     taken: dict[tuple[str, str], str] = {}
     for case in cases:
@@ -182,6 +182,13 @@ def dataset_errors(cases: list[DatasetCase], counters: dict[str, Counters]) -> l
             len(supplier_ico) == 8 and supplier_ico.isdigit() and ico_is_valid(supplier_ico)
         ):
             errors.append(f"{case.id}: supplier IČO {case.invoice.supplier.ico!r} is not valid")
+        iban = case.invoice.supplier.iban
+        if (
+            iban is not None
+            and "ocr-noise" not in case.tags
+            and not iban_is_valid("".join(iban.split()).upper())
+        ):
+            errors.append(f"{case.id}: supplier IBAN {iban!r} fails its check digits")
     seed = [c.invoice.handwritten.date for c in cases if c.split == "seed"]
     heldout = [c.invoice.handwritten.date for c in cases if c.split == "heldout"]
     seed_dates = [d for d in seed if d is not None]

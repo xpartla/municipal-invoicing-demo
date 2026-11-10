@@ -1,0 +1,130 @@
+{
+  "case_id": "heldout-16-ozpomoc-noise",
+  "split": "heldout",
+  "seed": 2026,
+  "layout": "modern",
+  "files": {
+    "scan": "heldout-16-ozpomoc-noise.scan.pdf",
+    "digital_pdf": "heldout-16-ozpomoc-noise.digital.pdf"
+  },
+  "capture": {
+    "mode": "scanner",
+    "format": "pdf",
+    "dpi": 149,
+    "width": 1257,
+    "height": 1784,
+    "grayscale": false,
+    "rotation": 0.396,
+    "perspective": 0.0,
+    "blur": 0.009,
+    "noise": 1.951,
+    "jpeg_quality": 87,
+    "page": [
+      [
+        7.17,
+        22.0
+      ],
+      [
+        1239.14,
+        13.49
+      ],
+      [
+        1251.19,
+        1756.45
+      ],
+      [
+        19.22,
+        1764.96
+      ]
+    ]
+  },
+  "handwriting": {
+    "font": "patrickhand/PatrickHand-Regular.ttf",
+    "placement": "split",
+    "date": {
+      "text": "14.9.26",
+      "box": {
+        "x0": 614,
+        "y0": 48,
+        "x1": 732,
+        "y1": 94
+      }
+    },
+    "number": {
+      "text": "248",
+      "box": {
+        "x0": 1115,
+        "y0": 36,
+        "x1": 1187,
+        "y1": 76
+      }
+    }
+  },
+  "stamp": {
+    "x0": 534,
+    "y0": 1321,
+    "x1": 790,
+    "y1": 1406
+  },
+  "document": {
+    "id": "heldout-16-ozpomoc-noise",
+    "supplier": {
+      "name": "OZ Pomoc psíkom",
+      "ico": "52823832",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK02 1100 0000 0029 4511 2334",
+      "address": "Moyzesova 6065/4A, 90201 Pezinok, Slovensko",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "20261204",
+      "issue_date": "2026-09-01",
+      "delivery_date": "2026-08-31",
+      "due_date": "2026-09-15",
+      "variable_symbol": "20261204",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-14",
+      "number": "248"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 35.0,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Mesačný paušálny poplatok V zmysle zmluvy č. 2024116",
+        "quantity": 1.0,
+        "unit": "ks",
+        "unit_price": 35.0,
+        "net": null,
+        "vat_rate": null,
+        "vat": null,
+        "gross": 35.0
+      }
+    ],
+    "free_text": [
+      "Fakturujeme Vám poskytnuté služby za obdobie: August",
+      "Poznámka: Nie sme platiteľmi DPH.",
+      "Forma úhrady: Bankový prevod"
+    ],
+    "ocr_meta": {
+      "source_file": null,
+      "page_count": 1,
+      "synthetic": true,
+      "confidence": {
+        "supplier.ico": 0.45
+      }
+    },
+    "intake": null
+  }
+}

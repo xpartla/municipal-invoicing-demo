@@ -162,6 +162,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
 | `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
+| `riso testdata scans` | Renders the 70 seed and held-out cases as synthetic invoice scans (plan §8.6): each through its supplier's layout in headless Chromium, with a handwritten note, an approval stamp and seeded photo or scanner damage; per case the scan, a digital PDF and its truth (`ScanTruth`), into `testdata/ocr/generated/` (git-ignored; `--out` elsewhere). `--seed` (default 2026), `--case <id>` (repeatable), `--samples` rewrites the committed samples in `testdata/ocr/samples/`. The same seed gives the same bytes with the same Chromium build. Needs the dev group's Python Playwright and its Chromium (`uv run playwright install chromium` where `~/.cache/ms-playwright` lacks build 1254) |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed. `--source db` takes the lists, parameters and conventions from the database of `RISO_DB_URL` (seed it first) instead of the committed files; the memory always comes from `data/initial_state`. `--customer <IČO>` picks the customer |
 
 Run them with `uv run riso …`. `uv run ruff check .` and `uv run ruff format .` keep the code
@@ -272,6 +273,8 @@ riso/
   web/dist/       where `pnpm build` puts the SPA (git-ignored)
   eval/           scoring proposals against expected outcomes, the metrics, the text report,
                   its files (the initial memory, the reports in var/<IČO>/)
+  testdata/       development tooling, never imported by the app: the synthetic scan generator
+                  (layouts, handwriting, capture damage, `ScanTruth`)
   checks.py       what `riso check` runs
   dataset.py      loading the mock dataset
   text.py         diacritics folding and word matching
@@ -281,6 +284,10 @@ data/
   invoices/       dataset cases: anchor/ (the four scans), seed/ (feeds supplier memory),
                   heldout/ (never does)
   initial_state/  supplier memory and counters that the seed and the evaluation start from
+testdata/
+  fonts/          the vendored OFL fonts of the synthetic scans (README.md has their sources)
+  ocr/samples/    ten committed synthetic scans with their digital PDFs and truth
+  ocr/generated/  the full synthetic set, generated (git-ignored)
 knowledge/2026/   EK to SU bridge, AU rules, function map, lexicon, transfer, canteen and style rules
 schemas/          JSON Schemas of the contracts
 migrations/       Alembic migrations of the database
@@ -295,4 +302,6 @@ The raw exports and the scanned invoices stay outside this repository, in `../da
 the checkout, because they contain personal data. Tests that read them are skipped when they
 are absent. What is committed has no personal data: the one natural person among the anchor
 suppliers has a made-up name, IČO and address. The four anchor invoices were addressed to
-another municipality and are re-addressed to Obec Boldog, whose dictionaries the demo has.
+another municipality and are re-addressed to Obec Boldog, whose dictionaries the demo has. The
+synthetic scans in `testdata/ocr/` show only the seed and held-out cases (real companies with
+their registry data, made-up natural persons, made-up tax numbers and accounts).
