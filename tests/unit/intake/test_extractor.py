@@ -143,6 +143,16 @@ def test_an_iban_failing_mod_97_is_doubtful_and_a_valid_one_wins():
     assert both.document.supplier.iban == "SK8011000000002624105532"
 
 
+def test_an_iban_wrapped_onto_the_next_line_is_joined_when_it_passes_mod_97():
+    """A narrow box wraps the IBAN after its third group (the bill layout's accounts)."""
+    wrapped = extract("Bankové spojenie SK95 0900 0000", "0001 7612 4588")
+    assert wrapped.document.supplier.iban == "SK9509000000000176124588"
+    assert wrapped.document.ocr_meta.confidence["supplier.iban"] >= 0.9
+    misread = extract("Bankové spojenie SK95 0900 0000", "0001 7612 4589")
+    assert misread.document.supplier.iban != "SK9509000000000176124589"
+    assert misread.document.ocr_meta.confidence.get("supplier.iban", 0.0) < DOUBTFUL
+
+
 def test_net_and_vat_must_add_up_to_the_total():
     ok = extract("Na úhradu: 105,87 €", ("23 %", "86,07", "19,80", "105,87"))
     assert (ok.document.totals.net, ok.document.totals.vat) == (Decimal("86.07"), Decimal("19.80"))

@@ -157,6 +157,46 @@ def _labelled(
     return found
 
 
+def _wrapped_ibans(lines: Sequence[TextLine]) -> list[TextLine]:
+    """The lines, each that ends in the start of an IBAN joined to the line that carries it
+    on: a narrow box wraps "Bankové spojenie SK95 0900 0000" over "0001 7612 4588". The
+    nearest line below that overlaps it and starts with a digit is taken, and the join is
+    kept only when it reads a whole IBAN that passes mod-97 and the line alone did not."""
+    joined = []
+    for line in lines:
+        if not values.ends_in_cut_iban(line.text):
+            joined.append(line)
+            continue
+        box, height = line.box, line.box.height
+        below = sorted(
+            (
+                ln
+                for ln in lines
+                if ln.page == line.page
+                and ln is not line
+                and box.y1 - height * 0.5 <= ln.box.y0 <= box.y1 + height * 1.2
+                and ln.box.x0 < box.x1
+                and ln.box.x1 > box.x0
+                and values.undo_confusions(ln.text[:1]).isdigit()
+            ),
+            key=lambda ln: (ln.box.y0, abs(ln.box.x0 - box.x0)),
+        )
+        if below:
+            both = TextLine.of(
+                line.page,
+                line.order,
+                (*line.words, *below[0].words),
+                line.page_width,
+                line.page_height,
+            )
+            alone = {value for (value, ok), _ in values.ibans(line.text) if ok}
+            if any(ok and value not in alone for (value, ok), _ in values.ibans(both.text)):
+                joined.append(both)
+                continue
+        joined.append(line)
+    return joined
+
+
 def _ranked[T](candidates: Sequence[Candidate[T]]) -> list[Candidate[T]]:
     """Strong labels before weak ones, then by route, then reading order."""
     return sorted(
@@ -346,8 +386,9 @@ class FieldExtractor:
     # Payment ------------------------------------------------------------------------------------
 
     def _payment(self, lines: Sequence[TextLine], fields: _Fields) -> None:
-        labelled = [c for c in _ranked(_labelled(lines, "iban", values.ibans, below=2))]
-        everywhere = free(lines, values.ibans)
+        accounts_lines = _wrapped_ibans(lines)
+        labelled = [c for c in _ranked(_labelled(accounts_lines, "iban", values.ibans, below=2))]
+        everywhere = free(accounts_lines, values.ibans)
         candidates = labelled + everywhere
         valid = [c for c in candidates if c.value[1]]
         chosen = valid[0] if valid else (candidates[0] if candidates else None)
@@ -364,7 +405,7 @@ class FieldExtractor:
                 confidence = min(confidence, 0.55)
             # Found only without its label while the page labels an account: the labelled
             # one was not read, and this may be another account.
-            if chosen.label is None and hits(lines, "iban"):
+            if chosen.label is None and hits(accounts_lines, "iban"):
                 confidence = min(confidence, 0.55)
             # Read under its label rather than beside it: on a list of accounts, the next
             # one down is someone else's when the labelled one was not read.

@@ -64,6 +64,20 @@ def test_ibans_grouped_or_compact_and_checked():
     assert not valid
 
 
+def test_iban_check_digits_read_as_letters_count_only_when_valid():
+    [((iban, valid), _)] = values.ibans("IBAN SKO2 1100 0000 0029 4511 2334")
+    assert iban == "SK0211000000002945112334" and valid
+    # "SKOS" read for SK08: as SK05 it fails mod-97, and a letter is no digit to keep.
+    assert values.ibans("SKOS 0900 0000 0005 1144 7782") == []
+
+
+def test_an_iban_cut_at_the_line_end():
+    assert values.ends_in_cut_iban("Bankové spojenie SK95 0900 0000")
+    assert values.ends_in_cut_iban("IBAN: SKO2 1100")
+    assert not values.ends_in_cut_iban("IBAN: SK95 0900 0000 0001 7612 4588")
+    assert not values.ends_in_cut_iban("Tatra banka, a.s.")
+
+
 def test_dic_and_ic_dph():
     assert values.dics("DIČ: 2020285512")[0][0] == "2020285512"
     assert values.ic_dphs("IČ DPH: SK 2020285512")[0][0] == "SK2020285512"

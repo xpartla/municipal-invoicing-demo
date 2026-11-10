@@ -121,13 +121,17 @@ def ic_dphs(text: str) -> list[tuple[str, Found]]:
     return found
 
 
-_IBAN = re.compile(r"(?<![A-Z0-9])([A-Z]{2}\s?\d{2}(?:\s?[A-Z0-9]){10,30})")
+# The check digits may be misread as letters ("SKO2"), as the rest may.
+_CHECK = "[0-9ODISBZ]{2}"
+_IBAN = re.compile(rf"(?<![A-Z0-9])([A-Z]{{2}}\s?{_CHECK}(?:\s?[A-Z0-9]){{10,30}})")
+_IBAN_AT_END = re.compile(rf"(?<![A-Z0-9])([A-Z]{{2}}\s?{_CHECK}(?:\s?[A-Z0-9]){{0,30}})\s*$")
 IBAN_LENGTHS = {"SK": 24, "CZ": 24, "AT": 20, "HU": 28, "PL": 28, "DE": 22}
 
 
 def ibans(text: str) -> list[tuple[tuple[str, bool], Found]]:
     """IBANs, grouped or not: (compact IBAN, whether it passes mod-97, where). For a country
-    whose length is known the match is cut to it; the longest valid reading wins."""
+    whose length is known the match is cut to it; the longest valid reading wins. Check
+    digits read as letters are taken only when the IBAN then passes mod-97."""
     found = []
     upper = text.upper()
     for match in _IBAN.finditer(upper):
@@ -141,10 +145,23 @@ def ibans(text: str) -> list[tuple[tuple[str, bool], Found]]:
             compact = compact[:length]
         fixed = compact[:2] + undo_confusions(compact[2:])
         valid = iban_is_valid(fixed)
+        if not valid and not compact[2:4].isdigit():
+            continue
         found.append(
             ((fixed if valid else compact, valid), Found(compact, match.start(), match.end()))
         )
     return found
+
+
+def ends_in_cut_iban(text: str) -> bool:
+    """Whether the text ends in the start of an IBAN shorter than its country's length: an
+    IBAN that a narrow box wraps onto the next line."""
+    match = _IBAN_AT_END.search(text.upper())
+    if match is None:
+        return False
+    compact = re.sub(r"\s", "", match.group(1))
+    length = IBAN_LENGTHS.get(compact[:2])
+    return length is not None and len(compact) < length
 
 
 _DIGITS = re.compile(r"(?<![\dA-Za-z])(\d{1,10})(?![\d])")
