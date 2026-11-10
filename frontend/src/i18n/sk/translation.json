@@ -1623,5 +1623,38 @@
     "next_one": "Ďalšia na kontrolu ({{count}})",
     "next_few": "Ďalšia na kontrolu ({{count}})",
     "next_other": "Ďalšia na kontrolu ({{count}})"
+  },
+  "files": {
+    "title": "Úložisko",
+    "intro": "Súbory klienta: nahrané doklady faktúr, importované a exportované súbory. Každý sa dá stiahnuť; pri doklade je faktúra, ktorá z neho vznikla.",
+    "totals": "Súčty podľa druhu",
+    "all": "Všetko",
+    "count_one": "{{count}} súbor",
+    "count_few": "{{count}} súbory",
+    "count_other": "{{count}} súborov",
+    "filter": "Druh súborov",
+    "kinds": {
+      "document": "Doklady",
+      "import": "Importy",
+      "export": "Exporty"
+    },
+    "table": "Súbory",
+    "columns": {
+      "name": "Súbor",
+      "kind": "Druh",
+      "size": "Veľkosť",
+      "created": "Vytvorený",
+      "uses": "Použitie"
+    },
+    "download": "Stiahnuť {{name}}",
+    "uses": {
+      "invoice": "Faktúra",
+      "none": "Nepoužíva sa",
+      "import": "Import: {{type}}",
+      "export_one": "Export: {{count}} faktúra",
+      "export_few": "Export: {{count}} faktúry",
+      "export_other": "Export: {{count}} faktúr"
+    },
+    "empty": "Klient zatiaľ nemá žiadne súbory."
   }
 }

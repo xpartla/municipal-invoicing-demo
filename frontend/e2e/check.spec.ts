@@ -6,7 +6,7 @@ import { loginAs, openNav } from './pages/login';
 
 // Kontrola údajov (P2-M5-T10): an uploaded scan read through RecordedReader, its check step
 // with the document viewer passes axe in both themes and fits each width (820 px: the
-// viewer above the form). Each width works in a copy of Boldog of its own, as the same file
+// viewer above the form). Úložisko (T11) then lists the scan with the invoice it became. Each width works in a copy of Boldog of its own, as the same file
 // cannot be uploaded twice to one customer.
 
 const COPY_ICO: Record<string, readonly string[]> = {
@@ -17,7 +17,7 @@ const COPY_ICO: Record<string, readonly string[]> = {
 
 const SAMPLES = join(import.meta.dirname, '..', '..', 'testdata', 'ocr', 'samples');
 
-test('the check step of an uploaded scan passes axe and fits the width', async ({
+test('the check step of an uploaded scan and Úložisko pass axe and fit the width', async ({
   page,
   checkA11y,
 }, testInfo) => {
@@ -61,4 +61,17 @@ test('the check step of an uploaded scan passes axe and fits the width', async (
   await viewer.getByRole('button', { name: 'Priblížiť' }).click();
   await expect(viewer.getByText('150 %')).toBeVisible();
   expect(await scrollsHorizontally(page)).toBe(false);
+
+  await openNav(page);
+  await page.getByRole('navigation').getByRole('link', { name: 'Úložisko' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Úložisko' })).toBeVisible();
+  const files = page.getByRole('table', { name: 'Súbory' });
+  await expect(
+    files.getByRole('link', { name: 'Stiahnuť heldout-19-telekom-phone.scan.jpg' }),
+  ).toBeVisible();
+  await expect(files.getByRole('link', { name: 'Faktúra' })).toBeVisible();
+  await checkA11y();
+  expect(await scrollsHorizontally(page)).toBe(false);
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await checkA11y();
 });

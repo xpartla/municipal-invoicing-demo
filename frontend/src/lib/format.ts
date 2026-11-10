@@ -65,3 +65,21 @@ export function formatDateTime(value: string | null | undefined): string {
     instantParts.formatToParts(instant).find((p) => p.type === type)?.value ?? '';
   return `${part('day')}.${NBSP}${part('month')}.${NBSP}${part('year')} ${part('hour')}:${part('minute')}`;
 }
+
+const SIZE_UNITS = ['kB', 'MB', 'GB'] as const;
+const sizeFormat = new Intl.NumberFormat('sk-SK', {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
+/** A file's size: `812345` → `793,3 kB` (binary units, one decimal), small ones in bytes. */
+export function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${String(bytes)}${NBSP}B`;
+  let value = bytes / 1024;
+  let unit = 0;
+  while (value >= 1024 && unit < SIZE_UNITS.length - 1) {
+    value /= 1024;
+    unit += 1;
+  }
+  return `${sizeFormat.format(value)}${NBSP}${SIZE_UNITS[unit] ?? 'GB'}`;
+}
