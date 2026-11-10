@@ -2,9 +2,10 @@
 words and boxes come from pypdfium2 instead of OCR, exactly as printed (confidence 1). The
 boxes are in the pixels of the page rendered at 300 dpi, the image the check step shows.
 
-Characters come in the content stream's order. A word ends at a space, a line break or a
-gap wider than a third of the characters' height; a line ends at a line break or when the
-next character's baseline moves by more than half its height.
+Characters come in the content stream's order. A word ends at a space, at a line break, at
+a gap between the inks wider than 15% of the font's height where the fonts' boxes do not touch
+(small print's spaces are narrow), or at a gap of a third of it between the boxes. A line ends
+at a line break or when the next character's baseline moves by more than half its height.
 """
 
 from collections.abc import Iterator
@@ -20,22 +21,25 @@ scanner-added words, a blank page)."""
 _SCALE = RENDER_DPI / 72
 
 
-def _characters(textpage: pdfium.PdfTextPage, height: float) -> Iterator[tuple[str, Box | None]]:
+def _characters(
+    textpage: pdfium.PdfTextPage, height: float
+) -> Iterator[tuple[str, Box | None, tuple[int, int]]]:
+    """Each character with its loose box (the font's height, for lines) and its tight left
+    and right edges (the ink, for the gaps between words); a space has no box."""
     for index in range(textpage.count_chars()):
         char = textpage.get_text_range(index, 1)
         if not char or char.isspace():
-            yield char or " ", None
+            yield char or " ", None, (0, 0)
             continue
         left, bottom, right, top = textpage.get_charbox(index, loose=True)
-        yield (
-            char,
-            Box(
-                round(left * _SCALE),
-                round((height - top) * _SCALE),
-                round(right * _SCALE),
-                round((height - bottom) * _SCALE),
-            ),
+        ink_left, _, ink_right, _ = textpage.get_charbox(index, loose=False)
+        box = Box(
+            round(left * _SCALE),
+            round((height - top) * _SCALE),
+            round(right * _SCALE),
+            round((height - bottom) * _SCALE),
         )
+        yield char, box, (round(ink_left * _SCALE), round(ink_right * _SCALE))
 
 
 def page_words(page: pdfium.PdfPage, index: int) -> PageLayout:
@@ -44,6 +48,7 @@ def page_words(page: pdfium.PdfPage, index: int) -> PageLayout:
     try:
         words: list[Word] = []
         chars: list[tuple[str, Box]] = []
+        last_ink = 0
         line = 0
 
         def flush() -> None:
@@ -54,7 +59,7 @@ def page_words(page: pdfium.PdfPage, index: int) -> PageLayout:
                 words.append(Word(text, box, 1.0, 0, line))
                 chars.clear()
 
-        for char, box in _characters(textpage, height):
+        for char, box, ink in _characters(textpage, height):
             if box is None:
                 flush()
                 if char in "\r\n":
@@ -66,9 +71,12 @@ def page_words(page: pdfium.PdfPage, index: int) -> PageLayout:
                 if abs(box.y1 - last.y1) > size * 0.5:
                     flush()
                     line += 1
-                elif box.x0 - last.x1 > size / 3:
+                elif (ink[0] - last_ink > size * 0.15 and box.x0 - last.x1 > size * 0.08) or (
+                    box.x0 - last.x1 > size / 3
+                ):
                     flush()
             chars.append((char, box))
+            last_ink = ink[1]
         flush()
     finally:
         textpage.close()

@@ -1,6 +1,11 @@
 """Tesseract as the `DocumentReader` (plan §8.2 step 2, §8.3): LSTM models `slk+eng` from
-`tessdata_best`, page segmentation 3 (automatic), words with boxes, line and block numbers and
-confidences from Tesseract's TSV output.
+`tessdata_best`, words with boxes, line and block numbers and confidences from Tesseract's TSV
+output.
+
+The page segmentation is 11 (sparse text), not the plan's 3 (automatic): on the committed
+samples mode 3 dropped framed blocks (a boxed recapitulation with the total, a table's
+amounts), and the extractor finds more fields in mode 11's fragments, which it joins by
+position (P2-M5-T05; the measurement is in the log).
 
 Tesseract runs in a pool of one process started with `spawn` (never `fork` from a process
 with threads), so a long page never holds the API's process; the process keeps one
@@ -106,7 +111,10 @@ def _engine(tessdata: str) -> Any:
         import tesserocr
 
         _ENGINE = tesserocr.PyTessBaseAPI(
-            path=tessdata, lang=LANGUAGES, psm=tesserocr.PSM.AUTO, oem=tesserocr.OEM.LSTM_ONLY
+            path=tessdata,
+            lang=LANGUAGES,
+            psm=tesserocr.PSM.SPARSE_TEXT,
+            oem=tesserocr.OEM.LSTM_ONLY,
         )
     return _ENGINE
 
@@ -126,7 +134,7 @@ def _tsv(tessdata: str, image: Image.Image, dpi: int, digits: bool) -> str:
         return tsv
     finally:
         if digits:
-            engine.SetPageSegMode(tesserocr.PSM.AUTO)
+            engine.SetPageSegMode(tesserocr.PSM.SPARSE_TEXT)
             engine.SetVariable("tessedit_char_whitelist", "")
 
 
