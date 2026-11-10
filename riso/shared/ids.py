@@ -10,7 +10,7 @@ import secrets
 import threading
 import uuid
 from collections.abc import Callable
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Protocol
 
 from riso.shared.clock import Clock, SystemClock
@@ -41,7 +41,7 @@ class UuidV7Generator:
 
     def new(self) -> str:
         with self._lock:
-            ms = int(self._clock.now().timestamp() * 1000)
+            ms = unix_ms(self._clock.now())
             if ms > self._last_ms:
                 self._last_ms = ms
                 # Start the counter in its lower half, so it has room to grow (RFC 9562 6.2).
@@ -64,12 +64,22 @@ def _uuid7(unix_ms: int, counter: int, rand_b: int) -> uuid.UUID:
     return uuid.UUID(int=value)
 
 
+_EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
+_MS = timedelta(milliseconds=1)
+
+
+def unix_ms(at: datetime) -> int:
+    """Milliseconds since the Unix epoch, exactly: through a float, an instant such as
+    2107-01-01 00:00:00.004 loses its last millisecond."""
+    return (at - _EPOCH) // _MS
+
+
 def uuid7_time(value: str) -> datetime:
     """When a UUIDv7 was made, to the millisecond."""
     parsed = uuid.UUID(value)
     if parsed.version != 7:
         raise ValueError("not a UUIDv7")
-    return datetime.fromtimestamp((parsed.int >> 80) / 1000, tz=UTC)
+    return _EPOCH + (parsed.int >> 80) * _MS
 
 
 _default = UuidV7Generator()

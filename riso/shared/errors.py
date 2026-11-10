@@ -14,11 +14,17 @@ T = TypeVar("T")
 
 
 class DomainError(Exception):
-    """Base of the errors the API knows how to map."""
+    """Base of the errors the API knows how to map. A subclass may name its own `code` (the
+    API's error code, else the status's) and add JSON `details` to the response."""
+
+    code: str | None = None
 
     def __init__(self, message: str) -> None:
         super().__init__(message)
         self.message = message
+
+    def details(self) -> dict[str, object]:
+        return {}
 
 
 class Unauthenticated(DomainError):

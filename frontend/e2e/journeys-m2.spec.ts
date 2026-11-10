@@ -1,6 +1,6 @@
 import { expect, test } from './fixtures';
+import { copyBoldog } from './pages/customers';
 import { loginAs, openNav } from './pages/login';
-import { CUSTOMERS } from './seed';
 
 // The journeys of P2-M2 (plan §13.2). The three widths run in parallel on one seeded
 // database, so the journeys that write take a list and a parameter of their own per width.
@@ -52,19 +52,24 @@ test('2. editing a row makes a new version and keeps the old one in the history'
   await expect(history.getByRole('region', { name: 'Zmeny z verzie 1 na 2' })).toContainText(text);
 });
 
+// Journey 3 changes the parameters in a copy of Boldog: Boldog's own are read by the other
+// specs (a series without a pattern stops its coding, P2-M4-T10).
+// An IČO per attempt: a retry cannot copy under the IČO its first attempt took.
+const PARAMETER_OF: Record<string, { field: string; value: string; icos: readonly string[] }> = {
+  phone: { field: 'Predvolená rada', value: 'FX', icos: ['99900131', '99900190'] },
+  tablet: { field: 'Rada školskej jedálne', value: 'FDŠX', icos: ['99900149', '99900203'] },
+  desktop: { field: 'Predvolený zdroj', value: '43', icos: ['99900157', '99900211'] },
+};
+
 test('3. editing the parameters', async ({ page }, testInfo) => {
-  const field =
-    {
-      phone: 'Predvolená rada',
-      tablet: 'Rada školskej jedálne',
-      desktop: 'Predvolený zdroj',
-    }[testInfo.project.name] ?? 'Predvolený zdroj';
-  const value = { phone: 'FX', tablet: 'FDŠX', desktop: '43' }[testInfo.project.name] ?? '43';
+  const width = PARAMETER_OF[testInfo.project.name];
+  if (!width) throw new Error(`no parameter for the width ${testInfo.project.name}`);
+  const { field, value } = width;
+  const ico = width.icos[testInfo.retry];
+  if (!ico) throw new Error(`no IČO for attempt ${String(testInfo.retry + 1)}`);
   await loginAs(page, 'staff');
-  await openNav(page);
-  await page.getByRole('navigation').getByLabel('Klient', { exact: true }).click();
-  await page.getByRole('option', { name: CUSTOMERS.boldog }).click();
-  await expect(page.getByText(`Prehľad klienta ${CUSTOMERS.boldog}`)).toBeVisible();
+  const name = `Obec Parametre ${testInfo.project.name} ${String(testInfo.retry + 1)}`;
+  await copyBoldog(page, name, ico);
   await openNav(page);
   await page.getByRole('navigation').getByRole('link', { name: 'Systém' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Systém' })).toBeVisible();

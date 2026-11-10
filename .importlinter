@@ -38,7 +38,6 @@ forbidden_modules =
     pydantic_settings
     riso.platform
     riso.api
-    riso.store
     riso.ingest
     riso.eval
     riso.cli
@@ -84,7 +83,6 @@ forbidden_modules =
     riso.knowledge
     riso.contracts
     riso.reference
-    riso.store
     riso.eval
     riso.ingest
     riso.cli
@@ -130,7 +128,6 @@ forbidden_modules =
     pydantic_settings
     riso.platform
     riso.api
-    riso.store
     riso.eval
     riso.ingest
     riso.cli

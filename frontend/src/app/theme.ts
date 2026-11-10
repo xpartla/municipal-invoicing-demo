@@ -61,8 +61,10 @@ export const theme = createTheme({
 });
 
 /**
- * Our own CSS variables, per colour scheme, and two of Mantine's raised to WCAG AA contrast
- * (4.5:1 on the body background): dimmed text and links. axe checks them in the E2E specs.
+ * Our own CSS variables, per colour scheme, and three of Mantine's raised to WCAG AA contrast
+ * (4.5:1 on the body background): dimmed text, links, and the error colour of a field's text
+ * and message (Mantine's red.6 is 3.3:1 on white, its dark red.8 3.4:1 on dark.7; red.9 gives
+ * 5.2:1 on gray.0, red.5 4.9:1 on an input's dark.6). axe checks them in the E2E specs.
  */
 export const cssVariablesResolver: CSSVariablesResolver = (current) => ({
   variables: {
@@ -74,6 +76,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (current) => ({
     '--riso-border': current.colors.gray[3],
     '--mantine-color-dimmed': current.colors.gray[7],
     '--mantine-color-anchor': riso[7],
+    '--mantine-color-error': current.colors.red[9],
     '--riso-on-gray': current.white,
   },
   dark: {
@@ -82,6 +85,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (current) => ({
     '--riso-border': current.colors.dark[4],
     '--mantine-color-dimmed': current.colors.dark[1],
     '--mantine-color-anchor': riso[3],
+    '--mantine-color-error': current.colors.red[5],
     '--riso-on-gray': current.black,
   },
 });

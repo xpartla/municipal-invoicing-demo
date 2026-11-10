@@ -5,14 +5,17 @@ It creates:
 - Obec Boldog (00305863), with its 2026 parameters from `data/entities/00305863.json`, the
   address of its municipal office, version 1 of each of its 2026 code lists from the
   committed bundle `data/bundles/00305863/2026-08.json`, and its 2026 conventions from
-  `data/conventions/00305863/2026.yaml`;
+  `data/conventions/00305863/2026.yaml`, and its supplier memory and number series from the
+  demo's initial state `data/initial_state/00305863/` (P2-M4-T02);
 - the made-up provider "Účtovníctvo Vzor, s.r.o.", to which Boldog is assigned;
 - a second, made-up municipality assigned to the provider, so staff can switch customers;
 - a third, made-up municipality with no provider, for the isolation checks;
 - version 1 of each global list (EK, COFOG, funding sources, framework chart) of every year
   in `data/global/`, imported through the import tool with the built-in templates (an
   import run each, its file in the store);
-- one user per role: an admin, a staff member of the provider, a user and a viewer of Boldog.
+- one user per role: an admin, a staff member of the provider, a user and a viewer of Boldog;
+- the dataset's 74 invoices (`data/invoices/`) as Boldog's, channel `dataset`, checked and
+  coded (P2-M4-T04), without their expected codings.
 
 The made-up municipalities carry placeholder IČOs that pass the check digit and are absent
 from the register of legal entities (RPO, checked on 2026-11-08). The people are made up, with
@@ -41,13 +44,16 @@ from riso.api.importing import first_error, run_import
 from riso.api.uow import AppUnitOfWork
 from riso.codelists import versions_from_bundle
 from riso.codelists.domain import CustomerConventions
-from riso.contracts import ReferenceBundle
+from riso.contracts import Counters, ReferenceBundle, SupplierMemory
+from riso.dataset import load_cases
 from riso.exchange.domain.mapping import ImportType
 from riso.exchange.domain.run import RunState
 from riso.exchange.domain.templates import BUILTIN
 from riso.identity.domain import Email, MembershipScope, PasswordPolicy, Role, User
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.orm import UserRow
+from riso.invoicing import enter_invoice, restore_state
+from riso.invoicing.domain.invoice import Channel
 from riso.knowledge import load_conventions
 from riso.platform.db import Database
 from riso.platform.migrations import downgrade, upgrade
@@ -97,6 +103,7 @@ class Seeded:
     users: dict[str, tuple[str, str, str]] = field(default_factory=dict)
     """Key → (ID, email, password)."""
     generated_passwords: bool = False
+    invoices: int = 0
 
 
 def seed(
@@ -110,6 +117,8 @@ def seed(
     bundles_dir: Path = paths.BUNDLES_DIR,
     global_dir: Path = paths.GLOBAL_DIR,
     conventions_dir: Path = paths.CONVENTIONS_DIR,
+    initial_dir: Path = paths.INITIAL_STATE_DIR,
+    invoices_dir: Path = paths.INVOICES_DIR,
 ) -> Seeded:
     """Migrates and seeds the database of `settings`. Refuses outside `dev` and `test`, and
     on a database that has users already unless `reset` drops it first."""
@@ -139,6 +148,8 @@ def seed(
             bundles_dir,
             global_dir,
             conventions_dir,
+            initial_dir,
+            invoices_dir,
         )
     finally:
         db.dispose()
@@ -164,6 +175,8 @@ def _fill(
     bundles: Path,
     global_root: Path,
     conventions_root: Path,
+    initial_root: Path,
+    invoices_root: Path,
 ) -> Seeded:
     clock = FixedClock(SEEDED_AT)
     ids = UuidV7Generator(clock, random.Random(20260101).getrandbits)
@@ -216,8 +229,18 @@ def _fill(
                 boldog.id, year, load_conventions(BOLDOG_ICO, year, conventions_root), now, None
             )
         )
+        initial = initial_root / BOLDOG_ICO
+        if initial.is_dir():
+            restore_state(
+                uow,
+                boldog.id,
+                SupplierMemory.model_validate_json((initial / "supplier_memory.json").read_bytes()),
+                Counters.model_validate_json((initial / "counters.json").read_bytes()),
+                uow.series_patterns.patterns(boldog.id, year),
+            )
         uow.commit()
     _import_global_lists(settings, clock, ids, global_root)
+    result.invoices = _enter_invoices(settings, clock, ids, boldog.id, invoices_root)
     return result
 
 
@@ -261,6 +284,31 @@ def _import_global_lists(
                     raise SeedRefused(f"{path.parent}/{first_error(run)}")
     finally:
         services.close()
+
+
+def _enter_invoices(
+    settings: Settings, clock: FixedClock, ids: IdGenerator, customer_id: str, root: Path
+) -> int:
+    """The dataset's invoices as the customer's, entered (channel `dataset`), checked and
+    coded with the seeded lists, conventions and memory. Their expected codings stay in the
+    files."""
+    services = build_services(settings, clock=clock, ids=ids)
+    ctx = RequestContext.system("seed")
+    try:
+        cases = load_cases(root)
+        for case in cases:
+            enter_invoice(
+                ctx,
+                services.uow(),
+                services.reference_data(),
+                customer_id,
+                case.invoice,
+                channel=Channel.DATASET,
+                source_ref=case.id,
+            )
+    finally:
+        services.close()
+    return len(cases)
 
 
 def _generated() -> str:

@@ -30,14 +30,16 @@ const NAVBAR: Record<SeededRole, string[]> = {
   ],
 };
 
+/** The menu's items (the Nová faktúra button, a link inside a customer, is not one). */
 async function navbarItems(page: Page): Promise<string[]> {
   await openNav(page);
   const nav = page.getByRole('navigation', { name: 'Hlavné menu' });
-  return nav
+  const names = await nav
     .getByRole('link')
     .evaluateAll((links) =>
       links.map((link) => (link.getAttribute('aria-label') ?? link.textContent).trim()),
     );
+  return names.filter((name) => name !== 'Nová faktúra');
 }
 
 function unique(prefix: string): string {
@@ -50,7 +52,13 @@ test.describe('1. each role sees exactly its navbar', () => {
       await loginAs(page, role);
       expect(await navbarItems(page)).toEqual(NAVBAR[role]);
       await expect(page.getByRole('button', { name: 'Odhlásiť' })).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Nová faktúra' })).toBeDisabled();
+      if (role === 'user') {
+        // A customer user lands in the customer, where invoices can be entered (P2-M4-T09).
+        await expect(page.getByRole('link', { name: 'Nová faktúra' })).toBeVisible();
+      } else {
+        // Staff and admins land on Používatelia, with no customer chosen; viewers only read.
+        await expect(page.getByRole('button', { name: 'Nová faktúra' })).toBeDisabled();
+      }
     });
   }
 });

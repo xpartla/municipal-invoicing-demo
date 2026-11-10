@@ -6,12 +6,19 @@ from typing import TYPE_CHECKING
 from sqlalchemy import Select, select
 from sqlalchemy.orm import Session
 
-from riso.codelists import BundleEntity, customer_knowledge, reference_bundle
+from riso.codelists import BundleEntity, active_entries, customer_knowledge, reference_bundle
 from riso.contracts import Counters, EntityContext, ReferenceBundle, SupplierMemory
-from riso.exchange.domain.bookings import BookingsPlan, merge_plan
+from riso.exchange.domain.bookings import BookingsPlan
 from riso.identity.application.ports import CustomerRef, ProviderRef
 from riso.identity.domain import MembershipScope, ScopeKind, UserStatus
 from riso.identity.infrastructure.repository import SqlUserRepository
+from riso.invoicing import (
+    PastPrecedent,
+    add_past_bookings,
+    copy_memory,
+    counters,
+    supplier_memory,
+)
 from riso.knowledge import KnowledgeBase
 from riso.platform.db import Database
 from riso.reference import UnknownEntity
@@ -19,7 +26,6 @@ from riso.shared.clock import Clock
 from riso.shared.context import RequestContext
 from riso.shared.errors import InvalidState, NotFound
 from riso.shared.values import Ico
-from riso.store import StateStore
 from riso.tenancy.application import CustomerView, get_customer, get_parameters
 from riso.tenancy.application.ports import LoginRef
 from riso.tenancy.domain import CustomerStatus, ProviderStatus
@@ -103,6 +109,24 @@ class SqlTenancyDirectory:
             )
             for row in rows
         ]
+
+
+class UserNames:
+    """The invoicing context's `PeopleNames` over identity's users, on the same session."""
+
+    def __init__(self, users: SqlUserRepository) -> None:
+        self._users = users
+
+    def names(self, user_ids: Collection[str]) -> dict[str, str]:
+        found = {}
+        for user_id in user_ids:
+            try:
+                user = self._users.get(user_id)
+            except NotFound:
+                continue
+            if user.name:
+                found[user_id] = user.name
+        return found
 
 
 class SpaLinks:
@@ -229,44 +253,82 @@ class DbReferenceData:
     def knowledge(self, ctx: RequestContext, customer_id: str, year: int) -> KnowledgeBase:
         return customer_knowledge(ctx, self._uow(), customer_id, year)[0]
 
+    def basis(
+        self, ctx: RequestContext, customer_id: str, year: int
+    ) -> tuple[tuple[str, ...], int]:
+        revision = customer_knowledge(ctx, self._uow(), customer_id, year)[1]
+        with self._uow() as uow:
+            versions = uow.codelists.active_ids(customer_id, year)
+        return tuple(sorted(versions.values())), revision
 
-class DemoSupplierState:
-    """The invoicing context's `SupplierState` and the exchange context's `PrecedentSink` on
-    the demo's files until P2-M4: the customer's supplier memory and counters in
-    `var/<IČO>/`, else `data/initial_state/`, else empty. A past-bookings import writes
-    both files under `var/<IČO>/`."""
 
-    def __init__(self, store: StateStore, ico_of: Callable[[str], str]) -> None:
-        self._store = store
-        self._ico_of = ico_of
+def _ico(uow: "AppUnitOfWork", customer_id: str) -> str:
+    return uow.customers.get(customer_id).ico.value
+
+
+class CodelistSeriesPatterns:
+    """The invoicing context's `SeriesPatterns`: the active document series list of the
+    year, in the same unit of work."""
+
+    def __init__(self, uow: "AppUnitOfWork") -> None:
+        self._uow = uow
+
+    def patterns(self, customer_id: str, year: int) -> dict[str, str]:
+        return {
+            str(e.values["code"]): str(e.values["pattern"])
+            for e in active_entries(self._uow, customer_id, "document_series", year)
+        }
+
+    def invoice_series(self, customer_id: str, year: int) -> tuple[str, ...]:
+        parameters = self._uow.parameters.get(customer_id, year)
+        if parameters is None:
+            return ()
+        values = parameters.values()
+        return tuple(dict.fromkeys((values["default_series"], values["canteen_series"])))
+
+
+class UowPrecedents:
+    """The exchange context's `PrecedentSink` on the database (P2-M4-T02): the supplier
+    memory and number series of the invoicing context, in the import's or the copy's own
+    unit of work, so they commit with it."""
+
+    def __init__(self, uow: "AppUnitOfWork") -> None:
+        self._uow = uow
 
     def memory(self, customer_id: str) -> SupplierMemory:
-        ico = self._ico_of(customer_id)
-        try:
-            return self._store.supplier_memory(ico)
-        except FileNotFoundError:
-            return SupplierMemory(entity_ico=ico)
+        return supplier_memory(self._uow, customer_id, _ico(self._uow, customer_id))
 
     def counters(self, customer_id: str) -> Counters:
-        ico = self._ico_of(customer_id)
-        try:
-            return self._store.counters(ico)
-        except FileNotFoundError:
-            return Counters(entity_ico=ico, last_used={})
-
-    def copy_memory(self, source_id: str, target_id: str) -> int:
-        if self.memory(target_id).suppliers:
-            return 0
-        source = self.memory(source_id)
-        self._store.save_supplier_memory(
-            SupplierMemory(entity_ico=self._ico_of(target_id), suppliers=source.suppliers)
-        )
-        return len(source.suppliers)
+        return counters(self._uow, customer_id, _ico(self._uow, customer_id))
 
     def add(self, customer_id: str, plan: BookingsPlan) -> None:
-        memory, counters = merge_plan(plan, self.memory(customer_id), self.counters(customer_id))
-        self._store.save_supplier_memory(memory)
-        self._store.save_counters(counters)
+        add_past_bookings(
+            self._uow,
+            customer_id,
+            [PastPrecedent(b.supplier_ico, b.supplier_name, b.precedent) for b in plan.new],
+            plan.numbers,
+            {rise.key: rise.after for rise in plan.counters},
+            plan.patterns,
+        )
+
+    def copy_memory(self, source_id: str, target_id: str) -> int:
+        return copy_memory(self._uow, source_id, target_id)
+
+
+class DbSupplierState:
+    """The engine's supplier memory and counters for a stateless coding (the invoicing
+    context's `SupplierState`), each read in its own read-only unit of work."""
+
+    def __init__(self, uow: Callable[[], "AppUnitOfWork"]) -> None:
+        self._uow = uow
+
+    def memory(self, customer_id: str) -> SupplierMemory:
+        with self._uow() as uow:
+            return supplier_memory(uow, customer_id, _ico(uow, customer_id))
+
+    def counters(self, customer_id: str) -> Counters:
+        with self._uow() as uow:
+            return counters(uow, customer_id, _ico(uow, customer_id))
 
 
 class DatabaseReferenceSource:

@@ -14,14 +14,12 @@ from riso import paths
 from riso.api.adapters import bundle_entity
 from riso.api.composition import build_services
 from riso.api.importing import run_import
-from riso.api.seed import seed
 from riso.codelists import BundleCache, reference_bundle
 from riso.codelists.domain import ListKind, VersionOrigin
 from riso.contracts import ReferenceBundle
 from riso.exchange.domain.mapping import ImportType
 from riso.exchange.domain.run import RunState
 from riso.identity.application.access import Grant
-from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.ingest import build
 from riso.platform import Settings
 from riso.shared import AllowAll, RequestContext
@@ -38,9 +36,9 @@ FILES = (
 )
 
 
-def test_importing_topsets_exports_gives_the_committed_bundle(raw_dir, tmp_path):
+def test_importing_topsets_exports_gives_the_committed_bundle(raw_dir, tmp_path, seeded_copy):
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password="Ukážkové-heslo-2026", hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings)
     boldog = done.customers["Obec Boldog"]
     with services.uow(immediate=False) as uow:

@@ -7,11 +7,17 @@ once. It lives in the composition root, the one place that may import every cont
 infrastructure.
 """
 
-from riso.api.adapters import UserLogins
+from riso.api.adapters import CodelistSeriesPatterns, UowPrecedents, UserLogins, UserNames
 from riso.audit.infrastructure.log import SqlAuditLog, SqlAuditRecorder
 from riso.codelists.infrastructure.uow import SqlCodelistsUnitOfWork
-from riso.exchange.infrastructure.repository import SqlImportRunRepository, SqlTemplateRepository
+from riso.exchange.infrastructure.repository import (
+    SqlExportRunRepository,
+    SqlImportRunRepository,
+    SqlTemplateRepository,
+)
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
+from riso.invoicing.infrastructure.queries import SqlInvoiceQueries
+from riso.invoicing.infrastructure.uow import SqlInvoicingUnitOfWork
 from riso.jobs import JobRegistry, register_builtin
 from riso.jobs.application import RepositoryJobQueue
 from riso.jobs.infrastructure.repository import SqlJobRepository
@@ -25,7 +31,12 @@ from riso.tenancy.infrastructure.uow import SqlTenancyUnitOfWork
 TEMPLATES = MailTemplates()
 
 
-class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork, SqlCodelistsUnitOfWork):
+class AppUnitOfWork(
+    SqlIdentityUnitOfWork,
+    SqlTenancyUnitOfWork,
+    SqlCodelistsUnitOfWork,
+    SqlInvoicingUnitOfWork,
+):
     mailer: TemplateMailer
     outbox: OutboxQueries
     audit: SqlAuditRecorder
@@ -33,8 +44,13 @@ class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork, SqlCodelistsUni
     logins: UserLogins
     imports: SqlImportRunRepository
     templates: SqlTemplateRepository
+    exports: SqlExportRunRepository
     queue: RepositoryJobQueue
     """Jobs queued here are committed with the change that needs them."""
+    series_patterns: CodelistSeriesPatterns
+    precedents: UowPrecedents
+    invoice_queries: SqlInvoiceQueries
+    people: UserNames
 
     def __init__(
         self,
@@ -53,8 +69,10 @@ class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork, SqlCodelistsUni
         SqlIdentityUnitOfWork._start(self)
         SqlTenancyUnitOfWork._start(self)
         SqlCodelistsUnitOfWork._start(self)
+        SqlInvoicingUnitOfWork._start(self)
         self.imports = SqlImportRunRepository(self.session, self)
         self.templates = SqlTemplateRepository(self.session, self)
+        self.exports = SqlExportRunRepository(self.session, self)
         self.queue = RepositoryJobQueue(
             SqlJobRepository(self.session), self._registry, self.clock, self.ids
         )
@@ -65,3 +83,7 @@ class AppUnitOfWork(SqlIdentityUnitOfWork, SqlTenancyUnitOfWork, SqlCodelistsUni
         self.audit = SqlAuditRecorder(self.session, self.clock, self.ids)
         self.audit_log = SqlAuditLog(self.session)
         self.logins = UserLogins(self.users, self.clock)
+        self.series_patterns = CodelistSeriesPatterns(self)
+        self.precedents = UowPrecedents(self)
+        self.invoice_queries = SqlInvoiceQueries(self.session)
+        self.people = UserNames(self.users)

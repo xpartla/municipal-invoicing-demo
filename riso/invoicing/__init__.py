@@ -5,10 +5,45 @@ other contexts import only what it exports (its application API), never its doma
 infrastructure or api modules. See plan §4.2 and guide §6.1."""
 
 from riso.invoicing.application import (
+    ExportableInvoice,
+    InvoiceFilter,
+    InvoicingUnitOfWork,
+    PastPrecedent,
+    QueriesUnitOfWork,
     ReferenceData,
+    SeriesPatterns,
+    Sort,
     SupplierState,
+    add_past_bookings,
     booking_year,
     code_document,
+    copy_memory,
+    counters,
+    enter_invoice,
+    exportable,
+    record_exports,
+    restore_state,
+    supplier_memory,
 )
 
-__all__ = ["ReferenceData", "SupplierState", "booking_year", "code_document"]
+__all__ = [
+    "ExportableInvoice",
+    "InvoiceFilter",
+    "InvoicingUnitOfWork",
+    "PastPrecedent",
+    "QueriesUnitOfWork",
+    "ReferenceData",
+    "SeriesPatterns",
+    "Sort",
+    "SupplierState",
+    "add_past_bookings",
+    "booking_year",
+    "code_document",
+    "copy_memory",
+    "counters",
+    "enter_invoice",
+    "exportable",
+    "record_exports",
+    "restore_state",
+    "supplier_memory",
+]

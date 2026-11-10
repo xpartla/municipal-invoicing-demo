@@ -13,7 +13,7 @@ htmlcov/
 build/
 dist/
 
-# Runtime state; `riso reset` rebuilds it from data/initial_state
+# Runtime state: the database, stored files, evaluation reports
 var/
 
 # The built SPA (`pnpm build` in frontend/); `riso serve` serves it

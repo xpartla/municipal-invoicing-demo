@@ -28,17 +28,17 @@ describe('the API client', () => {
   it('calls the typed routes of the generated schema', async () => {
     const { fetch, requests } = recordingFetch();
     const client = createApiClient({ baseUrl: 'http://riso.test', fetch });
-    const { data } = await client.GET('/api/entities');
+    const { data } = await client.GET('/api/me');
     expect(data).toEqual([]);
-    expect(requests[0]?.url).toBe('http://riso.test/api/entities');
+    expect(requests[0]?.url).toBe('http://riso.test/api/me');
   });
 
   it('sends the CSRF token on unsafe methods only', async () => {
     document.cookie = `${CSRF_COOKIE}=token-123`;
     const { fetch, requests } = recordingFetch();
     const client = createApiClient({ baseUrl: 'http://riso.test', fetch });
-    await client.GET('/api/entities');
-    await client.POST('/api/feedback', { body: {} as never });
+    await client.GET('/api/me');
+    await client.POST('/api/auth/logout');
     expect(requests[0]?.headers.get(CSRF_HEADER)).toBeNull();
     expect(requests[1]?.headers.get(CSRF_HEADER)).toBe('token-123');
   });
@@ -46,7 +46,7 @@ describe('the API client', () => {
   it('sends no CSRF header without the cookie', async () => {
     const { fetch, requests } = recordingFetch();
     const client = createApiClient({ baseUrl: 'http://riso.test', fetch });
-    await client.POST('/api/feedback', { body: {} as never });
+    await client.POST('/api/auth/logout');
     expect(requests[0]?.headers.get(CSRF_HEADER)).toBeNull();
   });
 });

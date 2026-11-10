@@ -9,7 +9,7 @@ the `customer_copy` job in the same transaction. The job copies, for the chosen 
 - the source customer's own mapping templates (provider and global templates are seen by
   scope anyway; plan §2 decision 59);
 - the supplier memory, only when asked (off by default: analytic accounts differ between
-  villages). Until P2-M4 it is the demo's file (`PrecedentSink.copy_memory`).
+  villages), in the job's transaction (`PrecedentSink.copy_memory`).
 
 Invoices, number series and counters, and logins are never copied; the wizard invites the
 first login through the logins API.
@@ -30,7 +30,6 @@ from typing import Any, Protocol
 from pydantic import BaseModel, ConfigDict, Field
 
 from riso.codelists import copy_conventions, copy_lists
-from riso.exchange.application.ports import PrecedentSink
 from riso.exchange.application.uow import ExchangeUnitOfWork
 from riso.exchange.domain.templates import MappingTemplate, TemplateScope
 from riso.identity import Permission
@@ -154,9 +153,8 @@ def _copy_templates(
 class CopyJobs:
     """The handler of `customer_copy`."""
 
-    def __init__(self, uow: Callable[[], CopyUnitOfWork], precedents: PrecedentSink) -> None:
+    def __init__(self, uow: Callable[[], CopyUnitOfWork]) -> None:
         self._uow = uow
-        self._state = precedents
 
     def register(self, registry: JobRegistry) -> JobRegistry:
         registry.register(COPY_JOB, CopyPayload, self.copy)
@@ -171,10 +169,10 @@ class CopyJobs:
         ctx.require(Permission.CODELISTS_EDIT, target)
         year = options.year
         result: dict[str, Any] = {"year": year}
-        if options.supplier_memory:
-            result["suppliers"] = self._state.copy_memory(source, target)
         with self._uow() as uow:
             uow.customers.get(target)
+            if options.supplier_memory:
+                result["suppliers"] = uow.precedents.copy_memory(source, target)
             if options.parameters:
                 result["parameters"] = copy_parameters(ctx, uow, source, target, year)
             if options.code_lists:

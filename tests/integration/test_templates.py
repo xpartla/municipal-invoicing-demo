@@ -7,7 +7,6 @@ import io
 import pytest
 
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.audit.domain.event import AuditFilter
 from riso.exchange.application.imports import (
     UploadImport,
@@ -54,10 +53,10 @@ def _ctx(services, user_id):
 
 
 @pytest.fixture
-def env(tmp_path):
+def env(tmp_path, seeded_copy):
     """The seed, plus a second provider with the unassigned customer and a staff member."""
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password=PASSWORD, hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     with services.uow() as uow:
         now = services.clock.now()

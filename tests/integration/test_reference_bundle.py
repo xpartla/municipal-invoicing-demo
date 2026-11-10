@@ -7,12 +7,10 @@ import pytest
 from riso import paths
 from riso.api.adapters import bundle_entity
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.codelists import BundleCache, customer_knowledge, reference_bundle
 from riso.codelists.application.conventions import KnowledgeCache
 from riso.codelists.domain import AccountEntry, ListKind, VersionOrigin
 from riso.contracts import ReferenceBundle
-from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.knowledge import knowledge_for, load_knowledge
 from riso.platform import Settings
 from riso.shared import AllowAll, InvalidState, PermissionDenied, RequestContext
@@ -25,9 +23,9 @@ CTX = RequestContext(request_id="test", actor_id=None, policy=AllowAll())
 
 
 @pytest.fixture
-def seeded(tmp_path):
+def seeded(tmp_path, seeded_copy):
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password="Ukážkové-heslo-2026", hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings)
     yield services, done.customers
     services.close()

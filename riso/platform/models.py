@@ -12,6 +12,7 @@ MODEL_MODULES: tuple[str, ...] = (
     "riso.audit.infrastructure.orm",
     "riso.codelists.infrastructure.orm",
     "riso.exchange.infrastructure.orm",
+    "riso.invoicing.infrastructure.orm",
 )
 
 

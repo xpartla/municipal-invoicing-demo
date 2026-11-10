@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "riso",
-    "summary": "Invoice coding demo",
+    "summary": "Supplier invoices of Slovak municipalities",
     "version": "0.1.0"
   },
   "paths": {
@@ -4733,13 +4733,286 @@
         }
       }
     },
+    "/api/customers/{customer_id}/exports/preview": {
+      "post": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.Preview",
+        "description": "What an export of the selection or filter would hold, for the dialog: the booked,\nexported and paid invoices, how many were exported before, how many are skipped.",
+        "operationId": "exports.preview",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportPreviewOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/exports": {
+      "post": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.Start",
+        "description": "Starts an export (plan §7.4): its `export_build` job writes the CSV or XLSX of the\nbooked invoices, keeps it in storage and records the export on each invoice. Follow the\nrun (`GET …/exports/{id}`) or the job. 422 when no booked invoice is chosen.",
+        "operationId": "exports.start",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportRunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.List",
+        "description": "The customer's exports, the newest first (Importy a exporty).",
+        "operationId": "exports.list",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportRunPageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/exports/{run_id}": {
+      "get": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.Get",
+        "operationId": "exports.get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportRunOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/exports/{run_id}/file": {
+      "get": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Exports.File",
+        "description": "The export's file, as written; 404 before the job wrote it.",
+        "operationId": "exports.file",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Run Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/customers/{customer_id}/code": {
       "post": {
         "tags": [
           "invoicing"
         ],
         "summary": "Coding.Code",
-        "description": "The engine's proposal for the invoice, coded with the customer's code lists,\nparameters and conventions for the invoice's booking year. Nothing is stored. (Supplier\nmemory and counters come from the demo's files until P2-M4.) 409 when the customer has no\nlists or parameters for that year.",
+        "description": "The engine's proposal for the invoice, coded with the customer's code lists,\nparameters and conventions for the invoice's booking year, and its supplier memory and\ncounters. Nothing is stored. 409 when the customer has no lists or parameters for that\nyear.",
         "operationId": "coding.code",
         "parameters": [
           {
@@ -4769,6 +5042,1536 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CodingProposal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/number-series": {
+      "get": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Number Series.List",
+        "description": "The year's number series (plan §7.2): those of the document series list, used or\nnot, then any other with a counter; each with its counter, the next number, the numbers\nheld and the gaps between them.",
+        "operationId": "number_series.list",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default: this year",
+              "title": "Year"
+            },
+            "description": "Default: this year"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NumberSeriesListOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/number-series/{series}/{year}": {
+      "put": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Number Series.Set Last Used",
+        "description": "Edits the counter (audited), until it syncs with TOPSET. 422 below a number held;\n404 for a series the year's list does not have.",
+        "operationId": "number_series.set_last_used",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "series",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 16,
+              "title": "Series"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2100,
+              "minimum": 2000,
+              "title": "Year"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LastUsedIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NumberSeriesOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Create",
+        "description": "Manual entry (plan §8.5): an invoice from typed fields, checked and coded at once.\nThe fields' `id` is replaced by the new invoice's.",
+        "operationId": "invoices.create",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.List",
+        "description": "The invoice table (plan §10.3): every filter, sorting by a column (`-` for\ndescending; default `-uploaded_at`) and paging. Text filters ignore case and diacritics;\ndates are inclusive days.",
+        "operationId": "invoices.list",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Supplier, numbers, VS",
+              "title": "Q"
+            },
+            "description": "Supplier, numbers, VS"
+          },
+          {
+            "name": "supplier_ico",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 8
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Supplier Ico"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "uploaded",
+                      "extracting",
+                      "extraction_failed",
+                      "extracted",
+                      "checked",
+                      "needs_review",
+                      "ready",
+                      "booked",
+                      "exported",
+                      "paid",
+                      "discarded",
+                      "duplicate"
+                    ],
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          },
+          {
+            "name": "series",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Series"
+            }
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "enum": [
+                      "scan",
+                      "digital_pdf",
+                      "einvoice",
+                      "manual",
+                      "dataset"
+                    ],
+                    "type": "string"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Channel"
+            }
+          },
+          {
+            "name": "needs_review",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Needs Review"
+            }
+          },
+          {
+            "name": "uploaded_by",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Uploaded By"
+            }
+          },
+          {
+            "name": "issue_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Issue From"
+            }
+          },
+          {
+            "name": "issue_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Issue To"
+            }
+          },
+          {
+            "name": "due_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Due From"
+            }
+          },
+          {
+            "name": "due_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Due To"
+            }
+          },
+          {
+            "name": "booking_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Booking From"
+            }
+          },
+          {
+            "name": "booking_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Booking To"
+            }
+          },
+          {
+            "name": "uploaded_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Uploaded From"
+            }
+          },
+          {
+            "name": "uploaded_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Uploaded To"
+            }
+          },
+          {
+            "name": "exported_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Exported From"
+            }
+          },
+          {
+            "name": "exported_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Exported To"
+            }
+          },
+          {
+            "name": "paid_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Paid From"
+            }
+          },
+          {
+            "name": "paid_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Paid To"
+            }
+          },
+          {
+            "name": "amount_min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Min"
+            }
+          },
+          {
+            "name": "amount_max",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Amount Max"
+            }
+          },
+          {
+            "name": "budget",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 32
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Key or EK prefix",
+              "title": "Budget"
+            },
+            "description": "Key or EK prefix"
+          },
+          {
+            "name": "md",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Prefix",
+              "title": "Md"
+            },
+            "description": "Prefix"
+          },
+          {
+            "name": "dal",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 16
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Prefix",
+              "title": "Dal"
+            },
+            "description": "Prefix"
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "e.g. -booking_date",
+              "title": "Sort"
+            },
+            "description": "e.g. -booking_date"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoicePageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/suppliers": {
+      "get": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Suppliers",
+        "description": "The suppliers of the customer's invoices whose name or IČO matches, most invoices\nfirst, for the supplier filter.",
+        "operationId": "invoices.suppliers",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SupplierOut"
+                  },
+                  "title": "Response Invoices.Suppliers"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/bulk/pay": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Bulk Pay",
+        "description": "Marks several invoices paid on one date; each is reported on its own.",
+        "operationId": "invoices.bulk_pay",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkPayIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/bulk/recode": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Bulk Recode",
+        "description": "Codes several invoices again; each is reported on its own.",
+        "operationId": "invoices.bulk_recode",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/bulk/discard": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Bulk Discard",
+        "description": "Discards several invoices that are not booked; each is reported on its own.",
+        "operationId": "invoices.bulk_discard",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDiscardIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}": {
+      "get": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Get",
+        "description": "One invoice: its fields, proposal, booking, timestamps and what its state allows.",
+        "operationId": "invoices.get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/history": {
+      "get": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.History",
+        "description": "The invoice's history, oldest first: every step with who took it (plan §10.4).",
+        "operationId": "invoices.history",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/check": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Check",
+        "description": "Confirms the invoice's fields (they take the invoice's ID) and codes them: the\ninvoice becomes needs_review or ready, or stays checked with the reason the coding could\nnot run.",
+        "operationId": "invoices.check",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/recode": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Recode",
+        "description": "Codes the checked fields again with today's lists, conventions and memory.",
+        "operationId": "invoices.recode",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/line": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Line",
+        "description": "The whole line (MD, DAL, transfer, texts) a budget position the user picked brings for\nthis invoice, for the correction editors. 404 for a position outside the budget.",
+        "operationId": "invoices.line",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LineIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Alternative"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/booking-preview": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Preview Booking",
+        "description": "The number booking would give and the invoices it would move up, without booking.\n422 and 409 as booking.",
+        "operationId": "invoices.preview_booking",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlacementOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/book": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Book",
+        "description": "Books the proposal (`accepted`, which must be the proposal's coding) or a correction.\nThe codes must be in the year's lists (422); the number follows plan §2 decision 61 and\nmay move later booked invoices up (409 when an exported or paid one would move). The\ncoding becomes the supplier's newest precedent. All in one transaction.",
+        "operationId": "invoices.book",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookedOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/unbook": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Unbook",
+        "description": "Back to checked and coded again (plan §2 decision 62): the precedent goes; the number\nis freed when it is the series' last, else kept for this invoice.",
+        "operationId": "invoices.unbook",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/discard": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Discard",
+        "description": "Discards an invoice that is not booked. Final.",
+        "operationId": "invoices.discard",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/invoices/{invoice_id}/pay": {
+      "post": {
+        "tags": [
+          "invoicing"
+        ],
+        "summary": "Invoices.Pay",
+        "description": "Marks a booked or exported invoice paid on the given date. Final.",
+        "operationId": "invoices.pay",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Invoice Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaidIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvoiceOut"
                 }
               }
             }
@@ -5096,147 +6899,10 @@
         }
       }
     },
-    "/api/entities": {
-      "get": {
-        "summary": "Legacy.Entities",
-        "operationId": "legacy.entities",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/EntitySummary"
-                  },
-                  "type": "array",
-                  "title": "Response Legacy.Entities"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/reference/{entity}": {
-      "get": {
-        "summary": "Legacy.Reference",
-        "operationId": "legacy.reference",
-        "parameters": [
-          {
-            "name": "entity",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Entity"
-            }
-          },
-          {
-            "name": "period",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Period"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ReferenceBundle"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/invoices": {
-      "get": {
-        "summary": "Legacy.Invoices",
-        "operationId": "legacy.invoices",
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/InvoiceListItem"
-                  },
-                  "type": "array",
-                  "title": "Response Legacy.Invoices"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/invoices/{invoice_id}": {
-      "get": {
-        "summary": "Legacy.Invoice",
-        "operationId": "legacy.invoice",
-        "parameters": [
-          {
-            "name": "invoice_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Invoice Id"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InvoiceDocument"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/code": {
       "post": {
         "summary": "Legacy.Code",
+        "description": "The proposal for a posted invoice, coded with the committed bundle, the knowledge\nand the initial supplier memory and counters (`data/initial_state`), as `riso code`\nand the evaluation code it. Nothing is stored; customers' invoices are coded through\n`/api/customers/{id}/…`.",
         "operationId": "legacy.code",
         "requestBody": {
           "content": {
@@ -5255,171 +6921,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CodingProposal"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/line": {
-      "post": {
-        "summary": "Legacy.Line",
-        "description": "The whole line a position the accountant picked brings: MD, DAL, transfer, texts.",
-        "operationId": "legacy.line",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LineRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Alternative"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/feedback": {
-      "post": {
-        "summary": "Legacy.Feedback",
-        "description": "Stores the accountant's verdict: the coding becomes the supplier's newest precedent,\nits number is used up, and the feedback is logged. A corrected coding must pass the\ndictionary checks; whether its sum matches the invoice is the accountant's call.",
-        "operationId": "legacy.feedback",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Feedback"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FeedbackReceipt"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "summary": "Legacy.Feedback Log",
-        "description": "The feedback stored since the last `riso reset`, oldest first.",
-        "operationId": "legacy.feedback_log",
-        "parameters": [
-          {
-            "name": "entity",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "default": "00305863",
-              "title": "Entity"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FeedbackItem"
-                  },
-                  "title": "Response Legacy.Feedback Log"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/counters/{entity}": {
-      "get": {
-        "summary": "Legacy.Counters",
-        "description": "The document counters, invoice series first: the last number used, the one the\ncounter would fill in next, and the numbers taken. Only feedback moves them.",
-        "operationId": "legacy.counters",
-        "parameters": [
-          {
-            "name": "entity",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Entity"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/SeriesCounter"
-                  },
-                  "title": "Response Legacy.Counters"
                 }
               }
             }
@@ -5518,79 +7019,6 @@
           "detail"
         ],
         "title": "AcceptedOut"
-      },
-      "Account": {
-        "properties": {
-          "key": {
-            "type": "string",
-            "pattern": "^\\d{3} \\d{3}$",
-            "title": "Key",
-            "description": "'SU AU', e.g. '518 001'"
-          },
-          "su": {
-            "type": "string",
-            "pattern": "^\\d{3}$",
-            "title": "Su"
-          },
-          "au": {
-            "type": "string",
-            "pattern": "^\\d{3}$",
-            "title": "Au"
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "active",
-              "passive",
-              "cost",
-              "revenue"
-            ],
-            "title": "Type"
-          },
-          "activity": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Activity"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          },
-          "row": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Row",
-            "description": "Row in the exported sheet; none for a row added by hand"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "key",
-          "su",
-          "au",
-          "type"
-        ],
-        "title": "Account"
       },
       "AddressIn": {
         "properties": {
@@ -6042,6 +7470,147 @@
         ],
         "title": "AuditPageOut"
       },
+      "BasisOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "bundle_id": {
+            "type": "string",
+            "title": "Bundle Id"
+          },
+          "version_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Version Ids"
+          },
+          "conventions_revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conventions Revision"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "bundle_id",
+          "version_ids",
+          "conventions_revision"
+        ],
+        "title": "BasisOut",
+        "description": "What the proposal was coded with (plan §6.2, decision 56)."
+      },
+      "BookedOut": {
+        "properties": {
+          "invoice": {
+            "$ref": "#/components/schemas/InvoiceOut"
+          },
+          "placement": {
+            "$ref": "#/components/schemas/PlacementOut"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice",
+          "placement"
+        ],
+        "title": "BookedOut"
+      },
+      "BookingIn": {
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "corrected"
+            ],
+            "title": "Action"
+          },
+          "coding": {
+            "$ref": "#/components/schemas/Coding",
+            "description": "The proposal's coding, or the corrected one"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "action",
+          "coding"
+        ],
+        "title": "BookingIn"
+      },
+      "BookingOut": {
+        "properties": {
+          "coding": {
+            "$ref": "#/components/schemas/Coding"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "accepted",
+              "corrected"
+            ],
+            "title": "Action"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "By"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "coding",
+          "action",
+          "at",
+          "by",
+          "note"
+        ],
+        "title": "BookingOut"
+      },
       "BudgetLine": {
         "properties": {
           "key": {
@@ -6121,89 +7690,106 @@
         "title": "BudgetLine",
         "description": "One line of Rozpočet záväzku: the key in the software's format and its five parts,\nwhich must agree."
       },
-      "BudgetPosition": {
+      "BulkDiscardIn": {
         "properties": {
-          "key": {
-            "type": "string",
-            "title": "Key",
-            "description": "'EK zdroj oddiel trieda analytika', or 'EK zdroj analytika' for income"
-          },
-          "ek": {
-            "type": "string",
-            "pattern": "^\\d{6}$",
-            "title": "Ek"
-          },
-          "zdroj": {
-            "type": "string",
-            "pattern": "^\\d[0-9A-Za-z]{1,3}$",
-            "title": "Zdroj"
-          },
-          "oddiel": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^\\d{2}$"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Oddiel"
-          },
-          "trieda": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^\\d{3}$"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Trieda"
-          },
-          "analytika": {
-            "type": "string",
-            "pattern": "^\\d{3}$",
-            "title": "Analytika"
-          },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          },
-          "aliases": {
+          "invoice_ids": {
             "items": {
               "type": "string"
             },
             "type": "array",
-            "title": "Aliases",
-            "description": "Descriptions of further rows merged into this one because they share the key"
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Invoice Ids"
           },
-          "rows": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array",
-            "title": "Rows",
-            "description": "Rows in the exported sheet; empty for a position added by hand"
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "key",
-          "ek",
-          "zdroj",
-          "analytika"
+          "invoice_ids"
         ],
-        "title": "BudgetPosition"
+        "title": "BulkDiscardIn"
+      },
+      "BulkIn": {
+        "properties": {
+          "invoice_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Invoice Ids"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "invoice_ids"
+        ],
+        "title": "BulkIn"
+      },
+      "BulkOut": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/ItemResultOut"
+            },
+            "type": "array",
+            "title": "Results"
+          },
+          "done": {
+            "type": "integer",
+            "title": "Done"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results",
+          "done",
+          "failed"
+        ],
+        "title": "BulkOut"
+      },
+      "BulkPayIn": {
+        "properties": {
+          "invoice_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Invoice Ids"
+          },
+          "paid_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Paid On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "invoice_ids",
+          "paid_on"
+        ],
+        "title": "BulkPayIn"
       },
       "CaseResult": {
         "properties": {
@@ -6894,25 +8480,6 @@
         "title": "CopyOptionsIn",
         "description": "What a copy takes from the source customer (plan §9.3); the defaults are the plan's."
       },
-      "CostCentre": {
-        "properties": {
-          "code": {
-            "type": "string",
-            "title": "Code"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "code",
-          "name"
-        ],
-        "title": "CostCentre"
-      },
       "CounterChange": {
         "properties": {
           "key": {
@@ -7440,49 +9007,6 @@
         "title": "DocumentRef",
         "description": "Header of the accounting document."
       },
-      "DocumentSeries": {
-        "properties": {
-          "code": {
-            "type": "string",
-            "title": "Code",
-            "description": "Prefix of the pattern, e.g. 'FD' or 'FDŠJ'"
-          },
-          "series_id": {
-            "type": "string",
-            "title": "Series Id",
-            "description": "'Evidenčné číslo' in the software"
-          },
-          "pattern": {
-            "type": "string",
-            "title": "Pattern",
-            "description": "e.g. 'FD/XXX/RR': X the sequence, RR the year, MM the month"
-          },
-          "description": {
-            "type": "string",
-            "title": "Description"
-          },
-          "bank_account": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bank Account"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "code",
-          "series_id",
-          "pattern",
-          "description"
-        ],
-        "title": "DocumentSeries"
-      },
       "DryRunReport": {
         "properties": {
           "checked_at": {
@@ -7590,68 +9114,6 @@
           "current_password"
         ],
         "title": "EmailChangeIn"
-      },
-      "Entity": {
-        "properties": {
-          "ico": {
-            "type": "string",
-            "pattern": "^\\d{8}$",
-            "title": "Ico"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "address": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Address"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "ico",
-          "name"
-        ],
-        "title": "Entity"
-      },
-      "EntitySummary": {
-        "properties": {
-          "ico": {
-            "type": "string",
-            "title": "Ico"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "bundle_id": {
-            "type": "string",
-            "title": "Bundle Id"
-          },
-          "periods": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Periods"
-          }
-        },
-        "type": "object",
-        "required": [
-          "ico",
-          "name",
-          "bundle_id",
-          "periods"
-        ],
-        "title": "EntitySummary"
       },
       "EntryChangeOut": {
         "properties": {
@@ -7921,6 +9383,527 @@
         ],
         "title": "Evidence"
       },
+      "ExportFilterIn": {
+        "properties": {
+          "q": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          },
+          "supplier_ico": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 8
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Ico"
+          },
+          "state": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "State"
+          },
+          "series": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "channel": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Channel"
+          },
+          "needs_review": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Needs Review"
+          },
+          "uploaded_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded By"
+          },
+          "issue_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue From"
+          },
+          "issue_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue To"
+          },
+          "due_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due From"
+          },
+          "due_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due To"
+          },
+          "booking_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking From"
+          },
+          "booking_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking To"
+          },
+          "uploaded_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded From"
+          },
+          "uploaded_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded To"
+          },
+          "exported_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exported From"
+          },
+          "exported_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exported To"
+          },
+          "paid_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid From"
+          },
+          "paid_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid To"
+          },
+          "amount_min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Min"
+          },
+          "amount_max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Amount Max"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 32
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Budget"
+          },
+          "md": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Md"
+          },
+          "dal": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 16
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dal"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ExportFilterIn",
+        "description": "The invoice table's filters, named as in its query (plan §10.3)."
+      },
+      "ExportIn": {
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "title": "Format",
+            "default": "csv"
+          },
+          "invoice_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "maxItems": 10000,
+                "minItems": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Ids"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ExportFilterIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sort": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sort",
+            "description": "e.g. booking_date, -document_number"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ExportIn",
+        "description": "A selection (`invoice_ids`), else the table's filter and sort (default: by booking\ndate)."
+      },
+      "ExportPreviewOut": {
+        "properties": {
+          "invoices": {
+            "type": "integer",
+            "title": "Invoices",
+            "description": "Booked, exported or paid invoices the file would hold"
+          },
+          "again": {
+            "type": "integer",
+            "title": "Again",
+            "description": "Of those, exported before"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped",
+            "description": "Found but not booked"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoices",
+          "again",
+          "skipped"
+        ],
+        "title": "ExportPreviewOut"
+      },
+      "ExportRunOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "xlsx"
+            ],
+            "title": "Format"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "done",
+              "failed"
+            ],
+            "title": "State"
+          },
+          "scope": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Scope",
+            "description": "The selection or the filter asked for"
+          },
+          "requested": {
+            "type": "integer",
+            "title": "Requested"
+          },
+          "invoices": {
+            "type": "integer",
+            "title": "Invoices"
+          },
+          "rows": {
+            "type": "integer",
+            "title": "Rows"
+          },
+          "again": {
+            "type": "integer",
+            "title": "Again"
+          },
+          "skipped": {
+            "type": "integer",
+            "title": "Skipped"
+          },
+          "file_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Name"
+          },
+          "file_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File Size"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "format",
+          "state",
+          "scope",
+          "requested",
+          "invoices",
+          "rows",
+          "again",
+          "skipped",
+          "file_name",
+          "file_size",
+          "error",
+          "job_id",
+          "created_at",
+          "created_by",
+          "updated_at"
+        ],
+        "title": "ExportRunOut"
+      },
+      "ExportRunPageOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ExportRunOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "ExportRunPageOut"
+      },
       "Fact": {
         "properties": {
           "name": {
@@ -7960,183 +9943,6 @@
         ],
         "title": "Fact",
         "description": "A value read from a cell above the header with a pattern: `ico` (group `ico`) or\n`period` (groups `year` and `month`)."
-      },
-      "Feedback": {
-        "properties": {
-          "invoice_id": {
-            "type": "string",
-            "title": "Invoice Id"
-          },
-          "bundle_id": {
-            "type": "string",
-            "title": "Bundle Id"
-          },
-          "action": {
-            "type": "string",
-            "enum": [
-              "accepted",
-              "corrected"
-            ],
-            "title": "Action"
-          },
-          "proposal": {
-            "$ref": "#/components/schemas/CodingProposal",
-            "description": "What the engine proposed"
-          },
-          "final": {
-            "$ref": "#/components/schemas/Coding",
-            "description": "What the accountant entered into the software"
-          },
-          "supplier_ico": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^\\d{8}$"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Supplier Ico"
-          },
-          "received_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Received At",
-            "description": "Set by the server"
-          },
-          "note": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Note"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "invoice_id",
-          "bundle_id",
-          "action",
-          "proposal",
-          "final"
-        ],
-        "title": "Feedback"
-      },
-      "FeedbackItem": {
-        "properties": {
-          "invoice_id": {
-            "type": "string",
-            "title": "Invoice Id"
-          },
-          "action": {
-            "type": "string",
-            "title": "Action"
-          },
-          "document_number": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Document Number"
-          },
-          "received_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Received At"
-          }
-        },
-        "type": "object",
-        "required": [
-          "invoice_id",
-          "action",
-          "document_number",
-          "received_at"
-        ],
-        "title": "FeedbackItem",
-        "description": "One row of GET /api/feedback."
-      },
-      "FeedbackReceipt": {
-        "properties": {
-          "invoice_id": {
-            "type": "string",
-            "title": "Invoice Id"
-          },
-          "action": {
-            "type": "string",
-            "title": "Action"
-          },
-          "entity_ico": {
-            "type": "string",
-            "title": "Entity Ico"
-          },
-          "document_number": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Document Number"
-          },
-          "supplier_ico": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Supplier Ico"
-          },
-          "precedents": {
-            "type": "integer",
-            "title": "Precedents"
-          },
-          "received_at": {
-            "type": "string",
-            "format": "date-time",
-            "title": "Received At"
-          }
-        },
-        "type": "object",
-        "required": [
-          "invoice_id",
-          "action",
-          "entity_ico",
-          "document_number",
-          "supplier_ico",
-          "precedents",
-          "received_at"
-        ],
-        "title": "FeedbackReceipt",
-        "description": "What POST /api/feedback stored."
       },
       "FieldKind": {
         "type": "string",
@@ -8373,6 +10179,143 @@
           "info"
         ],
         "title": "HealthSeverity"
+      },
+      "HistoryEntryOut": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "created",
+              "extraction_started",
+              "extracted",
+              "extraction_failed",
+              "entered_manually",
+              "marked_duplicate",
+              "checked",
+              "coded",
+              "booked",
+              "unbooked",
+              "renumbered",
+              "exported",
+              "paid",
+              "discarded"
+            ],
+            "title": "Kind"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "At"
+          },
+          "actor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Id",
+            "description": "None for the system (seeding, a job)"
+          },
+          "real_actor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Real Actor Id",
+            "description": "The admin, when impersonating"
+          },
+          "from_state": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "uploaded",
+                  "extracting",
+                  "extraction_failed",
+                  "extracted",
+                  "checked",
+                  "needs_review",
+                  "ready",
+                  "booked",
+                  "exported",
+                  "paid",
+                  "discarded",
+                  "duplicate"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From State"
+          },
+          "to_state": {
+            "type": "string",
+            "enum": [
+              "uploaded",
+              "extracting",
+              "extraction_failed",
+              "extracted",
+              "checked",
+              "needs_review",
+              "ready",
+              "booked",
+              "exported",
+              "paid",
+              "discarded",
+              "duplicate"
+            ],
+            "title": "To State"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "at",
+          "actor_id",
+          "real_actor_id",
+          "from_state",
+          "to_state",
+          "details"
+        ],
+        "title": "HistoryEntryOut"
+      },
+      "HistoryOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/HistoryEntryOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "names": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Names",
+            "description": "The people in the history, ID → name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "names"
+        ],
+        "title": "HistoryOut"
       },
       "ImpersonateIn": {
         "properties": {
@@ -8789,42 +10732,39 @@
         "title": "ImportType",
         "description": "What an import makes. The list types share their names with the code list kinds."
       },
-      "IngestWarning": {
+      "Intake": {
         "properties": {
-          "code": {
+          "channel": {
             "type": "string",
             "enum": [
-              "duplicate_key",
-              "missing_description",
-              "skipped_row"
+              "scan",
+              "digital_pdf",
+              "einvoice",
+              "manual",
+              "dataset"
             ],
-            "title": "Code"
+            "title": "Channel"
           },
-          "source": {
-            "type": "string",
-            "title": "Source"
-          },
-          "rows": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array",
-            "title": "Rows"
-          },
-          "message": {
-            "type": "string",
-            "title": "Message"
+          "format": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format",
+            "description": "The file's kind when there is one: 'pdf', 'jpeg', 'ubl' …"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "code",
-          "source",
-          "rows",
-          "message"
+          "channel"
         ],
-        "title": "IngestWarning"
+        "title": "Intake",
+        "description": "How the invoice came in (plan §4.3)."
       },
       "InviteIn": {
         "properties": {
@@ -8937,6 +10877,17 @@
           },
           "ocr_meta": {
             "$ref": "#/components/schemas/OcrMeta"
+          },
+          "intake": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Intake"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How it came in; absent in the dataset and older documents"
           }
         },
         "additionalProperties": false,
@@ -9135,17 +11086,46 @@
         ],
         "title": "InvoiceLine"
       },
-      "InvoiceListItem": {
+      "InvoiceOut": {
         "properties": {
           "id": {
             "type": "string",
             "title": "Id"
           },
-          "split": {
+          "customer_id": {
             "type": "string",
-            "title": "Split"
+            "title": "Customer Id"
           },
-          "supplier": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "scan",
+              "digital_pdf",
+              "einvoice",
+              "manual",
+              "dataset"
+            ],
+            "title": "Channel"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "uploaded",
+              "extracting",
+              "extraction_failed",
+              "extracted",
+              "checked",
+              "needs_review",
+              "ready",
+              "booked",
+              "exported",
+              "paid",
+              "discarded",
+              "duplicate"
+            ],
+            "title": "State"
+          },
+          "source_ref": {
             "anyOf": [
               {
                 "type": "string"
@@ -9154,7 +11134,76 @@
                 "type": "null"
               }
             ],
-            "title": "Supplier"
+            "title": "Source Ref",
+            "description": "The dataset case, or the uploaded file's name"
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "fields": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The fields, as extracted or checked"
+          },
+          "proposal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodingProposal"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "basis": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BasisOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "coding_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coding Error",
+            "description": "Why the last coding could not run"
+          },
+          "needs_review": {
+            "type": "boolean",
+            "title": "Needs Review"
+          },
+          "booking": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BookingOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "number": {
             "anyOf": [
@@ -9165,7 +11214,328 @@
                 "type": "null"
               }
             ],
-            "title": "Number"
+            "title": "Number",
+            "description": "The booked document number"
+          },
+          "paid_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid On"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Uploaded At"
+          },
+          "uploaded_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded By"
+          },
+          "checked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Checked At"
+          },
+          "coded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Coded At"
+          },
+          "booked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booked At"
+          },
+          "exported_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exported At"
+          },
+          "paid_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid At"
+          },
+          "discarded_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discarded At"
+          },
+          "discard_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Discard Reason"
+          },
+          "extraction_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extraction Error"
+          },
+          "actions": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "check",
+                "recode",
+                "book",
+                "unbook",
+                "export",
+                "pay",
+                "discard"
+              ]
+            },
+            "type": "array",
+            "title": "Actions",
+            "description": "What the invoice's state allows"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "customer_id",
+          "channel",
+          "state",
+          "source_ref",
+          "document_id",
+          "fields",
+          "proposal",
+          "basis",
+          "coding_error",
+          "needs_review",
+          "booking",
+          "number",
+          "paid_on",
+          "uploaded_at",
+          "uploaded_by",
+          "checked_at",
+          "coded_at",
+          "booked_at",
+          "exported_at",
+          "paid_at",
+          "discarded_at",
+          "discard_reason",
+          "extraction_error",
+          "actions"
+        ],
+        "title": "InvoiceOut"
+      },
+      "InvoicePageOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InvoiceRowOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "InvoicePageOut"
+      },
+      "InvoiceRowOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "uploaded",
+              "extracting",
+              "extraction_failed",
+              "extracted",
+              "checked",
+              "needs_review",
+              "ready",
+              "booked",
+              "exported",
+              "paid",
+              "discarded",
+              "duplicate"
+            ],
+            "title": "State"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "scan",
+              "digital_pdf",
+              "einvoice",
+              "manual",
+              "dataset"
+            ],
+            "title": "Channel"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "needs_review": {
+            "type": "boolean",
+            "title": "Needs Review"
+          },
+          "series": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Series"
+          },
+          "document_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Number",
+            "description": "Booked, else proposed"
+          },
+          "booking_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booking Date"
+          },
+          "supplier_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Name"
+          },
+          "supplier_ico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Ico"
+          },
+          "invoice_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Number"
+          },
+          "variable_symbol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Variable Symbol"
           },
           "issue_date": {
             "anyOf": [
@@ -9179,6 +11549,30 @@
             ],
             "title": "Issue Date"
           },
+          "due_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due Date"
+          },
+          "supply_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supply Date"
+          },
           "gross": {
             "anyOf": [
               {
@@ -9190,19 +11584,110 @@
               }
             ],
             "title": "Gross"
+          },
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Uploaded At"
+          },
+          "uploaded_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uploaded By"
+          },
+          "exported_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exported At"
+          },
+          "paid_on": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paid On"
+          },
+          "budget_keys": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Budget Keys",
+            "description": "The booking's lines, else the proposal's"
+          },
+          "md": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Md"
+          },
+          "dal": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Dal"
           }
         },
         "type": "object",
         "required": [
           "id",
-          "split",
-          "supplier",
-          "number",
+          "state",
+          "channel",
+          "source_ref",
+          "needs_review",
+          "series",
+          "document_number",
+          "booking_date",
+          "supplier_name",
+          "supplier_ico",
+          "invoice_number",
+          "variable_symbol",
           "issue_date",
-          "gross"
+          "due_date",
+          "supply_date",
+          "gross",
+          "currency",
+          "uploaded_at",
+          "uploaded_by",
+          "exported_at",
+          "paid_on",
+          "budget_keys",
+          "md",
+          "dal"
         ],
-        "title": "InvoiceListItem",
-        "description": "One row of the invoice picker."
+        "title": "InvoiceRowOut",
+        "description": "One row of the invoice table (plan §10.3)."
       },
       "InvoiceSummary": {
         "properties": {
@@ -9453,6 +11938,49 @@
         ],
         "title": "Issue"
       },
+      "ItemResultOut": {
+        "properties": {
+          "invoice_id": {
+            "type": "string",
+            "title": "Invoice Id"
+          },
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code",
+            "description": "not_found, invalid_state, conflict … when not ok"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "invoice_id",
+          "ok",
+          "code",
+          "message"
+        ],
+        "title": "ItemResultOut"
+      },
       "JobOut": {
         "properties": {
           "id": {
@@ -9553,6 +12081,22 @@
         ],
         "title": "JobStatus"
       },
+      "LastUsedIn": {
+        "properties": {
+          "last_used": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Last Used",
+            "description": "The new counter: the last sequence used"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "last_used"
+        ],
+        "title": "LastUsedIn"
+      },
       "LineCodes": {
         "properties": {
           "key": {
@@ -9581,36 +12125,20 @@
         "title": "LineCodes",
         "description": "What the accountant types for one line: the budget key, MD and DAL."
       },
-      "LineRequest": {
+      "LineIn": {
         "properties": {
-          "invoice": {
-            "$ref": "#/components/schemas/InvoiceDocument"
-          },
-          "entity": {
-            "anyOf": [
-              {
-                "type": "string",
-                "pattern": "^\\d{8}$"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Entity"
-          },
           "budget_key": {
             "type": "string",
             "pattern": "^\\d{6} \\d[0-9A-Za-z]{1,3} \\d{2} \\d{3} \\d{3}$",
             "title": "Budget Key"
           }
         },
+        "additionalProperties": false,
         "type": "object",
         "required": [
-          "invoice",
           "budget_key"
         ],
-        "title": "LineRequest",
-        "description": "Body of POST /api/line: the invoice, and a position the accountant picked."
+        "title": "LineIn"
       },
       "LinkSentOut": {
         "properties": {
@@ -9923,6 +12451,98 @@
         ],
         "title": "MembershipOut"
       },
+      "NumberSeriesListOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/NumberSeriesOut"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "items"
+        ],
+        "title": "NumberSeriesListOut"
+      },
+      "NumberSeriesOut": {
+        "properties": {
+          "series": {
+            "type": "string",
+            "title": "Series"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "pattern": {
+            "type": "string",
+            "title": "Pattern"
+          },
+          "last_used": {
+            "type": "integer",
+            "title": "Last Used",
+            "description": "The counter: the last sequence used"
+          },
+          "last_used_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Used Number"
+          },
+          "next_number": {
+            "type": "string",
+            "title": "Next Number",
+            "description": "What the counter gives next"
+          },
+          "used": {
+            "items": {
+              "$ref": "#/components/schemas/UsedNumberOut"
+            },
+            "type": "array",
+            "title": "Used",
+            "description": "The numbers held, lowest first"
+          },
+          "gaps": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Gaps",
+            "description": "Free numbers between the lowest and the highest held"
+          },
+          "stored": {
+            "type": "boolean",
+            "title": "Stored",
+            "description": "False for a series of the year's list never used yet"
+          }
+        },
+        "type": "object",
+        "required": [
+          "series",
+          "year",
+          "pattern",
+          "last_used",
+          "last_used_number",
+          "next_number",
+          "used",
+          "gaps",
+          "stored"
+        ],
+        "title": "NumberSeriesOut"
+      },
       "OcrMeta": {
         "properties": {
           "source_file": {
@@ -10134,6 +12754,21 @@
         ],
         "title": "OutboxPageOut"
       },
+      "PaidIn": {
+        "properties": {
+          "paid_on": {
+            "type": "string",
+            "format": "date",
+            "title": "Paid On"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "paid_on"
+        ],
+        "title": "PaidIn"
+      },
       "ParametersIn": {
         "properties": {
           "values": {
@@ -10203,6 +12838,47 @@
           "account.own"
         ],
         "title": "Permission"
+      },
+      "PlacementOut": {
+        "properties": {
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "requested": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Requested",
+            "description": "The handwritten or typed number asked for"
+          },
+          "moved": {
+            "type": "boolean",
+            "title": "Moved",
+            "description": "An invoice supplied earlier holds the number asked for"
+          },
+          "shifts": {
+            "items": {
+              "$ref": "#/components/schemas/ShiftOut"
+            },
+            "type": "array",
+            "title": "Shifts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "requested",
+          "moved",
+          "shifts"
+        ],
+        "title": "PlacementOut",
+        "description": "The number a booking gets, or would get, and the invoices it moves up (decision 61)."
       },
       "PostingLine": {
         "properties": {
@@ -10566,93 +13242,24 @@
         "title": "ReadOptionsIn",
         "description": "How to read the file; empty fields leave the choice to the reader."
       },
-      "ReferenceBundle": {
+      "ReasonIn": {
         "properties": {
-          "bundle_id": {
-            "type": "string",
-            "title": "Bundle Id",
-            "description": "'<IČO>/<period>', e.g. '00305863/2026-08'"
-          },
-          "entity": {
-            "$ref": "#/components/schemas/Entity"
-          },
-          "period": {
-            "type": "string",
-            "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
-            "title": "Period"
-          },
-          "sources": {
-            "items": {
-              "$ref": "#/components/schemas/SourceFile"
-            },
-            "type": "array",
-            "title": "Sources"
-          },
-          "accounts": {
-            "items": {
-              "$ref": "#/components/schemas/Account"
-            },
-            "type": "array",
-            "title": "Accounts"
-          },
-          "budget_positions_expense": {
-            "items": {
-              "$ref": "#/components/schemas/BudgetPosition"
-            },
-            "type": "array",
-            "title": "Budget Positions Expense"
-          },
-          "budget_positions_income": {
-            "items": {
-              "$ref": "#/components/schemas/BudgetPosition"
-            },
-            "type": "array",
-            "title": "Budget Positions Income"
-          },
-          "document_series": {
-            "items": {
-              "$ref": "#/components/schemas/DocumentSeries"
-            },
-            "type": "array",
-            "title": "Document Series"
-          },
-          "transfers": {
-            "items": {
-              "$ref": "#/components/schemas/Transfer"
-            },
-            "type": "array",
-            "title": "Transfers"
-          },
-          "cost_centres": {
-            "items": {
-              "$ref": "#/components/schemas/CostCentre"
-            },
-            "type": "array",
-            "title": "Cost Centres",
-            "description": "The stredisko list; not exported, so empty in the demo"
-          },
-          "warnings": {
-            "items": {
-              "$ref": "#/components/schemas/IngestWarning"
-            },
-            "type": "array",
-            "title": "Warnings"
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
           }
         },
         "additionalProperties": false,
         "type": "object",
-        "required": [
-          "bundle_id",
-          "entity",
-          "period",
-          "sources",
-          "accounts",
-          "budget_positions_expense",
-          "budget_positions_income",
-          "document_series",
-          "transfers"
-        ],
-        "title": "ReferenceBundle"
+        "title": "ReasonIn"
       },
       "ReportDiff": {
         "properties": {
@@ -10839,50 +13446,6 @@
         ],
         "title": "ScopeOut"
       },
-      "SeriesCounter": {
-        "properties": {
-          "series": {
-            "type": "string",
-            "title": "Series"
-          },
-          "year": {
-            "type": "integer",
-            "title": "Year"
-          },
-          "last_used": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Used"
-          },
-          "next": {
-            "type": "string",
-            "title": "Next"
-          },
-          "used": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Used"
-          }
-        },
-        "type": "object",
-        "required": [
-          "series",
-          "year",
-          "last_used",
-          "next",
-          "used"
-        ],
-        "title": "SeriesCounter",
-        "description": "One row of GET /api/counters: a series' document numbers in one year."
-      },
       "SessionOut": {
         "properties": {
           "id": {
@@ -10963,29 +13526,36 @@
         ],
         "title": "SetPasswordIn"
       },
-      "SourceFile": {
+      "ShiftOut": {
         "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name"
+          "invoice_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Id",
+            "description": "None for a number kept for an unbooked invoice"
           },
-          "sha256": {
+          "old": {
             "type": "string",
-            "title": "Sha256"
+            "title": "Old"
           },
-          "data_rows": {
-            "type": "integer",
-            "title": "Data Rows"
+          "new": {
+            "type": "string",
+            "title": "New"
           }
         },
-        "additionalProperties": false,
         "type": "object",
         "required": [
-          "name",
-          "sha256",
-          "data_rows"
+          "invoice_id",
+          "old",
+          "new"
         ],
-        "title": "SourceFile"
+        "title": "ShiftOut"
       },
       "Split": {
         "properties": {
@@ -11048,6 +13618,43 @@
           "name"
         ],
         "title": "StaffIn"
+      },
+      "SupplierOut": {
+        "properties": {
+          "ico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ico"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "invoices": {
+            "type": "integer",
+            "title": "Invoices"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ico",
+          "name",
+          "invoices"
+        ],
+        "title": "SupplierOut"
       },
       "SupplierRef": {
         "properties": {
@@ -11362,38 +13969,6 @@
         "type": "object",
         "title": "Totals"
       },
-      "Transfer": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id",
-            "description": "Income-side key the transfer comes from, e.g. '312001 11H 012'"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "zdroj": {
-            "type": "string",
-            "pattern": "^\\d[0-9A-Za-z]{1,3}$",
-            "title": "Zdroj"
-          },
-          "mock": {
-            "type": "boolean",
-            "title": "Mock",
-            "description": "Derived from the income side; the real list was not exported",
-            "default": true
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "zdroj"
-        ],
-        "title": "Transfer"
-      },
       "Trim": {
         "properties": {
           "op": {
@@ -11406,6 +13981,53 @@
         "additionalProperties": false,
         "type": "object",
         "title": "Trim"
+      },
+      "UsedNumberOut": {
+        "properties": {
+          "number": {
+            "type": "string",
+            "title": "Number"
+          },
+          "sequence": {
+            "type": "integer",
+            "title": "Sequence"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "booked",
+              "reserved",
+              "external"
+            ],
+            "title": "Kind",
+            "description": "A booked invoice's; one kept for an unbooked invoice; or used outside riso"
+          },
+          "invoice_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invoice Id"
+          },
+          "frozen": {
+            "type": "boolean",
+            "title": "Frozen",
+            "description": "Never moves: exported, paid or used outside riso"
+          }
+        },
+        "type": "object",
+        "required": [
+          "number",
+          "sequence",
+          "kind",
+          "invoice_id",
+          "frozen"
+        ],
+        "title": "UsedNumberOut"
       },
       "UserOut": {
         "properties": {

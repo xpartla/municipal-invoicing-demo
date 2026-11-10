@@ -6,7 +6,6 @@ copying twice. Staff copy within their provider, admins anywhere."""
 import pytest
 
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.audit.domain.event import AuditFilter
 from riso.codelists.domain import ListKind, VersionOrigin
 from riso.exchange.application.copy import COPY_JOB, CopyCustomer, CopyOptions, copy_customer
@@ -19,13 +18,12 @@ from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.jobs import JobStatus, get_customer_job
 from riso.platform import Settings
 from riso.shared import Ico, NotFound, PermissionDenied, RequestContext
-from riso.store import StateStore
 from riso.tenancy import CreateCustomer, CustomerIdentity
 from riso.tenancy.domain import ServiceProvider
 
 PASSWORD = "Ukážkové-heslo-2026"
 YEAR = 2026
-BOLDOG_ICO, COPY_ICO = "00305863", "99900033"
+COPY_ICO = "99900033"
 
 
 def _ctx(services, user_id):
@@ -36,9 +34,9 @@ def _ctx(services, user_id):
 
 
 @pytest.fixture
-def env(tmp_path):
+def env(tmp_path, seeded_copy):
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password=PASSWORD, hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     with services.uow() as uow:
         now = services.clock.now()
@@ -52,7 +50,7 @@ def env(tmp_path):
         uow.commit()
     ctx = {key: _ctx(services, done.users[key][0]) for key in done.users}
     ctx["other_staff"] = _ctx(services, staff.id)
-    yield services, done, other.id, ctx, StateStore(settings.var_dir)
+    yield services, done, other.id, ctx, services.supplier_state()
     services.close()
 
 
@@ -147,7 +145,12 @@ def test_a_copy_gets_boldogs_lists_as_its_own_new_versions(env):
     copied = owned_templates(ctx["admin"], services.uow(), TemplateScope.CUSTOMER, target)
     assert [t.name for t in copied] == ["Boldog – rozvrh"]
     # Memory is off by default; counters and invoices are never copied.
-    assert not (state.var_dir / COPY_ICO).exists()
+    assert state.memory(target).suppliers == []
+    assert state.counters(target).model_dump() == {
+        "entity_ico": COPY_ICO,
+        "last_used": {},
+        "used_numbers": [],
+    }
 
 
 def test_memory_is_copied_only_when_asked(env):
@@ -156,12 +159,13 @@ def test_memory_is_copied_only_when_asked(env):
     started = _copy(services, ctx["admin"], boldog, None, supplier_memory=True, code_lists=False)
     _run(services)
     job = _job(services, ctx["admin"], started)
-    assert job.result["suppliers"] == len(state.supplier_memory(BOLDOG_ICO).suppliers) == 4
+    assert job.result["suppliers"] == len(state.memory(boldog).suppliers) == 4
     assert "code_lists" not in job.result
-    memory = state.supplier_memory(COPY_ICO)
+    target = started.customer.id
+    memory = state.memory(target)
     assert memory.entity_ico == COPY_ICO
-    assert memory.suppliers == state.supplier_memory(BOLDOG_ICO).suppliers
-    assert not (state.var_dir / COPY_ICO / "counters.json").exists()
+    assert memory.suppliers == state.memory(boldog).suppliers
+    assert state.counters(target).last_used == {} and state.counters(target).used_numbers == []
     assert started.customer.provider_id is None
     with services.uow(immediate=False) as uow:
         assert uow.codelists.active_ids(started.customer.id, YEAR) == {}

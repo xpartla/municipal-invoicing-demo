@@ -26,9 +26,9 @@ from riso.contracts import (
 from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.eval import evaluate
+from riso.eval.files import initial_counters, initial_memory
 from riso.eval.metrics import metrics, score_case
 from riso.knowledge import knowledge_for
-from riso.store import StateStore
 
 BOLDOG = "00305863"
 SHELTER = ("637005 41 03 100 001", "518 001", "321 000")
@@ -43,13 +43,12 @@ def telekom(source, tmp_path_factory) -> tuple[DatasetCase, CodingProposal]:
     """The Telekom anchor and the engine's proposal for it, which matches."""
     case = anchor("anchor-telekom")
     entity = source.context(BOLDOG)
-    state = StateStore(var_dir=tmp_path_factory.mktemp("var"))
     proposal = code_invoice(
         case.invoice,
         entity=entity,
         bundle=source.bundle(BOLDOG),
-        memory=state.supplier_memory(BOLDOG),
-        counters=state.counters(BOLDOG),
+        memory=initial_memory(BOLDOG),
+        counters=initial_counters(BOLDOG),
         knowledge=knowledge_for(BOLDOG, entity.budget_year),
     )
     return case, proposal

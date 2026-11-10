@@ -10,10 +10,12 @@ function nav() {
   return screen.getByRole('navigation', { name: 'Hlavné menu' });
 }
 
+/** The menu's links (the Nová faktúra button, a link once a customer is chosen, is not one). */
 function menuLinks() {
   return within(nav())
     .getAllByRole('link')
-    .map((link) => link.getAttribute('aria-label') ?? link.textContent);
+    .map((link) => link.getAttribute('aria-label') ?? link.textContent)
+    .filter((name) => name !== 'Nová faktúra');
 }
 
 const CUSTOMER_ITEMS = ['Domov', 'Faktúry', 'Číselníky', 'Importy a exporty', 'Úložisko', 'Systém'];
@@ -29,7 +31,10 @@ describe('the navbar per role', () => {
     expect(menuLinks()).toEqual([...CUSTOMER_ITEMS, 'Správy', ...BOTTOM]);
     expect(screen.queryByLabelText('Klient', { selector: 'input' })).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: 'Domov' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Nová faktúra' })).toBeDisabled();
+    expect(screen.getByRole('link', { name: 'Nová faktúra' })).toHaveAttribute(
+      'href',
+      `/c/${BOLDOG.id}/invoices/new`,
+    );
     expect(within(nav()).getByRole('button', { name: 'Odhlásiť' })).toBeEnabled();
   });
 
@@ -37,6 +42,7 @@ describe('the navbar per role', () => {
     mockApi({ 'GET /api/me': { body: meAs('viewer') } });
     await renderApp(`/c/${BOLDOG.id}`);
     expect(menuLinks()).toEqual([...CUSTOMER_ITEMS, 'Správy', ...BOTTOM]);
+    expect(screen.getByRole('button', { name: 'Nová faktúra' })).toBeDisabled();
   });
 
   it('staff land on Používatelia and get the customer items once a customer is chosen', async () => {

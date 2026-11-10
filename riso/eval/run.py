@@ -26,11 +26,11 @@ from riso.contracts.eval import Split
 from riso.dataset import TAGS, load_cases
 from riso.engine import code_invoice
 from riso.engine.s8_feedback import add_precedent, record_number
+from riso.eval.files import COUNTERS_FILE, MEMORY_FILE
 from riso.eval.metrics import by_supplier, by_tag, metrics, score_case
 from riso.knowledge import KnowledgeBase, knowledge_for
 from riso.reference import LocalReferenceSource, ReferenceIndex, ReferenceSource
 from riso.shared.values import ico_is_valid
-from riso.store import COUNTERS_FILE, MEMORY_FILE
 from riso.text import fold
 
 FEEDING_SPLITS = ("anchor", "seed")

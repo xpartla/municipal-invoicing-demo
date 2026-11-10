@@ -7,7 +7,7 @@ role × route × own/foreign customer matrix from this table.
 
 Each route declares its access with one dependency from `riso.api.deps` (`customer_context`
 and the others), and the matrix test checks that the dependency and the entry agree. The
-demo's routes are `public` until P2-M4 replaces them: the demo has no logins.
+two routes kept from the demo (`legacy.code`, `legacy.eval`) are `public`, as they were.
 """
 
 from dataclasses import dataclass
@@ -121,6 +121,11 @@ MATRIX: dict[str, RouteAccess] = {
     "admin_templates.list": platform(Permission.GLOBAL_CODELISTS),
     "admin_templates.update": platform(Permission.TEMPLATES_CREATE_GLOBAL),
     "admin_templates.delete": platform(Permission.TEMPLATES_CREATE_GLOBAL),
+    "exports.preview": customer(Permission.INVOICES_PROCESS),
+    "exports.start": customer(Permission.INVOICES_PROCESS),
+    "exports.list": customer(Permission.CUSTOMER_READ),
+    "exports.get": customer(Permission.CUSTOMER_READ),
+    "exports.file": customer(Permission.CUSTOMER_READ),
     # jobs
     "jobs.get_customer": customer(Permission.CUSTOMER_READ),
     # Code lists.
@@ -142,6 +147,25 @@ MATRIX: dict[str, RouteAccess] = {
     "admin_codelists.versions": platform(Permission.GLOBAL_CODELISTS),
     # Invoicing.
     "coding.code": customer(Permission.INVOICES_PROCESS),
+    "invoices.list": customer(Permission.CUSTOMER_READ),
+    "invoices.suppliers": customer(Permission.CUSTOMER_READ),
+    "invoices.get": customer(Permission.CUSTOMER_READ),
+    "invoices.history": customer(Permission.CUSTOMER_READ),
+    "invoices.bulk_pay": customer(Permission.INVOICES_PROCESS),
+    "invoices.bulk_recode": customer(Permission.INVOICES_PROCESS),
+    "invoices.bulk_discard": customer(Permission.INVOICES_PROCESS),
+    "invoices.create": customer(Permission.INVOICES_PROCESS),
+    "invoices.check": customer(Permission.INVOICES_PROCESS),
+    "invoices.recode": customer(Permission.INVOICES_PROCESS),
+    "invoices.line": customer(Permission.INVOICES_PROCESS),
+    "invoices.preview_booking": customer(Permission.INVOICES_PROCESS),
+    "invoices.book": customer(Permission.INVOICES_PROCESS),
+    "invoices.unbook": customer(Permission.INVOICES_PROCESS),
+    "invoices.discard": customer(Permission.INVOICES_PROCESS),
+    "invoices.pay": customer(Permission.INVOICES_PROCESS),
+    # Number series.
+    "number_series.list": customer(Permission.CUSTOMER_READ),
+    "number_series.set_last_used": customer(Permission.CODELISTS_EDIT),
     # Tenancy.
     "customers.get": customer(Permission.CUSTOMER_READ),
     "customers.update_contact": customer(Permission.CUSTOMER_EDIT_CONTACT),
@@ -164,16 +188,8 @@ MATRIX: dict[str, RouteAccess] = {
     "providers.remove": platform(Permission.PROVIDERS_MANAGE),
     "providers.add_staff": platform(Permission.PROVIDERS_MANAGE),
     "providers.remove_staff": platform(Permission.PROVIDERS_MANAGE),
-    # The demo (P2-M4 replaces these).
-    "legacy.entities": public(),
-    "legacy.reference": public(),
-    "legacy.invoices": public(),
-    "legacy.invoice": public(),
+    # Kept from the demo (P2-M4-T10): the committed bundle's coding and the evaluation's report.
     "legacy.code": public(),
-    "legacy.line": public(),
-    "legacy.feedback": public(),
-    "legacy.feedback_log": public(),
-    "legacy.counters": public(),
     "legacy.eval": public(),
 }
 

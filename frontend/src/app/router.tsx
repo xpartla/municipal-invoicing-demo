@@ -27,6 +27,7 @@ import { LoginPage } from '../routes/auth/LoginPage';
 import { ResetPasswordPage } from '../routes/auth/ResetPasswordPage';
 import { codelistsSearch } from '../features/codelists/kinds';
 import { customerImportSearch, globalImportSearch } from '../features/exchange/search';
+import { invoicesSearch } from '../features/invoices/search';
 import { CodelistsPage } from '../routes/CodelistsPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
@@ -35,6 +36,8 @@ import { ExchangePage } from '../routes/ExchangePage';
 import { ForbiddenPage } from '../routes/ForbiddenPage';
 import { HomePage } from '../routes/HomePage';
 import { ImportPage } from '../routes/ImportPage';
+import { InvoicePage } from '../routes/InvoicePage';
+import { InvoicesPage } from '../routes/InvoicesPage';
 import { GlobalCodelistsPage } from '../routes/admin/GlobalCodelistsPage';
 import { GlobalImportPage } from '../routes/admin/GlobalImportPage';
 import { OutboxPage } from '../routes/admin/OutboxPage';
@@ -42,6 +45,7 @@ import { ProvidersPage } from '../routes/admin/ProvidersPage';
 import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
 import { NewCustomerPage } from '../routes/NewCustomerPage';
+import { NewInvoicePage } from '../routes/NewInvoicePage';
 import { NotFoundPage } from '../routes/NotFoundPage';
 import { ProfilePage } from '../routes/ProfilePage';
 import { SystemPage } from '../routes/SystemPage';
@@ -203,9 +207,23 @@ const customerRoutes = [
     component: ImportPage,
     validateSearch: customerImportSearch,
   }),
-  ...(['invoices', 'files'] as const).map((key) =>
-    createRoute({ getParentRoute: () => customerRoute, path: key, component: soon(key) }),
-  ),
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'invoices',
+    component: InvoicesPage,
+    validateSearch: invoicesSearch,
+  }),
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'invoices/new',
+    component: NewInvoicePage,
+  }),
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'invoices/$invoiceId',
+    component: InvoicePage,
+  }),
+  createRoute({ getParentRoute: () => customerRoute, path: 'files', component: soon('files') }),
 ];
 
 function page<TPath extends string>(path: TPath, component: RouteComponent) {

@@ -64,7 +64,8 @@ async def _domain_error(request: Request, exc: DomainError) -> JSONResponse:
         )
     for kind, status, code in _STATUS:
         if isinstance(exc, kind):
-            return JSONResponse({"detail": exc.message, "code": code}, status_code=status)
+            body = {"detail": exc.message, "code": exc.code or code, **exc.details()}
+            return JSONResponse(body, status_code=status)
     return await _unexpected(request, exc)
 
 

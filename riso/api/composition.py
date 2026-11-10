@@ -7,11 +7,13 @@ import os
 import socket
 from dataclasses import dataclass, field
 
-from riso.api.adapters import DbReferenceData, DemoSupplierState, SpaLinks, SqlTenancyDirectory
+from riso.api.adapters import DbReferenceData, DbSupplierState, SpaLinks, SqlTenancyDirectory
 from riso.api.uow import AppUnitOfWork
 from riso.exchange.application.copy import COPY_JOB, CopyJobs
+from riso.exchange.application.exports import EXPORT_JOB, ExportJobs
 from riso.exchange.application.imports import ImportJobs
 from riso.exchange.infrastructure.readers import FileTableReader
+from riso.exchange.infrastructure.writers import TableWriter
 from riso.identity.application.access import Grant, MembershipPolicy
 from riso.identity.application.ports import CustomerRef
 from riso.identity.domain import PasswordHasher, PasswordPolicy
@@ -28,7 +30,6 @@ from riso.shared.clock import Clock, SystemClock
 from riso.shared.context import DenyAll, RequestContext
 from riso.shared.errors import NotFound
 from riso.shared.ids import IdGenerator, UuidV7Generator
-from riso.store import StateStore
 
 
 def build_registry() -> JobRegistry:
@@ -82,17 +83,10 @@ class Services:
         """The customer's settings, code lists and conventions, for the engine."""
         return DbReferenceData(lambda: self.uow(immediate=False))
 
-    def supplier_state(self) -> DemoSupplierState:
-        """Supplier memory and counters: the demo's files under the var directory until
-        P2-M4 moves them into the database."""
-
-        def ico_of(customer_id: str) -> str:
-            customer = self.directory.customer(customer_id)
-            if customer is None:
-                raise NotFound(f"no customer {customer_id}")
-            return customer.ico
-
-        return DemoSupplierState(StateStore(self.settings.var_dir), ico_of)
+    def supplier_state(self) -> DbSupplierState:
+        """Supplier memory and counters from the database, for a coding outside a unit of
+        work (the stateless coding route, the knowledge health report)."""
+        return DbSupplierState(lambda: self.uow(immediate=False))
 
     def policy(self, grants: tuple[Grant, ...]) -> MembershipPolicy:
         return MembershipPolicy(grants, self.directory)
@@ -122,16 +116,13 @@ class Services:
         return CustomerDirectory(self.directory)
 
     def import_jobs(self) -> ImportJobs:
-        return ImportJobs(
-            self.uow,
-            self.storage,
-            self.reader,
-            self.supplier_state(),
-            self.customers(),
-        )
+        return ImportJobs(self.uow, self.storage, self.reader, self.customers())
 
     def copy_jobs(self) -> CopyJobs:
-        return CopyJobs(self.uow, self.supplier_state())
+        return CopyJobs(self.uow)
+
+    def export_jobs(self) -> ExportJobs:
+        return ExportJobs(self.uow, self.storage, TableWriter())
 
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(
@@ -185,4 +176,6 @@ def build_services(
         services.import_jobs().register(services.registry)
     if COPY_JOB not in services.registry.names():
         services.copy_jobs().register(services.registry)
+    if EXPORT_JOB not in services.registry.names():
+        services.export_jobs().register(services.registry)
     return services

@@ -1,4 +1,4 @@
-"""The exchange API: import runs and mapping templates (plan §9.2, §10.7).
+"""The exchange API: import runs, mapping templates and exports (plan §9.2, §7.4, §10.7).
 
 A customer's imports live under `/api/customers/{customer_id}/imports`, the global lists'
 under `/api/admin/imports`; both have the same steps:
@@ -18,6 +18,7 @@ which the use cases check: the route gate is using templates.
 """
 
 from typing import Annotated
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, Form, Path, Query, UploadFile
 from fastapi.responses import Response
@@ -26,6 +27,10 @@ from riso.api.composition import Services
 from riso.api.deps import Caller, ServicesDep, check_csrf, customer_context, platform_context
 from riso.exchange.api.models import (
     ApplyIn,
+    ExportIn,
+    ExportPreviewOut,
+    ExportRunOut,
+    ExportRunPageOut,
     ImportPreviewOut,
     ImportRunOut,
     ImportRunPageOut,
@@ -34,6 +39,13 @@ from riso.exchange.api.models import (
     RunTemplateIn,
     TemplateIn,
     TemplateOut,
+)
+from riso.exchange.application.exports import (
+    export_file,
+    get_export,
+    list_exports,
+    preview_export,
+    start_export,
 )
 from riso.exchange.application.imports import (
     MAX_PAGE,
@@ -57,6 +69,7 @@ from riso.exchange.application.templates import (
     save_template,
     usable_templates,
 )
+from riso.exchange.domain.export import ExportFormat
 from riso.exchange.domain.mapping import ImportType
 from riso.exchange.domain.templates import TemplateScope
 from riso.exchange.infrastructure.readers import MAX_FILE_BYTES
@@ -472,3 +485,68 @@ def global_template_delete(
     caller: GlobalTemplates, services: ServicesDep, template_id: TemplateId
 ) -> None:
     _delete_template(caller.ctx, services, None, template_id)
+
+
+Processor = Annotated[Caller, Depends(customer_context(Permission.INVOICES_PROCESS))]
+
+
+@router.post("/customers/{customer_id}/exports/preview", name="exports.preview")
+def export_preview(
+    caller: Processor, services: ServicesDep, customer_id: str, body: ExportIn
+) -> ExportPreviewOut:
+    """What an export of the selection or filter would hold, for the dialog: the booked,
+    exported and paid invoices, how many were exported before, how many are skipped."""
+    found = preview_export(caller.ctx, services.uow(immediate=False), customer_id, body.scope())
+    return ExportPreviewOut(invoices=found.invoices, again=found.again, skipped=found.skipped)
+
+
+@router.post("/customers/{customer_id}/exports", name="exports.start", status_code=202)
+def export_start(
+    caller: Processor, services: ServicesDep, customer_id: str, body: ExportIn
+) -> ExportRunOut:
+    """Starts an export (plan §7.4): its `export_build` job writes the CSV or XLSX of the
+    booked invoices, keeps it in storage and records the export on each invoice. Follow the
+    run (`GET …/exports/{id}`) or the job. 422 when no booked invoice is chosen."""
+    view = start_export(
+        caller.ctx, services.uow(), customer_id, ExportFormat(body.format), body.scope()
+    )
+    return ExportRunOut.of(view)
+
+
+@router.get("/customers/{customer_id}/exports", name="exports.list")
+def export_runs(
+    caller: Reader,
+    services: ServicesDep,
+    customer_id: str,
+    page: Annotated[int, Query(ge=1)] = 1,
+    size: Annotated[int, Query(ge=1, le=200)] = 50,
+) -> ExportRunPageOut:
+    """The customer's exports, the newest first (Importy a exporty)."""
+    found = list_exports(
+        caller.ctx, services.uow(immediate=False), customer_id, page=page, size=size
+    )
+    return ExportRunPageOut(items=[ExportRunOut.of(r) for r in found.items], total=found.total)
+
+
+@router.get("/customers/{customer_id}/exports/{run_id}", name="exports.get")
+def export_run(
+    caller: Reader, services: ServicesDep, customer_id: str, run_id: RunId
+) -> ExportRunOut:
+    return ExportRunOut.of(
+        get_export(caller.ctx, services.uow(immediate=False), customer_id, run_id)
+    )
+
+
+@router.get("/customers/{customer_id}/exports/{run_id}/file", name="exports.file")
+def export_run_file(
+    caller: Reader, services: ServicesDep, customer_id: str, run_id: RunId
+) -> Response:
+    """The export's file, as written; 404 before the job wrote it."""
+    found = export_file(
+        caller.ctx, services.uow(immediate=False), services.storage, customer_id, run_id
+    )
+    return Response(
+        found.data,
+        media_type=found.media_type,
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(found.name)}"},
+    )

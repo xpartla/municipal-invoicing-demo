@@ -35,7 +35,20 @@ def add_precedent(
     memory: SupplierMemory, *, ico: str, name: str, coding: Coding, variable_symbol: str | None
 ) -> SupplierMemory:
     """The coding becomes the supplier's newest precedent."""
-    precedent = Precedent(
+    precedent = precedent_of(coding, variable_symbol)
+    suppliers = list(memory.suppliers)
+    for i, record in enumerate(suppliers):
+        if record.ico == ico:
+            suppliers[i] = record.model_copy(update={"precedents": [precedent, *record.precedents]})
+            break
+    else:
+        suppliers.append(SupplierRecord(ico=ico, name=name, precedents=[precedent]))
+    return memory.model_copy(update={"suppliers": suppliers})
+
+
+def precedent_of(coding: Coding, variable_symbol: str | None) -> Precedent:
+    """The precedent a booked coding makes: its lines, amount, number and date."""
+    return Precedent(
         document_number=coding.document.number,
         booking_date=coding.document.booking_date,
         amount=sum((line.amount for line in coding.budget), Decimal(0)),
@@ -52,14 +65,6 @@ def add_precedent(
         ],
         source="feedback",
     )
-    suppliers = list(memory.suppliers)
-    for i, record in enumerate(suppliers):
-        if record.ico == ico:
-            suppliers[i] = record.model_copy(update={"precedents": [precedent, *record.precedents]})
-            break
-    else:
-        suppliers.append(SupplierRecord(ico=ico, name=name, precedents=[precedent]))
-    return memory.model_copy(update={"suppliers": suppliers})
 
 
 def record_number(number: str | None, counters: Counters, index: ReferenceIndex) -> Counters:

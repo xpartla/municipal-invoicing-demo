@@ -2,11 +2,14 @@
 and mapping templates. The mapping (`ColumnMapping`) and the dry run's report
 (`DryRunReport`) are the JSON the runs store, so the API passes them as they are."""
 
-from datetime import datetime
-from typing import Literal
+from dataclasses import asdict
+from datetime import date, datetime
+from decimal import Decimal
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
+from riso.exchange.application.exports import ExportRunView, ExportScope
 from riso.exchange.application.imports import ImportPreview, ImportRunView
 from riso.exchange.application.templates import TemplateView
 from riso.exchange.domain.mapping import SCHEMAS, ColumnMapping, FieldKind, ImportType
@@ -14,6 +17,8 @@ from riso.exchange.domain.report import DryRunReport
 from riso.exchange.domain.run import RunState
 from riso.exchange.domain.table import HEADER_SCAN, ReadOptions
 from riso.exchange.domain.templates import TemplateScope
+from riso.invoicing import InvoiceFilter, Sort
+from riso.shared.errors import ValidationFailed
 
 
 class ReadOptionsIn(BaseModel):
@@ -236,3 +241,104 @@ class TemplateIn(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     signature: str = Field(min_length=1, max_length=64)
     mapping: ColumnMapping
+
+
+class ExportFilterIn(BaseModel):
+    """The invoice table's filters, named as in its query (plan §10.3)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    q: str | None = Field(default=None, max_length=200)
+    supplier_ico: str | None = Field(default=None, max_length=8)
+    state: list[str] = Field(default_factory=list)
+    series: list[str] = Field(default_factory=list)
+    channel: list[str] = Field(default_factory=list)
+    needs_review: bool | None = None
+    uploaded_by: str | None = None
+    issue_from: date | None = None
+    issue_to: date | None = None
+    due_from: date | None = None
+    due_to: date | None = None
+    booking_from: date | None = None
+    booking_to: date | None = None
+    uploaded_from: date | None = None
+    uploaded_to: date | None = None
+    exported_from: date | None = None
+    exported_to: date | None = None
+    paid_from: date | None = None
+    paid_to: date | None = None
+    amount_min: Decimal | None = None
+    amount_max: Decimal | None = None
+    budget: str | None = Field(default=None, max_length=32)
+    md: str | None = Field(default=None, max_length=16)
+    dal: str | None = Field(default=None, max_length=16)
+
+    def criteria(self) -> InvoiceFilter:
+        values = self.model_dump()
+        return InvoiceFilter(
+            text=values.pop("q"),
+            states=values.pop("state"),
+            series=values.pop("series"),
+            channels=values.pop("channel"),
+            **values,
+        )
+
+
+class ExportIn(BaseModel):
+    """A selection (`invoice_ids`), else the table's filter and sort (default: by booking
+    date)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    format: Literal["csv", "xlsx"] = "csv"
+    invoice_ids: list[str] | None = Field(default=None, min_length=1, max_length=10_000)
+    filter: ExportFilterIn | None = None
+    sort: str | None = Field(default=None, description="e.g. booking_date, -document_number")
+
+    def scope(self) -> ExportScope:
+        if self.invoice_ids is not None:
+            return ExportScope(invoice_ids=tuple(self.invoice_ids))
+        given = self.filter or ExportFilterIn()
+        try:
+            sort = Sort.parse(self.sort) if self.sort else Sort("booking_date", descending=False)
+        except ValueError as exc:
+            raise ValidationFailed.on("sort", str(exc)) from exc
+        return ExportScope(
+            criteria=given.criteria(),
+            sort=sort,
+            described=given.model_dump(mode="json", exclude_defaults=True),
+        )
+
+
+class ExportPreviewOut(BaseModel):
+    invoices: int = Field(description="Booked, exported or paid invoices the file would hold")
+    again: int = Field(description="Of those, exported before")
+    skipped: int = Field(description="Found but not booked")
+
+
+class ExportRunOut(BaseModel):
+    id: str
+    format: Literal["csv", "xlsx"]
+    state: Literal["queued", "done", "failed"]
+    scope: dict[str, Any] = Field(description="The selection or the filter asked for")
+    requested: int
+    invoices: int
+    rows: int
+    again: int
+    skipped: int
+    file_name: str | None
+    file_size: int | None
+    error: str | None
+    job_id: str | None
+    created_at: datetime
+    created_by: str | None
+    updated_at: datetime
+
+    @classmethod
+    def of(cls, view: ExportRunView) -> "ExportRunOut":
+        return cls.model_validate(asdict(view))
+
+
+class ExportRunPageOut(BaseModel):
+    items: list[ExportRunOut]
+    total: int

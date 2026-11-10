@@ -26,7 +26,7 @@ supplier's precedents stay newest first by booking date, as the engine ranks the
 import re
 from collections import defaultdict
 from collections.abc import Iterable, Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
@@ -179,6 +179,8 @@ class BookingsPlan:
     """Numbers to mark used (those not yet used)."""
     counters: tuple[CounterRise, ...]
     warnings: tuple[BookingWarning, ...]
+    patterns: Mapping[str, str] = field(default_factory=dict)
+    """The series patterns the numbers were read with (code → pattern)."""
 
 
 def _grouped(code: str, found: Mapping[str, list[int]], message: str) -> list[BookingWarning]:
@@ -308,7 +310,9 @@ def plan_bookings(
         for key, after in sorted(last_used.items())
         if after != counters.last_used.get(key, 0)
     )
-    return BookingsPlan(tuple(new), tuple(present), tuple(numbers), rises, tuple(warnings))
+    return BookingsPlan(
+        tuple(new), tuple(present), tuple(numbers), rises, tuple(warnings), dict(series)
+    )
 
 
 def _newest_first(precedents: list[Precedent]) -> list[Precedent]:

@@ -10,7 +10,6 @@ import openpyxl
 import pytest
 
 from riso.api.composition import build_services
-from riso.api.seed import seed
 from riso.audit.domain.event import AuditFilter
 from riso.codelists.application.lists import EditEntry, edit_list
 from riso.codelists.domain import ListKind, VersionOrigin
@@ -41,16 +40,15 @@ from riso.identity.infrastructure.hashing import Argon2Hasher
 from riso.jobs import JobContext, JobStatus
 from riso.platform import Settings
 from riso.shared import InvalidState, PermissionDenied, RequestContext, ValidationFailed
-from riso.store import StateStore
 
 PASSWORD = "Ukážkové-heslo-2026"
 YEAR = 2026
 
 
 @pytest.fixture
-def env(tmp_path):
+def env(tmp_path, seeded_copy):
     settings = Settings(var_dir=tmp_path / "var", env="test")
-    done = seed(settings, password=PASSWORD, hasher=Argon2Hasher.fast())
+    done = seeded_copy(settings.var_dir)
     services = build_services(settings, hasher=Argon2Hasher.fast())
     yield services, done
     services.close()
@@ -235,7 +233,7 @@ BUDGET_HEADER = ["Kód", "Zdroj", "Oddiel", "Trieda", "Analytika", "Popis"]
 
 def test_warnings_duplicates_missing_descriptions_and_precedents_on_removed_codes(boldog):
     services, boldog_id, ctx = boldog
-    memory = StateStore(services.settings.var_dir).supplier_memory("00305863")
+    memory = services.supplier_state().memory(boldog_id)
     used = memory.suppliers[0].precedents[0].lines[0].budget_key
     rows = [r for r in _budget_rows(services, boldog_id, ListKind.BUDGET_EXPENSE)]
     keep = [r for r in rows if " ".join(str(c) for c in r[:5] if c != "") != used]

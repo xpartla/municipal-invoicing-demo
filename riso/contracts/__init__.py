@@ -7,6 +7,7 @@ from riso.contracts.eval import CaseResult, EvalReport, LineCodes, Rate, Target
 from riso.contracts.feedback import Feedback
 from riso.contracts.invoice import (
     Handwritten,
+    Intake,
     InvoiceCustomer,
     InvoiceDocument,
     InvoiceHeader,
@@ -73,6 +74,7 @@ __all__ = [
     "Handwritten",
     "IngestWarning",
     "InvoiceCustomer",
+    "Intake",
     "InvoiceDocument",
     "InvoiceHeader",
     "InvoiceLine",
