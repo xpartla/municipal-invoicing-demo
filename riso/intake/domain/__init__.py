@@ -1,3 +1,25 @@
-"""Entities, value objects, domain services, events, repository protocols and errors of the intake
-context. Pure Python: it imports only this context's domain, `riso.shared` and `riso.contracts`;
-never SQLAlchemy, FastAPI, `riso.platform` or I/O libraries."""
+from riso.intake.domain.document import (
+    MAX_BYTES,
+    MAX_PAGES,
+    SNIFF_BYTES,
+    Document,
+    DocumentUploaded,
+    MediaType,
+    check_upload,
+    safe_filename,
+    sniff,
+)
+from riso.intake.domain.repository import DocumentRepository
+
+__all__ = [
+    "MAX_BYTES",
+    "MAX_PAGES",
+    "SNIFF_BYTES",
+    "Document",
+    "DocumentRepository",
+    "DocumentUploaded",
+    "MediaType",
+    "check_upload",
+    "safe_filename",
+    "sniff",
+]

@@ -256,8 +256,10 @@ class Invoice:
         *,
         at: datetime,
         actor: Actor,
+        source_ref: str | None = None,
     ) -> "Invoice":
-        """An invoice whose fields a job reads from the uploaded file."""
+        """An invoice whose fields a job reads from the uploaded file (`source_ref`: the
+        file's name)."""
         if not channel.has_file:
             raise InvalidState(f"a {channel} invoice has no file to read")
         invoice = cls(
@@ -269,6 +271,7 @@ class Invoice:
             uploaded_by=actor.id,
             updated_at=at,
             document_id=document_id,
+            source_ref=source_ref,
         )
         invoice._record(EventKind.CREATED, None, at, actor, {"channel": channel.value})
         return invoice

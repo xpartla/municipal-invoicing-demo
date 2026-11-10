@@ -1973,6 +1973,87 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Documents.Upload
+         * @description Uploads invoices: PDF, JPEG, PNG or TIFF files of at most 20 MB and 5 pages, one
+         *     invoice each, at most 20 per request. Each file is taken or refused on its own; a taken
+         *     file becomes an invoice whose extraction job starts (poll `jobs.get_customer`).
+         */
+        post: operations["documents.upload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Documents.Get */
+        get: operations["documents.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/documents/{document_id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Documents.File
+         * @description The file as uploaded, as a download. It is never rendered by the browser from here:
+         *     the sandbox keeps a crafted file from running anything.
+         */
+        get: operations["documents.file"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Files.List
+         * @description Every file the customer's storage keeps (Úložisko), the newest first: uploaded
+         *     invoices (`document`, with the invoice), import files and export files.
+         */
+        get: operations["files.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit": {
         parameters: {
             query?: never;
@@ -2777,6 +2858,28 @@ export interface components {
             /** Changed */
             changed: components["schemas"]["EntryChangeOut"][];
         };
+        /** DocumentOut */
+        DocumentOut: {
+            /** Id */
+            id: string;
+            /** Filename */
+            filename: string;
+            /** Media Type */
+            media_type: string;
+            /** Size */
+            size: number;
+            /** Pages */
+            pages: number | null;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+            /** Uploaded By */
+            uploaded_by: string | null;
+            /** Invoice Id */
+            invoice_id: string | null;
+        };
         /**
          * DocumentRef
          * @description Header of the accounting document.
@@ -3166,6 +3269,51 @@ export interface components {
              * @default []
              */
             transforms: (components["schemas"]["Trim"] | components["schemas"]["ZeroPad"] | components["schemas"]["Split"] | components["schemas"]["DecimalNumber"] | components["schemas"]["DateValue"] | components["schemas"]["MapValues"])[];
+        };
+        /** FileOut */
+        FileOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "document" | "import" | "export";
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Media Type */
+            media_type: string;
+            /** Size */
+            size: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Created By */
+            created_by: string | null;
+            /** Invoice Id */
+            invoice_id: string | null;
+            /** Detail */
+            detail: string | null;
+        };
+        /**
+         * FilesOut
+         * @description The page of files (`items`) of `total` matching ones; `size` and `kinds` count every
+         *     file of the customer. A file downloads through its owner: `documents.file`,
+         *     `imports.file` or `exports.file` with the file's `id`.
+         */
+        FilesOut: {
+            /** Items */
+            items: components["schemas"]["FileOut"][];
+            /** Total */
+            total: number;
+            /** Size */
+            size: number;
+            /** Kinds */
+            kinds: {
+                [key: string]: components["schemas"]["KindTotalOut"];
+            };
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -3755,6 +3903,13 @@ export interface components {
          * @enum {string}
          */
         JobStatus: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+        /** KindTotalOut */
+        KindTotalOut: {
+            /** Count */
+            count: number;
+            /** Size */
+            size: number;
+        };
         /** LastUsedIn */
         LastUsedIn: {
             /**
@@ -4467,6 +4622,42 @@ export interface components {
              */
             op: "trim";
         };
+        /**
+         * UploadItemOut
+         * @description One uploaded file: `accepted` with its document, invoice and extraction job, or
+         *     `rejected` with the reason (`file_empty`, `file_too_large`, `file_type`, `too_many_pages`,
+         *     `duplicate`); a duplicate links the invoice the same file became.
+         */
+        UploadItemOut: {
+            /** Filename */
+            filename: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "accepted" | "rejected";
+            /** Document Id */
+            document_id: string | null;
+            /** Invoice Id */
+            invoice_id: string | null;
+            /** Job Id */
+            job_id: string | null;
+            /** Reason */
+            reason: string | null;
+            /** Message */
+            message: string | null;
+            /** Duplicate Of */
+            duplicate_of: string | null;
+        };
+        /** UploadOut */
+        UploadOut: {
+            /** Items */
+            items: components["schemas"]["UploadItemOut"][];
+            /** Accepted */
+            accepted: number;
+            /** Rejected */
+            rejected: number;
+        };
         /** UsedNumberOut */
         UsedNumberOut: {
             /** Number */
@@ -4614,6 +4805,14 @@ export interface components {
             import_type: components["schemas"]["ImportType"];
             /** Year */
             year: number;
+        };
+        /** Body_documents.upload */
+        fastapi___compat__v2__Body_documents__upload: {
+            /**
+             * Files
+             * @description One invoice per file
+             */
+            files: string[];
         };
         /** Body_imports.upload */
         fastapi___compat__v2__Body_imports__upload: {
@@ -8379,6 +8578,140 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InvoiceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "documents.upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["fastapi___compat__v2__Body_documents__upload"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "documents.get": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "documents.file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "files.list": {
+        parameters: {
+            query?: {
+                kind?: ("document" | "import" | "export") | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FilesOut"];
                 };
             };
             /** @description Validation Error */

@@ -297,6 +297,18 @@ class SqlInvoiceRepository:
         self._uow.track(invoice)
         return invoice
 
+    def for_document(self, customer_id: str, document_id: str) -> Invoice | None:
+        row = self._session.scalar(
+            select(InvoiceRow).where(
+                InvoiceRow.customer_id == customer_id, InvoiceRow.document_id == document_id
+            )
+        )
+        if row is None:
+            return None
+        invoice = _invoice(row)
+        self._uow.track(invoice)
+        return invoice
+
     def history(self, customer_id: str, invoice_id: str) -> list[InvoiceEvent]:
         rows = self._session.scalars(
             select(InvoiceEventRow)

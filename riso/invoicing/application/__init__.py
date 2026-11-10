@@ -29,6 +29,11 @@ from riso.invoicing.application.exports import (
     exportable,
     record_exports,
 )
+from riso.invoicing.application.intake import (
+    fail_extraction,
+    invoice_of_document,
+    register_upload,
+)
 from riso.invoicing.application.numbering import (
     SeriesView,
     UsedNumberView,
@@ -91,6 +96,7 @@ __all__ = [
     "invoice_history",
     "list_invoices",
     "recode_many",
+    "register_upload",
     "BookingResult",
     "BookingView",
     "HistoryEntryView",
@@ -104,6 +110,8 @@ __all__ = [
     "code_stored",
     "discard_invoice",
     "enter_invoice",
+    "fail_extraction",
+    "invoice_of_document",
     "line_for",
     "mark_paid",
     "mark_paid_many",

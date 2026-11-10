@@ -19,6 +19,8 @@ from riso.identity.application.ports import CustomerRef
 from riso.identity.domain import PasswordHasher, PasswordPolicy
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.sessions import SecretsTokenGenerator
+from riso.intake.application import EXTRACT_JOB, ExtractionJobs
+from riso.intake.infrastructure.pages import FilePages
 from riso.jobs import JobRegistry, Worker, register_builtin
 from riso.jobs.domain import Job
 from riso.jobs.infrastructure.thread import WorkerThread
@@ -71,6 +73,7 @@ class Services:
     directory: SqlTenancyDirectory
     links: SpaLinks
     reader: FileTableReader = field(default_factory=FileTableReader)
+    pages: FilePages = field(default_factory=FilePages)
     _threads: list[WorkerThread] = field(default_factory=list)
 
     def uow(self, immediate: bool = True) -> AppUnitOfWork:
@@ -123,6 +126,9 @@ class Services:
 
     def export_jobs(self) -> ExportJobs:
         return ExportJobs(self.uow, self.storage, TableWriter())
+
+    def extraction_jobs(self) -> ExtractionJobs:
+        return ExtractionJobs(self.uow)
 
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(
@@ -178,4 +184,6 @@ def build_services(
         services.copy_jobs().register(services.registry)
     if EXPORT_JOB not in services.registry.names():
         services.export_jobs().register(services.registry)
+    if EXTRACT_JOB not in services.registry.names():
+        services.extraction_jobs().register(services.registry)
     return services

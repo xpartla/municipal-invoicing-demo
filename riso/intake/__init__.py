@@ -3,3 +3,11 @@ scans, the text layer of digital PDFs, e-invoice XML, and the extraction that tu
 into an InvoiceDocument. Main aggregates: Document, Extraction. This module is the context's
 public surface: other contexts import only what it exports (its application API), never its
 domain, infrastructure or api modules. See plan §4.2 and guide §6.1."""
+
+from riso.intake.application import (
+    DocumentView,
+    IntakeUnitOfWork,
+    customer_documents,
+)
+
+__all__ = ["DocumentView", "IntakeUnitOfWork", "customer_documents"]

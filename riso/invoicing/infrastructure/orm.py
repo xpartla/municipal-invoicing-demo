@@ -131,6 +131,7 @@ class InvoiceRow(Base):
         Index(None, "customer_id", "exported_at"),
         Index(None, "customer_id", "paid_on"),
         Index(None, "customer_id", "gross_cents"),
+        Index(None, "customer_id", "document_id"),
     )
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)

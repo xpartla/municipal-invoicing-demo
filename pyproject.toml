@@ -106,6 +106,12 @@ warn_return_any = true
 no_implicit_reexport = true
 extra_checks = true
 
+# pypdfium2 and tesserocr ship no type information (no py.typed, no stubs on PyPI); their
+# calls are wrapped in typed adapters in riso.intake.infrastructure.
+[[tool.mypy.overrides]]
+module = ["pypdfium2", "pypdfium2.*", "tesserocr"]
+ignore_missing_imports = true
+
 [tool.ruff]
 line-length = 100
 target-version = "py312"
