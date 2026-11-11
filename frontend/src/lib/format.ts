@@ -83,3 +83,10 @@ export function formatSize(bytes: number): string {
   }
   return `${sizeFormat.format(value)}${NBSP}${SIZE_UNITS[unit] ?? 'GB'}`;
 }
+
+const percentFormat = new Intl.NumberFormat('sk-SK', { maximumFractionDigits: 1 });
+
+/** A share: `0.25` → `25 %`, `0.1234` → `12,3 %` (the space is non-breaking). */
+export function formatPercent(share: number): string {
+  return `${percentFormat.format(share * 100)}${NBSP}%`;
+}

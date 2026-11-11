@@ -21,10 +21,9 @@ from typing import Protocol
 from riso.codelists import (
     BudgetAmountView,
     CodelistsUnitOfWork,
-    HealthSeverity,
     expense_budget,
     function_names,
-    knowledge_health,
+    health_errors,
 )
 from riso.identity import Permission
 from riso.invoicing import (
@@ -38,7 +37,6 @@ from riso.invoicing import (
     StatisticsUnitOfWork,
     invoice_facts,
     list_invoices,
-    supplier_memory,
 )
 from riso.shared.clock import BRATISLAVA, local_date
 from riso.shared.context import RequestContext
@@ -439,9 +437,7 @@ def customer_dashboard(
         today = local_date(uow.clock.now())
         names = function_names(uow, month.year)
         positions = expense_budget(uow, customer_id, month.year)
-        memory = supplier_memory(uow, customer_id, customer.ico)
-    findings = knowledge_health(ctx, uow_factory(), customer_id, today.year, memory)
-    errors = [f for f in findings if f.severity is HealthSeverity.ERROR]
+        errors = health_errors(uow, customer_id, today.year)
     failed, failed_total = _attention_rows(
         ctx, uow_factory(), customer_id, ("extraction_failed",), Sort("uploaded_at", True)
     )

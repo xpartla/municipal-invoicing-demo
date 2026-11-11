@@ -19,7 +19,7 @@ function menuLinks() {
 }
 
 const CUSTOMER_ITEMS = ['Domov', 'Faktúry', 'Číselníky', 'Importy a exporty', 'Úložisko', 'Systém'];
-const BOTTOM = ['Pomocník', 'Profil', 'Pôvodná ukážka'];
+const BOTTOM = ['Pomocník', 'Profil'];
 
 describe('the navbar per role', () => {
   it('a customer user sees the customer items and Správy, and lands on its Domov', async () => {

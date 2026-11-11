@@ -35,6 +35,7 @@ from riso.codelists.application.reporting import (
     BudgetAmountView,
     expense_budget,
     function_names,
+    health_errors,
     missing_required_lists,
 )
 from riso.codelists.application.seeding import versions_from_bundle
@@ -44,6 +45,7 @@ __all__ = [
     "BudgetAmountView",
     "expense_budget",
     "function_names",
+    "health_errors",
     "missing_required_lists",
     "copy_conventions",
     "copy_lists",

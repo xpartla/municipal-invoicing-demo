@@ -12,7 +12,7 @@ test('the invoice table, its filters, the bulk bar and the export dialog pass ax
 }) => {
   await loginAs(page, 'user');
   await openNav(page);
-  await page.getByRole('link', { name: 'Faktúry' }).click();
+  await page.getByRole('navigation').getByRole('link', { name: 'Faktúry' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Faktúry' })).toBeVisible();
   const table = page.getByRole('region', { name: 'Tabuľka faktúr' });
   await expect(table.getByRole('row')).toHaveCount(51); // the header and a page of 50

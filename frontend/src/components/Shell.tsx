@@ -203,9 +203,6 @@ function ShellFor({ me }: { me: Me }) {
               onNavigate={close}
             />
             <LogoutItem collapsed={collapsed} />
-            {!collapsed && (
-              <NavLink component="a" href="/index.html" label={t('shell.nav.legacyDemo')} />
-            )}
             <Group justify={collapsed ? 'center' : 'flex-end'} visibleFrom="sm" mt={4}>
               <ActionIcon
                 variant="subtle"

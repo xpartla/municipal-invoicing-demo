@@ -23,6 +23,16 @@ export const STATES = [
 ] as const;
 export type InvoiceState = (typeof STATES)[number];
 
+/** Still on the way to booking: what Domov counts as waiting. */
+export const OPEN_STATES = [
+  'uploaded',
+  'extracting',
+  'extracted',
+  'checked',
+  'needs_review',
+  'ready',
+] as const satisfies readonly InvoiceState[];
+
 export const CHANNELS = ['scan', 'digital_pdf', 'einvoice', 'manual', 'dataset'] as const;
 export type Channel = (typeof CHANNELS)[number];
 
@@ -44,7 +54,17 @@ export const SORT_KEYS = [
 ] as const;
 export type SortKey = (typeof SORT_KEYS)[number];
 
-export const DATE_FILTERS = ['issue', 'due', 'booking', 'uploaded', 'exported', 'paid'] as const;
+/** `booked` is the day the invoice was booked in riso (Domov's tiles); `booking` its booking
+ * date. */
+export const DATE_FILTERS = [
+  'issue',
+  'due',
+  'booking',
+  'uploaded',
+  'booked',
+  'exported',
+  'paid',
+] as const;
 export type DateFilter = (typeof DATE_FILTERS)[number];
 type DateBound = `${DateFilter}_${'from' | 'to'}`;
 

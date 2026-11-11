@@ -29,6 +29,8 @@ import { codelistsSearch } from '../features/codelists/kinds';
 import { customerImportSearch, globalImportSearch } from '../features/exchange/search';
 import { invoicePageSearch, invoicesSearch } from '../features/invoices/search';
 import { filesSearch } from '../features/reporting/api';
+import { homeSearch } from '../features/reporting/dashboard';
+import { systemSearch } from '../features/system/search';
 import { CodelistsPage } from '../routes/CodelistsPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
@@ -194,14 +196,24 @@ function guarded(allowed: (me: Me) => boolean, Page: RouteComponent) {
 const admin = (permission: Permission) => (me: Me) => onPlatform(me, permission);
 
 const customerRoutes = [
-  createRoute({ getParentRoute: () => customerRoute, path: '/', component: HomePage }),
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: '/',
+    component: HomePage,
+    validateSearch: homeSearch,
+  }),
   createRoute({
     getParentRoute: () => customerRoute,
     path: 'codelists',
     component: CodelistsPage,
     validateSearch: codelistsSearch,
   }),
-  createRoute({ getParentRoute: () => customerRoute, path: 'system', component: SystemPage }),
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'system',
+    component: SystemPage,
+    validateSearch: systemSearch,
+  }),
   createRoute({ getParentRoute: () => customerRoute, path: 'exchange', component: ExchangePage }),
   createRoute({
     getParentRoute: () => customerRoute,

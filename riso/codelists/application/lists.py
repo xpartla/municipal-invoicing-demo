@@ -151,17 +151,23 @@ def _check_kind(kind: ListKind, customer_id: str | None) -> None:
 def lists_overview(
     ctx: RequestContext, uow: CodelistsUnitOfWork, customer_id: str | None, year: int
 ) -> ListsOverview:
-    """Each list of the owner's with its active version for the year."""
+    """Each list of the owner's with its active version for the year. The versions' rows
+    only: their entries are not read (the overview opens every page that shows lists)."""
     _require_read(ctx, customer_id)
     kinds = GLOBAL_KINDS if customer_id is None else CUSTOMER_KINDS
     with uow:
         lists = []
         for kind in kinds:
-            version = uow.codelists.active(customer_id, kind, year)
+            active = next(
+                (
+                    info
+                    for info in uow.codelists.history(customer_id, kind, year)
+                    if info.status is VersionStatus.ACTIVE
+                ),
+                None,
+            )
             lists.append(
-                ListSummary(
-                    kind, entry_fields(kind), VersionView.of(version.info()) if version else None
-                )
+                ListSummary(kind, entry_fields(kind), VersionView.of(active) if active else None)
             )
         years = uow.codelists.years(customer_id)
     return ListsOverview(year, years, lists)

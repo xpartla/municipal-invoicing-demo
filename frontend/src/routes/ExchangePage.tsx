@@ -96,7 +96,7 @@ export function ExchangePage() {
                         </Anchor>
                       </Table.Td>
                       <Table.Td>
-                        <Badge color={STATE_COLORS[run.state]} variant="light">
+                        <Badge color={STATE_COLORS[run.state]}>
                           {t(`exchange.states.${run.state}`)}
                         </Badge>
                       </Table.Td>
@@ -115,7 +115,13 @@ export function ExchangePage() {
                             to="/c/$customerId/exchange/import"
                             params={{ customerId }}
                             search={{ run: run.id }}
-                            aria-label={t('exchange.history.openLabel', { file: run.file.name })}
+                            aria-label={t('exchange.history.openLabel', {
+                              action:
+                                run.state === 'applied'
+                                  ? t('exchange.history.show')
+                                  : t('exchange.history.continue'),
+                              file: run.file.name,
+                            })}
                           >
                             {run.state === 'applied'
                               ? t('exchange.history.show')

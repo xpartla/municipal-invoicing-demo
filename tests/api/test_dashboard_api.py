@@ -450,3 +450,23 @@ def test_a_foreign_customer_is_not_found(seeded, login):
     _, done, _ = seeded
     alone = done.customers["Obec Nezávislá"]
     assert login("viewer").get(f"/api/customers/{alone}/dashboard").status_code == 404
+
+
+@pytest.mark.parametrize("year", [2026, 2031])
+def test_the_dashboards_health_errors_are_the_health_reports_errors(seeded, year):
+    """Domov finds the errors without reading the lists' entries; they are the full report's
+    (2031 has no global knowledge base and no lists)."""
+    from riso.codelists import HealthSeverity, health_errors, knowledge_health
+    from riso.shared import AllowAll, RequestContext
+
+    app, done, _ = seeded
+    services = app.state.services
+    ctx = RequestContext("t", None, policy=AllowAll())
+    for name in ("Obec Boldog", "Obec Vzorová Lehota"):
+        customer_id = done.customers[name]
+        memory = services.supplier_state().memory(customer_id)
+        report = knowledge_health(ctx, services.uow(immediate=False), customer_id, year, memory)
+        with services.uow(immediate=False) as uow:
+            cheap = health_errors(uow, customer_id, year)
+        assert cheap == [f for f in report if f.severity is HealthSeverity.ERROR], name
+        assert cheap or (name, year) == ("Obec Boldog", 2026)

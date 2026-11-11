@@ -7,7 +7,7 @@ import { loginAs, openNav } from './pages/login';
 test('Číselníky with the row dialog and the history pass axe', async ({ page, checkA11y }) => {
   await loginAs(page, 'user');
   await openNav(page);
-  await page.getByRole('link', { name: 'Číselníky' }).click();
+  await page.getByRole('navigation').getByRole('link', { name: 'Číselníky' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Číselníky' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Výdavkový rozpočet' })).toBeVisible();
   await page.waitForLoadState('networkidle');
@@ -44,7 +44,7 @@ test('Globálne číselníky pass axe', async ({ page, checkA11y }) => {
 test('Systém and its tabs pass axe', async ({ page, checkA11y }) => {
   await loginAs(page, 'user');
   await openNav(page);
-  await page.getByRole('link', { name: 'Systém' }).click();
+  await page.getByRole('navigation').getByRole('link', { name: 'Systém' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Systém' })).toBeVisible();
   // Loaded; journey 3 of journeys-m2 changes the value in parallel, so not which value.
   await expect(page.getByLabel(/^Predvolená rada/)).not.toHaveValue('');

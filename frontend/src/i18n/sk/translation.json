@@ -127,8 +127,7 @@
       "help": "Pomocník",
       "profile": "Profil",
       "logout": "Odhlásiť",
-      "soon": "Pripravujeme",
-      "legacyDemo": "Pôvodná ukážka"
+      "soon": "Pripravujeme"
     },
     "section": {
       "customer": "Klient",
@@ -158,9 +157,131 @@
   },
   "home": {
     "title": "Domov",
-    "intro": "Prehľad klienta {{name}} s počtami faktúr a grafmi pribudne v jednej z ďalších etáp.",
-    "legacy": "Doterajšia ukážka s návrhmi zaúčtovania zostáva dostupná, kým ju nové obrazovky nenahradia.",
-    "legacyLink": "Otvoriť pôvodnú ukážku"
+    "intro": "Prehľad klienta {{name}}",
+    "month": {
+      "label": "Mesiac",
+      "previous": "Predchádzajúci mesiac: {{month}}",
+      "next": "Nasledujúci mesiac: {{month}}"
+    },
+    "tiles": {
+      "label": "Ukazovatele mesiaca",
+      "uploaded": "Nahrané",
+      "waiting": "Čakajú na kontrolu",
+      "review": "Na kontrolu",
+      "failed": "Neúspešné",
+      "booked": "Zaúčtované",
+      "booked_total": "Suma zaúčtovaných"
+    },
+    "view": {
+      "label": "Zobrazenie: {{title}}",
+      "chart": "Graf",
+      "table": "Tabuľka"
+    },
+    "perDay": {
+      "title": "Zaúčtované podľa dní",
+      "day": "Deň",
+      "count": "Počet",
+      "total": "Suma",
+      "none": "V tomto mesiaci sa nič nezaúčtovalo.",
+      "summary_one": "Spolu {{count}} faktúra; najviac {{most}} dňa {{busiest}}.",
+      "summary_few": "Spolu {{count}} faktúry; najviac {{most}} dňa {{busiest}}.",
+      "summary_many": "Spolu {{count}} faktúr; najviac {{most}} dňa {{busiest}}.",
+      "summary_other": "Spolu {{count}} faktúr; najviac {{most}} dňa {{busiest}}."
+    },
+    "months": {
+      "title": "Zaúčtované za 12 mesiacov",
+      "month": "Mesiac",
+      "count": "Počet",
+      "total": "Suma",
+      "summary_one": "{{from}} – {{to}}: {{count}} faktúra za {{total}}.",
+      "summary_few": "{{from}} – {{to}}: {{count}} faktúry za {{total}}.",
+      "summary_many": "{{from}} – {{to}}: {{count}} faktúr za {{total}}.",
+      "summary_other": "{{from}} – {{to}}: {{count}} faktúr za {{total}}."
+    },
+    "count": "Počet",
+    "total": "Suma",
+    "noneBooked": "V tomto mesiaci sa nič nezaúčtovalo.",
+    "byType": {
+      "title": "Podľa druhu",
+      "series": "Rad",
+      "kind": "Druh",
+      "invoice": "Faktúra",
+      "creditNote": "Dobropis"
+    },
+    "suppliers": {
+      "count": "Najčastejší dodávatelia",
+      "amount": "Dodávatelia s najvyššou sumou",
+      "supplier": "Dodávateľ",
+      "ico": "IČO {{ico}}"
+    },
+    "units": {
+      "title": "Podľa útvaru (funkcie)",
+      "function": "Funkcia",
+      "name": "Názov",
+      "invoices": "Faktúr"
+    },
+    "review": {
+      "title": "Kontrola a čas",
+      "rate": "Podiel na kontrolu",
+      "median": "Medián od nahrania po zaúčtovanie",
+      "medianHint": "Za faktúry zaúčtované v mesiaci",
+      "of_one": "{{reviewed}} z {{count}} zaúčtovanej",
+      "of_few": "{{reviewed}} z {{count}} zaúčtovaných",
+      "of_many": "{{reviewed}} z {{count}} zaúčtovaných",
+      "of_other": "{{reviewed}} z {{count}} zaúčtovaných"
+    },
+    "duration": {
+      "days": "{{days}} d {{hours}} h",
+      "hours": "{{hours}} h {{minutes}} min",
+      "minutes": "{{minutes}} min"
+    },
+    "attention": {
+      "title": "Vyžaduje pozornosť",
+      "nothing": "Nič nečaká: všetky faktúry sú zaúčtované alebo vyradené.",
+      "warnings": "Upozornenia",
+      "listMissing": "Chýba číselník {{list}}",
+      "otherWarning": "Upozornenie: {{subject}}",
+      "codes": {
+        "knowledge_missing": "Pre tento rok chýba všeobecná znalostná báza"
+      },
+      "uploaded": "nahraná {{at}}",
+      "allFailed": "Všetky neprečítané faktúry",
+      "allWaiting": "Všetky čakajúce faktúry",
+      "failed": "Neprečítané ({{count}})",
+      "waiting": "Čakajú najdlhšie ({{count}})"
+    },
+    "series": {
+      "title": "Číselné rady {{year}}",
+      "series": "Rad",
+      "last": "Posledné",
+      "next": "Ďalšie",
+      "gaps": "Medzery",
+      "none": "Pre tento rok zatiaľ nie sú číselné rady.",
+      "open": "Číselné rady v Systéme"
+    },
+    "onboarding": {
+      "title": "Začíname",
+      "steps": {
+        "profile": "Doplňte adresu a bankový účet obce",
+        "codelists": "Importujte číselníky na rok {{year}}",
+        "health": "Odstráňte chyby v stave znalostí",
+        "first_booked": "Zaúčtujte prvú faktúru"
+      },
+      "done": "hotovo",
+      "todo": "zostáva",
+      "progress": "Hotové {{done}} zo {{all}} krokov."
+    },
+    "budget": {
+      "title": "Čerpanie rozpočtu {{year}}",
+      "summary": "Vyčerpané {{drawn}} z {{budgeted}}.",
+      "elsewhere": "Mimo rozpočtovaných položiek {{amount}}.",
+      "position": "Položka",
+      "budgeted": "Rozpočet",
+      "drawn": "Čerpanie",
+      "share": "Podiel",
+      "shareOf": "Čerpanie položky {{key}}"
+    },
+    "tableOf": "Tabuľka: {{title}}"
   },
   "comingSoon": {
     "text": "Táto obrazovka pribudne v jednej z ďalších etáp."
@@ -790,7 +911,7 @@
       "counts": "{{entries}} záznamov · chyby {{errors}} · upozornenia {{warnings}}",
       "continue": "Pokračovať",
       "show": "Zobraziť",
-      "openLabel": "Otvoriť import {{file}}"
+      "openLabel": "{{action}}: import {{file}}"
     },
     "exports": {
       "title": "Exporty",
@@ -1193,6 +1314,7 @@
         "due": "Splatná",
         "booking": "Zaúčtovaná",
         "uploaded": "Nahraná",
+        "booked": "Zaúčtovaná v aplikácii",
         "exported": "Exportovaná",
         "paid": "Uhradená"
       },

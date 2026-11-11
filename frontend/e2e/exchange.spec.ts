@@ -17,7 +17,7 @@ test('Importy a exporty and each step of the import wizard pass axe', async ({
 }) => {
   await loginAs(page, 'user');
   await openNav(page);
-  await page.getByRole('link', { name: 'Importy a exporty' }).click();
+  await page.getByRole('navigation').getByRole('link', { name: 'Importy a exporty' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Importy a exporty' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Šablóny mapovania' })).toBeVisible();
   await page.waitForLoadState('networkidle');

@@ -9,7 +9,7 @@ import { CUSTOMERS, SEED_PASSWORD, USERS } from './seed';
 // widths, so the ones that write use addresses of their own and fields nobody else checks.
 
 const CUSTOMER_ITEMS = ['Domov', 'Faktúry', 'Číselníky', 'Importy a exporty', 'Úložisko', 'Systém'];
-const BOTTOM = ['Pomocník', 'Profil', 'Pôvodná ukážka'];
+const BOTTOM = ['Pomocník', 'Profil'];
 
 const NAVBAR: Record<SeededRole, string[]> = {
   viewer: [...CUSTOMER_ITEMS, 'Správy', ...BOTTOM],
