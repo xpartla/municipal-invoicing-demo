@@ -34,6 +34,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { tokens } from '../app/theme';
+import { HelpTopicContext } from '../help/context';
+import type { ArticleId } from '../help/topics';
 import { useLogout, useMe, type Me } from '../features/identity/api';
 import {
   currentCustomerId,
@@ -41,6 +43,7 @@ import {
   worksAcrossCustomers,
 } from '../features/identity/capabilities';
 import { ColorSchemeToggle } from './ColorSchemeToggle';
+import { HelpButton } from './HelpButton';
 import { CustomerSwitcher } from './CustomerSwitcher';
 import { ImpersonationBanner } from './ImpersonationBanner';
 import { menuFor, type Section } from './menu';
@@ -85,147 +88,153 @@ function ShellFor({ me }: { me: Me }) {
   const params: { customerId?: string } = useParams({ strict: false });
   const customerId = currentCustomerId(me, params.customerId);
   const showSwitcher = worksAcrossCustomers(me) || me.customers.length > 1;
+  const [pageTopic, setPageTopic] = useState<ArticleId>();
 
   return (
-    <AppShell
-      header={{ height: tokens.headerHeight }}
-      navbar={{
-        width: collapsed ? COLLAPSED_WIDTH : tokens.navbarWidth,
-        breakpoint: 'sm',
-        collapsed: { mobile: !opened },
-      }}
-      padding="md"
-    >
-      <AppShell.Header>
-        <Group h="100%" px="md" justify="space-between" wrap="nowrap">
-          <Group gap="sm" wrap="nowrap">
-            <Burger
-              opened={opened}
-              onClick={toggle}
-              hiddenFrom="sm"
-              size="sm"
-              aria-label={t('shell.toggleNavigation')}
-            />
-            <Anchor component={Link} to="/" fw={700} size="lg" underline="never" onClick={close}>
-              {t('app.name')}
-            </Anchor>
-            <Text c="dimmed" size="sm" visibleFrom="md">
-              {t('app.tagline')}
-            </Text>
+    <HelpTopicContext.Provider value={setPageTopic}>
+      <AppShell
+        header={{ height: tokens.headerHeight }}
+        navbar={{
+          width: collapsed ? COLLAPSED_WIDTH : tokens.navbarWidth,
+          breakpoint: 'sm',
+          collapsed: { mobile: !opened },
+        }}
+        padding="md"
+      >
+        <AppShell.Header>
+          <Group h="100%" px="md" justify="space-between" wrap="nowrap">
+            <Group gap="sm" wrap="nowrap">
+              <Burger
+                opened={opened}
+                onClick={toggle}
+                hiddenFrom="sm"
+                size="sm"
+                aria-label={t('shell.toggleNavigation')}
+              />
+              <Anchor component={Link} to="/" fw={700} size="lg" underline="never" onClick={close}>
+                {t('app.name')}
+              </Anchor>
+              <Text c="dimmed" size="sm" visibleFrom="md">
+                {t('app.tagline')}
+              </Text>
+            </Group>
+            <Group gap="sm" wrap="nowrap">
+              <Text size="sm" visibleFrom="sm" truncate maw={240}>
+                {me.user.name}
+              </Text>
+              <HelpButton pageTopic={pageTopic} />
+              <ColorSchemeToggle />
+            </Group>
           </Group>
-          <Group gap="sm" wrap="nowrap">
-            <Text size="sm" visibleFrom="sm" truncate maw={240}>
-              {me.user.name}
-            </Text>
-            <ColorSchemeToggle />
-          </Group>
-        </Group>
-      </AppShell.Header>
+        </AppShell.Header>
 
-      <AppShell.Navbar p="sm" aria-label={t('shell.nav.label')}>
-        {showSwitcher && !collapsed && (
-          <AppShell.Section mb="sm">
-            <CustomerSwitcher me={me} customerId={customerId} onChosen={close} />
-          </AppShell.Section>
-        )}
-        <AppShell.Section>
-          {customerId && inCustomer(me, customerId, 'invoices.process') ? (
-            collapsed ? (
-              <Tooltip label={t('shell.newInvoice')} withArrow position="right">
-                <ActionIconLink
-                  size="xl"
+        <AppShell.Navbar p="sm" aria-label={t('shell.nav.label')}>
+          {showSwitcher && !collapsed && (
+            <AppShell.Section mb="sm">
+              <CustomerSwitcher me={me} customerId={customerId} onChosen={close} />
+            </AppShell.Section>
+          )}
+          <AppShell.Section>
+            {customerId && inCustomer(me, customerId, 'invoices.process') ? (
+              collapsed ? (
+                <Tooltip label={t('shell.newInvoice')} withArrow position="right">
+                  <ActionIconLink
+                    size="xl"
+                    to="/c/$customerId/invoices/new"
+                    params={{ customerId }}
+                    aria-label={t('shell.newInvoice')}
+                    onClick={close}
+                  >
+                    <IconFilePlus aria-hidden />
+                  </ActionIconLink>
+                </Tooltip>
+              ) : (
+                <ButtonLink
+                  fullWidth
+                  size="md"
                   to="/c/$customerId/invoices/new"
                   params={{ customerId }}
-                  aria-label={t('shell.newInvoice')}
+                  leftSection={<IconFilePlus size={20} aria-hidden />}
                   onClick={close}
                 >
-                  <IconFilePlus aria-hidden />
-                </ActionIconLink>
-              </Tooltip>
+                  {t('shell.newInvoice')}
+                </ButtonLink>
+              )
             ) : (
-              <ButtonLink
-                fullWidth
-                size="md"
-                to="/c/$customerId/invoices/new"
-                params={{ customerId }}
-                leftSection={<IconFilePlus size={20} aria-hidden />}
-                onClick={close}
+              <Tooltip
+                label={
+                  customerId ? t('shell.newInvoiceNotAllowed') : t('shell.newInvoiceNoCustomer')
+                }
+                withArrow
+                position="right"
               >
-                {t('shell.newInvoice')}
-              </ButtonLink>
-            )
-          ) : (
-            <Tooltip
-              label={customerId ? t('shell.newInvoiceNotAllowed') : t('shell.newInvoiceNoCustomer')}
-              withArrow
-              position="right"
-            >
-              {/* The wrapper keeps the tooltip working on the disabled button. */}
-              <div>
-                {collapsed ? (
-                  <ActionIcon size="xl" disabled aria-label={t('shell.newInvoice')}>
-                    <IconFilePlus aria-hidden />
-                  </ActionIcon>
-                ) : (
-                  <Button
-                    fullWidth
-                    size="md"
-                    disabled
-                    leftSection={<IconFilePlus size={20} aria-hidden />}
-                  >
-                    {t('shell.newInvoice')}
-                  </Button>
-                )}
-              </div>
-            </Tooltip>
-          )}
-        </AppShell.Section>
+                {/* The wrapper keeps the tooltip working on the disabled button. */}
+                <div>
+                  {collapsed ? (
+                    <ActionIcon size="xl" disabled aria-label={t('shell.newInvoice')}>
+                      <IconFilePlus aria-hidden />
+                    </ActionIcon>
+                  ) : (
+                    <Button
+                      fullWidth
+                      size="md"
+                      disabled
+                      leftSection={<IconFilePlus size={20} aria-hidden />}
+                    >
+                      {t('shell.newInvoice')}
+                    </Button>
+                  )}
+                </div>
+              </Tooltip>
+            )}
+          </AppShell.Section>
 
-        <AppShell.Section grow mt="md" component={ScrollArea}>
-          <Menu me={me} customerId={customerId} collapsed={collapsed} onNavigate={close} />
-        </AppShell.Section>
+          <AppShell.Section grow mt="md" component={ScrollArea}>
+            <Menu me={me} customerId={customerId} collapsed={collapsed} onNavigate={close} />
+          </AppShell.Section>
 
-        <AppShell.Section>
-          <Divider mb="xs" />
-          <Stack gap={2}>
-            <Item
-              to="/help"
-              icon={IconHelp}
-              label={t('shell.nav.help')}
-              collapsed={collapsed}
-              onNavigate={close}
-            />
-            <Item
-              to="/profile"
-              icon={IconUser}
-              label={t('shell.nav.profile')}
-              collapsed={collapsed}
-              onNavigate={close}
-            />
-            <LogoutItem collapsed={collapsed} />
-            <Group justify={collapsed ? 'center' : 'flex-end'} visibleFrom="sm" mt={4}>
-              <ActionIcon
-                variant="subtle"
-                color="gray"
-                aria-label={collapsed ? t('shell.expand') : t('shell.collapse')}
-                title={collapsed ? t('shell.expand') : t('shell.collapse')}
-                onClick={() => {
-                  setCollapsed(!collapsed);
-                  writeCollapsed(!collapsed);
-                }}
-              >
-                {collapsed ? <IconChevronsRight aria-hidden /> : <IconChevronsLeft aria-hidden />}
-              </ActionIcon>
-            </Group>
-          </Stack>
-        </AppShell.Section>
-      </AppShell.Navbar>
+          <AppShell.Section>
+            <Divider mb="xs" />
+            <Stack gap={2}>
+              <Item
+                to="/help"
+                icon={IconHelp}
+                label={t('shell.nav.help')}
+                collapsed={collapsed}
+                onNavigate={close}
+              />
+              <Item
+                to="/profile"
+                icon={IconUser}
+                label={t('shell.nav.profile')}
+                collapsed={collapsed}
+                onNavigate={close}
+              />
+              <LogoutItem collapsed={collapsed} />
+              <Group justify={collapsed ? 'center' : 'flex-end'} visibleFrom="sm" mt={4}>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  aria-label={collapsed ? t('shell.expand') : t('shell.collapse')}
+                  title={collapsed ? t('shell.expand') : t('shell.collapse')}
+                  onClick={() => {
+                    setCollapsed(!collapsed);
+                    writeCollapsed(!collapsed);
+                  }}
+                >
+                  {collapsed ? <IconChevronsRight aria-hidden /> : <IconChevronsLeft aria-hidden />}
+                </ActionIcon>
+              </Group>
+            </Stack>
+          </AppShell.Section>
+        </AppShell.Navbar>
 
-      <AppShell.Main>
-        <ImpersonationBanner me={me} />
-        <Outlet />
-      </AppShell.Main>
-    </AppShell>
+        <AppShell.Main>
+          <ImpersonationBanner me={me} />
+          <Outlet />
+        </AppShell.Main>
+      </AppShell>
+    </HelpTopicContext.Provider>
   );
 }
 

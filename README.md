@@ -295,6 +295,11 @@ FastAPI's own validation errors, 429 with `retry_after`, and an unknown `/api` p
 permission it needs; a generated test calls every route as every role and fails for a route
 without an entry or with a dependency that disagrees with it.
 
+Pomocník's articles are Markdown files in `frontend/src/help/sk/`, one per article, rendered
+with react-markdown (no raw HTML). `frontend/src/help/topics.ts` lists them with their role
+group and maps each route to the article its "?" opens; the unit tests fail when a route has
+no article, a file is not listed, or an article links to one that does not exist.
+
 ## Layout
 
 ```

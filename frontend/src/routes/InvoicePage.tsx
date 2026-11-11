@@ -65,6 +65,7 @@ import type { FieldPath } from '../features/invoices/FieldsForm';
 import { HistoryList } from '../features/invoices/HistoryList';
 import { ProposalCards, type Names } from '../features/invoices/ProposalCards';
 import type { InvoicePageSearch } from '../features/invoices/search';
+import { useHelpTopic } from '../help/context';
 import { ApiError } from '../lib/apiError';
 import { formatAmount, formatDate } from '../lib/format';
 import { useNotify } from '../lib/notify';
@@ -284,6 +285,7 @@ function InvoiceView({ customerId, invoice }: { customerId: string; invoice: Inv
       : checkable && fresh
         ? 'check'
         : 'proposal';
+  useHelpTopic(tab === 'check' || tab === 'fields' ? 'kontrola-udajov' : 'navrh');
   const goTab = (value: string | null) => {
     const next = tabs.find((name) => name === value);
     if (!next) return;

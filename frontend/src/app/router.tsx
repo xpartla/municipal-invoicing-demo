@@ -4,12 +4,12 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
   redirect,
   type RouteComponent,
   type RouterHistory,
 } from '@tanstack/react-router';
-import { useTranslation } from 'react-i18next';
 
 import { Shell } from '../components/Shell';
 import { meQuery, useMe, type Me } from '../features/identity/api';
@@ -35,7 +35,6 @@ import { homeSearch } from '../features/reporting/dashboard';
 import { overviewSearch, platformSearch } from '../features/reporting/overview';
 import { systemSearch } from '../features/system/search';
 import { CodelistsPage } from '../routes/CodelistsPage';
-import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
 import { ErrorPage } from '../routes/ErrorPage';
 import { ExchangePage } from '../routes/ExchangePage';
@@ -170,32 +169,6 @@ const customerRoute = createRoute({
   component: CustomerLayout,
 });
 
-type TitleKey =
-  | 'invoices'
-  | 'codelists'
-  | 'exchange'
-  | 'files'
-  | 'system'
-  | 'help'
-  | 'profile'
-  | 'providerOverview'
-  | 'users'
-  | 'platform'
-  | 'providers'
-  | 'globalCodelists'
-  | 'audit'
-  | 'jobs'
-  | 'outbox'
-  | 'evaluation';
-
-/** A "Pripravujeme" page titled like its menu item. */
-function soon(key: TitleKey) {
-  return function Soon() {
-    const { t } = useTranslation();
-    return <ComingSoonPage title={t(`shell.nav.${key}`)} />;
-  };
-}
-
 /** Renders `Page` when the caller may see it, the 403 page otherwise. */
 function guarded(allowed: (me: Me) => boolean, Page: RouteComponent) {
   return function Guarded() {
@@ -265,7 +238,14 @@ const appRoutes = [
   indexRoute,
   customerRoute.addChildren(customerRoutes),
   page('/messages', MessagesPage),
-  page('/help', soon('help')),
+  page(
+    '/help',
+    lazyRouteComponent(() => import('../routes/HelpPage'), 'HelpPage'),
+  ),
+  page(
+    '/help/$articleId',
+    lazyRouteComponent(() => import('../routes/HelpArticlePage'), 'HelpArticlePage'),
+  ),
   page('/profile', ProfilePage),
   createRoute({
     getParentRoute: () => appRoute,

@@ -126,8 +126,7 @@
       "evaluation": "Vyhodnotenie",
       "help": "Pomocník",
       "profile": "Profil",
-      "logout": "Odhlásiť",
-      "soon": "Pripravujeme"
+      "logout": "Odhlásiť"
     },
     "section": {
       "customer": "Klient",
@@ -283,11 +282,25 @@
     },
     "tableOf": "Tabuľka: {{title}}"
   },
-  "comingSoon": {
-    "text": "Táto obrazovka pribudne v jednej z ďalších etáp."
-  },
   "messages": {
     "text": "Pripravujeme: správy a upozornenia od servisného účtu a administrátora."
+  },
+  "help": {
+    "title": "Pomocník",
+    "intro": "Návody k práci v programe. Návod k obrazovke, na ktorej práve ste, otvorí aj otáznik vpravo hore.",
+    "groups": {
+      "customer": "Spracovanie faktúr",
+      "staff": "Pre servisné účty",
+      "admin": "Pre administrátorov"
+    },
+    "button": "Pomocník k tejto obrazovke",
+    "panelTitle": "Pomocník",
+    "openPage": "Otvoriť ako stránku",
+    "all": "Všetky návody",
+    "back": "Pomocník",
+    "table": "Tabuľka v návode",
+    "notFound": "Návod sa nenašiel",
+    "notFoundText": "Taký návod v Pomocníkovi nie je. Vyberte si zo zoznamu."
   },
   "forbidden": {
     "title": "Prístup zamietnutý",

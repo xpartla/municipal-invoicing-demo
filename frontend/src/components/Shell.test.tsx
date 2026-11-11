@@ -150,11 +150,15 @@ describe('guards', () => {
     ).toBeInTheDocument();
   });
 
-  it('a later screen opens a Pripravujeme page', async () => {
+  it('Pomocník in the navbar opens the help centre', async () => {
     mockApi({ 'GET /api/me': { body: meAs('admin') } });
-    await renderApp('/help');
-    expect(screen.getByRole('heading', { level: 1, name: 'Pomocník' })).toBeInTheDocument();
-    expect(screen.getByText('Pripravujeme')).toBeInTheDocument();
+    const { router } = await renderApp('/admin/outbox');
+    await userEvent.click(within(nav()).getByRole('link', { name: 'Pomocník' }));
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/help');
+    });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Pomocník' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Pre administrátorov' })).toBeVisible();
   });
 
   it('Správy is a placeholder for everyone', async () => {
