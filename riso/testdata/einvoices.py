@@ -591,7 +591,9 @@ def expected_document(document: InvoiceDocument, family: Family) -> InvoiceDocum
     handwritten note; the address as `street, PSČ city`; `vat_payer` as the format states it;
     units through UN/ECE codes (UBL); a UBL line carries no VAT and no gross (Peppol has
     neither), a non-payer's lines and totals only their gross, and a line without a quantity
-    no unit price. `id`, `ocr_meta` and `intake` are the reader's and are not compared."""
+    no unit price; ISDOC's bank details need a due date, so a case paid by transfer without
+    one has its issue date. `id`, `ocr_meta` and `intake` are the reader's and are not
+    compared."""
     payer = vat_payer(document)
     lines = []
     for line in document.lines:
@@ -621,6 +623,10 @@ def expected_document(document: InvoiceDocument, family: Family) -> InvoiceDocum
             else None,
         }
     )
+    header = document.invoice
+    paid_by_transfer = document.supplier.iban or header.variable_symbol
+    if family == "isdoc" and header.due_date is None and paid_by_transfer:
+        header = header.model_copy(update={"due_date": header.issue_date})
     totals = document.totals
     if not payer:
         totals = totals.model_copy(update={"net": None, "vat": None, "vat_rates": []})
@@ -630,6 +636,7 @@ def expected_document(document: InvoiceDocument, family: Family) -> InvoiceDocum
             "handwritten": document.handwritten.model_copy(update={"date": None, "number": None}),
             "totals": totals.model_copy(update={"vat_rates": sorted(totals.vat_rates)}),
             "lines": lines,
+            "invoice": header,
         }
     )
 
