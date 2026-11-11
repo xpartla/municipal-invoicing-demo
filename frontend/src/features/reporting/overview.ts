@@ -21,6 +21,7 @@ export function useProviderOverview(providerId: string | undefined, month: strin
       ),
     enabled: providerId !== undefined,
     placeholderData: keepPreviousData,
+    refetchOnMount: 'always',
   });
 }
 
@@ -29,6 +30,7 @@ export function usePlatformCounts(month: string) {
     queryKey: ['platform-counts', month],
     queryFn: () => unwrap(api.GET('/api/admin/overview', { params: { query: { month } } })),
     placeholderData: keepPreviousData,
+    refetchOnMount: 'always',
   });
 }
 

@@ -62,6 +62,8 @@ export function useDashboard(customerId: string, month: string) {
         }),
       ),
     placeholderData: keepPreviousData,
+    // A summary of what other screens change: fresh whenever Domov opens.
+    refetchOnMount: 'always',
   });
 }
 

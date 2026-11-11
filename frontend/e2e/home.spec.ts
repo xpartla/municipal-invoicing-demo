@@ -12,8 +12,8 @@ test('Domov with its tiles, charts and tables passes axe', async ({ page, checkA
   await page.goto(`${customerPath}?month=2026-01`);
   const tiles = page.getByRole('list', { name: 'Ukazovatele mesiaca' });
   await expect(tiles.getByRole('link', { name: /Nahrané\s*74/ })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Začíname' })).toBeVisible();
-  await expect(page.getByRole('region', { name: 'Vyžaduje pozornosť' })).toContainText(
+  await expect(page.getByRole('region', { name: 'Začíname', exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Vyžaduje pozornosť', exact: true })).toContainText(
     'Čakajú najdlhšie (74)',
   );
   await expect(
@@ -27,12 +27,12 @@ test('Domov with its tiles, charts and tables passes axe', async ({ page, checkA
   await page.emulateMedia({ colorScheme: 'light' });
 
   // Nothing is booked yet: the charts give their summary alone.
-  await expect(page.getByRole('region', { name: 'Zaúčtované podľa dní' })).toContainText(
-    'V tomto mesiaci sa nič nezaúčtovalo.',
-  );
-  await expect(page.getByRole('region', { name: 'Zaúčtované za 12 mesiacov' })).toContainText(
-    'február 2025 – január 2026: 0 faktúr za 0,00',
-  );
+  await expect(
+    page.getByRole('region', { name: 'Zaúčtované podľa dní', exact: true }),
+  ).toContainText('V tomto mesiaci sa nič nezaúčtovalo.');
+  await expect(
+    page.getByRole('region', { name: 'Zaúčtované za 12 mesiacov', exact: true }),
+  ).toContainText('február 2025 – január 2026: 0 faktúr za 0,00');
 
   // A tile opens the invoice table with its filter.
   await tiles.getByRole('link', { name: /Na kontrolu/ }).click();
