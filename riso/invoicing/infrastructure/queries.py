@@ -78,6 +78,7 @@ def _conditions(customer_id: str, f: InvoiceFilter) -> list[ColumnElement[bool]]
     for instant, start, end in (
         (InvoiceRow.uploaded_at, f.uploaded_from, f.uploaded_to),
         (InvoiceRow.exported_at, f.exported_from, f.exported_to),
+        (InvoiceRow.booked_at, f.booked_from, f.booked_to),
     ):
         if start is not None:
             found.append(instant >= day_start(start))

@@ -90,11 +90,11 @@ describe('the login page', () => {
     expect(calls.filter((c) => c.method === 'POST')).toEqual([]);
   });
 
-  it('a logged-in caller is sent on', async () => {
+  it('a logged-in caller is sent on: an admin to Platforma', async () => {
     mockApi({ 'GET /api/me': { body: meAs('admin') } });
     const { router } = await renderApp('/login');
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/users');
+      expect(router.state.location.pathname).toBe('/admin');
     });
   });
 });

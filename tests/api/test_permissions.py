@@ -72,8 +72,6 @@ def access_of(route) -> list[RouteAccess]:
 
 def test_each_route_declares_the_access_of_its_entry(tmp_path):
     for route in api_routes(create_app(Settings(var_dir=tmp_path))):
-        if route.name.startswith("legacy."):
-            continue  # the demo's routes have no access dependency until P2-M4
         assert access_of(route) == [MATRIX[route.name]], route.name
 
 
@@ -88,8 +86,6 @@ def test_public_routes_answer_an_anonymous_caller(tmp_path):
             continue
         path = route.path.replace("{entity}", "00305863").replace("{invoice_id}", "none")
         for method in route.methods:
-            if route.name == "legacy.eval":
-                continue  # runs the whole evaluation; covered by test_api.py
             client.cookies.update(csrf)
             headers = {"X-CSRF-Token": "t0k3n"}
             status = client.request(method, path, json={}, headers=headers).status_code
@@ -201,8 +197,6 @@ def test_the_permission_matrix(app, services, world):
 
     failures, checked = [], 0
     for route in api_routes(app):
-        if route.name.startswith("legacy."):
-            continue
         access = MATRIX[route.name]
         for target in ("own", "foreign"):
             if target == "foreign" and access.scope not in (Scope.CUSTOMER, Scope.PROVIDER):

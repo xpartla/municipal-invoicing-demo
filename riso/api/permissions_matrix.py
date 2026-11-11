@@ -7,7 +7,8 @@ role × route × own/foreign customer matrix from this table.
 
 Each route declares its access with one dependency from `riso.api.deps` (`customer_context`
 and the others), and the matrix test checks that the dependency and the entry agree. The
-two routes kept from the demo (`legacy.code`, `legacy.eval`) are `public`, as they were.
+two routes kept from the demo (the stateless coding and the evaluation report) are admin tools
+since P2-M7 (plan §2 decision 67).
 """
 
 from dataclasses import dataclass
@@ -137,8 +138,16 @@ MATRIX: dict[str, RouteAccess] = {
     "extraction.retry": customer(Permission.INVOICES_PROCESS),
     # Úložisko: the customer's files.
     "files.list": customer(Permission.CUSTOMER_READ),
+    "dashboard.get": customer(Permission.CUSTOMER_READ),
+    "providers.overview": provider(Permission.PROVIDER_OVERVIEW),
+    "admin.overview": platform(Permission.PLATFORM_OVERVIEW),
     # jobs
     "jobs.get_customer": customer(Permission.CUSTOMER_READ),
+    "jobs.list": platform(Permission.JOBS_MANAGE),
+    "jobs.retry": platform(Permission.JOBS_MANAGE),
+    "jobs.cancel": platform(Permission.JOBS_MANAGE),
+    "jobs.file": platform(Permission.CUSTOMER_DATA_EXPORT),
+    "data_export.start": platform(Permission.CUSTOMER_DATA_EXPORT),
     # Code lists.
     "codelists.health": customer(Permission.CUSTOMER_READ),
     "codelists.overview": customer(Permission.CUSTOMER_READ),
@@ -200,9 +209,10 @@ MATRIX: dict[str, RouteAccess] = {
     "providers.remove": platform(Permission.PROVIDERS_MANAGE),
     "providers.add_staff": platform(Permission.PROVIDERS_MANAGE),
     "providers.remove_staff": platform(Permission.PROVIDERS_MANAGE),
-    # Kept from the demo (P2-M4-T10): the committed bundle's coding and the evaluation's report.
-    "legacy.code": public(),
-    "legacy.eval": public(),
+    # Kept from the demo (P2-M4-T10), admins only since P2-M7: the committed bundle's coding and
+    # the evaluation's report.
+    "evaluation.code": platform(Permission.EVALUATION_READ),
+    "evaluation.get": platform(Permission.EVALUATION_READ),
 }
 
 

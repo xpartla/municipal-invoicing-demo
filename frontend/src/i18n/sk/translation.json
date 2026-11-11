@@ -127,8 +127,7 @@
       "help": "Pomocník",
       "profile": "Profil",
       "logout": "Odhlásiť",
-      "soon": "Pripravujeme",
-      "legacyDemo": "Pôvodná ukážka"
+      "soon": "Pripravujeme"
     },
     "section": {
       "customer": "Klient",
@@ -158,9 +157,131 @@
   },
   "home": {
     "title": "Domov",
-    "intro": "Prehľad klienta {{name}} s počtami faktúr a grafmi pribudne v jednej z ďalších etáp.",
-    "legacy": "Doterajšia ukážka s návrhmi zaúčtovania zostáva dostupná, kým ju nové obrazovky nenahradia.",
-    "legacyLink": "Otvoriť pôvodnú ukážku"
+    "intro": "Prehľad klienta {{name}}",
+    "month": {
+      "label": "Mesiac",
+      "previous": "Predchádzajúci mesiac: {{month}}",
+      "next": "Nasledujúci mesiac: {{month}}"
+    },
+    "tiles": {
+      "label": "Ukazovatele mesiaca",
+      "uploaded": "Nahrané",
+      "waiting": "Čakajú na kontrolu",
+      "review": "Na kontrolu",
+      "failed": "Neúspešné",
+      "booked": "Zaúčtované",
+      "booked_total": "Suma zaúčtovaných"
+    },
+    "view": {
+      "label": "Zobrazenie: {{title}}",
+      "chart": "Graf",
+      "table": "Tabuľka"
+    },
+    "perDay": {
+      "title": "Zaúčtované podľa dní",
+      "day": "Deň",
+      "count": "Počet",
+      "total": "Suma",
+      "none": "V tomto mesiaci sa nič nezaúčtovalo.",
+      "summary_one": "Spolu {{count}} faktúra; najviac {{most}} dňa {{busiest}}.",
+      "summary_few": "Spolu {{count}} faktúry; najviac {{most}} dňa {{busiest}}.",
+      "summary_many": "Spolu {{count}} faktúr; najviac {{most}} dňa {{busiest}}.",
+      "summary_other": "Spolu {{count}} faktúr; najviac {{most}} dňa {{busiest}}."
+    },
+    "months": {
+      "title": "Zaúčtované za 12 mesiacov",
+      "month": "Mesiac",
+      "count": "Počet",
+      "total": "Suma",
+      "summary_one": "{{from}} – {{to}}: {{count}} faktúra za {{total}}.",
+      "summary_few": "{{from}} – {{to}}: {{count}} faktúry za {{total}}.",
+      "summary_many": "{{from}} – {{to}}: {{count}} faktúr za {{total}}.",
+      "summary_other": "{{from}} – {{to}}: {{count}} faktúr za {{total}}."
+    },
+    "count": "Počet",
+    "total": "Suma",
+    "noneBooked": "V tomto mesiaci sa nič nezaúčtovalo.",
+    "byType": {
+      "title": "Podľa druhu",
+      "series": "Rad",
+      "kind": "Druh",
+      "invoice": "Faktúra",
+      "creditNote": "Dobropis"
+    },
+    "suppliers": {
+      "count": "Najčastejší dodávatelia",
+      "amount": "Dodávatelia s najvyššou sumou",
+      "supplier": "Dodávateľ",
+      "ico": "IČO {{ico}}"
+    },
+    "units": {
+      "title": "Podľa útvaru (funkcie)",
+      "function": "Funkcia",
+      "name": "Názov",
+      "invoices": "Faktúr"
+    },
+    "review": {
+      "title": "Kontrola a čas",
+      "rate": "Podiel na kontrolu",
+      "median": "Medián od nahrania po zaúčtovanie",
+      "medianHint": "Za faktúry zaúčtované v mesiaci",
+      "of_one": "{{reviewed}} z {{count}} zaúčtovanej",
+      "of_few": "{{reviewed}} z {{count}} zaúčtovaných",
+      "of_many": "{{reviewed}} z {{count}} zaúčtovaných",
+      "of_other": "{{reviewed}} z {{count}} zaúčtovaných"
+    },
+    "duration": {
+      "days": "{{days}} d {{hours}} h",
+      "hours": "{{hours}} h {{minutes}} min",
+      "minutes": "{{minutes}} min"
+    },
+    "attention": {
+      "title": "Vyžaduje pozornosť",
+      "nothing": "Nič nečaká: všetky faktúry sú zaúčtované alebo vyradené.",
+      "warnings": "Upozornenia",
+      "listMissing": "Chýba číselník {{list}}",
+      "otherWarning": "Upozornenie: {{subject}}",
+      "codes": {
+        "knowledge_missing": "Pre tento rok chýba všeobecná znalostná báza"
+      },
+      "uploaded": "nahraná {{at}}",
+      "allFailed": "Všetky neprečítané faktúry",
+      "allWaiting": "Všetky čakajúce faktúry",
+      "failed": "Neprečítané ({{count}})",
+      "waiting": "Čakajú najdlhšie ({{count}})"
+    },
+    "series": {
+      "title": "Číselné rady {{year}}",
+      "series": "Rad",
+      "last": "Posledné",
+      "next": "Ďalšie",
+      "gaps": "Medzery",
+      "none": "Pre tento rok zatiaľ nie sú číselné rady.",
+      "open": "Číselné rady v Systéme"
+    },
+    "onboarding": {
+      "title": "Začíname",
+      "steps": {
+        "profile": "Doplňte adresu a bankový účet obce",
+        "codelists": "Importujte číselníky na rok {{year}}",
+        "health": "Odstráňte chyby v stave znalostí",
+        "first_booked": "Zaúčtujte prvú faktúru"
+      },
+      "done": "hotovo",
+      "todo": "zostáva",
+      "progress": "Hotové {{done}} zo {{all}} krokov."
+    },
+    "budget": {
+      "title": "Čerpanie rozpočtu {{year}}",
+      "summary": "Vyčerpané {{drawn}} z {{budgeted}}.",
+      "elsewhere": "Mimo rozpočtovaných položiek {{amount}}.",
+      "position": "Položka",
+      "budgeted": "Rozpočet",
+      "drawn": "Čerpanie",
+      "share": "Podiel",
+      "shareOf": "Čerpanie položky {{key}}"
+    },
+    "tableOf": "Tabuľka: {{title}}"
   },
   "comingSoon": {
     "text": "Táto obrazovka pribudne v jednej z ďalších etáp."
@@ -703,6 +824,7 @@
   "exchange": {
     "title": "Importy a exporty",
     "newImport": "Nový import",
+    "newExport": "Nový export",
     "types": {
       "accounts": "Účtový rozvrh",
       "budget_expense": "Výdavkový rozpočet",
@@ -790,7 +912,7 @@
       "counts": "{{entries}} záznamov · chyby {{errors}} · upozornenia {{warnings}}",
       "continue": "Pokračovať",
       "show": "Zobraziť",
-      "openLabel": "Otvoriť import {{file}}"
+      "openLabel": "{{action}}: import {{file}}"
     },
     "exports": {
       "title": "Exporty",
@@ -1193,6 +1315,7 @@
         "due": "Splatná",
         "booking": "Zaúčtovaná",
         "uploaded": "Nahraná",
+        "booked": "Zaúčtovaná v aplikácii",
         "exported": "Exportovaná",
         "paid": "Uhradená"
       },
@@ -1737,5 +1860,251 @@
     "gross": "Spolu",
     "payable": "Na úhradu",
     "notes": "Poznámky"
+  },
+  "overview": {
+    "title": "Prehľad klientov",
+    "provider": "Servisný účet",
+    "totals": "Súčty za všetkých klientov",
+    "table": "Klienti",
+    "empty": "Servisný účet zatiaľ nemá klientov.",
+    "noProviders": "Zatiaľ nie je žiadny servisný účet.",
+    "ico": "IČO {{ico}}",
+    "never": "zatiaľ nič",
+    "listsReady": "Pripravené",
+    "listsMissing": "Chýbajú",
+    "columns": {
+      "customers": "Klienti",
+      "customer": "Klient",
+      "uploaded": "Nahrané",
+      "waiting": "Čakajú na kontrolu",
+      "review": "Na kontrolu",
+      "failed": "Neúspešné",
+      "booked": "Zaúčtované",
+      "last_activity": "Posledná činnosť",
+      "codelists": "Číselníky na rok",
+      "missing_lists": "Bez číselníkov",
+      "open_imports": "Otvorené importy"
+    },
+    "openImports_one": "{{count}} otvorený import klienta {{name}}",
+    "openImports_few": "{{count}} otvorené importy klienta {{name}}",
+    "openImports_many": "{{count}} otvorených importov klienta {{name}}",
+    "openImports_other": "{{count}} otvorených importov klienta {{name}}"
+  },
+  "platform": {
+    "title": "Platforma",
+    "counts": "Počty",
+    "tiles": {
+      "providers": "Servisné účty",
+      "customers": "Klienti",
+      "users": "Používatelia",
+      "invoices": "Faktúry nahrané v mesiaci",
+      "ocr_pages": "Strany prečítané OCR",
+      "failed_jobs": "Neúspešné úlohy",
+      "logins": "Prihlásenia za 7 dní",
+      "unsent_mail": "Neodoslané e-maily"
+    },
+    "hints": {
+      "logins_one": "{{count}} používateľ",
+      "logins_few": "{{count}} používatelia",
+      "logins_many": "{{count}} používateľov",
+      "logins_other": "{{count}} používateľov"
+    }
+  },
+  "audit": {
+    "title": "Audit",
+    "table": "Záznamy auditu",
+    "empty": "Filtrom nezodpovedá žiadny záznam.",
+    "realActor": "v skutočnosti {{name}}",
+    "filters": {
+      "actor": "Kto",
+      "customer": "Klient",
+      "action": "Akcia",
+      "actionHint": "Celá akcia, alebo začiatok s bodkou: invoice.",
+      "from": "Od",
+      "to": "Do",
+      "apply": "Hľadať",
+      "clear": "Zrušiť filtre"
+    },
+    "columns": {
+      "at": "Kedy",
+      "action": "Akcia",
+      "actor": "Kto",
+      "customer": "Klient",
+      "target": "Čoho sa týka",
+      "details": "Podrobnosti",
+      "ip": "IP adresa"
+    },
+    "count_one": "{{count}} záznam",
+    "count_few": "{{count}} záznamy",
+    "count_many": "{{count}} záznamov",
+    "count_other": "{{count}} záznamov"
+  },
+  "jobs": {
+    "title": "Úlohy",
+    "table": "Úlohy na pozadí",
+    "empty": "Filtrom nezodpovedá žiadna úloha.",
+    "retry": "Spustiť znova",
+    "cancel": "Zrušiť",
+    "retryJob": "Spustiť znova úlohu {{kind}}",
+    "cancelJob": "Zrušiť úlohu {{kind}}",
+    "download": "Stiahnuť export údajov klienta {{name}}",
+    "zip": "ZIP",
+    "attempts": "{{attempts}} z {{max}}",
+    "done": {
+      "retry": "Úloha {{kind}} pôjde znova.",
+      "cancel": "Úloha {{kind}} je zrušená."
+    },
+    "filters": {
+      "status": "Stav",
+      "kind": "Druh"
+    },
+    "columns": {
+      "created": "Vytvorená",
+      "kind": "Druh",
+      "customer": "Klient",
+      "by": "Spustil",
+      "status": "Stav",
+      "attempts": "Pokusy",
+      "error": "Posledná chyba",
+      "actions": "Akcie"
+    },
+    "statuses": {
+      "queued": "Čaká",
+      "running": "Beží",
+      "succeeded": "Hotová",
+      "failed": "Neúspešná",
+      "cancelled": "Zrušená"
+    },
+    "kinds": {
+      "extract_document": "Čítanie dokladu",
+      "import_dry_run": "Skúška importu",
+      "import_apply": "Import",
+      "export_build": "Export faktúr",
+      "customer_copy": "Kópia klienta",
+      "data_export": "Export údajov klienta",
+      "noop": "Skúšobná úloha"
+    },
+    "export": {
+      "title": "Export údajov klienta",
+      "intro": "Všetky údaje jedného klienta v ZIP súbore: riadky každej tabuľky ako JSON (aj jeho používatelia bez hesiel a záznamy auditu) a jeho súbory. Slúži na žiadosti o prístup k údajom. Export sa zaznamená do auditu.",
+      "customer": "Klient",
+      "start": "Exportovať údaje",
+      "started": "Export sa pripravuje; keď bude hotový, stiahnete ho z tabuľky nižšie."
+    },
+    "count_one": "{{count}} úloha",
+    "count_few": "{{count}} úlohy",
+    "count_many": "{{count}} úloh",
+    "count_other": "{{count}} úloh"
+  },
+  "evaluation": {
+    "title": "Vyhodnotenie",
+    "intro": "Návrhy programu porovnané s očakávaným zaúčtovaním vymyslených faktúr.",
+    "split": "Sada",
+    "splits": {
+      "heldout": "Testovacia sada",
+      "seed": "Syntetická sada",
+      "anchor": "Skeny"
+    },
+    "refresh": "Prepočítať",
+    "computing": "Počítam…",
+    "memory": {
+      "online": "pamäť dodávateľov rastie faktúru po faktúre v poradí zaúčtovania",
+      "frozen_one": "pamäť dodávateľov z {{count}} skenu a syntetickej faktúry, testovacie ju nemenia",
+      "frozen_few": "pamäť dodávateľov z {{count}} skenov a syntetických faktúr, testovacie ju nemenia",
+      "frozen_many": "pamäť dodávateľov z {{count}} skenov a syntetických faktúr, testovacie ju nemenia",
+      "frozen_other": "pamäť dodávateľov z {{count}} skenov a syntetických faktúr, testovacie ju nemenia"
+    },
+    "targets": "Ciele",
+    "met": "splnený",
+    "notMet": "nesplnený",
+    "target": "cieľ {{value}}",
+    "metricsTitle": "Ukazovatele",
+    "metric": "Ukazovateľ",
+    "value": "Hodnota",
+    "count": "Počet",
+    "of": "{{hits}} z {{n}}",
+    "groupsTitle": "Podľa dodávateľa a druhu faktúry",
+    "group": "Skupina",
+    "known": "Známy dodávateľ",
+    "new": "Nový dodávateľ",
+    "columns": {
+      "correct": "Správne",
+      "full_key": "Položka",
+      "ek": "EK",
+      "md": "MD",
+      "review_rate": "Na kontrolu",
+      "silent_errors": "Tiché chyby"
+    },
+    "casesTitle": "Faktúry",
+    "filter": "Ktoré faktúry",
+    "filters": {
+      "wrong": "Chybné",
+      "silent": "Tiché chyby",
+      "review": "Na kontrolu",
+      "all": "Všetky"
+    },
+    "noCases": "Žiadne faktúry v tomto filtri.",
+    "case": "Faktúra",
+    "expected": "Očakávané",
+    "proposed": "Navrhnuté",
+    "result": "Výsledok",
+    "manual": "ručné zaúčtovanie",
+    "noProposal": "bez návrhu",
+    "correct": "správne",
+    "wrong": "chybné",
+    "review": "na kontrolu",
+    "noReview": "bez kontroly",
+    "metrics": {
+      "correct": "Celý výsledok správne",
+      "full_key": "Celá rozpočtová položka",
+      "full_line": "Položka, MD aj DAL",
+      "ek": "Ekonomická klasifikácia (EK)",
+      "zdroj": "Zdroj",
+      "cofog": "Oddiel a trieda",
+      "analytika": "Analytika",
+      "md": "Účet MD",
+      "dal": "Účet DAL",
+      "top3": "Správna položka medzi prvými tromi",
+      "split": "Počet riadkov",
+      "manual_entry": "Dobropisy na ručné zaúčtovanie",
+      "validation": "Platné kódy",
+      "document_number": "Číslo dokladu",
+      "booking_date": "Dátum zaúčtovania",
+      "review_rate": "Podiel na kontrolu",
+      "review_precision": "Označené na kontrolu a naozaj chybné",
+      "review_recall": "Chybné a označené na kontrolu",
+      "silent_errors": "Tiché chyby (chybné bez kontroly)",
+      "expected_review": "Očakávané označenie na kontrolu"
+    },
+    "tags": {
+      "energy": "energie",
+      "water": "voda",
+      "telecom": "telekomunikácie",
+      "post": "pošta",
+      "waste": "odpad",
+      "fuel": "palivo",
+      "materials": "materiál",
+      "it": "IT",
+      "insurance": "poistenie",
+      "membership": "členské",
+      "training": "školenia",
+      "repairs": "opravy",
+      "services": "služby",
+      "rent": "nájom",
+      "events": "podujatia",
+      "kindergarten": "materská škola",
+      "canteen": "školská jedáleň",
+      "capital": "kapitálové",
+      "split": "rozdelenie",
+      "credit-note": "dobropis",
+      "grant": "dotácia",
+      "ocr-noise": "chyba OCR",
+      "ambiguous": "nejasný text",
+      "precedent-trap": "iný nákup známeho dodávateľa"
+    },
+    "about_one": "{{count}} faktúra, {{memory}}. Výpočet {{at}}, dáta {{digest}}.",
+    "about_few": "{{count}} faktúry, {{memory}}. Výpočet {{at}}, dáta {{digest}}.",
+    "about_many": "{{count}} faktúr, {{memory}}. Výpočet {{at}}, dáta {{digest}}.",
+    "about_other": "{{count}} faktúr, {{memory}}. Výpočet {{at}}, dáta {{digest}}."
   }
 }

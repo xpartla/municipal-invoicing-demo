@@ -1,12 +1,25 @@
-import { ActionIcon, Anchor, Badge, Group, Loader, Stack, Table, Text, Title } from '@mantine/core';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  ActionIcon,
+  Anchor,
+  Badge,
+  Button,
+  Group,
+  Loader,
+  Stack,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
+import { IconFileExport, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Pager } from '../components/Pager';
+import { ExportDialog } from '../features/invoices/ExportDialog';
 import { ExportHistory } from '../features/invoices/ExportHistory';
+import type { ExportScope } from '../features/invoices/api';
 import { AnchorLink, ButtonLink } from '../components/RouterLinks';
 import { ScrollTable } from '../components/ScrollTable';
 import {
@@ -33,9 +46,13 @@ const STATE_COLORS: Record<ImportRun['state'], string> = {
   cancelled: 'gray',
 };
 
+/** What "Nový export" exports: the booked invoices not exported yet, by booking date. A
+ * selection or another filter is exported from Faktúry. */
+const NEW_EXPORT: ExportScope = { filter: { state: ['booked'] }, sort: 'booking_date' };
+
 /** Importy a exporty (plan §10.7): the customer's import runs with their state, report and
- * file; "Nový import"; the export runs with their files (P2-M4); the mapping templates the
- * customer may use. */
+ * file; "Nový import" and "Nový export"; the export runs with their files (P2-M4); the mapping
+ * templates the customer may use. */
 export function ExchangePage() {
   const { t } = useTranslation();
   const { customerId } = useParams({ from: '/_app/c/$customerId' });
@@ -45,21 +62,36 @@ export function ExchangePage() {
   const runs = useImports(owner, page, SIZE);
   const canImport = me ? inCustomer(me, customerId, 'codelists.edit') : false;
   const canUseTemplates = me ? inCustomer(me, customerId, 'templates.use') : false;
+  const canExport = me ? inCustomer(me, customerId, 'invoices.process') : false;
+  const [exporting, setExporting] = useState<ExportScope | null>(null);
 
   return (
     <Stack gap="lg">
       <Group justify="space-between" align="flex-end">
         <Title order={1}>{t('exchange.title')}</Title>
-        {canImport && (
-          <ButtonLink
-            to="/c/$customerId/exchange/import"
-            params={{ customerId }}
-            search={{}}
-            leftSection={<IconPlus size={16} aria-hidden />}
-          >
-            {t('exchange.newImport')}
-          </ButtonLink>
-        )}
+        <Group gap="sm">
+          {canImport && (
+            <ButtonLink
+              to="/c/$customerId/exchange/import"
+              params={{ customerId }}
+              search={{}}
+              leftSection={<IconPlus size={16} aria-hidden />}
+            >
+              {t('exchange.newImport')}
+            </ButtonLink>
+          )}
+          {canExport && (
+            <Button
+              variant="default"
+              leftSection={<IconFileExport size={16} aria-hidden />}
+              onClick={() => {
+                setExporting(NEW_EXPORT);
+              }}
+            >
+              {t('exchange.newExport')}
+            </Button>
+          )}
+        </Group>
       </Group>
       <Stack gap="sm">
         <Title order={2} size="h3">
@@ -96,7 +128,7 @@ export function ExchangePage() {
                         </Anchor>
                       </Table.Td>
                       <Table.Td>
-                        <Badge color={STATE_COLORS[run.state]} variant="light">
+                        <Badge color={STATE_COLORS[run.state]}>
                           {t(`exchange.states.${run.state}`)}
                         </Badge>
                       </Table.Td>
@@ -115,7 +147,13 @@ export function ExchangePage() {
                             to="/c/$customerId/exchange/import"
                             params={{ customerId }}
                             search={{ run: run.id }}
-                            aria-label={t('exchange.history.openLabel', { file: run.file.name })}
+                            aria-label={t('exchange.history.openLabel', {
+                              action:
+                                run.state === 'applied'
+                                  ? t('exchange.history.show')
+                                  : t('exchange.history.continue'),
+                              file: run.file.name,
+                            })}
                           >
                             {run.state === 'applied'
                               ? t('exchange.history.show')
@@ -133,6 +171,13 @@ export function ExchangePage() {
         )}
       </Stack>
       <ExportHistory customerId={customerId} />
+      <ExportDialog
+        customerId={customerId}
+        scope={exporting}
+        onClose={() => {
+          setExporting(null);
+        }}
+      />
       {canUseTemplates && <Templates customerId={customerId} />}
     </Stack>
   );

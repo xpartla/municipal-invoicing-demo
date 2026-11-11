@@ -1,4 +1,5 @@
 import {
+  Alert,
   Badge,
   createTheme,
   localStorageColorSchemeManager,
@@ -47,6 +48,11 @@ export const theme = createTheme({
   // Mantine's default (0.3) gave white text on blue.6 at 3.6:1.
   luminanceThreshold: 0.179,
   components: {
+    // A light alert's title is drawn in its colour; yellow on the pale yellow background is
+    // 1.9:1. The title takes the text colour; the border and the icon keep the alert's.
+    Alert: Alert.extend({
+      styles: { title: { color: 'var(--mantine-color-text)' } },
+    }),
     Badge: Badge.extend({
       defaultProps: { variant: 'filled' },
       // A filled gray badge is gray.7 in light and gray.5 in dark, either side of the

@@ -8,7 +8,7 @@ import { loginAs, openNav } from './pages/login';
 test('the invoice detail passes axe in each of its parts', async ({ page, checkA11y }) => {
   await loginAs(page, 'user');
   await openNav(page);
-  await page.getByRole('link', { name: 'Faktúry' }).click();
+  await page.getByRole('navigation').getByRole('link', { name: 'Faktúry' }).click();
   await page.getByRole('textbox', { name: 'Hľadať' }).fill('8390051427');
   const table = page.getByRole('region', { name: 'Tabuľka faktúr' });
   await expect(table.getByRole('row')).toHaveCount(2);

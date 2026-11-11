@@ -48,8 +48,11 @@ export function currentCustomerId(me: Me, fromUrl: string | undefined): string |
   return undefined;
 }
 
-/** Where a login lands (plan §2 decision 53). */
+/** Where a login lands (plan §2 decision 67): admins on Platforma, staff on Prehľad
+ * klientov, customer users on their customer's Domov. */
 export function landingPath(me: Me): string | undefined {
+  if (onPlatform(me, 'platform.overview')) return '/admin';
+  if (seesProviderScreens(me)) return '/provider';
   if (worksAcrossCustomers(me)) return '/users';
   const first = me.customers[0];
   return first ? `/c/${first.id}` : undefined;

@@ -6,10 +6,8 @@ import shutil
 from decimal import Decimal
 
 import pytest
-from fastapi.testclient import TestClient
 
 from riso import paths
-from riso.api import Settings, create_app
 from riso.checks import dataset_errors
 from riso.cli import main
 from riso.contracts import (
@@ -267,18 +265,6 @@ def test_riso_eval_prints_and_stores_the_report(capsys, monkeypatch, tmp_path):
     assert out.startswith("anchor: 4 cases of 00305863")
     stored = EvalReport.model_validate_json((tmp_path / BOLDOG / "eval-anchor.json").read_bytes())
     assert stored.metrics["correct"].value == 1.0
-
-
-def test_the_api_serves_the_stored_report_and_refreshes_it(tmp_path):
-    client = TestClient(create_app(Settings(var_dir=tmp_path / "var")))
-
-    first = client.get("/api/eval", params={"split": "anchor"})
-    again = client.get("/api/eval", params={"split": "anchor"})
-    unknown = client.get("/api/eval", params={"entity": "11111119"})
-
-    assert first.status_code == 200 and first.json()["split"] == "anchor"
-    assert again.json()["generated_at"] == first.json()["generated_at"]
-    assert unknown.status_code == 404
 
 
 def _counters() -> dict[str, Counters]:

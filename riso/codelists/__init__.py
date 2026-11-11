@@ -6,6 +6,7 @@ application API), never its domain, infrastructure or api modules. See plan §4.
 
 from riso.codelists.application import (
     BUNDLES,
+    BudgetAmountView,
     BundleCache,
     BundleEntity,
     CandidateEntry,
@@ -27,9 +28,13 @@ from riso.codelists.application import (
     copy_lists,
     customer_findings,
     customer_knowledge,
+    expense_budget,
+    function_names,
     get_conventions,
     global_lists,
+    health_errors,
     knowledge_health,
+    missing_required_lists,
     parse_conventions,
     reference_bundle,
     set_conventions,
@@ -38,6 +43,11 @@ from riso.codelists.application import (
 from riso.codelists.domain import HealthCode, HealthFinding, HealthSeverity
 
 __all__ = [
+    "BudgetAmountView",
+    "expense_budget",
+    "function_names",
+    "health_errors",
+    "missing_required_lists",
     "copy_conventions",
     "copy_lists",
     "CandidateEntry",

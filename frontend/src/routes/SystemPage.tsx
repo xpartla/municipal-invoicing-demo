@@ -1,5 +1,5 @@
 import { Group, Select, Stack, Tabs, Title } from '@mantine/core';
-import { useParams } from '@tanstack/react-router';
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -10,8 +10,7 @@ import { inCustomer } from '../features/identity/capabilities';
 import { ConventionsEditor } from '../features/system/ConventionsEditor';
 import { HealthView } from '../features/system/HealthView';
 import { ParametersForm } from '../features/system/ParametersForm';
-
-type Tab = 'parameters' | 'conventions' | 'series' | 'health';
+import { SYSTEM_TABS, type SystemTab } from '../features/system/search';
 
 /**
  * Systém (plan §10.7): the customer's parameters, its coding conventions and the knowledge
@@ -24,7 +23,15 @@ export function SystemPage() {
   const { data: me } = useMe();
   const thisYear = new Date().getFullYear();
   const [year, setYear] = useState(thisYear);
-  const [tab, setTab] = useState<Tab>('parameters');
+  const search = useSearch({ from: '/_app/c/$customerId/system' });
+  const navigate = useNavigate({ from: '/c/$customerId/system' });
+  const tab: SystemTab = search.tab ?? 'parameters';
+  const setTab = (chosen: SystemTab) => {
+    void navigate({
+      search: { tab: chosen === 'parameters' ? undefined : chosen },
+      replace: true,
+    });
+  };
   const overview = useListsOverview(customerId, year);
   const canEdit = me ? inCustomer(me, customerId, 'codelists.edit') : false;
   const years = [...new Set([...(overview.data?.years ?? []), thisYear, thisYear + 1])].sort(
@@ -48,7 +55,8 @@ export function SystemPage() {
       <Tabs
         value={tab}
         onChange={(value) => {
-          if (value) setTab(value as Tab);
+          const chosen = SYSTEM_TABS.find((t) => t === value);
+          if (chosen) setTab(chosen);
         }}
         keepMounted={false}
       >

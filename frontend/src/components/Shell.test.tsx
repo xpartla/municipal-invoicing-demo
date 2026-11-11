@@ -19,7 +19,7 @@ function menuLinks() {
 }
 
 const CUSTOMER_ITEMS = ['Domov', 'Faktúry', 'Číselníky', 'Importy a exporty', 'Úložisko', 'Systém'];
-const BOTTOM = ['Pomocník', 'Profil', 'Pôvodná ukážka'];
+const BOTTOM = ['Pomocník', 'Profil'];
 
 describe('the navbar per role', () => {
   it('a customer user sees the customer items and Správy, and lands on its Domov', async () => {
@@ -50,11 +50,11 @@ describe('the navbar per role', () => {
     );
   });
 
-  it('staff land on Používatelia and get the customer items once a customer is chosen', async () => {
+  it('staff land on Prehľad klientov and get the customer items once a customer is chosen', async () => {
     mockApi({ 'GET /api/me': { body: meAs('staff') } });
     const { router } = await renderApp('/');
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/users');
+      expect(router.state.location.pathname).toBe('/provider');
     });
     expect(menuLinks()).toEqual(['Správy', 'Prehľad klientov', 'Používatelia', ...BOTTOM]);
     await router.navigate({ to: '/c/$customerId', params: { customerId: BOLDOG.id } });
@@ -152,8 +152,8 @@ describe('guards', () => {
 
   it('a later screen opens a Pripravujeme page', async () => {
     mockApi({ 'GET /api/me': { body: meAs('admin') } });
-    await renderApp('/admin/jobs');
-    expect(screen.getByRole('heading', { level: 1, name: 'Úlohy' })).toBeInTheDocument();
+    await renderApp('/help');
+    expect(screen.getByRole('heading', { level: 1, name: 'Pomocník' })).toBeInTheDocument();
     expect(screen.getByText('Pripravujeme')).toBeInTheDocument();
   });
 

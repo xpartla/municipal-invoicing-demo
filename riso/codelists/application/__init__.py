@@ -31,10 +31,22 @@ from riso.codelists.application.imports import (
     check_import,
 )
 from riso.codelists.application.lists import EntryChangeView, EntryView, VersionView
+from riso.codelists.application.reporting import (
+    BudgetAmountView,
+    expense_budget,
+    function_names,
+    health_errors,
+    missing_required_lists,
+)
 from riso.codelists.application.seeding import versions_from_bundle
 from riso.codelists.application.uow import CodelistsUnitOfWork
 
 __all__ = [
+    "BudgetAmountView",
+    "expense_budget",
+    "function_names",
+    "health_errors",
+    "missing_required_lists",
     "copy_conventions",
     "copy_lists",
     "CandidateEntry",

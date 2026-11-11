@@ -70,6 +70,20 @@ from riso.invoicing.application.state import (
     restore_state,
     supplier_memory,
 )
+from riso.invoicing.application.statistics import (
+    BOOKED_STATES,
+    OPEN_STATES,
+    BookedWindow,
+    CustomerCounts,
+    InvoiceFact,
+    InvoiceFacts,
+    InvoiceStatistics,
+    LineFact,
+    StatisticsUnitOfWork,
+    customer_counts,
+    invoice_facts,
+    invoices_uploaded,
+)
 from riso.invoicing.application.uow import InvoicingUnitOfWork, SeriesPatterns
 from riso.invoicing.application.views import (
     BookingResult,
@@ -82,6 +96,18 @@ from riso.invoicing.application.views import (
 )
 
 __all__ = [
+    "BOOKED_STATES",
+    "OPEN_STATES",
+    "BookedWindow",
+    "CustomerCounts",
+    "InvoiceFact",
+    "InvoiceFacts",
+    "InvoiceStatistics",
+    "LineFact",
+    "StatisticsUnitOfWork",
+    "customer_counts",
+    "invoice_facts",
+    "invoices_uploaded",
     "awaits_extraction",
     "complete_extraction",
     "counter_hint",
