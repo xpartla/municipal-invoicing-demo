@@ -2202,6 +2202,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/providers/{provider_id}/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Providers.Overview
+         * @description Prehľad klientov: the provider's customers with their month's numbers.
+         */
+        get: operations["providers.overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Admin.Overview
+         * @description Platforma: the platform's counts.
+         */
+        get: operations["admin.overview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit": {
         parameters: {
             query?: never;
@@ -4557,6 +4597,77 @@ export interface components {
             /** Total */
             total: number;
         };
+        /** OverviewRowOut */
+        OverviewRowOut: {
+            /** Customer Id */
+            customer_id: string;
+            /** Name */
+            name: string;
+            /** Ico */
+            ico: string;
+            /**
+             * Uploaded
+             * @description Invoices uploaded in the month
+             */
+            uploaded: number;
+            /**
+             * Waiting
+             * @description Of those, waiting for the check step
+             */
+            waiting: number;
+            /**
+             * Review
+             * @description Of those, needing review
+             */
+            review: number;
+            /**
+             * Failed
+             * @description Of those, whose extraction failed
+             */
+            failed: number;
+            /**
+             * Booked
+             * @description Booked in the month
+             */
+            booked: number;
+            /**
+             * Last Activity
+             * @description The customer's latest audit event
+             */
+            last_activity: string | null;
+            /**
+             * Missing Lists
+             * @description Lists the engine needs that are missing for the month's year
+             */
+            missing_lists: string[];
+            /**
+             * Open Imports
+             * @description Import runs not applied or cancelled
+             */
+            open_imports: number;
+        };
+        /** OverviewTotalsOut */
+        OverviewTotalsOut: {
+            /** Customers */
+            customers: number;
+            /** Uploaded */
+            uploaded: number;
+            /** Waiting */
+            waiting: number;
+            /** Review */
+            review: number;
+            /** Failed */
+            failed: number;
+            /** Booked */
+            booked: number;
+            /**
+             * Missing Lists
+             * @description Customers missing a list
+             */
+            missing_lists: number;
+            /** Open Imports */
+            open_imports: number;
+        };
         /** PaidIn */
         PaidIn: {
             /**
@@ -4590,7 +4701,7 @@ export interface components {
          * Permission
          * @enum {string}
          */
-        Permission: "customer.read" | "invoices.process" | "codelists.edit" | "templates.use" | "templates.create_customer" | "customer.edit_contact" | "customer.edit_identity" | "customer.assign_variable_number" | "logins.manage" | "customers.delete" | "templates.create_provider" | "customers.create" | "provider.overview" | "templates.create_global" | "providers.manage" | "users.delete" | "users.administer" | "users.impersonate" | "codelists.global" | "audit.read" | "jobs.manage" | "outbox.read" | "evaluation.read" | "customer.data_export" | "account.own";
+        Permission: "customer.read" | "invoices.process" | "codelists.edit" | "templates.use" | "templates.create_customer" | "customer.edit_contact" | "customer.edit_identity" | "customer.assign_variable_number" | "logins.manage" | "customers.delete" | "templates.create_provider" | "customers.create" | "provider.overview" | "templates.create_global" | "platform.overview" | "providers.manage" | "users.delete" | "users.administer" | "users.impersonate" | "codelists.global" | "audit.read" | "jobs.manage" | "outbox.read" | "evaluation.read" | "customer.data_export" | "account.own";
         /**
          * PlacementOut
          * @description The number a booking gets, or would get, and the invoices it moves up (decision 61).
@@ -4610,6 +4721,56 @@ export interface components {
             moved: boolean;
             /** Shifts */
             shifts: components["schemas"]["ShiftOut"][];
+        };
+        /**
+         * PlatformCountsOut
+         * @description Platforma (plan §10.9).
+         */
+        PlatformCountsOut: {
+            /** Month */
+            month: string;
+            /**
+             * Providers
+             * @description Active service providers
+             */
+            providers: number;
+            /**
+             * Customers
+             * @description Active customers
+             */
+            customers: number;
+            /**
+             * Users
+             * @description Invited and active users
+             */
+            users: number;
+            /**
+             * Invoices
+             * @description Uploaded in the month
+             */
+            invoices: number;
+            /**
+             * Ocr Pages
+             * @description Pages read by OCR in the month
+             */
+            ocr_pages: number;
+            /** Failed Jobs */
+            failed_jobs: number;
+            /**
+             * Logins
+             * @description Logins in the last 7 days
+             */
+            logins: number;
+            /**
+             * Login Users
+             * @description Different users among them
+             */
+            login_users: number;
+            /**
+             * Unsent Mail
+             * @description Outbox messages not sent
+             */
+            unsent_mail: number;
         };
         /**
          * PostingLine
@@ -4680,12 +4841,6 @@ export interface components {
             created_at: string;
             /** Removed At */
             removed_at: string | null;
-        };
-        /** ProviderOverviewOut */
-        ProviderOverviewOut: {
-            provider: components["schemas"]["ProviderOut"];
-            /** Customers */
-            customers: components["schemas"]["CustomerOut"][];
         };
         /**
          * ProviderStatus
@@ -5371,6 +5526,27 @@ export interface components {
             import_type: components["schemas"]["ImportType"];
             /** Year */
             year: number;
+        };
+        /**
+         * ProviderOverviewOut
+         * @description Prehľad klientov (plan §10.8): the totals, then one row per active customer.
+         */
+        riso__reporting__api__routes__ProviderOverviewOut: {
+            /** Provider Id */
+            provider_id: string;
+            /** Provider Name */
+            provider_name: string;
+            /** Month */
+            month: string;
+            totals: components["schemas"]["OverviewTotalsOut"];
+            /** Rows */
+            rows: components["schemas"]["OverviewRowOut"][];
+        };
+        /** ProviderOverviewOut */
+        riso__tenancy__api__models__ProviderOverviewOut: {
+            provider: components["schemas"]["ProviderOut"];
+            /** Customers */
+            customers: components["schemas"]["CustomerOut"][];
         };
     };
     responses: never;
@@ -6325,7 +6501,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ProviderOverviewOut"];
+                    "application/json": components["schemas"]["riso__tenancy__api__models__ProviderOverviewOut"];
                 };
             };
             /** @description Validation Error */
@@ -9497,6 +9673,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "providers.overview": {
+        parameters: {
+            query?: {
+                /** @description `2026-11`; default: now */
+                month?: string | null;
+            };
+            header?: never;
+            path: {
+                provider_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["riso__reporting__api__routes__ProviderOverviewOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "admin.overview": {
+        parameters: {
+            query?: {
+                /** @description `2026-11`; default: now */
+                month?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformCountsOut"];
                 };
             };
             /** @description Validation Error */

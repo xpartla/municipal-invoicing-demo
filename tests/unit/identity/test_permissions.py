@@ -108,8 +108,10 @@ PLAN_5_2 = [
     ),
     ("Impersonate a user (not another admin)", [P.USERS_IMPERSONATE], ("–", "–", "–", "✓")),
     (
+        # Plan §10.9 adds Platforma, the platform's counts.
         "Global code lists, audit log, jobs, mail outbox, evaluation, data export per customer",
         [
+            P.PLATFORM_OVERVIEW,
             P.GLOBAL_CODELISTS,
             P.AUDIT_READ,
             P.JOBS_MANAGE,

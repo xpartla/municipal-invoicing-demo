@@ -8,6 +8,7 @@ infrastructure.
 """
 
 from riso.api.adapters import CodelistSeriesPatterns, UowPrecedents, UserLogins, UserNames
+from riso.api.overview import SqlOverviewReads
 from riso.audit.infrastructure.log import SqlAuditLog, SqlAuditRecorder
 from riso.codelists.infrastructure.uow import SqlCodelistsUnitOfWork
 from riso.exchange.infrastructure.repository import (
@@ -55,6 +56,7 @@ class AppUnitOfWork(
     precedents: UowPrecedents
     invoice_queries: SqlInvoiceQueries
     invoice_statistics: SqlInvoiceStatistics
+    overview_reads: SqlOverviewReads
     people: UserNames
 
     def __init__(
@@ -94,4 +96,5 @@ class AppUnitOfWork(
         self.precedents = UowPrecedents(self)
         self.invoice_queries = SqlInvoiceQueries(self.session)
         self.invoice_statistics = SqlInvoiceStatistics(self.session)
+        self.overview_reads = SqlOverviewReads(self.session)
         self.people = UserNames(self.users)

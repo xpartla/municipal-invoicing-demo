@@ -16,6 +16,7 @@ from riso.tenancy.application import (
     copy_parameters,
     customer_directory,
     get_customer,
+    get_provider,
     list_providers,
 )
 
@@ -30,5 +31,6 @@ __all__ = [
     "copy_parameters",
     "customer_directory",
     "get_customer",
+    "get_provider",
     "list_providers",
 ]

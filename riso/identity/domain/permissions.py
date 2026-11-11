@@ -62,6 +62,8 @@ class Permission(StrEnum):
 
     # Checked on the platform.
     TEMPLATES_CREATE_GLOBAL = "templates.create_global"
+    PLATFORM_OVERVIEW = "platform.overview"
+    """The platform's counts (Platforma)."""
     PROVIDERS_MANAGE = "providers.manage"
     """Create and remove providers; add and remove staff; assign and unassign customers."""
     USERS_DELETE = "users.delete"

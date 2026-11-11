@@ -6,7 +6,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Query
 from pydantic import BaseModel, ConfigDict, Field
 
-from riso.api.deps import Caller, ServicesDep, check_csrf, customer_context
+from riso.api.deps import (
+    Caller,
+    ServicesDep,
+    check_csrf,
+    customer_context,
+    platform_context,
+    provider_context,
+)
 from riso.contracts.base import BookingAmount
 from riso.identity import Permission
 from riso.reporting.application import (
@@ -14,8 +21,12 @@ from riso.reporting.application import (
     FileKind,
     FileListing,
     Month,
+    PlatformCountsView,
+    ProviderOverviewView,
     customer_dashboard,
     list_files,
+    platform_counts,
+    provider_overview,
 )
 from riso.shared.clock import local_date
 from riso.shared.errors import ValidationFailed
@@ -285,22 +296,136 @@ class DashboardOut(_Out):
         )
 
 
+MonthQuery = Annotated[
+    str | None, Query(pattern=r"^\d{4}-(0[1-9]|1[0-2])$", description="`2026-11`; default: now")
+]
+
+
+def _month(services: ServicesDep, month: str | None) -> Month:
+    try:
+        return Month.parse(month) if month else Month.of(local_date(services.clock.now()))
+    except ValueError as exc:
+        raise ValidationFailed.on("month", str(exc)) from exc
+
+
 @router.get("/customers/{customer_id}/dashboard", name="dashboard.get")
 def dashboard(
     caller: Annotated[Caller, Depends(customer_context(Permission.CUSTOMER_READ))],
     services: ServicesDep,
     customer_id: str,
-    month: Annotated[
-        str | None, Query(pattern=r"^\d{4}-(0[1-9]|1[0-2])$", description="`2026-11`; default: now")
-    ] = None,
+    month: MonthQuery = None,
 ) -> DashboardOut:
     """Domov's numbers for a month (plan §10.2): the tiles, the charts and tables, the
     budget drawdown, what needs attention and the onboarding checklist."""
-    try:
-        chosen = Month.parse(month) if month else Month.of(local_date(services.clock.now()))
-    except ValueError as exc:
-        raise ValidationFailed.on("month", str(exc)) from exc
     view = customer_dashboard(
-        caller.ctx, lambda: services.uow(immediate=False), customer_id, chosen
+        caller.ctx, lambda: services.uow(immediate=False), customer_id, _month(services, month)
     )
     return DashboardOut.of(view)
+
+
+class OverviewRowOut(_Out):
+    customer_id: str
+    name: str
+    ico: str
+    uploaded: int = Field(description="Invoices uploaded in the month")
+    waiting: int = Field(description="Of those, waiting for the check step")
+    review: int = Field(description="Of those, needing review")
+    failed: int = Field(description="Of those, whose extraction failed")
+    booked: int = Field(description="Booked in the month")
+    last_activity: datetime | None = Field(description="The customer's latest audit event")
+    missing_lists: list[str] = Field(
+        description="Lists the engine needs that are missing for the month's year"
+    )
+    open_imports: int = Field(description="Import runs not applied or cancelled")
+
+
+class OverviewTotalsOut(_Out):
+    customers: int
+    uploaded: int
+    waiting: int
+    review: int
+    failed: int
+    booked: int
+    missing_lists: int = Field(description="Customers missing a list")
+    open_imports: int
+
+
+class ProviderOverviewOut(_Out):
+    """Prehľad klientov (plan §10.8): the totals, then one row per active customer."""
+
+    provider_id: str
+    provider_name: str
+    month: str
+    totals: OverviewTotalsOut
+    rows: list[OverviewRowOut]
+
+    @classmethod
+    def of(cls, view: ProviderOverviewView) -> "ProviderOverviewOut":
+        return cls(
+            provider_id=view.provider_id,
+            provider_name=view.provider_name,
+            month=view.month,
+            totals=OverviewTotalsOut.model_validate(view.totals, from_attributes=True),
+            rows=[
+                OverviewRowOut(
+                    customer_id=r.customer_id,
+                    name=r.name,
+                    ico=r.ico,
+                    uploaded=r.uploaded,
+                    waiting=r.waiting,
+                    review=r.review,
+                    failed=r.failed,
+                    booked=r.booked,
+                    last_activity=r.last_activity,
+                    missing_lists=list(r.missing_lists),
+                    open_imports=r.open_imports,
+                )
+                for r in view.rows
+            ],
+        )
+
+
+class PlatformCountsOut(_Out):
+    """Platforma (plan §10.9)."""
+
+    month: str
+    providers: int = Field(description="Active service providers")
+    customers: int = Field(description="Active customers")
+    users: int = Field(description="Invited and active users")
+    invoices: int = Field(description="Uploaded in the month")
+    ocr_pages: int = Field(description="Pages read by OCR in the month")
+    failed_jobs: int
+    logins: int = Field(description="Logins in the last 7 days")
+    login_users: int = Field(description="Different users among them")
+    unsent_mail: int = Field(description="Outbox messages not sent")
+
+    @classmethod
+    def of(cls, view: PlatformCountsView) -> "PlatformCountsOut":
+        return cls.model_validate(view, from_attributes=True)
+
+
+@router.get("/providers/{provider_id}/overview", name="providers.overview")
+def overview(
+    caller: Annotated[Caller, Depends(provider_context(Permission.PROVIDER_OVERVIEW))],
+    services: ServicesDep,
+    provider_id: str,
+    month: MonthQuery = None,
+) -> ProviderOverviewOut:
+    """Prehľad klientov: the provider's customers with their month's numbers."""
+    view = provider_overview(
+        caller.ctx, lambda: services.uow(immediate=False), provider_id, _month(services, month)
+    )
+    return ProviderOverviewOut.of(view)
+
+
+@router.get("/admin/overview", name="admin.overview")
+def platform(
+    caller: Annotated[Caller, Depends(platform_context(Permission.PLATFORM_OVERVIEW))],
+    services: ServicesDep,
+    month: MonthQuery = None,
+) -> PlatformCountsOut:
+    """Platforma: the platform's counts."""
+    view = platform_counts(
+        caller.ctx, lambda: services.uow(immediate=False), _month(services, month)
+    )
+    return PlatformCountsOut.of(view)

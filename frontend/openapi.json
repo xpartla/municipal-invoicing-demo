@@ -1275,7 +1275,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProviderOverviewOut"
+                  "$ref": "#/components/schemas/riso__tenancy__api__models__ProviderOverviewOut"
                 }
               }
             }
@@ -7249,6 +7249,121 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DashboardOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/providers/{provider_id}/overview": {
+      "get": {
+        "tags": [
+          "reporting"
+        ],
+        "summary": "Providers.Overview",
+        "description": "Prehľad klientov: the provider's customers with their month's numbers.",
+        "operationId": "providers.overview",
+        "parameters": [
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`2026-11`; default: now",
+              "title": "Month"
+            },
+            "description": "`2026-11`; default: now"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/riso__reporting__api__routes__ProviderOverviewOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/overview": {
+      "get": {
+        "tags": [
+          "reporting"
+        ],
+        "summary": "Admin.Overview",
+        "description": "Platforma: the platform's counts.",
+        "operationId": "admin.overview",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`2026-11`; default: now",
+              "title": "Month"
+            },
+            "description": "`2026-11`; default: now"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlatformCountsOut"
                 }
               }
             }
@@ -14367,6 +14482,139 @@
         ],
         "title": "OutboxPageOut"
       },
+      "OverviewRowOut": {
+        "properties": {
+          "customer_id": {
+            "type": "string",
+            "title": "Customer Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "ico": {
+            "type": "string",
+            "title": "Ico"
+          },
+          "uploaded": {
+            "type": "integer",
+            "title": "Uploaded",
+            "description": "Invoices uploaded in the month"
+          },
+          "waiting": {
+            "type": "integer",
+            "title": "Waiting",
+            "description": "Of those, waiting for the check step"
+          },
+          "review": {
+            "type": "integer",
+            "title": "Review",
+            "description": "Of those, needing review"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed",
+            "description": "Of those, whose extraction failed"
+          },
+          "booked": {
+            "type": "integer",
+            "title": "Booked",
+            "description": "Booked in the month"
+          },
+          "last_activity": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Activity",
+            "description": "The customer's latest audit event"
+          },
+          "missing_lists": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Lists",
+            "description": "Lists the engine needs that are missing for the month's year"
+          },
+          "open_imports": {
+            "type": "integer",
+            "title": "Open Imports",
+            "description": "Import runs not applied or cancelled"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customer_id",
+          "name",
+          "ico",
+          "uploaded",
+          "waiting",
+          "review",
+          "failed",
+          "booked",
+          "last_activity",
+          "missing_lists",
+          "open_imports"
+        ],
+        "title": "OverviewRowOut"
+      },
+      "OverviewTotalsOut": {
+        "properties": {
+          "customers": {
+            "type": "integer",
+            "title": "Customers"
+          },
+          "uploaded": {
+            "type": "integer",
+            "title": "Uploaded"
+          },
+          "waiting": {
+            "type": "integer",
+            "title": "Waiting"
+          },
+          "review": {
+            "type": "integer",
+            "title": "Review"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed"
+          },
+          "booked": {
+            "type": "integer",
+            "title": "Booked"
+          },
+          "missing_lists": {
+            "type": "integer",
+            "title": "Missing Lists",
+            "description": "Customers missing a list"
+          },
+          "open_imports": {
+            "type": "integer",
+            "title": "Open Imports"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "customers",
+          "uploaded",
+          "waiting",
+          "review",
+          "failed",
+          "booked",
+          "missing_lists",
+          "open_imports"
+        ],
+        "title": "OverviewTotalsOut"
+      },
       "PaidIn": {
         "properties": {
           "paid_on": {
@@ -14438,6 +14686,7 @@
           "customers.create",
           "provider.overview",
           "templates.create_global",
+          "platform.overview",
           "providers.manage",
           "users.delete",
           "users.administer",
@@ -14492,6 +14741,74 @@
         ],
         "title": "PlacementOut",
         "description": "The number a booking gets, or would get, and the invoices it moves up (decision 61)."
+      },
+      "PlatformCountsOut": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "providers": {
+            "type": "integer",
+            "title": "Providers",
+            "description": "Active service providers"
+          },
+          "customers": {
+            "type": "integer",
+            "title": "Customers",
+            "description": "Active customers"
+          },
+          "users": {
+            "type": "integer",
+            "title": "Users",
+            "description": "Invited and active users"
+          },
+          "invoices": {
+            "type": "integer",
+            "title": "Invoices",
+            "description": "Uploaded in the month"
+          },
+          "ocr_pages": {
+            "type": "integer",
+            "title": "Ocr Pages",
+            "description": "Pages read by OCR in the month"
+          },
+          "failed_jobs": {
+            "type": "integer",
+            "title": "Failed Jobs"
+          },
+          "logins": {
+            "type": "integer",
+            "title": "Logins",
+            "description": "Logins in the last 7 days"
+          },
+          "login_users": {
+            "type": "integer",
+            "title": "Login Users",
+            "description": "Different users among them"
+          },
+          "unsent_mail": {
+            "type": "integer",
+            "title": "Unsent Mail",
+            "description": "Outbox messages not sent"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "providers",
+          "customers",
+          "users",
+          "invoices",
+          "ocr_pages",
+          "failed_jobs",
+          "logins",
+          "login_users",
+          "unsent_mail"
+        ],
+        "title": "PlatformCountsOut",
+        "description": "Platforma (plan §10.9)."
       },
       "PostingLine": {
         "properties": {
@@ -14713,26 +15030,6 @@
           "removed_at"
         ],
         "title": "ProviderOut"
-      },
-      "ProviderOverviewOut": {
-        "properties": {
-          "provider": {
-            "$ref": "#/components/schemas/ProviderOut"
-          },
-          "customers": {
-            "items": {
-              "$ref": "#/components/schemas/CustomerOut"
-            },
-            "type": "array",
-            "title": "Customers"
-          }
-        },
-        "type": "object",
-        "required": [
-          "provider",
-          "customers"
-        ],
-        "title": "ProviderOverviewOut"
       },
       "ProviderStatus": {
         "type": "string",
@@ -16515,6 +16812,63 @@
           "year"
         ],
         "title": "Body_imports.upload"
+      },
+      "riso__reporting__api__routes__ProviderOverviewOut": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "title": "Provider Id"
+          },
+          "provider_name": {
+            "type": "string",
+            "title": "Provider Name"
+          },
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/OverviewTotalsOut"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/OverviewRowOut"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provider_id",
+          "provider_name",
+          "month",
+          "totals",
+          "rows"
+        ],
+        "title": "ProviderOverviewOut",
+        "description": "Prehľad klientov (plan §10.8): the totals, then one row per active customer."
+      },
+      "riso__tenancy__api__models__ProviderOverviewOut": {
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/ProviderOut"
+          },
+          "customers": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerOut"
+            },
+            "type": "array",
+            "title": "Customers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "customers"
+        ],
+        "title": "ProviderOverviewOut"
       }
     }
   }
