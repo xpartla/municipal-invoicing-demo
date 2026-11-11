@@ -1,11 +1,9 @@
 import {
   ActionIcon,
-  Alert,
   Anchor,
   Badge,
   Button,
   Group,
-  Loader,
   Paper,
   Select,
   Stack,
@@ -36,6 +34,7 @@ import { useUsers } from '../../features/identity/api';
 import { useDirectory } from '../../features/tenancy/api';
 import { formatDateTime, formatSize } from '../../lib/format';
 import { useNotify } from '../../lib/notify';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 const STATUS_COLORS: Record<JobStatus, string> = {
   queued: 'gray',
@@ -111,8 +110,8 @@ export function JobsPage() {
           w={240}
         />
       </Group>
-      {found.isPending && <Loader aria-label={t('common.loading')} />}
-      {found.isError && <Alert color="red">{t('common.error')}</Alert>}
+      {found.isPending && <Loading />}
+      {found.isError && <LoadFailed error={found.error} onRetry={found.refetch} />}
       {found.data && (
         <>
           <Text size="sm">{t('jobs.count', { count: found.data.total })}</Text>

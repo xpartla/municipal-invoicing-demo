@@ -19,6 +19,7 @@ const NOTICES = {
   'password-set': 'auth.login.passwordSet',
   'email-changed': 'auth.login.emailChanged',
   'logged-out': 'auth.login.loggedOut',
+  'session-expired': 'auth.login.sessionExpired',
 } as const;
 
 export function LoginPage() {
@@ -59,7 +60,9 @@ export function LoginPage() {
   const notice = search.notice && search.notice in NOTICES ? NOTICES[search.notice] : undefined;
   return (
     <AuthCard title={t('auth.login.title')}>
-      {notice && <Alert color="green">{t(notice)}</Alert>}
+      {notice && (
+        <Alert color={search.notice === 'session-expired' ? 'yellow' : 'green'}>{t(notice)}</Alert>
+      )}
       <form onSubmit={(event) => void submit(event)} noValidate>
         <Stack gap="sm">
           {errors.root?.message && (

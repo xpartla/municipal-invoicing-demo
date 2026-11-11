@@ -1,15 +1,4 @@
-import {
-  ActionIcon,
-  Anchor,
-  Badge,
-  Button,
-  Group,
-  Loader,
-  Stack,
-  Table,
-  Text,
-  Title,
-} from '@mantine/core';
+import { ActionIcon, Anchor, Badge, Button, Group, Stack, Table, Text, Title } from '@mantine/core';
 import { IconFileExport, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useParams } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -34,6 +23,7 @@ import { useMe } from '../features/identity/api';
 import { inAnyProvider, inCustomer, onPlatform } from '../features/identity/capabilities';
 import { formatDateTime } from '../lib/format';
 import { useNotify } from '../lib/notify';
+import { Loading, LoadFailed } from '../components/QueryStates';
 
 const SIZE = 20;
 
@@ -98,8 +88,10 @@ export function ExchangePage() {
           {t('exchange.history.title')}
         </Title>
         {runs.isPending ? (
-          <Loader aria-label={t('common.loading')} />
-        ) : (runs.data?.items ?? []).length === 0 ? (
+          <Loading />
+        ) : runs.isError ? (
+          <LoadFailed error={runs.error} onRetry={runs.refetch} />
+        ) : runs.data.items.length === 0 ? (
           <Text>{t('exchange.history.empty')}</Text>
         ) : (
           <>
@@ -117,7 +109,7 @@ export function ExchangePage() {
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
-                  {(runs.data?.items ?? []).map((run) => (
+                  {runs.data.items.map((run) => (
                     <Table.Tr key={run.id}>
                       <Table.Td>{formatDateTime(run.created_at)}</Table.Td>
                       <Table.Td>{t(`exchange.types.${run.import_type}`)}</Table.Td>
@@ -166,7 +158,7 @@ export function ExchangePage() {
                 </Table.Tbody>
               </Table>
             </ScrollTable>
-            <Pager page={page} pages={Math.ceil((runs.data?.total ?? 0) / SIZE)} onPage={setPage} />
+            <Pager page={page} pages={Math.ceil(runs.data.total / SIZE)} onPage={setPage} />
           </>
         )}
       </Stack>
@@ -210,7 +202,9 @@ function Templates({ customerId }: { customerId: string }) {
       </Title>
       <Text size="sm">{t('exchange.templates.intro')}</Text>
       {templates.isPending ? (
-        <Loader aria-label={t('common.loading')} />
+        <Loading />
+      ) : templates.isError ? (
+        <LoadFailed error={templates.error} onRetry={templates.refetch} />
       ) : (
         <ScrollTable label={t('exchange.templates.title')} minWidth={760}>
           <Table striped withTableBorder>
@@ -224,7 +218,7 @@ function Templates({ customerId }: { customerId: string }) {
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {(templates.data ?? []).map((template) => (
+              {templates.data.map((template) => (
                 <Table.Tr key={template.id}>
                   <Table.Td>{template.name}</Table.Td>
                   <Table.Td>{t(`exchange.types.${template.import_type}`)}</Table.Td>

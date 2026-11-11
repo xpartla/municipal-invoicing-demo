@@ -1,15 +1,4 @@
-import {
-  Badge,
-  Group,
-  Loader,
-  Select,
-  Stack,
-  Table,
-  Tabs,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core';
+import { Badge, Group, Select, Stack, Table, Tabs, Text, TextInput, Title } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconSearch, IconUpload } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -21,6 +10,7 @@ import { ScrollTable } from '../../components/ScrollTable';
 import { useEntries, useGlobalChecklist } from '../../features/codelists/api';
 import { EntryTable } from '../../features/codelists/EntryTable';
 import { GLOBAL_FIELDS, GLOBAL_TABS, type GlobalKind } from '../../features/codelists/kinds';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 const SIZE = 50;
 
@@ -67,7 +57,9 @@ export function GlobalCodelistsPage() {
           {t('globalCodelists.checklist')}
         </Title>
         {checklist.isPending ? (
-          <Loader aria-label={t('common.loading')} />
+          <Loading />
+        ) : checklist.isError ? (
+          <LoadFailed error={checklist.error} onRetry={checklist.refetch} />
         ) : (
           <ScrollTable label={t('globalCodelists.checklistTable')} minWidth={640}>
             <Table>
@@ -80,7 +72,7 @@ export function GlobalCodelistsPage() {
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>
-                {(checklist.data ?? []).map((row) => (
+                {checklist.data.map((row) => (
                   <Table.Tr key={row.year}>
                     <Table.Th scope="row">{row.year}</Table.Th>
                     {GLOBAL_TABS.map((tab) => {
@@ -151,8 +143,10 @@ export function GlobalCodelistsPage() {
       {!present ? (
         <Text>{t('globalCodelists.none', { year: shownYear })}</Text>
       ) : entries.isPending ? (
-        <Loader aria-label={t('common.loading')} />
-      ) : entries.data?.items.length ? (
+        <Loading />
+      ) : entries.isError ? (
+        <LoadFailed error={entries.error} onRetry={entries.refetch} />
+      ) : entries.data.items.length ? (
         <>
           <Text size="sm">{t('codelists.count', { count: entries.data.total })}</Text>
           <EntryTable

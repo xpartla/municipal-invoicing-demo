@@ -150,6 +150,27 @@ describe('guards', () => {
     ).toBeInTheDocument();
   });
 
+  it('marks only the current item as the current page, not Domov too', async () => {
+    const none = { count: 0, size: 0 };
+    mockApi({
+      'GET /api/me': { body: meAs('user') },
+      [`GET /api/customers/${BOLDOG.id}/files`]: {
+        body: {
+          items: [],
+          total: 0,
+          size: 0,
+          kinds: { document: none, import: none, export: none },
+        },
+      },
+    });
+    await renderApp(`/c/${BOLDOG.id}/files`);
+    expect(within(nav()).getByRole('link', { name: 'Úložisko' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(within(nav()).getByRole('link', { name: 'Domov' })).not.toHaveAttribute('aria-current');
+  });
+
   it('Pomocník in the navbar opens the help centre', async () => {
     mockApi({ 'GET /api/me': { body: meAs('admin') } });
     const { router } = await renderApp('/admin/outbox');

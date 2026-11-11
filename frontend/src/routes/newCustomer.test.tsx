@@ -76,7 +76,7 @@ describe('Nový klient', () => {
     expect(await screen.findAllByText('Toto pole je povinné.')).not.toHaveLength(0);
     await fill(user, 'Názov', 'Obec Kópia');
     await fill(user, 'IČO', '99900033');
-    await fill(user, 'Variabilné číslo', '7');
+    await fill(user, 'Variabilný symbol', '7');
     await user.click(screen.getByRole('button', { name: 'Ďalej' }));
 
     // What to copy: everything but the supplier memory, by default.

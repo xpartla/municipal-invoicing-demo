@@ -7,7 +7,6 @@ import {
   Grid,
   Group,
   List,
-  Loader,
   Paper,
   Select,
   Stack,
@@ -69,6 +68,7 @@ import { useHelpTopic } from '../help/context';
 import { ApiError } from '../lib/apiError';
 import { formatAmount, formatDate } from '../lib/format';
 import { useNotify } from '../lib/notify';
+import { Loading, LoadFailed } from '../components/QueryStates';
 
 const BOOKED = new Set(['booked', 'exported', 'paid']);
 
@@ -101,15 +101,12 @@ export function InvoicePage() {
   });
   const found = useInvoice(customerId, invoiceId);
   const invoice = found.data;
-  if (found.isPending) return <Loader aria-label={t('common.loading')} />;
+  if (found.isPending) return <Loading />;
   if (!invoice) {
-    return (
-      <Alert color="red">
-        {found.error instanceof ApiError && found.error.status === 404
-          ? t('notFound.title')
-          : t('common.error')}
-      </Alert>
-    );
+    if (found.error instanceof ApiError && found.error.status === 404) {
+      return <Alert color="red">{t('notFound.title')}</Alert>;
+    }
+    return <LoadFailed error={found.error} onRetry={found.refetch} />;
   }
   // A new proposal or booking starts the page's working copy afresh.
   const version = [invoice.id, invoice.state, invoice.coded_at, invoice.booked_at, invoice.number];

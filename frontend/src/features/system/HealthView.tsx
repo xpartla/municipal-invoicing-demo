@@ -1,11 +1,12 @@
 import type { TFunction } from 'i18next';
-import { Anchor, Badge, Group, Loader, Stack, Table, Text } from '@mantine/core';
+import { Anchor, Badge, Group, Stack, Table, Text } from '@mantine/core';
 import { Link } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
 import { ScrollTable } from '../../components/ScrollTable';
 import { isCustomerKind } from '../codelists/kinds';
 import { useHealth, type HealthFinding } from './api';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 const COLOR = { error: 'red', warning: 'yellow', info: 'gray' } as const;
 
@@ -23,9 +24,9 @@ export function HealthView({
 }) {
   const { t } = useTranslation();
   const health = useHealth(customerId, year);
-  if (health.isPending) return <Loader aria-label={t('common.loading')} />;
+  if (health.isPending) return <Loading />;
+  if (health.isError) return <LoadFailed error={health.error} onRetry={health.refetch} />;
   const report = health.data;
-  if (!report) return null;
   const notes = report.findings.length - report.errors - report.warnings;
   return (
     <Stack gap="md">

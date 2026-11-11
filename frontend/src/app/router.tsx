@@ -12,6 +12,7 @@ import {
 } from '@tanstack/react-router';
 
 import { Shell } from '../components/Shell';
+import { sessionExpiredKey } from './queryClient';
 import { meQuery, useMe, type Me } from '../features/identity/api';
 import {
   createsCustomers,
@@ -98,10 +99,10 @@ function goToLanding(me: Me): void {
 
 interface LoginSearch {
   next?: string;
-  notice?: 'password-set' | 'email-changed' | 'logged-out';
+  notice?: 'password-set' | 'email-changed' | 'logged-out' | 'session-expired';
 }
 
-const NOTICES = new Set(['password-set', 'email-changed', 'logged-out']);
+const NOTICES = new Set(['password-set', 'email-changed', 'logged-out', 'session-expired']);
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -147,7 +148,13 @@ const appRoute = createRoute({
   id: '_app',
   beforeLoad: async ({ context, location }) => {
     const me = await currentMe(context);
-    if (!me) throw redirect({ to: '/login', search: { next: location.href } });
+    if (!me) {
+      const ended = context.queryClient.getQueryData<boolean>(sessionExpiredKey) === true;
+      throw redirect({
+        to: '/login',
+        search: { next: location.href, notice: ended ? 'session-expired' : undefined },
+      });
+    }
   },
   component: Shell,
   notFoundComponent: NotFoundPage,
@@ -283,6 +290,8 @@ const appRoutes = [
   }),
   page('/admin/outbox', guarded(admin('outbox.read'), OutboxPage)),
   page('/admin/eval', guarded(admin('evaluation.read'), EvalPage)),
+  // Any other address, inside the shell (after the login), rather than a bare page.
+  page('$', NotFoundPage),
 ];
 
 const routeTree = rootRoute.addChildren([...publicRoutes, appRoute.addChildren(appRoutes)]);
@@ -297,6 +306,8 @@ export function createAppRouter(
     context: { queryClient },
     defaultPreload: 'intent',
     defaultNotFoundComponent: NotFoundPage,
+    // A screen's crash shows in its place, inside the shell; the root's catches the rest.
+    defaultErrorComponent: ErrorPage,
   });
 }
 

@@ -22,6 +22,7 @@ import { Dialog } from '../../components/Dialog';
 import { LinkedText } from '../../components/LinkedText';
 import { useOutbox, useOutboxMessage } from '../../features/admin/api';
 import { formatDateTime } from '../../lib/format';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 const SIZE = 25;
 
@@ -51,8 +52,10 @@ export function OutboxPage() {
         maw="100%"
       />
       {outbox.isPending ? (
-        <Loader aria-label={t('common.loading')} />
-      ) : outbox.data?.items.length ? (
+        <Loading />
+      ) : outbox.isError ? (
+        <LoadFailed error={outbox.error} onRetry={outbox.refetch} />
+      ) : outbox.data.items.length ? (
         <ScrollTable label={t('outbox.title')} minWidth={640}>
           <Table striped highlightOnHover>
             <Table.Thead>

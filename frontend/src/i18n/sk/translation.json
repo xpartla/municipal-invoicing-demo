@@ -17,6 +17,10 @@
     "next": "Ďalšie",
     "page": "Strana {{page}} z {{pages}}"
   },
+  "states": {
+    "loadFailed": "Údaje sa nepodarilo načítať",
+    "retry": "Skúsiť znova"
+  },
   "errors": {
     "password_too_short": "Heslo musí mať aspoň 12 znakov.",
     "password_too_long": "Heslo môže mať najviac 256 znakov.",
@@ -53,7 +57,9 @@
     "extra_forbidden": "Toto pole sa tu nepoužíva.",
     "conventions": "Zvyklosti sa nedajú použiť s globálnymi pravidlami roka.",
     "number_frozen": "Zaúčtovanie by posunulo číslo exportovanej, uhradenej alebo importovanej faktúry. Číslo dokladu zadajte ručne (Opraviť a prijať).",
-    "below_used": "Počítadlo nemôže byť nižšie ako najvyššie použité číslo radu."
+    "below_used": "Počítadlo nemôže byť nižšie ako najvyššie použité číslo radu.",
+    "server": "Na serveri nastala chyba. Skúste to znova; ak sa chyba opakuje, oznámte ju administrátorovi.",
+    "network": "Server je nedostupný. Skontrolujte pripojenie a skúste to znova."
   },
   "auth": {
     "login": {
@@ -66,7 +72,8 @@
       "throttled": "Príliš veľa neúspešných pokusov. Skúste to znova o {{minutes}} min.",
       "passwordSet": "Heslo je nastavené. Teraz sa prihláste.",
       "emailChanged": "Prihlasovacia adresa je zmenená. Prihláste sa novou adresou.",
-      "loggedOut": "Odhlásenie prebehlo."
+      "loggedOut": "Odhlásenie prebehlo.",
+      "sessionExpired": "Prihlásenie vypršalo. Prihláste sa znova."
     },
     "password": {
       "new": "Nové heslo",
@@ -524,7 +531,8 @@
   "errorPage": {
     "title": "Niečo sa pokazilo",
     "text": "Stránku sa nepodarilo zobraziť. Skúste ju načítať znova.",
-    "home": "Späť na úvod"
+    "home": "Späť na úvod",
+    "reload": "Načítať znova"
   },
   "codelists": {
     "title": "Číselníky",
@@ -1221,8 +1229,8 @@
     "name": "Názov",
     "ico": "IČO",
     "dic": "DIČ",
-    "variableNumber": "Variabilné číslo",
-    "variableNumberHint": "Nepovinné; najviac desať číslic.",
+    "variableNumber": "Variabilný symbol",
+    "variableNumberHint": "Nepovinné; jedna až desať číslic.",
     "street": "Ulica a číslo",
     "city": "Obec",
     "postalCode": "PSČ",
@@ -1255,7 +1263,7 @@
     "copying": "Kopíruje sa…",
     "copyDone": "Hotovo: skopírovaných číselníkov {{lists}}, šablón {{templates}}.",
     "copyFailed": "Kopírovanie zlyhalo. Klient je vytvorený; číselníky doplňte importom alebo kópiu zopakujte.",
-    "variableNumberFailed": "Variabilné číslo sa nepriradilo; priraďte ho na stránke Používatelia.",
+    "variableNumberFailed": "Variabilný symbol sa nepriradil; priraďte ho na stránke Používatelia.",
     "inviteFailed": "Pozvánka sa neodoslala; pozvite prihlásenie na stránke Používatelia.",
     "open": "Otvoriť klienta",
     "toUsers": "Späť na Používateľov"

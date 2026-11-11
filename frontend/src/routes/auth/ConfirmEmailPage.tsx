@@ -1,4 +1,4 @@
-import { Alert, Button, Loader, Text } from '@mantine/core';
+import { Alert, Button, Text } from '@mantine/core';
 import { useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -6,6 +6,7 @@ import { AuthCard } from '../../components/AuthCard';
 import { useConfirmEmailChange, useTokenInfo } from '../../features/identity/api';
 import { InvalidLink } from './InvalidLink';
 import { useLinkToken } from './useLinkToken';
+import { Loading } from '../../components/QueryStates';
 
 /** Confirms a new login email. A button, not an automatic request, so a mail scanner that
  * opens the link does not confirm it. */
@@ -16,7 +17,7 @@ export function ConfirmEmailPage() {
   const info = useTokenInfo(token);
   const confirm = useConfirmEmailChange();
 
-  if (token && info.isPending) return <Loader aria-label={t('common.loading')} />;
+  if (token && info.isPending) return <Loading />;
   if (!token || info.isError || info.data?.kind !== 'email_change') return <InvalidLink />;
   return (
     <AuthCard title={t('auth.confirmEmail.title')}>

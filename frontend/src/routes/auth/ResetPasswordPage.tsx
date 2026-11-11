@@ -1,4 +1,4 @@
-import { Loader, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
 import { useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -7,6 +7,7 @@ import { useResetPassword, useTokenInfo } from '../../features/identity/api';
 import { NewPasswordForm } from '../../features/identity/NewPasswordForm';
 import { InvalidLink } from './InvalidLink';
 import { useLinkToken } from './useLinkToken';
+import { Loading } from '../../components/QueryStates';
 
 /** A new password from a reset link (plan §5.3). */
 export function ResetPasswordPage() {
@@ -16,7 +17,7 @@ export function ResetPasswordPage() {
   const info = useTokenInfo(token);
   const reset = useResetPassword();
 
-  if (token && info.isPending) return <Loader aria-label={t('common.loading')} />;
+  if (token && info.isPending) return <Loading />;
   if (!token || info.isError || info.data?.kind !== 'password_reset') return <InvalidLink />;
   return (
     <AuthCard title={t('auth.reset.title')}>

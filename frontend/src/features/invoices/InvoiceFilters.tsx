@@ -5,11 +5,9 @@ import {
   Collapse,
   Group,
   MultiSelect,
-  SegmentedControl,
   Select,
   SimpleGrid,
   Stack,
-  Text,
   TextInput,
 } from '@mantine/core';
 import { useDebouncedCallback, useDebouncedValue } from '@mantine/hooks';
@@ -131,23 +129,20 @@ export function InvoiceFilters({
             onChange({ state: state.length ? state : undefined });
           }}
         />
-        <Stack gap={4}>
-          <Text size="sm" fw={500} id="invoices-review">
-            {t('invoices.filters.review')}
-          </Text>
-          <SegmentedControl
-            aria-labelledby="invoices-review"
-            value={review}
-            data={[
-              { value: 'all', label: t('invoices.filters.reviewAll') },
-              { value: 'yes', label: t('invoices.filters.reviewYes') },
-              { value: 'no', label: t('invoices.filters.reviewNo') },
-            ]}
-            onChange={(value) => {
-              onChange({ needs_review: value === 'all' ? undefined : value === 'yes' });
-            }}
-          />
-        </Stack>
+        {/* A select, not a segmented control: three labels did not fit a quarter of the row. */}
+        <Select
+          label={t('invoices.filters.review')}
+          value={review}
+          allowDeselect={false}
+          data={[
+            { value: 'all', label: t('invoices.filters.reviewAll') },
+            { value: 'yes', label: t('invoices.filters.reviewYes') },
+            { value: 'no', label: t('invoices.filters.reviewNo') },
+          ]}
+          onChange={(value) => {
+            onChange({ needs_review: value === 'all' || !value ? undefined : value === 'yes' });
+          }}
+        />
       </SimpleGrid>
       <Group justify="space-between">
         <Group gap="xs">

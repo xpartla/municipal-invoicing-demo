@@ -1,15 +1,4 @@
-import {
-  Alert,
-  Button,
-  Group,
-  Loader,
-  Select,
-  Stack,
-  Tabs,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core';
+import { Alert, Button, Group, Select, Stack, Tabs, Text, TextInput, Title } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconHistory, IconPlus, IconSearch, IconUpload } from '@tabler/icons-react';
 import { useParams, useSearch } from '@tanstack/react-router';
@@ -33,6 +22,7 @@ import { useMe } from '../features/identity/api';
 import { inCustomer } from '../features/identity/capabilities';
 import { formatDateTime } from '../lib/format';
 import { useNotify } from '../lib/notify';
+import { Loading, LoadFailed } from '../components/QueryStates';
 
 const SIZE = 50;
 
@@ -135,7 +125,9 @@ export function CodelistsPage() {
       </Tabs>
       <Text maw={880}>{t(`codelists.notes.${kind}`)}</Text>
       {overview.isPending ? (
-        <Loader aria-label={t('common.loading')} />
+        <Loading />
+      ) : overview.isError ? (
+        <LoadFailed error={overview.error} onRetry={overview.refetch} />
       ) : active === null ? (
         <Stack gap="sm" align="flex-start">
           <Text>{t('codelists.noList', { year })}</Text>
@@ -208,8 +200,10 @@ export function CodelistsPage() {
             </Alert>
           )}
           {entries.isPending ? (
-            <Loader aria-label={t('common.loading')} />
-          ) : entries.data?.items.length ? (
+            <Loading />
+          ) : entries.isError ? (
+            <LoadFailed error={entries.error} onRetry={entries.refetch} />
+          ) : entries.data.items.length ? (
             <>
               <Text size="sm">{t('codelists.count', { count: entries.data.total })}</Text>
               <EntryTable

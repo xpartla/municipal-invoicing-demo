@@ -70,6 +70,7 @@ export const HELP_BY_ROUTE: Readonly<Record<string, Topic>> = {
   '/admin/jobs': 'sprava-platformy',
   '/admin/outbox': 'sprava-platformy',
   '/admin/eval': 'sprava-platformy',
+  '/$': 'zaciname',
 };
 
 export function normalisePath(fullPath: string): string {
