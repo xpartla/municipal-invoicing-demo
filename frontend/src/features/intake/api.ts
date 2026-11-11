@@ -18,6 +18,7 @@ export { READING };
 export type UploadOutcome = Schemas['UploadItemOut'];
 export type Extraction = Schemas['ExtractionOut'];
 export type Suggestion = Schemas['SuggestionOut'];
+export type EInvoice = Schemas['EInvoiceOut'];
 
 export function useUploadDocuments(customerId: string) {
   const client = useQueryClient();
@@ -70,6 +71,22 @@ export function useExtraction(customerId: string, documentId: string | null | un
       ),
     enabled: documentId != null,
     retry: false,
+  });
+}
+
+/** The e-invoice the document is or carries, rendered from its XML, with the raw XML
+ * (plan §8.4); read again from the file each time, so it is cached while the page is open. */
+export function useEInvoice(customerId: string, documentId: string) {
+  return useQuery({
+    queryKey: ['einvoice', customerId, documentId],
+    queryFn: () =>
+      unwrap(
+        api.GET('/api/customers/{customer_id}/documents/{document_id}/einvoice', {
+          params: { path: { customer_id: customerId, document_id: documentId } },
+        }),
+      ),
+    retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 }
 

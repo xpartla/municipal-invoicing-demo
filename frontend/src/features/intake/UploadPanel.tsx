@@ -10,7 +10,8 @@ import { useNotify } from '../../lib/notify';
 import type { Invoice } from '../invoices/api';
 import { READING, useUploadDocuments, useUploadedInvoices, type UploadOutcome } from './api';
 
-const ACCEPT = '.pdf,.jpg,.jpeg,.png,.tif,.tiff,application/pdf,image/jpeg,image/png,image/tiff';
+const ACCEPT =
+  '.pdf,.jpg,.jpeg,.png,.tif,.tiff,.xml,.isdoc,application/pdf,image/jpeg,image/png,image/tiff,application/xml,text/xml';
 
 interface Item {
   key: number;
