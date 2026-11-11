@@ -53,7 +53,11 @@ their XML without OCR (parsed safely, checked against the bundled UBL 2.1 and IS
 schemas and our own checks), the check step shows the invoice rendered from its XML, the PDF's
 pages and the raw XML, suggests the upload date as the booking date and leaves the number to
 the booking, which places the invoice by its date of supply; `riso testdata einvoices` writes
-the synthetic e-invoices.
+the synthetic e-invoices. P2-M7 adds the dashboards and tools: Domov (a month's tiles linking to
+the filtered invoices, bookings per day and over 12 months, by type, supplier and unit, review
+rate and time, the budget drawdown, what needs attention, the number series and the onboarding
+checklist), Prehľad klientov for staff and Platforma for admins (where they now land), and the
+admin's Audit, Úlohy (retry, cancel and the per-customer data export) and Vyhodnotenie.
 
 M2 measured the engine on 40 held-out synthetic invoices: every code valid, the full budget
 key right for 61.5% and the economic code for 76.9%, short of the demo targets of 85% and 90%.
@@ -147,7 +151,9 @@ pnpm build && pnpm e2e
 The specs include the click-through of the demo's invoice pages, ported to the new UI
 (`e2e/journeys-m4.spec.ts`), and the scans' journeys from upload to booking
 (`e2e/journeys-m5.spec.ts`), and the e-invoices' (`e2e/journeys-m6.spec.ts`, a UBL file and
-an ISDOC PDF from `testdata/einvoice/samples`, read from their XML): the global setup has the server read uploads with
+an ISDOC PDF from `testdata/einvoice/samples`, read from their XML), M7's (`e2e/journeys-m7.spec.ts`:
+Domov after a booking, a provider's overview, the admin's audit search) and `e2e/routes.spec.ts`,
+which opens every route per role through axe: the global setup has the server read uploads with
 `RISO_OCR_READER=recorded`, replaying the committed samples' layouts, so E2E needs no models. `RISO_E2E_SERVER_LOG=<file>` keeps the server's output, with the
 traceback of a 500, in that file. The typed API client is
 generated from the backend's OpenAPI document; after changing a route or its models, run
