@@ -46,7 +46,13 @@ remain. P2-M5 adds scans and OCR: Nová faktúra uploads scans, photos and PDFs,
 their confidences and finds the handwritten note; the check step (Kontrola údajov) shows the
 document beside the fields, the doubtful ones marked and the note's date and number suggested,
 and "Potvrdiť" codes the invoice; Úložisko lists the customer's files; `riso ocr-eval`
-measures the reading on a synthetic scan set. E-invoices follow.
+measures the reading on a synthetic scan set. P2-M6 adds e-invoices: Nová faktúra also takes
+UBL (Peppol BIS Billing 3.0) and ISDOC files and PDFs carrying an ISDOC; they are read from
+their XML without OCR (parsed safely, checked against the bundled UBL 2.1 and ISDOC 6.0.2
+schemas and our own checks), the check step shows the invoice rendered from its XML, the PDF's
+pages and the raw XML, suggests the upload date as the booking date and leaves the number to
+the booking, which places the invoice by its date of supply; `riso testdata einvoices` writes
+the synthetic e-invoices.
 
 M2 measured the engine on 40 held-out synthetic invoices: every code valid, the full budget
 key right for 61.5% and the economic code for 76.9%, short of the demo targets of 85% and 90%.
@@ -139,7 +145,8 @@ pnpm build && pnpm e2e
 
 The specs include the click-through of the demo's invoice pages, ported to the new UI
 (`e2e/journeys-m4.spec.ts`), and the scans' journeys from upload to booking
-(`e2e/journeys-m5.spec.ts`): the global setup has the server read uploads with
+(`e2e/journeys-m5.spec.ts`), and the e-invoices' (`e2e/journeys-m6.spec.ts`, a UBL file and
+an ISDOC PDF from `testdata/einvoice/samples`, read from their XML): the global setup has the server read uploads with
 `RISO_OCR_READER=recorded`, replaying the committed samples' layouts, so E2E needs no models. `RISO_E2E_SERVER_LOG=<file>` keeps the server's output, with the
 traceback of a 500, in that file. The typed API client is
 generated from the backend's OpenAPI document; after changing a route or its models, run
