@@ -152,8 +152,8 @@ describe('guards', () => {
 
   it('a later screen opens a Pripravujeme page', async () => {
     mockApi({ 'GET /api/me': { body: meAs('admin') } });
-    await renderApp('/admin/jobs');
-    expect(screen.getByRole('heading', { level: 1, name: 'Úlohy' })).toBeInTheDocument();
+    await renderApp('/help');
+    expect(screen.getByRole('heading', { level: 1, name: 'Pomocník' })).toBeInTheDocument();
     expect(screen.getByText('Pripravujeme')).toBeInTheDocument();
   });
 

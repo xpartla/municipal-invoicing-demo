@@ -14,12 +14,14 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Annotated
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 
 from riso import __version__, paths
 from riso.api.admin import router as admin_router
 from riso.api.composition import Services, build_services
+from riso.api.deps import Caller, ServicesDep, check_csrf, platform_context
 from riso.api.errors import install_error_handlers
 from riso.api.frontend import FrontendFiles
 from riso.api.middleware import (
@@ -39,6 +41,7 @@ from riso.engine import code_invoice
 from riso.eval import evaluate
 from riso.eval.files import initial_counters, initial_memory, load_report, save_report
 from riso.exchange.api.routes import router as exchange_router
+from riso.identity import Permission
 from riso.identity.api.routes import router as identity_router
 from riso.intake.api.routes import router as intake_router
 from riso.invoicing.api.routes import router as invoicing_router
@@ -134,12 +137,22 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     for router in ROUTERS:
         app.include_router(router)
 
-    @app.post("/api/code", name="legacy.code")
-    def code(request: CodeRequest) -> CodingProposal:
+    # The demo's evaluation tools, admins only since P2-M7 (plan §2 decision 67).
+    Evaluator = Annotated[Caller, Depends(platform_context(Permission.EVALUATION_READ))]
+
+    @app.post(
+        "/api/admin/code",
+        name="evaluation.code",
+        tags=["admin"],
+        dependencies=[Depends(check_csrf)],
+    )
+    def code(caller: Evaluator, services: ServicesDep, request: CodeRequest) -> CodingProposal:
         """The proposal for a posted invoice, coded with the committed bundle, the knowledge
         and the initial supplier memory and counters (`data/initial_state`), as `riso code`
         and the evaluation code it. Nothing is stored; customers' invoices are coded through
-        `/api/customers/{id}/…`."""
+        `/api/customers/{id}/…`. (The services only make it a route like the others: the
+        permission matrix test reaches every route through them.)"""
+        del services
         ico = request.entity or "".join((request.invoice.customer.ico or "").split())
         try:
             entity = references.context(ico)
@@ -154,13 +167,23 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
         except (UnknownEntity, UnknownKnowledge, FileNotFoundError) as exc:
             raise HTTPException(404, str(exc)) from exc
 
-    @app.get("/api/eval", name="legacy.eval")
+    @app.get(
+        "/api/admin/eval",
+        name="evaluation.get",
+        tags=["admin"],
+        dependencies=[Depends(check_csrf)],
+    )
     def evaluation(
-        entity: str = "00305863", split: Split = "heldout", refresh: bool = False
+        caller: Evaluator,
+        services: ServicesDep,
+        entity: str = "00305863",
+        split: Split = "heldout",
+        refresh: bool = False,
     ) -> EvalReport:
-        """The latest report of `riso eval`; runs the evaluation when there is none yet, or
-        when asked to refresh it."""
-        report = None if refresh else load_report(entity, split, settings.var_dir)
+        """The latest report of `riso eval` (Vyhodnotenie); runs the evaluation when there is
+        none yet, or when asked to refresh it."""
+        var_dir = services.settings.var_dir
+        report = None if refresh else load_report(entity, split, var_dir)
         if report is None:
             try:
                 report = evaluate(
@@ -172,7 +195,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
                 )
             except (UnknownEntity, UnknownKnowledge, FileNotFoundError) as exc:
                 raise HTTPException(404, str(exc)) from exc
-            save_report(report, settings.var_dir)
+            save_report(report, var_dir)
         return report
 
     # Pages are the router's fallback: they never shadow an API route, and an unknown API

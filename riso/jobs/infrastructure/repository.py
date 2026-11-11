@@ -23,7 +23,7 @@ class SqlJobRepository:
         row = self._session.get(JobRow, job_id)
         if row is None:
             raise NotFound(f"no job {job_id}")
-        return _read(row)
+        return read_job(row)
 
     def next_claimable(self, at: datetime) -> Job | None:
         # SQLite: the caller's BEGIN IMMEDIATE holds the write lock, so no other worker can
@@ -35,7 +35,7 @@ class SqlJobRepository:
         row = self._session.scalars(
             select(JobRow).where(due).order_by(JobRow.run_after, JobRow.id).limit(1)
         ).first()
-        return None if row is None else _read(row)
+        return None if row is None else read_job(row)
 
     def save(self, job: Job) -> None:
         row = self._session.get(JobRow, job.id)
@@ -65,7 +65,7 @@ def _write(job: Job, row: JobRow) -> None:
     row.result = job.result
 
 
-def _read(row: JobRow) -> Job:
+def read_job(row: JobRow) -> Job:
     return Job(
         id=row.id,
         kind=row.kind,

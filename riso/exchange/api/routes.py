@@ -22,6 +22,7 @@ from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, File, Form, Path, Query, UploadFile
 from fastapi.responses import Response
+from pydantic import BaseModel
 
 from riso.api.composition import Services
 from riso.api.deps import Caller, ServicesDep, check_csrf, customer_context, platform_context
@@ -40,6 +41,7 @@ from riso.exchange.api.models import (
     TemplateIn,
     TemplateOut,
 )
+from riso.exchange.application.data_export import start_data_export
 from riso.exchange.application.exports import (
     export_file,
     get_export,
@@ -550,3 +552,23 @@ def export_run_file(
         media_type=found.media_type,
         headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(found.name)}"},
     )
+
+
+# The customer data export (plan §10.9) ------------------------------------------------------
+
+
+class DataExportStartedOut(BaseModel):
+    """The job writing the ZIP; Úlohy follows it and downloads its file."""
+
+    id: str
+
+
+@router.post("/admin/customers/{customer_id}/data-export", name="data_export.start")
+def data_export_start(
+    caller: Annotated[Caller, Depends(platform_context(Permission.CUSTOMER_DATA_EXPORT))],
+    services: ServicesDep,
+    customer_id: Annotated[str, Path(max_length=36)],
+) -> DataExportStartedOut:
+    """Starts the export of every row and file of one customer, deleted or not (audited);
+    404 for a customer that is not there."""
+    return DataExportStartedOut(id=start_data_export(caller.ctx, services.uow(), customer_id))

@@ -17,6 +17,7 @@ from riso.api.adapters import (
 )
 from riso.api.uow import AppUnitOfWork
 from riso.exchange.application.copy import COPY_JOB, CopyJobs
+from riso.exchange.application.data_export import DATA_EXPORT_JOB, DataExportJobs
 from riso.exchange.application.exports import EXPORT_JOB, ExportJobs
 from riso.exchange.application.imports import ImportJobs
 from riso.exchange.infrastructure.readers import FileTableReader
@@ -143,6 +144,9 @@ class Services:
     def export_jobs(self) -> ExportJobs:
         return ExportJobs(self.uow, self.storage, TableWriter())
 
+    def data_export_jobs(self) -> DataExportJobs:
+        return DataExportJobs(self.uow, self.storage)
+
     def ocr_reader(self) -> DocumentReader:
         if self.document_reader is None:
             if self.settings.ocr_reader == "recorded":
@@ -221,6 +225,8 @@ def build_services(
         services.copy_jobs().register(services.registry)
     if EXPORT_JOB not in services.registry.names():
         services.export_jobs().register(services.registry)
+    if DATA_EXPORT_JOB not in services.registry.names():
+        services.data_export_jobs().register(services.registry)
     if EXTRACT_JOB not in services.registry.names():
         services.extraction_jobs().register(services.registry)
     return services

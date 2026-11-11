@@ -88,6 +88,7 @@ class JobView:
     customer_id: str | None
     last_error: str | None
     result: dict[str, Any] | None
+    created_by: str | None = None
 
     @classmethod
     def of(cls, job: Job) -> "JobView":
@@ -104,4 +105,5 @@ class JobView:
             customer_id=job.customer_id,
             last_error=job.last_error,
             result=job.result,
+            created_by=job.created_by,
         )

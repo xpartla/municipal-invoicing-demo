@@ -1591,6 +1591,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/customers/{customer_id}/data-export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Data Export.Start
+         * @description Starts the export of every row and file of one customer, deleted or not (audited);
+         *     404 for a customer that is not there.
+         */
+        post: operations["data_export.start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/customers/{customer_id}/code": {
         parameters: {
             query?: never;
@@ -2283,6 +2304,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Jobs.List
+         * @description Every job, the newest first, with its state, attempts and last error (Úlohy).
+         */
+        get: operations["jobs.list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/jobs/{job_id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Jobs.Retry
+         * @description Runs a failed job again with a fresh set of attempts (audited); 409 for another state.
+         */
+        post: operations["jobs.retry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/jobs/{job_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Jobs.Cancel
+         * @description Cancels a queued job (audited); 409 for another state.
+         */
+        post: operations["jobs.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/jobs/{job_id}/file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Jobs.File
+         * @description The ZIP of a finished customer data export; 404 for another job.
+         */
+        get: operations["jobs.file"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/outbox": {
         parameters: {
             query?: never;
@@ -2320,7 +2421,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/code": {
+    "/api/admin/code": {
         parameters: {
             query?: never;
             header?: never;
@@ -2330,20 +2431,21 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Legacy.Code
+         * Evaluation.Code
          * @description The proposal for a posted invoice, coded with the committed bundle, the knowledge
          *     and the initial supplier memory and counters (`data/initial_state`), as `riso code`
          *     and the evaluation code it. Nothing is stored; customers' invoices are coded through
-         *     `/api/customers/{id}/…`.
+         *     `/api/customers/{id}/…`. (The services only make it a route like the others: the
+         *     permission matrix test reaches every route through them.)
          */
-        post: operations["legacy.code"];
+        post: operations["evaluation.code"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/api/eval": {
+    "/api/admin/eval": {
         parameters: {
             query?: never;
             header?: never;
@@ -2351,11 +2453,11 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Legacy.Eval
-         * @description The latest report of `riso eval`; runs the evaluation when there is none yet, or
-         *     when asked to refresh it.
+         * Evaluation.Get
+         * @description The latest report of `riso eval` (Vyhodnotenie); runs the evaluation when there is
+         *     none yet, or when asked to refresh it.
          */
-        get: operations["legacy.eval"];
+        get: operations["evaluation.get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2428,6 +2530,52 @@ export interface components {
             dic?: string | null;
             /** Provider Id */
             provider_id?: string | null;
+        };
+        /**
+         * AdminJobOut
+         * @description A job as Úlohy shows it.
+         */
+        AdminJobOut: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            status: components["schemas"]["JobStatus"];
+            /** Attempts */
+            attempts: number;
+            /** Max Attempts */
+            max_attempts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Started At */
+            started_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Customer Id */
+            customer_id: string | null;
+            /** Created By */
+            created_by: string | null;
+            /** Last Error */
+            last_error: string | null;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /** AdminJobPageOut */
+        AdminJobPageOut: {
+            /** Items */
+            items: components["schemas"]["AdminJobOut"][];
+            /** Total */
+            total: number;
+            /**
+             * Kinds
+             * @description Every kind a stored job has, for the filter
+             */
+            kinds: string[];
         };
         /**
          * Alternative
@@ -3109,6 +3257,14 @@ export interface components {
             budget: components["schemas"]["BudgetOut"] | null;
             attention: components["schemas"]["AttentionOut"];
             onboarding: components["schemas"]["OnboardingOut"];
+        };
+        /**
+         * DataExportStartedOut
+         * @description The job writing the ZIP; Úlohy follows it and downloads its file.
+         */
+        DataExportStartedOut: {
+            /** Id */
+            id: string;
         };
         /** DateValue */
         DateValue: {
@@ -8626,6 +8782,37 @@ export interface operations {
             };
         };
     };
+    "data_export.start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataExportStartedOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     "coding.code": {
         parameters: {
             query?: never;
@@ -9821,6 +10008,134 @@ export interface operations {
             };
         };
     };
+    "jobs.list": {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["JobStatus"] | null;
+                kind?: string | null;
+                customer_id?: string | null;
+                page?: number;
+                size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminJobPageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "jobs.retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminJobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "jobs.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminJobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "jobs.file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     "outbox.list": {
         parameters: {
             query?: {
@@ -9885,7 +10200,7 @@ export interface operations {
             };
         };
     };
-    "legacy.code": {
+    "evaluation.code": {
         parameters: {
             query?: never;
             header?: never;
@@ -9918,7 +10233,7 @@ export interface operations {
             };
         };
     };
-    "legacy.eval": {
+    "evaluation.get": {
         parameters: {
             query?: {
                 entity?: string;

@@ -116,8 +116,8 @@ def test_an_unexpected_error_is_a_json_500_with_the_request_id(app):
 
 
 def test_api_responses_carry_the_strict_policy_and_no_caching(client):
-    response = client.get("/api/eval", params={"split": "anchor"})
-    assert response.status_code == 200
+    response = client.get("/api/no/such/route")
+    assert response.status_code == 404
     headers = response.headers
     assert headers["Content-Security-Policy"] == CSP_STRICT
     assert "script-src 'self';" in CSP_STRICT
@@ -168,7 +168,7 @@ def test_an_unknown_api_path_is_a_json_404(client, method):
 
 
 def test_a_known_api_path_with_another_method_is_405(client):
-    assert client.get("/api/code").status_code == 405
+    assert client.get("/api/auth/login").status_code == 405
 
 
 def test_without_a_spa_a_page_says_how_to_build_it(client):

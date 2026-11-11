@@ -5006,6 +5006,50 @@
         }
       }
     },
+    "/api/admin/customers/{customer_id}/data-export": {
+      "post": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Data Export.Start",
+        "description": "Starts the export of every row and file of one customer, deleted or not (audited);\n404 for a customer that is not there.",
+        "operationId": "data_export.start",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 36,
+              "title": "Customer Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataExportStartedOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/customers/{customer_id}/code": {
       "post": {
         "tags": [
@@ -7575,6 +7619,243 @@
         }
       }
     },
+    "/api/admin/jobs": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Jobs.List",
+        "description": "Every job, the newest first, with its state, attempts and last error (Úlohy).",
+        "operationId": "jobs.list",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/JobStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Kind"
+            }
+          },
+          {
+            "name": "customer_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 36
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminJobPageOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/jobs/{job_id}/retry": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Jobs.Retry",
+        "description": "Runs a failed job again with a fresh set of attempts (audited); 409 for another state.",
+        "operationId": "jobs.retry",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 36,
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminJobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/jobs/{job_id}/cancel": {
+      "post": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Jobs.Cancel",
+        "description": "Cancels a queued job (audited); 409 for another state.",
+        "operationId": "jobs.cancel",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 36,
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminJobOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/jobs/{job_id}/file": {
+      "get": {
+        "tags": [
+          "jobs"
+        ],
+        "summary": "Jobs.File",
+        "description": "The ZIP of a finished customer data export; 404 for another job.",
+        "operationId": "jobs.file",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 36,
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/outbox": {
       "get": {
         "tags": [
@@ -7691,11 +7972,14 @@
         }
       }
     },
-    "/api/code": {
+    "/api/admin/code": {
       "post": {
-        "summary": "Legacy.Code",
-        "description": "The proposal for a posted invoice, coded with the committed bundle, the knowledge\nand the initial supplier memory and counters (`data/initial_state`), as `riso code`\nand the evaluation code it. Nothing is stored; customers' invoices are coded through\n`/api/customers/{id}/…`.",
-        "operationId": "legacy.code",
+        "tags": [
+          "admin"
+        ],
+        "summary": "Evaluation.Code",
+        "description": "The proposal for a posted invoice, coded with the committed bundle, the knowledge\nand the initial supplier memory and counters (`data/initial_state`), as `riso code`\nand the evaluation code it. Nothing is stored; customers' invoices are coded through\n`/api/customers/{id}/…`. (The services only make it a route like the others: the\npermission matrix test reaches every route through them.)",
+        "operationId": "evaluation.code",
         "requestBody": {
           "content": {
             "application/json": {
@@ -7730,11 +8014,14 @@
         }
       }
     },
-    "/api/eval": {
+    "/api/admin/eval": {
       "get": {
-        "summary": "Legacy.Eval",
-        "description": "The latest report of `riso eval`; runs the evaluation when there is none yet, or\nwhen asked to refresh it.",
-        "operationId": "legacy.eval",
+        "tags": [
+          "admin"
+        ],
+        "summary": "Evaluation.Get",
+        "description": "The latest report of `riso eval` (Vyhodnotenie); runs the evaluation when there is\nnone yet, or when asked to refresh it.",
+        "operationId": "evaluation.get",
         "parameters": [
           {
             "name": "entity",
@@ -8013,6 +8300,150 @@
           "ico"
         ],
         "title": "AdminCustomerIn"
+      },
+      "AdminJobOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "status": {
+            "$ref": "#/components/schemas/JobStatus"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "max_attempts": {
+            "type": "integer",
+            "title": "Max Attempts"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "customer_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Id"
+          },
+          "created_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created By"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "status",
+          "attempts",
+          "max_attempts",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "customer_id",
+          "created_by",
+          "last_error",
+          "result"
+        ],
+        "title": "AdminJobOut",
+        "description": "A job as Úlohy shows it."
+      },
+      "AdminJobPageOut": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AdminJobOut"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "kinds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Kinds",
+            "description": "Every kind a stored job has, for the filter"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "kinds"
+        ],
+        "title": "AdminJobPageOut"
       },
       "Alternative": {
         "properties": {
@@ -9963,6 +10394,20 @@
         ],
         "title": "DashboardOut",
         "description": "Domov (plan §10.2, decision 67). A month is a Bratislava month; booked statistics\ncount bookings made in riso in it; `attention` and `onboarding` are about now."
+      },
+      "DataExportStartedOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "title": "DataExportStartedOut",
+        "description": "The job writing the ZIP; Úlohy follows it and downloads its file."
       },
       "DateValue": {
         "properties": {

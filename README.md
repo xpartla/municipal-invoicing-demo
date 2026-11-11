@@ -39,8 +39,9 @@ and number series per customer, with booking by the handwritten number or by the
 XLSX; the invoice page with the proposal laid out like the accounting software's two tabs, a
 copy button on every value and line, the evidence, alternatives, the correction editor and the
 booking; manual entry (Nová faktúra, also from a pasted JSON); and the number series under
-Systém. The demo's Alpine pages and their routes are gone; `POST /api/code` and `GET /api/eval`
-remain. P2-M5 adds scans and OCR: Nová faktúra uploads scans, photos and PDFs, several at once
+Systém. The demo's Alpine pages and their routes are gone; the stateless coding and the
+evaluation report remain, for admins (`/api/admin/code`, `/api/admin/eval`, since P2-M7).
+P2-M5 adds scans and OCR: Nová faktúra uploads scans, photos and PDFs, several at once
 (a file uploaded before is refused with a link to its invoice); a job reads each one
 (Tesseract with the Slovak models, or a digital PDF's text layer), extracts the fields with
 their confidences and finds the handwritten note; the check step (Kontrola údajov) shows the
@@ -231,12 +232,12 @@ uv run alembic upgrade head
 
 ## API
 
-Two routes remain from the demo, without a login:
+Two routes remain from the demo, for admins since P2-M7 (`evaluation.read`):
 
 | Endpoint | Returns |
 |---|---|
-| `POST /api/code` | A CodingProposal for `{invoice, entity}`, coded with the committed bundle and the memory of `data/initial_state`; nothing is stored |
-| `GET /api/eval` | The latest EvalReport of `riso eval` (`?split=`, default `heldout`); runs it when there is none, or with `?refresh=true` |
+| `POST /api/admin/code` | A CodingProposal for `{invoice, entity}`, coded with the committed bundle and the memory of `data/initial_state`; nothing is stored |
+| `GET /api/admin/eval` | The latest EvalReport of `riso eval` (`?split=`, default `heldout`); runs it when there is none, or with `?refresh=true`. Vyhodnotenie shows it |
 
 The phase 2 API (logins, customers, providers, users, the outbox and the audit) is described
 at `/docs` while the server runs. In short:

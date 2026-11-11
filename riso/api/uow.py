@@ -8,6 +8,7 @@ infrastructure.
 """
 
 from riso.api.adapters import CodelistSeriesPatterns, UowPrecedents, UserLogins, UserNames
+from riso.api.data_export import SqlCustomerDump
 from riso.api.overview import SqlOverviewReads
 from riso.audit.infrastructure.log import SqlAuditLog, SqlAuditRecorder
 from riso.codelists.infrastructure.uow import SqlCodelistsUnitOfWork
@@ -23,6 +24,7 @@ from riso.invoicing.infrastructure.statistics import SqlInvoiceStatistics
 from riso.invoicing.infrastructure.uow import SqlInvoicingUnitOfWork
 from riso.jobs import JobRegistry, register_builtin
 from riso.jobs.application import RepositoryJobQueue
+from riso.jobs.infrastructure.listing import SqlJobListing
 from riso.jobs.infrastructure.repository import SqlJobRepository
 from riso.platform.db import Database
 from riso.platform.mail import MailTemplates, OutboxMailSender, OutboxQueries, TemplateMailer
@@ -51,6 +53,9 @@ class AppUnitOfWork(
     documents: SqlDocumentRepository
     extractions: SqlExtractionRepository
     queue: RepositoryJobQueue
+    jobs: SqlJobRepository
+    job_listing: SqlJobListing
+    customer_dump: SqlCustomerDump
     """Jobs queued here are committed with the change that needs them."""
     series_patterns: CodelistSeriesPatterns
     precedents: UowPrecedents
@@ -82,9 +87,10 @@ class AppUnitOfWork(
         self.exports = SqlExportRunRepository(self.session, self)
         self.documents = SqlDocumentRepository(self.session, self)
         self.extractions = SqlExtractionRepository(self.session, self)
-        self.queue = RepositoryJobQueue(
-            SqlJobRepository(self.session), self._registry, self.clock, self.ids
-        )
+        self.jobs = SqlJobRepository(self.session)
+        self.job_listing = SqlJobListing(self.session)
+        self.customer_dump = SqlCustomerDump(self.session)
+        self.queue = RepositoryJobQueue(self.jobs, self._registry, self.clock, self.ids)
         self.mailer = TemplateMailer(
             TEMPLATES, OutboxMailSender(self.session, self.clock, self.ids)
         )
