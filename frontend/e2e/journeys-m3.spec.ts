@@ -96,10 +96,11 @@ test('1. importing a CSV chart of accounts with a new mapping, saved as a templa
   );
 
   await page.getByRole('button', { name: 'Spustiť skúšobný import' }).click();
-  await expect(page.getByText('Bez chýb.')).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText('Bez chýb.')).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText(/import vytvorí jeho prvú verziu/)).toBeVisible();
   await page.getByRole('button', { name: 'Importovať' }).click();
-  await expect(page.getByText('Import je hotový')).toBeVisible({ timeout: 15_000 });
+  // The import is a job: it may wait behind the other widths' uploads in the one worker.
+  await expect(page.getByText('Import je hotový')).toBeVisible({ timeout: 60_000 });
 
   await page.getByRole('textbox', { name: 'Názov šablóny' }).fill(template);
   await page.getByRole('button', { name: 'Uložiť šablónu' }).click();
@@ -141,7 +142,7 @@ test('2. a failing import cannot be confirmed', async ({ page }) => {
   );
   await page.getByRole('button', { name: 'Spustiť skúšobný import' }).click();
   const errors = page.getByRole('region', { name: 'Chyby skúšobného importu' });
-  await expect(errors).toBeVisible({ timeout: 15_000 });
+  await expect(errors).toBeVisible({ timeout: 60_000 });
   await expect(errors.getByRole('cell', { name: '3', exact: true })).toBeVisible();
   await expect(page.getByText('Import sa nedá potvrdiť')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Importovať' })).toBeDisabled();
@@ -178,7 +179,7 @@ test('3. staff copy Boldog into a new customer and invite its login', async ({
 
   await expect(page.getByText(`Klient ${customer} je vytvorený`)).toBeVisible();
   await expect(page.getByText(/^Hotovo: skopírovaných číselníkov [1-9]/)).toBeVisible({
-    timeout: 15_000,
+    timeout: 60_000,
   });
 
   // The copy's lists are its own new versions.

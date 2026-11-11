@@ -57,6 +57,23 @@ class UserOut(BaseModel):
             memberships=[MembershipOut.of(m) for m in view.memberships],
         )
 
+    @classmethod
+    def within(cls, view: UserView, customer_id: str) -> "UserOut":
+        """The account as a customer's login manager sees it: its membership in that customer
+        only, without its notification address. Staff of one provider must not learn which
+        other providers' customers, or the platform, an account belongs to (P2-M8-T03)."""
+        whole = cls.of(view)
+        return whole.model_copy(
+            update={
+                "notification_email": None,
+                "memberships": [
+                    m
+                    for m in whole.memberships
+                    if m.scope_kind == ScopeKind.CUSTOMER and m.scope_id == customer_id
+                ],
+            }
+        )
+
 
 class SessionOut(BaseModel):
     id: str

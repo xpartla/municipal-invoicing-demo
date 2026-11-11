@@ -59,7 +59,8 @@
     "number_frozen": "Zaúčtovanie by posunulo číslo exportovanej, uhradenej alebo importovanej faktúry. Číslo dokladu zadajte ručne (Opraviť a prijať).",
     "below_used": "Počítadlo nemôže byť nižšie ako najvyššie použité číslo radu.",
     "server": "Na serveri nastala chyba. Skúste to znova; ak sa chyba opakuje, oznámte ju administrátorovi.",
-    "network": "Server je nedostupný. Skontrolujte pripojenie a skúste to znova."
+    "network": "Server je nedostupný. Skontrolujte pripojenie a skúste to znova.",
+    "too_large": "Požiadavka je príliš veľká. Nahrajte menej súborov naraz alebo menší súbor."
   },
   "auth": {
     "login": {

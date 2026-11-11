@@ -8029,6 +8029,7 @@
             "required": false,
             "schema": {
               "type": "string",
+              "pattern": "^\\d{8}$",
               "default": "00305863",
               "title": "Entity"
             }

@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query
 
 from riso import __version__, paths
 from riso.api.admin import router as admin_router
@@ -24,7 +24,9 @@ from riso.api.composition import Services, build_services
 from riso.api.deps import Caller, ServicesDep, check_csrf, platform_context
 from riso.api.errors import install_error_handlers
 from riso.api.frontend import FrontendFiles
+from riso.api.limits import body_limit
 from riso.api.middleware import (
+    BodySizeLimitMiddleware,
     CsrfCookieMiddleware,
     RequestIdMiddleware,
     SecurityHeadersMiddleware,
@@ -125,7 +127,9 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     )
     app.state.services = services
     install_error_handlers(app)
-    # Added last runs first: the request ID wraps everything, then the headers.
+    # Added last runs first: the request ID wraps everything, then the headers, the CSRF
+    # cookie and the body limit, so a 413 carries the headers and the request ID too.
+    app.add_middleware(BodySizeLimitMiddleware, limit_for=body_limit)
     if services is not None:
         app.add_middleware(
             CsrfCookieMiddleware,
@@ -176,7 +180,8 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     def evaluation(
         caller: Evaluator,
         services: ServicesDep,
-        entity: str = "00305863",
+        # An IČO: it names the report's folder under var/ (P2-M8-T03).
+        entity: Annotated[str, Query(pattern=r"^\d{8}$")] = "00305863",
         split: Split = "heldout",
         refresh: bool = False,
     ) -> EvalReport:
