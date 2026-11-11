@@ -165,7 +165,9 @@ def _field_confidence(
         "dal": derivation.dal_confidence,
         "booking_date": 0.0 if context.booking_date is None else ocr.get("handwritten.date", 1.0),
         "document_number": (
-            0.5 if context.number_source == "counter" else ocr.get("handwritten.number", 1.0)
+            0.5
+            if context.number_source in ("counter", "booking")
+            else ocr.get("handwritten.number", 1.0)
         ),
     }
 
@@ -187,6 +189,12 @@ def _header_evidence(invoice: NormalisedInvoice, context: ResolvedContext) -> li
     if context.number_source == "handwritten":
         detail = f"{invoice.handwritten_number} written on the scan"
         evidence.append(Evidence(field="document_number", source="handwritten", detail=detail))
+    elif context.number_source == "booking":
+        detail = (
+            "an e-invoice: the number is given at booking by the date of supply; "
+            f"{context.document_number} is the counter's next"
+        )
+        evidence.append(Evidence(field="document_number", source="counter", detail=detail))
     else:
         detail = f"no handwritten number read; {context.document_number} is next in the counter"
         evidence.append(Evidence(field="document_number", source="counter", detail=detail))

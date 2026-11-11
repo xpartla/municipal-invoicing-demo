@@ -10,7 +10,7 @@ from decimal import Decimal
 import pytest
 
 from riso import paths
-from riso.contracts import BudgetLine, Coding, DocumentRef, Feedback, PostingLine
+from riso.contracts import BudgetLine, Coding, DocumentRef, Feedback, Intake, PostingLine
 from riso.dataset import load_cases
 from riso.engine import code_invoice
 from riso.engine.s6_validate import check_coding
@@ -70,6 +70,32 @@ def test_every_message_the_dataset_produces_has_slovak_wording(source, tmp_path)
 
     assert sorted(m for m in messages if not covered(m)) == []
     assert any("is already used" in m for m in messages)  # the second pass did its job
+
+
+def test_every_message_an_e_invoice_produces_has_slovak_wording(source):
+    """Each dataset case as an e-invoice without a number (P2-M6-T09): the booking gives the
+    number, and the evidence says so."""
+    setting = {
+        "entity": source.context(BOLDOG),
+        "bundle": source.bundle(BOLDOG),
+        "knowledge": knowledge_for(BOLDOG, 2026),
+        "memory": initial_memory(BOLDOG),
+        "counters": initial_counters(BOLDOG),
+    }
+    messages = set()
+    for case in load_cases():
+        document = case.invoice.model_copy(
+            update={
+                "intake": Intake(channel="einvoice", format="ubl"),
+                "handwritten": case.invoice.handwritten.model_copy(update={"number": None}),
+            }
+        )
+        proposal = code_invoice(document, **setting)
+        assert not any("handwritten number" in r for r in proposal.review_reasons), case.id
+        messages.update(_messages(proposal))
+
+    assert sorted(m for m in messages if not covered(m)) == []
+    assert any(m.startswith("an e-invoice: the number is given at booking") for m in messages)
 
 
 def _broken(**changes) -> Coding:

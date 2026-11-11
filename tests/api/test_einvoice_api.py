@@ -99,6 +99,12 @@ def test_the_confirmed_e_invoice_is_coded_and_booked_by_its_date_of_supply(fresh
     assert proposal["document"]["booking_date"] == fields["handwritten"]["date"]
     number = re.fullmatch(r"FD/(\d+)/26", proposal["document"]["number"])
     assert number is not None and int(number.group(1)) == extraction["number_preview"]
+    # The number is the booking's, not a handwritten number the OCR missed (P2-M6-T09).
+    assert not any("handwritten number" in r for r in proposal["review_reasons"])
+    assert [e["detail"] for e in proposal["evidence"] if e["field"] == "document_number"] == [
+        "an e-invoice: the number is given at booking by the date of supply; "
+        f"{proposal['document']['number']} is the counter's next"
+    ]
 
     coding = {k: proposal[k] for k in ("document", "posting", "budget")}
     booked = user.post(

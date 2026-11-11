@@ -12,6 +12,7 @@ from riso.contracts import (
     CodingProposal,
     DocumentRef,
     Feedback,
+    Intake,
     InvoiceDocument,
     PostingLine,
     SupplierMemory,
@@ -222,6 +223,40 @@ def test_a_missing_handwritten_number_takes_the_counters_next(setting):
     assert proposal.document.number == "FD/223/26"
     assert proposal.confidence.document_number == 0.5
     assert proposal.needs_review
+
+
+def test_an_e_invoice_leaves_its_number_to_the_booking(setting):
+    """Decision 65 (P2-M6-T09): an e-invoice has no handwritten number on purpose; the booking
+    places it by its date of supply, so the counter's next is a preview, not a review reason."""
+    scan = invoice("no-number", [("Výkon zodpovednej osoby", "30.75")], ico="50528041", number=None)
+    einvoice = scan.model_copy(update={"intake": Intake(channel="einvoice", format="ubl")})
+
+    proposal = code(einvoice, setting)
+
+    assert proposal.document.number == "FD/223/26"
+    assert proposal.confidence.document_number == 0.5
+    assert not any("handwritten number" in r for r in proposal.review_reasons)
+    assert not proposal.needs_review
+    number = [e for e in proposal.evidence if e.field == "document_number"]
+    assert [(e.source, e.detail) for e in number] == [
+        (
+            "counter",
+            "an e-invoice: the number is given at booking by the date of supply; "
+            "FD/223/26 is the counter's next",
+        )
+    ]
+    # A scan of the same invoice still asks for its number.
+    assert code(scan, setting).needs_review
+
+
+def test_a_number_typed_for_an_e_invoice_counts_as_handwritten(setting):
+    typed = invoice("typed", [("Výkon zodpovednej osoby", "30.75")], ico="50528041", number="150")
+    proposal = code(
+        typed.model_copy(update={"intake": Intake(channel="einvoice", format="isdoc")}), setting
+    )
+
+    assert proposal.document.number == "FD/150/26"
+    assert {e.source for e in proposal.evidence if e.field == "document_number"} == {"handwritten"}
 
 
 def test_a_missing_booking_date_stays_empty(setting):

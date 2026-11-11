@@ -1,6 +1,8 @@
 """S2, resolution: the supplier's precedents, the series (FD, or FDŠJ for the canteen), the
 document number and the booking date from the handwritten note, and the counter's next
-number only when the handwritten number is missing."""
+number only when the handwritten number is missing. An e-invoice carries no handwritten
+number on purpose: the booking places it by its date of supply (plan §2 decisions 61 and 65),
+so the counter's next is only a preview there and no review reason."""
 
 from typing import Literal
 
@@ -37,15 +39,18 @@ def resolve(
     series = entity.canteen_series if canteen else entity.default_series
     year = invoice.booking_date.year if invoice.booking_date else entity.budget_year
     pattern = index.series[series].pattern
-    source: Literal["handwritten", "counter"]
+    source: Literal["handwritten", "counter", "booking"]
     if invoice.handwritten_number is not None:
         number = format_number(pattern, invoice.handwritten_number, year)
         source = "handwritten"
     else:
         next_number = counters.last_used.get(f"{series}/{year}", 0) + 1
         number = format_number(pattern, next_number, year)
-        source = "counter"
-        issues.append(f"the handwritten number was not read; {number} is the counter's next")
+        if _einvoice(invoice):
+            source = "booking"
+        else:
+            source = "counter"
+            issues.append(f"the handwritten number was not read; {number} is the counter's next")
     if invoice.booking_date is None:
         issues.append("the handwritten booking date was not read")
 
@@ -63,6 +68,11 @@ def resolve(
         used_numbers=frozenset(counters.used_numbers),
         issues=tuple(issues),
     )
+
+
+def _einvoice(invoice: NormalisedInvoice) -> bool:
+    intake = invoice.document.intake
+    return intake is not None and intake.channel == "einvoice"
 
 
 def _by_name(invoice: NormalisedInvoice, memory: SupplierMemory) -> SupplierRecord | None:
