@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from riso.contracts import InvoiceDocument
 from riso.intake.domain import Document, MediaType
 from riso.intake.domain.extract import Evidence
-from riso.intake.domain.extraction import Extraction
+from riso.intake.domain.extraction import Extraction, Source
 from riso.intake.domain.layout import Box
 from riso.intake.domain.note import NoteSuggestions, Suggestion
 from riso.intake.infrastructure.orm import DocumentRow, ExtractionRow
@@ -124,6 +124,13 @@ def _note(data: dict[str, Any] | None) -> NoteSuggestions | None:
     )
 
 
+_SOURCES: dict[str, Source] = {"ocr": "ocr", "text_layer": "text_layer", "einvoice": "einvoice"}
+
+
+def _source(value: str) -> Source:
+    return _SOURCES.get(value, "ocr")
+
+
 def _extraction(row: ExtractionRow) -> Extraction:
     return Extraction(
         id=row.id,
@@ -132,7 +139,7 @@ def _extraction(row: ExtractionRow) -> Extraction:
         invoice_id=row.invoice_id,
         engine=row.engine,
         engine_version=row.engine_version,
-        source="text_layer" if row.source == "text_layer" else "ocr",
+        source=_source(row.source),
         document=InvoiceDocument.model_validate(row.document),
         evidence={
             path: Evidence(int(e["page"]), Box.of(e["box"]), str(e["text"]))

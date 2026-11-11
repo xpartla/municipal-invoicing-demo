@@ -8,11 +8,19 @@ from starlette.concurrency import run_in_threadpool
 
 from riso.api.deps import Caller, ServicesDep, check_csrf, customer_context
 from riso.identity import Permission
-from riso.intake.api.models import DocumentOut, ExtractionOut, RetryOut, UploadItemOut, UploadOut
+from riso.intake.api.models import (
+    DocumentOut,
+    EInvoiceOut,
+    ExtractionOut,
+    RetryOut,
+    UploadItemOut,
+    UploadOut,
+)
 from riso.intake.application import (
     MAX_FILES,
     UploadedFile,
     document_file,
+    einvoice_detail,
     extraction_image,
     get_document,
     get_extraction,
@@ -42,9 +50,10 @@ async def upload(
     customer_id: str,
     files: Annotated[list[UploadFile], File(description="One invoice per file")],
 ) -> UploadOut:
-    """Uploads invoices: PDF, JPEG, PNG or TIFF files of at most 20 MB and 5 pages, one
-    invoice each, at most 20 per request. Each file is taken or refused on its own; a taken
-    file becomes an invoice whose extraction job starts (poll `jobs.get_customer`)."""
+    """Uploads invoices: PDF, JPEG, PNG, TIFF or XML (UBL, ISDOC) files of at most 20 MB and
+    5 pages (a PDF carrying an e-invoice may have more), one invoice each, at most 20 per
+    request. Each file is taken or refused on its own; a taken file becomes an invoice whose
+    extraction job starts (poll `jobs.get_customer`)."""
     if len(files) > MAX_FILES:
         raise ValidationFailed.on("files", f"at most {MAX_FILES} files at once", "too_many_files")
     uploaded = [await _read(file) for file in files]
@@ -56,6 +65,7 @@ async def upload(
         services.pages,
         customer_id,
         uploaded,
+        services.einvoices,
     )
     items = [UploadItemOut.of(o) for o in outcomes]
     accepted = sum(item.status == "accepted" for item in items)
@@ -101,6 +111,26 @@ def extraction(
     plan §8.5). 404 before it was read."""
     return ExtractionOut.of(
         get_extraction(caller.ctx, services.uow(immediate=False), customer_id, document_id)
+    )
+
+
+@router.get("/customers/{customer_id}/documents/{document_id}/einvoice", name="documents.einvoice")
+def einvoice(
+    caller: Reader, services: ServicesDep, customer_id: str, document_id: DocumentId
+) -> EInvoiceOut:
+    """The e-invoice the document is (XML) or carries (a PDF's attachment), read again from
+    its file: the rendered view's model, the XSD's findings and the raw XML (plan §8.4). An
+    XML file that could not be read gives its failure and its raw text; 404 for a document
+    that is no e-invoice."""
+    return EInvoiceOut.of(
+        einvoice_detail(
+            caller.ctx,
+            services.uow(immediate=False),
+            services.storage,
+            services.einvoices,
+            customer_id,
+            document_id,
+        )
     )
 
 

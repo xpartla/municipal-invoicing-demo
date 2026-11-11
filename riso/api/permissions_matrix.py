@@ -133,6 +133,7 @@ MATRIX: dict[str, RouteAccess] = {
     "documents.extraction": customer(Permission.CUSTOMER_READ),
     "documents.page": customer(Permission.CUSTOMER_READ),
     "documents.note": customer(Permission.CUSTOMER_READ),
+    "documents.einvoice": customer(Permission.CUSTOMER_READ),
     "extraction.retry": customer(Permission.INVOICES_PROCESS),
     # Úložisko: the customer's files.
     "files.list": customer(Permission.CUSTOMER_READ),

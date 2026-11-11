@@ -31,12 +31,15 @@ def _guess_dpi(image: Image.Image) -> int:
     return max(30, round(min(image.size) / A4_WIDTH_INCHES))
 
 
-def load_pages(data: bytes, media_type: MediaType) -> list[tuple[Image.Image, int]]:
+def load_pages(
+    data: bytes, media_type: MediaType, *, first: int | None = None
+) -> list[tuple[Image.Image, int]]:
     """Each page as an RGB image with its resolution. Raises `ReadingFailed` when the file
     cannot be opened (`unreadable`), is too large to decode (`too_many_pixels`) or has more
-    than `MAX_PAGES` pages (`too_many_pages`)."""
+    than `MAX_PAGES` pages (`too_many_pages`); with `first`, a PDF gives its first pages
+    only and is never too long."""
     if media_type is MediaType.PDF:
-        return _pdf_pages(data)
+        return _pdf_pages(data, first)
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("error", Image.DecompressionBombWarning)
@@ -55,16 +58,17 @@ def load_pages(data: bytes, media_type: MediaType) -> list[tuple[Image.Image, in
         raise ReadingFailed("unreadable", "the file cannot be opened as an image") from None
 
 
-def _pdf_pages(data: bytes) -> list[tuple[Image.Image, int]]:
+def _pdf_pages(data: bytes, first: int | None = None) -> list[tuple[Image.Image, int]]:
     try:
         document = pdfium.PdfDocument(data)
     except pdfium.PdfiumError:
         raise ReadingFailed("unreadable", "the file cannot be opened as a PDF") from None
     try:
-        if len(document) > MAX_PAGES:
+        if first is None and len(document) > MAX_PAGES:
             raise ReadingFailed("too_many_pages", f"more than {MAX_PAGES} pages")
         pages = []
-        for page in document:
+        for index in range(min(len(document), first if first is not None else MAX_PAGES)):
+            page = document[index]
             width, height = page.get_size()
             limit = Image.MAX_IMAGE_PIXELS
             if limit and width * height * (RENDER_DPI / 72) ** 2 > limit:
@@ -77,7 +81,12 @@ def _pdf_pages(data: bytes) -> list[tuple[Image.Image, int]]:
 
 
 def prepare_pages(
-    data: bytes, media_type: MediaType, sha256: str, *, for_ocr: bool = True
+    data: bytes,
+    media_type: MediaType,
+    sha256: str,
+    *,
+    for_ocr: bool = True,
+    first: int | None = None,
 ) -> list[PageImage]:
     """The document's pages as the reader gets them: loaded, then normalised (grayscale,
     about 300 dpi, contrast, and unless `for_ocr` is off, as for a digital PDF whose words
@@ -85,7 +94,7 @@ def prepare_pages(
     `riso ocr record` both use this,
     so recorded layouts match the pages they replay for."""
     pages = []
-    for index, (image, dpi) in enumerate(load_pages(data, media_type)):
+    for index, (image, dpi) in enumerate(load_pages(data, media_type, first=first)):
         done = normalise(image, dpi, for_ocr=for_ocr)
         pages.append(
             PageImage(
@@ -104,6 +113,12 @@ class Pages:
     """The `PagePreparer` port."""
 
     def prepare(
-        self, data: bytes, media_type: MediaType, sha256: str, *, for_ocr: bool = True
+        self,
+        data: bytes,
+        media_type: MediaType,
+        sha256: str,
+        *,
+        for_ocr: bool = True,
+        first: int | None = None,
     ) -> list[PageImage]:
-        return prepare_pages(data, media_type, sha256, for_ocr=for_ocr)
+        return prepare_pages(data, media_type, sha256, for_ocr=for_ocr, first=first)

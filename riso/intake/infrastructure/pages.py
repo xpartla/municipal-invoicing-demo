@@ -1,5 +1,5 @@
 """Counting a file's pages without reading it: pypdfium2 for a PDF (the only PDF parser the
-app uses, plan §12), Pillow's header for a TIFF's frames."""
+app uses, plan §12), Pillow's header for a TIFF's frames; an XML file has none."""
 
 import io
 import warnings
@@ -12,6 +12,8 @@ from riso.intake.domain import MediaType
 
 class FilePages:
     def pages(self, data: bytes, media_type: MediaType) -> int | None:
+        if media_type is MediaType.XML:
+            return None  # an e-invoice has no pages
         if media_type is MediaType.PDF:
             try:
                 document = pdfium.PdfDocument(data)

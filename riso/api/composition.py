@@ -33,6 +33,7 @@ from riso.intake.infrastructure.pages import FilePages
 from riso.intake.infrastructure.pdftext import PdfTextLayer
 from riso.intake.infrastructure.recorded import RecordedReader
 from riso.intake.infrastructure.tesseract import TesseractReader
+from riso.intake.infrastructure.xml.reader import XmlEInvoiceReader
 from riso.jobs import JobRegistry, Worker, register_builtin
 from riso.jobs.domain import Job
 from riso.jobs.infrastructure.thread import WorkerThread
@@ -86,6 +87,7 @@ class Services:
     links: SpaLinks
     reader: FileTableReader = field(default_factory=FileTableReader)
     pages: FilePages = field(default_factory=FilePages)
+    einvoices: XmlEInvoiceReader = field(default_factory=XmlEInvoiceReader)
     document_reader: DocumentReader | None = None
     """The OCR engine (`RISO_OCR_READER`); made when first needed."""
     _threads: list[WorkerThread] = field(default_factory=list)
@@ -160,6 +162,7 @@ class Services:
             InkLocator(),
             DirectoryCustomers(self.directory),
             MemorySupplierNames(lambda: self.uow(immediate=False), self.directory),
+            self.einvoices,
         )
 
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:

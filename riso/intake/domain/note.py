@@ -40,7 +40,9 @@ class NoteRegion:
 class Suggestion:
     value: str
     """A number as written (`144`), a date as ISO 8601."""
-    source: Literal["ocr", "counter"]
+    source: Literal["ocr", "counter", "upload"]
+    """Tesseract's reading, the counter's next number, or the upload date (an e-invoice's
+    booking date, decision 65)."""
     plausible: bool
     reasons: tuple[str, ...] = ()
     """Why not: `before_issue`, `in_future`, `other_year`, `below_counter`, `far_ahead`,

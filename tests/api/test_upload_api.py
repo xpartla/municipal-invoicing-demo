@@ -79,7 +79,7 @@ def test_the_type_comes_from_the_content_not_the_name(fresh: Fresh):
         user,
         fresh.boldog,
         ("faktura.pdf", b"just some text, not a PDF"),
-        ("faktura.xml", b"<?xml version='1.0'?><Invoice/>"),
+        ("faktura.xml", b"PK\x03\x04 a spreadsheet named as XML"),
         ("prazdny.pdf", b""),
         ("obrazok.txt", _image("PNG")),
     )

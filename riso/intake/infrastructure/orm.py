@@ -53,7 +53,7 @@ class ExtractionRow(Base):
     warnings: Mapped[list[str]] = mapped_column(JSON)
     note: Mapped[dict[str, Any] | None] = mapped_column(JSON)
     page_keys: Mapped[list[str]] = mapped_column(JSON)
-    layout_key: Mapped[str] = mapped_column(String(160))
+    layout_key: Mapped[str | None] = mapped_column(String(160))
     note_key: Mapped[str | None] = mapped_column(String(160))
     duration_ms: Mapped[int] = mapped_column(Integer)
     created_at: Mapped[datetime] = mapped_column(UtcDateTime)

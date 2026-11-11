@@ -6,6 +6,7 @@ from typing import Protocol
 from PIL import Image
 
 from riso.intake.domain import MediaType
+from riso.intake.domain.einvoice import EInvoiceReading
 from riso.intake.domain.layout import Box, PageLayout
 from riso.intake.domain.note import NoteRegion
 
@@ -73,8 +74,29 @@ class TextLayer(Protocol):
 
 class PagePreparer(Protocol):
     def prepare(
-        self, data: bytes, media_type: MediaType, sha256: str, *, for_ocr: bool = True
+        self,
+        data: bytes,
+        media_type: MediaType,
+        sha256: str,
+        *,
+        for_ocr: bool = True,
+        first: int | None = None,
     ) -> list[PageImage]:
         """The document's pages, ready to be read. Raises `ReadingFailed` with the reason
-        (`unreadable`, `too_many_pages`, `too_many_pixels`) when the file will not open."""
+        (`unreadable`, `too_many_pages`, `too_many_pixels`) when the file will not open. With
+        `first`, only that many pages are prepared and a longer PDF is not refused (the pages
+        of a PDF that carries an e-invoice, shown and not read)."""
+        ...
+
+
+class EInvoiceReader(Protocol):
+    """E-invoice XML (plan §8.4): `XmlEInvoiceReader`."""
+
+    def read_xml(self, data: bytes) -> EInvoiceReading:
+        """The e-invoice; `ReadingFailed` when the XML cannot be read as one (`xml_*`,
+        `einvoice_unknown`, `einvoice_no_supplier`, `einvoice_no_total`)."""
+        ...
+
+    def read_pdf(self, data: bytes) -> tuple[EInvoiceReading, bytes] | None:
+        """The e-invoice attached to the PDF and its XML; None when it carries none."""
         ...

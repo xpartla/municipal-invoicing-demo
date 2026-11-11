@@ -65,7 +65,7 @@ const HANDWRITTEN = { 'handwritten.date': 'date', 'handwritten.number': 'number'
 
 export interface Suggestion {
   value: string;
-  source: 'ocr' | 'counter';
+  source: 'ocr' | 'counter' | 'upload';
   plausible: boolean;
   reasons: string[];
 }
@@ -270,6 +270,7 @@ export function FieldsForm({
           const shown = name === 'handwritten.date' ? formatDate(s.value) : s.value;
           const notes = [
             ...(s.source === 'counter' ? [t('fieldsForm.fromCounter')] : []),
+            ...(s.source === 'upload' ? [t('fieldsForm.fromUpload')] : []),
             ...s.reasons.map((r) =>
               t(`fieldsForm.reasons.${r}` as 'fieldsForm.reasons.below_counter', {
                 defaultValue: r,

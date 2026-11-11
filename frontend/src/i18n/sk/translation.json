@@ -1522,6 +1522,7 @@
     "keyboard": "Enter potvrdí pole a prejde na ďalšie, ktoré treba skontrolovať; Tab preskočí na ďalšie také pole. Prázdne pole písané rukou Enter vyplní prvým návrhom.",
     "suggestionsFor": "Návrhy pre {{field}}",
     "fromCounter": "z počítadla",
+    "fromUpload": "deň nahratia",
     "reasons": {
       "below_counter": "nižšie ako počítadlo",
       "far_ahead": "ďaleko pred počítadlom",

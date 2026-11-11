@@ -11,9 +11,17 @@ the handwritten note's suggestions from its digits pass; the handwritten date an
 empty for the user to confirm. The extraction keeps the engine, the layout, the page images,
 the note's crop and the time taken, and is stored with the invoice's move in one transaction.
 
+An e-invoice (plan §8.4) is read from its XML without OCR: an XML file, or a PDF that
+carries UBL or ISDOC as an attachment (the attachment is looked for first; a PDF without
+one is read as before). Every field comes at confidence 1.0, the business checks give the
+warnings, and the PDF's pages (at most five) are kept for the viewer. There is no note: the
+booking date is suggested as the upload date and the number is left to the booking, which
+places the invoice by its date of supply (decisions 61 and 65); both are for the user to
+confirm.
+
 A reading that fails says why (`unreadable`, `too_many_pages`, `too_many_pixels`,
-`no_models`, `ocr_timeout`, …); anything else is retried, and the last attempt ends the
-extraction with `extraction_error`.
+`no_models`, `ocr_timeout`, `xml_invalid`, `einvoice_unknown`, …); anything else is
+retried, and the last attempt ends the extraction with `extraction_error`.
 """
 
 import io
@@ -25,22 +33,25 @@ from typing import Any, Protocol
 from PIL import Image
 from pydantic import BaseModel, ConfigDict
 
+from riso.contracts import Intake
 from riso.identity import Permission
 from riso.intake.application.enrich import SupplierNames, enrich
 from riso.intake.application.note import note_readings, suggest
 from riso.intake.application.ports import (
     DocumentReader,
+    EInvoiceReader,
     NoteLocator,
     PageImage,
     PagePreparer,
     TextLayer,
 )
 from riso.intake.application.uow import IntakeUnitOfWork
-from riso.intake.domain import MediaType
-from riso.intake.domain.extract import Context, FieldExtractor
+from riso.intake.domain import MAX_PAGES, Document, MediaType
+from riso.intake.domain.einvoice import EInvoiceReading, check
+from riso.intake.domain.extract import Context, Extracted, FieldExtractor
 from riso.intake.domain.extraction import Extraction, Source
-from riso.intake.domain.layout import DocumentLayout, PageLayout, ReadingFailed
-from riso.intake.domain.note import NoteSuggestions
+from riso.intake.domain.layout import Box, DocumentLayout, PageLayout, ReadingFailed
+from riso.intake.domain.note import NoteSuggestions, Suggestion
 from riso.invoicing import (
     awaits_extraction,
     complete_extraction,
@@ -104,6 +115,7 @@ class ExtractionJobs:
         locator: NoteLocator,
         customers: Customers,
         suppliers: SupplierNames,
+        einvoices: EInvoiceReader,
     ) -> None:
         self._uow = uow_factory
         self._storage = storage
@@ -113,6 +125,7 @@ class ExtractionJobs:
         self._locator = locator
         self._customers = customers
         self._suppliers = suppliers
+        self._einvoices = einvoices
         self._extractor = FieldExtractor()
 
     def register(self, registry: JobRegistry) -> None:
@@ -126,6 +139,9 @@ class ExtractionJobs:
         with self._storage.open(document.storage_key) as handle:
             data = handle.read()
         try:
+            einvoice = self._einvoice(document.media_type, data)
+            if einvoice is not None:
+                return self._extract_einvoice(payload, job, document, data, einvoice)
             return self._extract(payload, job, document.media_type, document.sha256, data)
         except ReadingFailed as failed:
             return self._fail(payload, job, failed.reason)
@@ -133,6 +149,100 @@ class ExtractionJobs:
             if job.attempt >= ATTEMPTS:
                 return self._fail(payload, job, "extraction_error")
             raise
+
+    def _einvoice(self, media_type: MediaType, data: bytes) -> EInvoiceReading | None:
+        """The e-invoice the file is or carries; None for a scan or an ordinary PDF."""
+        if media_type is MediaType.XML:
+            return self._einvoices.read_xml(data)
+        if media_type is MediaType.PDF:
+            found = self._einvoices.read_pdf(data)
+            return found[0] if found is not None else None
+        return None
+
+    def _extract_einvoice(
+        self,
+        payload: ExtractDocument,
+        job: JobContext,
+        document: Document,
+        data: bytes,
+        reading: EInvoiceReading,
+    ) -> dict[str, Any]:
+        started = time.perf_counter()
+        ico, _ = self._customers.identity_of(payload.customer_id)
+        fields = reading.document.model_copy(
+            update={"intake": Intake(channel="einvoice", format=reading.intake_format)}
+        )
+        warnings = check(fields, customer_ico=ico, schema_errors=reading.schema_errors)
+        extracted = enrich(Extracted(fields, {}, warnings), payload.customer_id, self._suppliers)
+        pages = (
+            self._pages.prepare(
+                data, MediaType.PDF, document.sha256, for_ocr=False, first=MAX_PAGES
+            )
+            if document.media_type is MediaType.PDF
+            else []
+        )
+        page_keys = tuple(
+            self._storage.put(_jpeg(p.image), owner=payload.customer_id, extension="jpg").key
+            for p in pages
+        )
+        # The booking date's suggestion: the day the file came (decision 65, plan O1).
+        uploaded = local_date(document.uploaded_at).isoformat()
+        note = NoteSuggestions(
+            page=0,
+            box=Box(0, 0, 0, 0),
+            found=False,
+            date=(Suggestion(uploaded, "upload", plausible=True),),
+            number=(),
+        )
+        with self._uow() as uow:
+            at = uow.clock.now()
+            extraction = Extraction.recorded(
+                uow.ids.new(),
+                customer_id=payload.customer_id,
+                document_id=payload.document_id,
+                invoice_id=payload.invoice_id,
+                engine=reading.format.family,
+                engine_version=reading.version,
+                source="einvoice",
+                document=extracted.document,
+                evidence={},
+                warnings=extracted.warnings,
+                note=note,
+                page_keys=page_keys,
+                layout_key=None,
+                note_key=None,
+                duration_ms=round((time.perf_counter() - started) * 1000),
+                at=at,
+            )
+            if not complete_extraction(
+                job.request,
+                uow,
+                payload.customer_id,
+                payload.invoice_id,
+                job.job_id,
+                extracted.document,
+                channel="einvoice",
+            ):
+                return {"outcome": "skipped"}
+            uow.extractions.add(extraction)
+            uow.audit.record(
+                job.request,
+                "document.extracted",
+                target_type="document",
+                target_id=payload.document_id,
+                customer_id=payload.customer_id,
+                details={
+                    "extraction_id": extraction.id,
+                    "engine": extraction.engine,
+                    "source": "einvoice",
+                    "format": reading.intake_format,
+                    "schema_errors": len(reading.schema_errors),
+                    "pages": len(pages),
+                    "duration_ms": extraction.duration_ms,
+                },
+            )
+            uow.commit()
+        return {"outcome": "extracted", "extraction_id": extraction.id}
 
     def _fail(self, payload: ExtractDocument, job: JobContext, reason: str) -> dict[str, Any]:
         with self._uow() as uow:

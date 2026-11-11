@@ -1,6 +1,7 @@
-"""Uploading invoices (plan §8.2, §10.5, decision 18): several files at once, each on its
-own. A file is taken when its content is a PDF, JPEG, PNG or TIFF of at most 20 MB and 5
-pages that the customer has not uploaded before (plan §7.3, by SHA-256). Taking it stores the
+"""Uploading invoices (plan §8.2, §8.4, §10.5, decision 18): several files at once, each on
+its own. A file is taken when its content is a PDF, JPEG, PNG, TIFF or XML of at most 20 MB
+and 5 pages (a PDF carrying an e-invoice may have more) that the customer has not uploaded
+before (plan §7.3, by SHA-256). Taking it stores the
 file, records the `Document`, creates its invoice and queues the `extract_document` job, in
 one transaction; a refused file changes nothing.
 """
@@ -11,11 +12,12 @@ from dataclasses import dataclass
 
 from riso.identity import Permission
 from riso.intake.application.extraction import EXTRACT_JOB, ExtractDocument
-from riso.intake.application.ports import PageCounter
+from riso.intake.application.ports import EInvoiceReader, PageCounter
 from riso.intake.application.uow import IntakeUnitOfWork
 from riso.intake.application.views import DocumentFile, DocumentView, UploadOutcome
 from riso.intake.domain import (
     MAX_BYTES,
+    MAX_PAGES,
     SNIFF_BYTES,
     Document,
     MediaType,
@@ -23,6 +25,7 @@ from riso.intake.domain import (
     safe_filename,
     sniff,
 )
+from riso.intake.domain.layout import ReadingFailed
 from riso.invoicing import invoice_of_document, register_upload
 from riso.shared.context import RequestContext
 from riso.shared.errors import ValidationFailed
@@ -41,9 +44,19 @@ class UploadedFile:
 
 
 def channel_of(media_type: MediaType) -> str:
-    """Images are scans. A PDF is taken as a scan too until its extraction finds a usable
-    text layer, which makes it a digital PDF (P2-M5-T04)."""
-    return "scan"
+    """XML is an e-invoice, images are scans. A PDF is taken as a scan too until its
+    extraction finds an e-invoice attached (P2-M6) or a usable text layer, which makes it a
+    digital PDF (P2-M5-T04)."""
+    return "einvoice" if media_type is MediaType.XML else "scan"
+
+
+def _carries_einvoice(einvoices: EInvoiceReader | None, data: bytes) -> bool:
+    if einvoices is None:
+        return False
+    try:
+        return einvoices.read_pdf(data) is not None
+    except ReadingFailed:
+        return False
 
 
 def upload_documents(
@@ -53,13 +66,17 @@ def upload_documents(
     counter: PageCounter,
     customer_id: str,
     files: Sequence[UploadedFile],
+    einvoices: EInvoiceReader | None = None,
 ) -> list[UploadOutcome]:
     ctx.require(Permission.INVOICES_PROCESS, customer_id)
     if not files:
         raise ValidationFailed.on("files", "no file", "no_files")
     if len(files) > MAX_FILES:
         raise ValidationFailed.on("files", f"at most {MAX_FILES} files at once", "too_many_files")
-    return [_upload(ctx, uow_factory(), storage, counter, customer_id, file) for file in files]
+    return [
+        _upload(ctx, uow_factory(), storage, counter, customer_id, file, einvoices)
+        for file in files
+    ]
 
 
 def _upload(
@@ -69,13 +86,20 @@ def _upload(
     counter: PageCounter,
     customer_id: str,
     file: UploadedFile,
+    einvoices: EInvoiceReader | None = None,
 ) -> UploadOutcome:
     name = safe_filename(file.filename)
     size = MAX_BYTES + 1 if file.truncated else len(file.data)
     try:
         media_type = check_upload(size, sniff(file.data[:SNIFF_BYTES]), None)
         pages = counter.pages(file.data, media_type)
-        check_upload(size, media_type, pages)
+        long_einvoice = (
+            media_type is MediaType.PDF
+            and pages is not None
+            and pages > MAX_PAGES
+            and _carries_einvoice(einvoices, file.data)
+        )
+        check_upload(size, media_type, pages, einvoice=long_einvoice)
     except ValidationFailed as refused:
         error = refused.errors[0]
         return UploadOutcome(name, "rejected", reason=error.code, message=error.message)
@@ -106,6 +130,7 @@ def _upload(
                 storage_key=stored.key,
                 at=at,
                 actor_id=ctx.actor_id,
+                einvoice=long_einvoice,
             )
             uow.documents.add(document)
             invoice_id = uow.ids.new()
