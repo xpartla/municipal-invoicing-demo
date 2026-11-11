@@ -5582,6 +5582,44 @@
             }
           },
           {
+            "name": "booked_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Booked in riso on or after",
+              "title": "Booked From"
+            },
+            "description": "Booked in riso on or after"
+          },
+          {
+            "name": "booked_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Booked in riso on or before",
+              "title": "Booked To"
+            },
+            "description": "Booked in riso on or before"
+          },
+          {
             "name": "paid_from",
             "in": "query",
             "required": false,
@@ -7166,6 +7204,68 @@
         }
       }
     },
+    "/api/customers/{customer_id}/dashboard": {
+      "get": {
+        "tags": [
+          "reporting"
+        ],
+        "summary": "Dashboard.Get",
+        "description": "Domov's numbers for a month (plan §10.2): the tiles, the charts and tables, the\nbudget drawdown, what needs attention and the onboarding checklist.",
+        "operationId": "dashboard.get",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`2026-11`; default: now",
+              "title": "Month"
+            },
+            "description": "`2026-11`; default: now"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/admin/audit": {
       "get": {
         "tags": [
@@ -7912,6 +8012,98 @@
         ],
         "title": "AssignProviderIn"
       },
+      "AttentionItemOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "supplier_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplier Name"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "uploaded_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Uploaded At"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "supplier_name",
+          "source_ref",
+          "uploaded_at"
+        ],
+        "title": "AttentionItemOut"
+      },
+      "AttentionOut": {
+        "properties": {
+          "failed": {
+            "items": {
+              "$ref": "#/components/schemas/AttentionItemOut"
+            },
+            "type": "array",
+            "title": "Failed"
+          },
+          "failed_total": {
+            "type": "integer",
+            "title": "Failed Total"
+          },
+          "waiting": {
+            "items": {
+              "$ref": "#/components/schemas/AttentionItemOut"
+            },
+            "type": "array",
+            "title": "Waiting"
+          },
+          "waiting_total": {
+            "type": "integer",
+            "title": "Waiting Total"
+          },
+          "warnings": {
+            "items": {
+              "$ref": "#/components/schemas/WarningOut"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "failed",
+          "failed_total",
+          "waiting",
+          "waiting_total",
+          "warnings"
+        ],
+        "title": "AttentionOut"
+      },
       "AuditEventOut": {
         "properties": {
           "id": {
@@ -8288,6 +8480,96 @@
         ],
         "title": "BudgetLine",
         "description": "One line of Rozpočet záväzku: the key in the software's format and its five parts,\nwhich must agree."
+      },
+      "BudgetOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/BudgetRowOut"
+            },
+            "type": "array",
+            "title": "Rows"
+          },
+          "budgeted": {
+            "type": "number",
+            "title": "Budgeted",
+            "description": "EUR, at most two decimals"
+          },
+          "drawn": {
+            "type": "number",
+            "title": "Drawn",
+            "description": "EUR, at most two decimals"
+          },
+          "elsewhere": {
+            "type": "number",
+            "title": "Elsewhere",
+            "description": "Drawn on positions without an amount"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "year",
+          "rows",
+          "budgeted",
+          "drawn",
+          "elsewhere"
+        ],
+        "title": "BudgetOut"
+      },
+      "BudgetRowOut": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "budgeted": {
+            "type": "number",
+            "title": "Budgeted",
+            "description": "Adjusted, else approved"
+          },
+          "drawn": {
+            "type": "number",
+            "title": "Drawn",
+            "description": "EUR, at most two decimals"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "key",
+          "description",
+          "budgeted",
+          "drawn",
+          "share"
+        ],
+        "title": "BudgetRowOut"
       },
       "BulkDiscardIn": {
         "properties": {
@@ -9475,6 +9757,98 @@
         ],
         "title": "CustomerWithLoginsOut"
       },
+      "DashboardOut": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "tiles": {
+            "$ref": "#/components/schemas/TilesOut"
+          },
+          "per_day": {
+            "items": {
+              "$ref": "#/components/schemas/DayTotalOut"
+            },
+            "type": "array",
+            "title": "Per Day"
+          },
+          "by_type": {
+            "items": {
+              "$ref": "#/components/schemas/TypeTotalOut"
+            },
+            "type": "array",
+            "title": "By Type"
+          },
+          "suppliers_by_count": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierTotalOut"
+            },
+            "type": "array",
+            "title": "Suppliers By Count"
+          },
+          "suppliers_by_amount": {
+            "items": {
+              "$ref": "#/components/schemas/SupplierTotalOut"
+            },
+            "type": "array",
+            "title": "Suppliers By Amount"
+          },
+          "units": {
+            "items": {
+              "$ref": "#/components/schemas/UnitTotalOut"
+            },
+            "type": "array",
+            "title": "Units"
+          },
+          "months": {
+            "items": {
+              "$ref": "#/components/schemas/MonthTotalOut"
+            },
+            "type": "array",
+            "title": "Months",
+            "description": "The twelve months ending with this one"
+          },
+          "review": {
+            "$ref": "#/components/schemas/ReviewOut"
+          },
+          "budget": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BudgetOut"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "None when the budget has no amounts"
+          },
+          "attention": {
+            "$ref": "#/components/schemas/AttentionOut"
+          },
+          "onboarding": {
+            "$ref": "#/components/schemas/OnboardingOut"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "tiles",
+          "per_day",
+          "by_type",
+          "suppliers_by_count",
+          "suppliers_by_amount",
+          "units",
+          "months",
+          "review",
+          "budget",
+          "attention",
+          "onboarding"
+        ],
+        "title": "DashboardOut",
+        "description": "Domov (plan §10.2, decision 67). A month is a Bratislava month; booked statistics\ncount bookings made in riso in it; `attention` and `onboarding` are about now."
+      },
       "DateValue": {
         "properties": {
           "op": {
@@ -9502,6 +9876,32 @@
         "additionalProperties": false,
         "type": "object",
         "title": "DateValue"
+      },
+      "DayTotalOut": {
+        "properties": {
+          "day": {
+            "type": "string",
+            "format": "date",
+            "title": "Day"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total",
+            "description": "EUR, at most two decimals"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "day",
+          "count",
+          "total"
+        ],
+        "title": "DayTotalOut"
       },
       "DecimalNumber": {
         "properties": {
@@ -10395,6 +10795,30 @@
               }
             ],
             "title": "Exported To"
+          },
+          "booked_from": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booked From"
+          },
+          "booked_to": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Booked To"
           },
           "paid_from": {
             "anyOf": [
@@ -13532,6 +13956,32 @@
         ],
         "title": "MembershipOut"
       },
+      "MonthTotalOut": {
+        "properties": {
+          "month": {
+            "type": "string",
+            "title": "Month",
+            "description": "`2026-11`"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total",
+            "description": "EUR, at most two decimals"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "month",
+          "count",
+          "total"
+        ],
+        "title": "MonthTotalOut"
+      },
       "NoteOut": {
         "properties": {
           "page": {
@@ -13709,6 +14159,45 @@
         "additionalProperties": false,
         "type": "object",
         "title": "OcrMeta"
+      },
+      "OnboardingOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "profile": {
+            "type": "boolean",
+            "title": "Profile"
+          },
+          "codelists": {
+            "type": "boolean",
+            "title": "Codelists"
+          },
+          "health": {
+            "type": "boolean",
+            "title": "Health"
+          },
+          "first_booked": {
+            "type": "boolean",
+            "title": "First Booked"
+          },
+          "done": {
+            "type": "boolean",
+            "title": "Done"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "year",
+          "profile",
+          "codelists",
+          "health",
+          "first_booked",
+          "done"
+        ],
+        "title": "OnboardingOut"
       },
       "OutboxItemOut": {
         "properties": {
@@ -14489,6 +14978,52 @@
         ],
         "title": "RetryOut"
       },
+      "ReviewOut": {
+        "properties": {
+          "booked": {
+            "type": "integer",
+            "title": "Booked"
+          },
+          "reviewed": {
+            "type": "integer",
+            "title": "Reviewed",
+            "description": "Booked invoices whose proposal needed review"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate",
+            "description": "reviewed / booked; none without bookings"
+          },
+          "median_seconds": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Median Seconds",
+            "description": "From upload to booking"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "booked",
+          "reviewed",
+          "rate",
+          "median_seconds"
+        ],
+        "title": "ReviewOut"
+      },
       "Role": {
         "type": "string",
         "enum": [
@@ -14869,6 +15404,50 @@
         ],
         "title": "SupplierRef"
       },
+      "SupplierTotalOut": {
+        "properties": {
+          "ico": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ico"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total",
+            "description": "EUR, at most two decimals"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ico",
+          "name",
+          "count",
+          "total"
+        ],
+        "title": "SupplierTotalOut"
+      },
       "Target": {
         "properties": {
           "metric": {
@@ -15096,6 +15675,51 @@
         ],
         "title": "TemplateScope"
       },
+      "TilesOut": {
+        "properties": {
+          "uploaded": {
+            "type": "integer",
+            "title": "Uploaded",
+            "description": "Uploaded in the month"
+          },
+          "waiting": {
+            "type": "integer",
+            "title": "Waiting",
+            "description": "Of those, extracted and waiting for the check step"
+          },
+          "review": {
+            "type": "integer",
+            "title": "Review",
+            "description": "Of those, needing review"
+          },
+          "failed": {
+            "type": "integer",
+            "title": "Failed",
+            "description": "Of those, whose extraction failed"
+          },
+          "booked": {
+            "type": "integer",
+            "title": "Booked",
+            "description": "Booked in riso in the month (booked, exported or paid)"
+          },
+          "booked_total": {
+            "type": "number",
+            "title": "Booked Total",
+            "description": "Their gross, credit notes negative"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "uploaded",
+          "waiting",
+          "review",
+          "failed",
+          "booked",
+          "booked_total"
+        ],
+        "title": "TilesOut"
+      },
       "TokenIn": {
         "properties": {
           "token": {
@@ -15210,6 +15834,94 @@
         "additionalProperties": false,
         "type": "object",
         "title": "Trim"
+      },
+      "TypeTotalOut": {
+        "properties": {
+          "series": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Series"
+          },
+          "credit_note": {
+            "type": "boolean",
+            "title": "Credit Note"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total",
+            "description": "EUR, at most two decimals"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "series",
+          "credit_note",
+          "count",
+          "total"
+        ],
+        "title": "TypeTotalOut"
+      },
+      "UnitTotalOut": {
+        "properties": {
+          "function": {
+            "type": "string",
+            "title": "Function",
+            "description": "Oddiel and trieda: `09 111`"
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Code",
+            "description": "The COFOG code: `09.1.1.1`"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "invoices": {
+            "type": "integer",
+            "title": "Invoices"
+          },
+          "total": {
+            "type": "number",
+            "title": "Total",
+            "description": "The function's booked lines"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "function",
+          "code",
+          "name",
+          "invoices",
+          "total"
+        ],
+        "title": "UnitTotalOut"
       },
       "UploadItemOut": {
         "properties": {
@@ -15681,6 +16393,38 @@
           "superseded"
         ],
         "title": "VersionStatus"
+      },
+      "WarningOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code",
+            "description": "A knowledge health code: `list_missing` …"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Kind"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "subject",
+          "kind"
+        ],
+        "title": "WarningOut"
       },
       "ZeroPad": {
         "properties": {

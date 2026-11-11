@@ -54,7 +54,9 @@ class Sort:
 class InvoiceFilter:
     """The table's filters (plan §10.3). Dates are days; `uploaded` and `exported` days are
     Bratislava days. Text matches ignore case and diacritics; budget, MD and DAL match by
-    prefix (`632` or `632005 41`)."""
+    prefix (`632` or `632005 41`). `booked` days are the Bratislava days the invoice was
+    booked in riso (the dashboard's tiles, plan §2 decision 67); `booking` days its booking
+    date."""
 
     text: str | None = None
     supplier_ico: str | None = None
@@ -73,6 +75,8 @@ class InvoiceFilter:
     uploaded_to: date | None = None
     exported_from: date | None = None
     exported_to: date | None = None
+    booked_from: date | None = None
+    booked_to: date | None = None
     paid_from: date | None = None
     paid_to: date | None = None
     amount_min: Decimal | None = None

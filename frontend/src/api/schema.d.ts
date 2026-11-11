@@ -2181,6 +2181,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/customers/{customer_id}/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Dashboard.Get
+         * @description Domov's numbers for a month (plan §10.2): the tiles, the charts and tables, the
+         *     budget drawdown, what needs attention and the onboarding checklist.
+         */
+        get: operations["dashboard.get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/admin/audit": {
         parameters: {
             query?: never;
@@ -2413,6 +2434,35 @@ export interface components {
             /** Provider Id */
             provider_id: string;
         };
+        /** AttentionItemOut */
+        AttentionItemOut: {
+            /** Id */
+            id: string;
+            /** State */
+            state: string;
+            /** Supplier Name */
+            supplier_name: string | null;
+            /** Source Ref */
+            source_ref: string | null;
+            /**
+             * Uploaded At
+             * Format: date-time
+             */
+            uploaded_at: string;
+        };
+        /** AttentionOut */
+        AttentionOut: {
+            /** Failed */
+            failed: components["schemas"]["AttentionItemOut"][];
+            /** Failed Total */
+            failed_total: number;
+            /** Waiting */
+            waiting: components["schemas"]["AttentionItemOut"][];
+            /** Waiting Total */
+            waiting_total: number;
+            /** Warnings */
+            warnings: components["schemas"]["WarningOut"][];
+        };
         /** AuditEventOut */
         AuditEventOut: {
             /** Id */
@@ -2535,6 +2585,47 @@ export interface components {
             stredisko?: string | null;
             /** Transfer */
             transfer?: string | null;
+        };
+        /** BudgetOut */
+        BudgetOut: {
+            /** Year */
+            year: number;
+            /** Rows */
+            rows: components["schemas"]["BudgetRowOut"][];
+            /**
+             * Budgeted
+             * @description EUR, at most two decimals
+             */
+            budgeted: number;
+            /**
+             * Drawn
+             * @description EUR, at most two decimals
+             */
+            drawn: number;
+            /**
+             * Elsewhere
+             * @description Drawn on positions without an amount
+             */
+            elsewhere: number;
+        };
+        /** BudgetRowOut */
+        BudgetRowOut: {
+            /** Key */
+            key: string;
+            /** Description */
+            description: string | null;
+            /**
+             * Budgeted
+             * @description Adjusted, else approved
+             */
+            budgeted: number;
+            /**
+             * Drawn
+             * @description EUR, at most two decimals
+             */
+            drawn: number;
+            /** Share */
+            share: number | null;
         };
         /** BulkDiscardIn */
         BulkDiscardIn: {
@@ -2949,6 +3040,36 @@ export interface components {
             /** Logins */
             logins: components["schemas"]["LoginOut"][];
         };
+        /**
+         * DashboardOut
+         * @description Domov (plan §10.2, decision 67). A month is a Bratislava month; booked statistics
+         *     count bookings made in riso in it; `attention` and `onboarding` are about now.
+         */
+        DashboardOut: {
+            /** Month */
+            month: string;
+            tiles: components["schemas"]["TilesOut"];
+            /** Per Day */
+            per_day: components["schemas"]["DayTotalOut"][];
+            /** By Type */
+            by_type: components["schemas"]["TypeTotalOut"][];
+            /** Suppliers By Count */
+            suppliers_by_count: components["schemas"]["SupplierTotalOut"][];
+            /** Suppliers By Amount */
+            suppliers_by_amount: components["schemas"]["SupplierTotalOut"][];
+            /** Units */
+            units: components["schemas"]["UnitTotalOut"][];
+            /**
+             * Months
+             * @description The twelve months ending with this one
+             */
+            months: components["schemas"]["MonthTotalOut"][];
+            review: components["schemas"]["ReviewOut"];
+            /** @description None when the budget has no amounts */
+            budget: components["schemas"]["BudgetOut"] | null;
+            attention: components["schemas"]["AttentionOut"];
+            onboarding: components["schemas"]["OnboardingOut"];
+        };
         /** DateValue */
         DateValue: {
             /**
@@ -2966,6 +3087,21 @@ export interface components {
              *     ]
              */
             formats: string[];
+        };
+        /** DayTotalOut */
+        DayTotalOut: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Count */
+            count: number;
+            /**
+             * Total
+             * @description EUR, at most two decimals
+             */
+            total: number;
         };
         /** DecimalNumber */
         DecimalNumber: {
@@ -3286,6 +3422,10 @@ export interface components {
             exported_from?: string | null;
             /** Exported To */
             exported_to?: string | null;
+            /** Booked From */
+            booked_from?: string | null;
+            /** Booked To */
+            booked_to?: string | null;
             /** Paid From */
             paid_from?: string | null;
             /** Paid To */
@@ -4258,6 +4398,21 @@ export interface components {
             /** Active */
             active: boolean;
         };
+        /** MonthTotalOut */
+        MonthTotalOut: {
+            /**
+             * Month
+             * @description `2026-11`
+             */
+            month: string;
+            /** Count */
+            count: number;
+            /**
+             * Total
+             * @description EUR, at most two decimals
+             */
+            total: number;
+        };
         /** NoteOut */
         NoteOut: {
             /** Page */
@@ -4333,6 +4488,21 @@ export interface components {
             confidence?: {
                 [key: string]: number;
             };
+        };
+        /** OnboardingOut */
+        OnboardingOut: {
+            /** Year */
+            year: number;
+            /** Profile */
+            profile: boolean;
+            /** Codelists */
+            codelists: boolean;
+            /** Health */
+            health: boolean;
+            /** First Booked */
+            first_booked: boolean;
+            /** Done */
+            done: boolean;
         };
         /** OutboxItemOut */
         OutboxItemOut: {
@@ -4620,6 +4790,26 @@ export interface components {
             /** Job Id */
             job_id: string;
         };
+        /** ReviewOut */
+        ReviewOut: {
+            /** Booked */
+            booked: number;
+            /**
+             * Reviewed
+             * @description Booked invoices whose proposal needed review
+             */
+            reviewed: number;
+            /**
+             * Rate
+             * @description reviewed / booked; none without bookings
+             */
+            rate: number | null;
+            /**
+             * Median Seconds
+             * @description From upload to booking
+             */
+            median_seconds: number | null;
+        };
         /**
          * Role
          * @enum {string}
@@ -4767,6 +4957,20 @@ export interface components {
              */
             known: boolean;
         };
+        /** SupplierTotalOut */
+        SupplierTotalOut: {
+            /** Ico */
+            ico: string | null;
+            /** Name */
+            name: string | null;
+            /** Count */
+            count: number;
+            /**
+             * Total
+             * @description EUR, at most two decimals
+             */
+            total: number;
+        };
         /** Target */
         Target: {
             /** Metric */
@@ -4845,6 +5049,39 @@ export interface components {
          * @enum {string}
          */
         TemplateScope: "builtin" | "global" | "provider" | "customer";
+        /** TilesOut */
+        TilesOut: {
+            /**
+             * Uploaded
+             * @description Uploaded in the month
+             */
+            uploaded: number;
+            /**
+             * Waiting
+             * @description Of those, extracted and waiting for the check step
+             */
+            waiting: number;
+            /**
+             * Review
+             * @description Of those, needing review
+             */
+            review: number;
+            /**
+             * Failed
+             * @description Of those, whose extraction failed
+             */
+            failed: number;
+            /**
+             * Booked
+             * @description Booked in riso in the month (booked, exported or paid)
+             */
+            booked: number;
+            /**
+             * Booked Total
+             * @description Their gross, credit notes negative
+             */
+            booked_total: number;
+        };
         /** TokenIn */
         TokenIn: {
             /** Token */
@@ -4886,6 +5123,42 @@ export interface components {
              * @enum {string}
              */
             op: "trim";
+        };
+        /** TypeTotalOut */
+        TypeTotalOut: {
+            /** Series */
+            series: string | null;
+            /** Credit Note */
+            credit_note: boolean;
+            /** Count */
+            count: number;
+            /**
+             * Total
+             * @description EUR, at most two decimals
+             */
+            total: number;
+        };
+        /** UnitTotalOut */
+        UnitTotalOut: {
+            /**
+             * Function
+             * @description Oddiel and trieda: `09 111`
+             */
+            function: string;
+            /**
+             * Code
+             * @description The COFOG code: `09.1.1.1`
+             */
+            code: string | null;
+            /** Name */
+            name: string | null;
+            /** Invoices */
+            invoices: number;
+            /**
+             * Total
+             * @description The function's booked lines
+             */
+            total: number;
         };
         /**
          * UploadItemOut
@@ -5053,6 +5326,18 @@ export interface components {
          * @enum {string}
          */
         VersionStatus: "active" | "superseded";
+        /** WarningOut */
+        WarningOut: {
+            /**
+             * Code
+             * @description A knowledge health code: `list_missing` …
+             */
+            code: string;
+            /** Subject */
+            subject: string;
+            /** Kind */
+            kind: string | null;
+        };
         /** ZeroPad */
         ZeroPad: {
             /**
@@ -8292,6 +8577,10 @@ export interface operations {
                 uploaded_to?: string | null;
                 exported_from?: string | null;
                 exported_to?: string | null;
+                /** @description Booked in riso on or after */
+                booked_from?: string | null;
+                /** @description Booked in riso on or before */
+                booked_to?: string | null;
                 paid_from?: string | null;
                 paid_to?: string | null;
                 amount_min?: number | string | null;
@@ -9174,6 +9463,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FilesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "dashboard.get": {
+        parameters: {
+            query?: {
+                /** @description `2026-11`; default: now */
+                month?: string | null;
+            };
+            header?: never;
+            path: {
+                customer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
                 };
             };
             /** @description Validation Error */

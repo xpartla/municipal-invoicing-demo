@@ -265,6 +265,8 @@ class ExportFilterIn(BaseModel):
     uploaded_to: date | None = None
     exported_from: date | None = None
     exported_to: date | None = None
+    booked_from: date | None = None
+    booked_to: date | None = None
     paid_from: date | None = None
     paid_to: date | None = None
     amount_min: Decimal | None = None

@@ -18,6 +18,7 @@ from riso.exchange.infrastructure.repository import (
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
 from riso.intake.infrastructure.repository import SqlDocumentRepository, SqlExtractionRepository
 from riso.invoicing.infrastructure.queries import SqlInvoiceQueries
+from riso.invoicing.infrastructure.statistics import SqlInvoiceStatistics
 from riso.invoicing.infrastructure.uow import SqlInvoicingUnitOfWork
 from riso.jobs import JobRegistry, register_builtin
 from riso.jobs.application import RepositoryJobQueue
@@ -53,6 +54,7 @@ class AppUnitOfWork(
     series_patterns: CodelistSeriesPatterns
     precedents: UowPrecedents
     invoice_queries: SqlInvoiceQueries
+    invoice_statistics: SqlInvoiceStatistics
     people: UserNames
 
     def __init__(
@@ -91,4 +93,5 @@ class AppUnitOfWork(
         self.series_patterns = CodelistSeriesPatterns(self)
         self.precedents = UowPrecedents(self)
         self.invoice_queries = SqlInvoiceQueries(self.session)
+        self.invoice_statistics = SqlInvoiceStatistics(self.session)
         self.people = UserNames(self.users)
