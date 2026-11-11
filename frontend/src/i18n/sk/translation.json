@@ -824,6 +824,7 @@
   "exchange": {
     "title": "Importy a exporty",
     "newImport": "Nový import",
+    "newExport": "Nový export",
     "types": {
       "accounts": "Účtový rozvrh",
       "budget_expense": "Výdavkový rozpočet",

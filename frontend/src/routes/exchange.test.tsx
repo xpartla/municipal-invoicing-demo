@@ -205,7 +205,31 @@ describe('Importy a exporty', () => {
     await renderApp(`/c/${BOLDOG.id}/exchange`);
     expect(await screen.findByText('Zatiaľ žiadny import.')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Nový import' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nový export' })).not.toBeInTheDocument();
     expect(screen.queryByText('Šablóny mapovania')).not.toBeInTheDocument();
+  });
+
+  it('starts a new export of the booked invoices not exported yet', async () => {
+    const { calls } = mockApi({
+      'GET /api/me': { body: meAs('user') },
+      [`GET ${base}`]: { body: { items: [], total: 0 } },
+      [`GET /api/customers/${BOLDOG.id}/templates`]: { body: [] },
+      [`GET /api/customers/${BOLDOG.id}/exports`]: { body: { items: [], total: 0 } },
+      [`POST /api/customers/${BOLDOG.id}/exports/preview`]: {
+        body: { invoices: 3, again: 0, skipped: 0 },
+      },
+    });
+    await renderApp(`/c/${BOLDOG.id}/exchange`);
+    expect(await screen.findByText('Zatiaľ žiadny export.')).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: 'Nový export' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Export faktúr' });
+    expect(await within(dialog).findByText('Zaúčtované faktúry do exportu: 3')).toBeVisible();
+    const preview = calls.find((c) => c.path === `/api/customers/${BOLDOG.id}/exports/preview`);
+    expect(preview?.body).toEqual({
+      format: 'csv',
+      filter: { state: ['booked'] },
+      sort: 'booking_date',
+    });
   });
 });
 
