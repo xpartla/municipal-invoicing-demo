@@ -1,0 +1,117 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>1</DocumentType>
+  <ID>2026/0612</ID>
+  <UUID>5f3f25fb-9b14-5c5f-9a8f-be007ab586e6</UUID>
+  <IssueDate>2026-02-02</IssueDate>
+  <VATApplicable>false</VATApplicable>
+  <ElectronicPossibilityAgreementReference></ElectronicPossibilityAgreementReference>
+  <Note>Členský príspevok podľa uznesenia Snemu ZMOS.
+Členský príspevok nie je predmetom DPH.
+Variabilný symbol: IČO obce</Note>
+  <LocalCurrencyCode>EUR</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification>
+        <ID>00584614</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Združenie miest a obcí Slovenska</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName>Bezručova</StreetName>
+        <BuildingNumber>9</BuildingNumber>
+        <CityName>Bratislava</CityName>
+        <PostalZone>811 09</PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification>
+        <ID>00305863</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Obec Boldog</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName></StreetName>
+        <BuildingNumber></BuildingNumber>
+        <CityName>Boldog</CityName>
+        <PostalZone></PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="obyv.">612</InvoicedQuantity>
+      <LineExtensionAmount>61.20</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>61.20</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>0.00</LineExtensionTaxAmount>
+      <UnitPrice>0.1</UnitPrice>
+      <UnitPriceTaxInclusive>0.1</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>0</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>false</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Členský príspevok ZMOS na rok 2026 – 612 obyvateľov × 0,10 €</Description>
+      </Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>61.20</TaxableAmount>
+      <TaxAmount>0.00</TaxAmount>
+      <TaxInclusiveAmount>61.20</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0.00</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0.00</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>61.20</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>0.00</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>61.20</DifferenceTaxInclusiveAmount>
+      <TaxCategory>
+        <Percent>0</Percent>
+        <VATApplicable>false</VATApplicable>
+      </TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>0.00</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>61.20</TaxExclusiveAmount>
+    <TaxInclusiveAmount>61.20</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>61.20</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>61.20</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0.00</PaidDepositsAmount>
+    <PayableAmount>61.20</PayableAmount>
+  </LegalMonetaryTotal>
+  <PaymentMeans>
+    <Payment>
+      <PaidAmount>61.20</PaidAmount>
+      <PaymentMeansCode>42</PaymentMeansCode>
+      <Details>
+        <PaymentDueDate>2026-03-31</PaymentDueDate>
+        <ID>10234012</ID>
+        <BankCode>0200</BankCode>
+        <Name></Name>
+        <IBAN>SK7102000000000010234012</IBAN>
+        <BIC></BIC>
+        <VariableSymbol>00305863</VariableSymbol>
+      </Details>
+    </Payment>
+  </PaymentMeans>
+</Invoice>

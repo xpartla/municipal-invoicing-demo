@@ -41,6 +41,9 @@ const WARNED: Record<string, FieldPath[]> = {
   supplier_ico_check_digit: ['supplier.ico'],
   totals_do_not_add_up: ['totals.net', 'totals.vat', 'totals.gross'],
   dates_out_of_order: ['invoice.issue_date', 'invoice.delivery_date', 'invoice.due_date'],
+  iban_check_digits: ['supplier.iban'],
+  tax_ids_do_not_match: ['supplier.dic', 'supplier.ic_dph'],
+  lines_do_not_add_up: ['totals.net', 'totals.gross'],
 };
 
 /**
@@ -92,8 +95,12 @@ export function CheckStep({
       handwrittenToConfirm: fresh,
       onFieldFocus,
       suggestions: note ? { date: note.date, number: note.number } : undefined,
+      einvoice:
+        extraction?.source === 'einvoice'
+          ? { numberPreview: extraction.number_preview }
+          : undefined,
       note:
-        note && invoice.document_id ? (
+        note && extraction.note_image && invoice.document_id ? (
           <figure style={{ margin: 0 }}>
             <img
               src={noteUrl(customerId, invoice.document_id)}
@@ -204,7 +211,11 @@ export function CheckStep({
       {extraction && (
         <Group gap="md">
           <Text size="sm" c="dimmed">
-            {extraction.source === 'text_layer' ? t('check.fromText') : t('check.fromOcr')}
+            {extraction.source === 'einvoice'
+              ? t('check.fromEinvoice')
+              : extraction.source === 'text_layer'
+                ? t('check.fromText')
+                : t('check.fromOcr')}
           </Text>
           {download}
         </Group>

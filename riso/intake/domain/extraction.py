@@ -15,7 +15,7 @@ from riso.intake.domain.extract import Evidence
 from riso.intake.domain.note import NoteSuggestions
 from riso.shared.events import DomainEvent
 
-Source = Literal["ocr", "text_layer"]
+Source = Literal["ocr", "text_layer", "einvoice"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,7 +42,8 @@ class Extraction:
     note: NoteSuggestions | None
     page_keys: tuple[str, ...]
     """The normalised pages' images in storage, in page order: what the check step shows."""
-    layout_key: str
+    layout_key: str | None
+    """The words with their boxes in storage; None for an e-invoice, which has none."""
     note_key: str | None
     """The note's crop in storage."""
     duration_ms: int
@@ -65,7 +66,7 @@ class Extraction:
         warnings: tuple[str, ...],
         note: NoteSuggestions | None,
         page_keys: tuple[str, ...],
-        layout_key: str,
+        layout_key: str | None,
         note_key: str | None,
         duration_ms: int,
         at: datetime,

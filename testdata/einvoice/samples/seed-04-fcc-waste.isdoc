@@ -1,0 +1,177 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>1</DocumentType>
+  <ID>2601000417</ID>
+  <UUID>567db0ad-5b14-5ca2-9a7a-da27f7093bcf</UUID>
+  <IssueDate>2026-01-12</IssueDate>
+  <TaxPointDate>2025-12-31</TaxPointDate>
+  <VATApplicable>true</VATApplicable>
+  <ElectronicPossibilityAgreementReference></ElectronicPossibilityAgreementReference>
+  <Note>Fakturujeme Vám zber, prepravu a zneškodnenie zmesového komunálneho odpadu v obci Boldog za obdobie 12/2025 podľa Zmluvy o poskytovaní služieb č. 0412/2019 v znení dodatkov.
+Prílohy: vážne lístky, súpis výsypov
+Faktúra je zároveň daňovým dokladom.</Note>
+  <LocalCurrencyCode>EUR</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification>
+        <ID>31318762</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>FCC Slovensko, s.r.o.</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName>Bratislavská</StreetName>
+        <BuildingNumber>18</BuildingNumber>
+        <CityName>Zohor</CityName>
+        <PostalZone>900 51</PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+      <PartyTaxScheme>
+        <CompanyID>SK2020318492</CompanyID>
+        <TaxScheme>VAT</TaxScheme>
+      </PartyTaxScheme>
+      <PartyTaxScheme>
+        <CompanyID>2020318492</CompanyID>
+        <TaxScheme>TIN</TaxScheme>
+      </PartyTaxScheme>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification>
+        <ID>00305863</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Obec Boldog</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName></StreetName>
+        <BuildingNumber></BuildingNumber>
+        <CityName>Boldog</CityName>
+        <PostalZone></PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="výsyp">520</InvoicedQuantity>
+      <LineExtensionAmount>332.80</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>409.34</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>76.54</LineExtensionTaxAmount>
+      <UnitPrice>0.64</UnitPrice>
+      <UnitPriceTaxInclusive>0.7872</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Zber a preprava zmesového komunálneho odpadu 20 03 01 – nádoby 110/120 l</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>2</ID>
+      <InvoicedQuantity unitCode="výsyp">12</InvoicedQuantity>
+      <LineExtensionAmount>82.80</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>101.84</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>19.04</LineExtensionTaxAmount>
+      <UnitPrice>6.9</UnitPrice>
+      <UnitPriceTaxInclusive>8.487</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Zber a preprava zmesového komunálneho odpadu 20 03 01 – kontajnery 1 100 l</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>3</ID>
+      <InvoicedQuantity unitCode="t">14.36</InvoicedQuantity>
+      <LineExtensionAmount>746.72</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>918.47</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>171.75</LineExtensionTaxAmount>
+      <UnitPrice>52</UnitPrice>
+      <UnitPriceTaxInclusive>63.96</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Zneškodnenie odpadu 20 03 01 skládkovaním</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>4</ID>
+      <InvoicedQuantity unitCode="t">14.36</InvoicedQuantity>
+      <LineExtensionAmount>430.80</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>529.88</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>99.08</LineExtensionTaxAmount>
+      <UnitPrice>30</UnitPrice>
+      <UnitPriceTaxInclusive>36.9</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Poplatok za uloženie odpadov na skládku podľa zákona č. 329/2018 Z. z.</Description>
+      </Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>1593.12</TaxableAmount>
+      <TaxAmount>366.41</TaxAmount>
+      <TaxInclusiveAmount>1959.53</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0.00</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0.00</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>1593.12</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>366.41</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>1959.53</DifferenceTaxInclusiveAmount>
+      <TaxCategory>
+        <Percent>23</Percent>
+        <VATApplicable>true</VATApplicable>
+      </TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>366.41</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>1593.12</TaxExclusiveAmount>
+    <TaxInclusiveAmount>1959.53</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>1593.12</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>1959.53</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0.00</PaidDepositsAmount>
+    <PayableAmount>1959.53</PayableAmount>
+  </LegalMonetaryTotal>
+  <PaymentMeans>
+    <Payment>
+      <PaidAmount>1959.53</PaidAmount>
+      <PaymentMeansCode>42</PaymentMeansCode>
+      <Details>
+        <PaymentDueDate>2026-01-26</PaymentDueDate>
+        <ID>2622034417</ID>
+        <BankCode>1100</BankCode>
+        <Name></Name>
+        <IBAN>SK7311000000002622034417</IBAN>
+        <BIC></BIC>
+        <VariableSymbol>2601000417</VariableSymbol>
+      </Details>
+    </Payment>
+  </PaymentMeans>
+</Invoice>

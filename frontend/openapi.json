@@ -6657,7 +6657,7 @@
           "intake"
         ],
         "summary": "Documents.Upload",
-        "description": "Uploads invoices: PDF, JPEG, PNG or TIFF files of at most 20 MB and 5 pages, one\ninvoice each, at most 20 per request. Each file is taken or refused on its own; a taken\nfile becomes an invoice whose extraction job starts (poll `jobs.get_customer`).",
+        "description": "Uploads invoices: PDF, JPEG, PNG, TIFF or XML (UBL, ISDOC) files of at most 20 MB and\n5 pages (a PDF carrying an e-invoice may have more), one invoice each, at most 20 per\nrequest. Each file is taken or refused on its own; a taken file becomes an invoice whose\nextraction job starts (poll `jobs.get_customer`).",
         "operationId": "documents.upload",
         "parameters": [
           {
@@ -6843,6 +6843,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ExtractionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{customer_id}/documents/{document_id}/einvoice": {
+      "get": {
+        "tags": [
+          "intake"
+        ],
+        "summary": "Documents.Einvoice",
+        "description": "The e-invoice the document is (XML) or carries (a PDF's attachment), read again from\nits file: the rendered view's model, the XSD's findings and the raw XML (plan §8.4). An\nXML file that could not be read gives its failure and its raw text; 404 for a document\nthat is no e-invoice.",
+        "operationId": "documents.einvoice",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "title": "Document Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EInvoiceOut"
                 }
               }
             }
@@ -9712,6 +9765,160 @@
         ],
         "title": "DryRunReport"
       },
+      "EInvoiceOut": {
+        "properties": {
+          "format": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ubl_invoice",
+                  "ubl_credit_note",
+                  "isdoc"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Format"
+          },
+          "family": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ubl",
+                  "isdoc"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Family"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile"
+          },
+          "attachment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attachment",
+            "description": "The attachment's name when it came in a PDF"
+          },
+          "document": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvoiceDocument"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "customer_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Address"
+          },
+          "taxes": {
+            "items": {
+              "$ref": "#/components/schemas/TaxLineOut"
+            },
+            "type": "array",
+            "title": "Taxes"
+          },
+          "payable": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Payable"
+          },
+          "schema_errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Schema Errors"
+          },
+          "failure": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Failure"
+          },
+          "xml": {
+            "type": "string",
+            "title": "Xml"
+          },
+          "truncated": {
+            "type": "boolean",
+            "title": "Truncated"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "format",
+          "family",
+          "version",
+          "profile",
+          "attachment",
+          "document",
+          "customer_address",
+          "taxes",
+          "payable",
+          "schema_errors",
+          "failure",
+          "xml",
+          "truncated"
+        ],
+        "title": "EInvoiceOut",
+        "description": "An e-invoice as the viewer renders it (plan §8.4, §8.5): the document as its XML says\n(a credit note's amounts negative), the VAT breakdown, the payable amount, what the XSD\nfound, and the raw XML (at most a million characters). A file that could not be read has\nno document, the failure's reason and its raw text."
+      },
       "EmailChangeIn": {
         "properties": {
           "new_email": {
@@ -10547,7 +10754,8 @@
             "type": "string",
             "enum": [
               "ocr",
-              "text_layer"
+              "text_layer",
+              "einvoice"
             ],
             "title": "Source"
           },
@@ -10594,6 +10802,23 @@
                 "type": "null"
               }
             ]
+          },
+          "note_image": {
+            "type": "boolean",
+            "title": "Note Image",
+            "description": "Whether the note's crop is stored (`documents.note`)"
+          },
+          "number_preview": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Number Preview",
+            "description": "An e-invoice's number has no suggestion: booking places it by its date of supply (decision 61); this is the number the default series would give now"
           }
         },
         "additionalProperties": false,
@@ -10611,7 +10836,9 @@
           "warnings",
           "confidence",
           "evidence",
-          "note"
+          "note",
+          "note_image",
+          "number_preview"
         ],
         "title": "ExtractionOut"
       },
@@ -14540,7 +14767,8 @@
             "type": "string",
             "enum": [
               "ocr",
-              "counter"
+              "counter",
+              "upload"
             ],
             "title": "Source"
           },
@@ -14713,6 +14941,60 @@
           "derived"
         ],
         "title": "TargetFieldOut"
+      },
+      "TaxLineOut": {
+        "properties": {
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "UNCL 5305 (`S`, `E`, `O`, …)"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          },
+          "taxable": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Taxable"
+          },
+          "tax": {
+            "anyOf": [
+              {
+                "type": "number",
+                "description": "EUR, as printed on the invoice"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tax"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "category",
+          "rate",
+          "taxable",
+          "tax"
+        ],
+        "title": "TaxLineOut"
       },
       "TemplateIn": {
         "properties": {

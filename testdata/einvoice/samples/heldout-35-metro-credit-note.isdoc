@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>2</DocumentType>
+  <ID>112/0026/029914</ID>
+  <UUID>913f8fd9-2c7c-508d-abb2-89c483d6db47</UUID>
+  <IssueDate>2026-10-02</IssueDate>
+  <TaxPointDate>2026-10-02</TaxPointDate>
+  <VATApplicable>true</VATApplicable>
+  <ElectronicPossibilityAgreementReference></ElectronicPossibilityAgreementReference>
+  <Note>Dobropis k faktúre č. 112/0026/028871 – vrátenie neotvoreného tovaru
+Číslo zákazníka: 41/005218
+Faktúra je zároveň daňovým dokladom.</Note>
+  <LocalCurrencyCode>EUR</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification>
+        <ID>45952671</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>METRO Cash &amp; Carry SR s. r. o.</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName>Senecká cesta</StreetName>
+        <BuildingNumber>1881</BuildingNumber>
+        <CityName>Ivanka pri Dunaji</CityName>
+        <PostalZone>900 28</PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+      <PartyTaxScheme>
+        <CompanyID>SK2023165208</CompanyID>
+        <TaxScheme>VAT</TaxScheme>
+      </PartyTaxScheme>
+      <PartyTaxScheme>
+        <CompanyID>2023165208</CompanyID>
+        <TaxScheme>TIN</TaxScheme>
+      </PartyTaxScheme>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification>
+        <ID>00305863</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Obec Boldog</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName></StreetName>
+        <BuildingNumber></BuildingNumber>
+        <CityName>Boldog</CityName>
+        <PostalZone></PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="ks">24</InvoicedQuantity>
+      <LineExtensionAmount>10.80</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>13.28</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>2.48</LineExtensionTaxAmount>
+      <UnitPrice>0.45</UnitPrice>
+      <UnitPriceTaxInclusive>0.5535</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Vrátenie tovaru – Minerálna voda jemne perlivá 1,5 l</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>2</ID>
+      <InvoicedQuantity unitCode="ks">6</InvoicedQuantity>
+      <LineExtensionAmount>25.74</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>31.66</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>5.92</LineExtensionTaxAmount>
+      <UnitPrice>4.29</UnitPrice>
+      <UnitPriceTaxInclusive>5.2767</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Vrátenie tovaru – Víno biele suché 0,75 l</Description>
+      </Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>36.54</TaxableAmount>
+      <TaxAmount>8.40</TaxAmount>
+      <TaxInclusiveAmount>44.94</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0.00</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0.00</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>36.54</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>8.40</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>44.94</DifferenceTaxInclusiveAmount>
+      <TaxCategory>
+        <Percent>23</Percent>
+        <VATApplicable>true</VATApplicable>
+      </TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>8.40</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>36.54</TaxExclusiveAmount>
+    <TaxInclusiveAmount>44.94</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>36.54</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>44.94</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0.00</PaidDepositsAmount>
+    <PayableAmount>44.94</PayableAmount>
+  </LegalMonetaryTotal>
+  <PaymentMeans>
+    <Payment>
+      <PaidAmount>44.94</PaidAmount>
+      <PaymentMeansCode>42</PaymentMeansCode>
+      <Details>
+        <PaymentDueDate>2026-10-02</PaymentDueDate>
+        <ID>2927861154</ID>
+        <BankCode>1100</BankCode>
+        <Name></Name>
+        <IBAN>SK8411000000002927861154</IBAN>
+        <BIC></BIC>
+        <VariableSymbol>0026029914</VariableSymbol>
+      </Details>
+    </Payment>
+  </PaymentMeans>
+</Invoice>

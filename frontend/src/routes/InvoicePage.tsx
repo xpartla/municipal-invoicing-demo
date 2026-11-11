@@ -31,6 +31,7 @@ import { inCustomer } from '../features/identity/capabilities';
 import { useExtraction } from '../features/intake/api';
 import { CheckStep } from '../features/intake/CheckStep';
 import { DocumentViewer, type Highlight } from '../features/intake/DocumentViewer';
+import { EInvoiceViewer } from '../features/intake/EInvoiceViewer';
 import {
   useBookingPreview,
   useInvoice,
@@ -375,12 +376,21 @@ function InvoiceView({ customerId, invoice }: { customerId: string; invoice: Inv
                 top: 'calc(var(--app-shell-header-height, 0px) + 1rem)',
               }}
             >
-              <DocumentViewer
-                customerId={customerId}
-                documentId={invoice.document_id}
-                pages={read.pages}
-                highlight={highlight}
-              />
+              {read.source === 'einvoice' ? (
+                <EInvoiceViewer
+                  customerId={customerId}
+                  documentId={invoice.document_id}
+                  pages={read.pages}
+                  focused={focused}
+                />
+              ) : (
+                <DocumentViewer
+                  customerId={customerId}
+                  documentId={invoice.document_id}
+                  pages={read.pages}
+                  highlight={highlight}
+                />
+              )}
             </div>
           </Grid.Col>
         )}

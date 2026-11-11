@@ -65,7 +65,7 @@ const HANDWRITTEN = { 'handwritten.date': 'date', 'handwritten.number': 'number'
 
 export interface Suggestion {
   value: string;
-  source: 'ocr' | 'counter';
+  source: 'ocr' | 'counter' | 'upload';
   plausible: boolean;
   reasons: string[];
 }
@@ -79,6 +79,10 @@ export interface CheckAids {
   /** The handwritten note's enlarged crop, above the two fields. */
   note?: ReactNode;
   suggestions?: { date: Suggestion[]; number: Suggestion[] };
+  /** An e-invoice (decision 65): no handwritten note; the booking date is suggested (the
+   * upload's) and confirmed, the number left to the booking, which places the invoice by its
+   * date of supply; `numberPreview` is the number it would get now. */
+  einvoice?: { numberPreview: number | null };
   /** A field got the focus (its box is shown on the document), or none has it. */
   onFieldFocus?: (path: FieldPath | null) => void;
 }
@@ -172,6 +176,9 @@ export function FieldsForm({
   const amber = (name: FieldPath): string | undefined => {
     if (!aids || confirmed.has(name)) return undefined;
     if (name in HANDWRITTEN && aids.handwrittenToConfirm && !aids.doubtful[name]) {
+      if (aids.einvoice) {
+        return name === 'handwritten.date' ? t('fieldsForm.marks.einvoiceDate') : undefined;
+      }
       return t('fieldsForm.marks.handwritten');
     }
     return aids.doubtful[name];
@@ -270,6 +277,7 @@ export function FieldsForm({
           const shown = name === 'handwritten.date' ? formatDate(s.value) : s.value;
           const notes = [
             ...(s.source === 'counter' ? [t('fieldsForm.fromCounter')] : []),
+            ...(s.source === 'upload' ? [t('fieldsForm.fromUpload')] : []),
             ...s.reasons.map((r) =>
               t(`fieldsForm.reasons.${r}` as 'fieldsForm.reasons.below_counter', {
                 defaultValue: r,
@@ -295,6 +303,11 @@ export function FieldsForm({
   };
 
   const delivery = form.register('invoice.delivery_as_issue');
+  const einvoice = aids?.einvoice;
+  const dateLabel = einvoice ? t('fieldsForm.einvoice.date') : t('fieldsForm.handwrittenDate');
+  const numberLabel = einvoice
+    ? t('fieldsForm.einvoice.number')
+    : t('fieldsForm.handwrittenNumber');
 
   return (
     <form onSubmit={(event) => void submit(event)} noValidate>
@@ -320,20 +333,24 @@ export function FieldsForm({
             {t('fieldsForm.keyboard')}
           </Text>
         )}
-        <Fieldset legend={t('fieldsForm.handwritten')}>
+        <Fieldset legend={einvoice ? t('fieldsForm.einvoice.legend') : t('fieldsForm.handwritten')}>
           <Stack gap="sm">
             {aids?.note}
             <SimpleGrid type="container" cols={{ base: 1, '420px': 2 }} spacing="sm">
               <Stack gap={6}>
-                {input('handwritten.date', t('fieldsForm.handwrittenDate'), { type: 'date' })}
-                {suggestions('handwritten.date', t('fieldsForm.handwrittenDate'))}
+                {input('handwritten.date', dateLabel, { type: 'date' })}
+                {suggestions('handwritten.date', dateLabel)}
               </Stack>
               <Stack gap={6}>
-                {input('handwritten.number', t('fieldsForm.handwrittenNumber'), {
-                  description: t('fieldsForm.handwrittenNumberHint'),
+                {input('handwritten.number', numberLabel, {
+                  description: einvoice
+                    ? einvoice.numberPreview !== null
+                      ? t('fieldsForm.einvoice.numberHint', { number: einvoice.numberPreview })
+                      : t('fieldsForm.einvoice.numberHintNone')
+                    : t('fieldsForm.handwrittenNumberHint'),
                   inputMode: 'numeric',
                 })}
-                {suggestions('handwritten.number', t('fieldsForm.handwrittenNumber'))}
+                {suggestions('handwritten.number', numberLabel)}
               </Stack>
             </SimpleGrid>
           </Stack>

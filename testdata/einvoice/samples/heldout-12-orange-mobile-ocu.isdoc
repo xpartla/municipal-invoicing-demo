@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>1</DocumentType>
+  <ID>4107988120</ID>
+  <UUID>ed300bfa-a1d5-5005-a98b-c1098a9bfcab</UUID>
+  <IssueDate>2026-09-03</IssueDate>
+  <TaxPointDate>2026-08-31</TaxPointDate>
+  <VATApplicable>true</VATApplicable>
+  <ElectronicPossibilityAgreementReference></ElectronicPossibilityAgreementReference>
+  <Note>Vyúčtovanie služieb za obdobie 01.08.2026 – 31.08.2026
+Číslo zákazníka: 1.12345678
+Rozpis podľa SIM: Starosta, Kancelária 1, Kancelária 2, Kancelária 3, Údržba
+Faktúra je zároveň daňovým dokladom.</Note>
+  <LocalCurrencyCode>EUR</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification>
+        <ID>35697270</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Orange Slovensko, a.s.</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName>Metodova</StreetName>
+        <BuildingNumber>8</BuildingNumber>
+        <CityName>Bratislava</CityName>
+        <PostalZone>821 08</PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+      <PartyTaxScheme>
+        <CompanyID>SK2020310578</CompanyID>
+        <TaxScheme>VAT</TaxScheme>
+      </PartyTaxScheme>
+      <PartyTaxScheme>
+        <CompanyID>2020310578</CompanyID>
+        <TaxScheme>TIN</TaxScheme>
+      </PartyTaxScheme>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification>
+        <ID>00305863</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Obec Boldog</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName></StreetName>
+        <BuildingNumber></BuildingNumber>
+        <CityName>Boldog</CityName>
+        <PostalZone></PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="SIM">5</InvoicedQuantity>
+      <LineExtensionAmount>69.95</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>86.04</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>16.09</LineExtensionTaxAmount>
+      <UnitPrice>13.99</UnitPrice>
+      <UnitPriceTaxInclusive>17.2077</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Mesačné poplatky za programy služieb (Biznis Paušál, 5 SIM)</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>2</ID>
+      <LineExtensionAmount>5.92</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>7.28</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>1.36</LineExtensionTaxAmount>
+      <UnitPrice>5.92</UnitPrice>
+      <UnitPriceTaxInclusive>7.2816</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Hovory, SMS a dáta mimo programu služieb</Description>
+      </Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>75.87</TaxableAmount>
+      <TaxAmount>17.45</TaxAmount>
+      <TaxInclusiveAmount>93.32</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0.00</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0.00</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>75.87</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>17.45</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>93.32</DifferenceTaxInclusiveAmount>
+      <TaxCategory>
+        <Percent>23</Percent>
+        <VATApplicable>true</VATApplicable>
+      </TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>17.45</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>75.87</TaxExclusiveAmount>
+    <TaxInclusiveAmount>93.32</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>75.87</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>93.32</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0.00</PaidDepositsAmount>
+    <PayableAmount>93.32</PayableAmount>
+  </LegalMonetaryTotal>
+  <PaymentMeans>
+    <Payment>
+      <PaidAmount>93.32</PaidAmount>
+      <PaymentMeansCode>42</PaymentMeansCode>
+      <Details>
+        <PaymentDueDate>2026-09-17</PaymentDueDate>
+        <ID>2621817047</ID>
+        <BankCode>1100</BankCode>
+        <Name></Name>
+        <IBAN>SK7811000000002621817047</IBAN>
+        <BIC></BIC>
+        <VariableSymbol>4107988120</VariableSymbol>
+      </Details>
+    </Payment>
+  </PaymentMeans>
+</Invoice>

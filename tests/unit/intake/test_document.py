@@ -25,6 +25,8 @@ T0 = datetime(2026, 11, 10, 9, 0, tzinfo=UTC)
         (b"\x89PNG\r\n\x1a\n\x00\x00", MediaType.PNG),
         (b"II*\x00\x08\x00", MediaType.TIFF),
         (b"MM\x00*\x00\x00", MediaType.TIFF),
+        (b"<?xml version='1.0'?><Invoice/>", MediaType.XML),
+        (b"\xef\xbb\xbf\n <Invoice xmlns='urn:x'/>", MediaType.XML),
     ],
 )
 def test_the_type_comes_from_the_first_bytes(head, media_type):
@@ -34,7 +36,7 @@ def test_the_type_comes_from_the_first_bytes(head, media_type):
 @pytest.mark.parametrize(
     "head",
     [
-        b"<?xml version='1.0'?><Invoice/>",
+        b"<!DOCTYPE html><html></html>",
         b"PK\x03\x04 a zip or an xlsx",
         b"GIF89a",
         b"MZ\x90\x00 an executable",
@@ -113,3 +115,13 @@ def test_an_uploaded_document_records_its_event_and_checks_its_limits():
             at=T0,
             actor_id=None,
         )
+
+
+def test_xml_has_no_pages_and_is_not_an_image():
+    assert MediaType.XML.extension == "xml" and not MediaType.XML.is_image
+
+
+def test_a_pdf_carrying_an_e_invoice_is_taken_whatever_its_pages():
+    with pytest.raises(ValidationFailed):
+        check_upload(1000, MediaType.PDF, 7)
+    assert check_upload(1000, MediaType.PDF, 7, einvoice=True) is MediaType.PDF

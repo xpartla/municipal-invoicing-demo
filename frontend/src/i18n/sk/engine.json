@@ -162,6 +162,10 @@
       "^no handwritten number read; (\\S+) is next in the counter$",
       "rukou písané číslo sa neprečítalo; {1} je ďalšie podľa počítadla"
     ],
+    [
+      "^an e-invoice: the number is given at booking by the date of supply; (\\S+) is the counter's next$",
+      "elektronická faktúra: číslo pridelí zaúčtovanie podľa dátumu dodania; teraz by to bolo {1}"
+    ],
     ["^(.+) debited (\\d{3} \\d{3})$", "{1:document} malo MD {2}"],
     ["^(.+) credited (\\d{3} \\d{3})$", "{1:document} malo DAL {2}"],
     [

@@ -1522,6 +1522,7 @@
     "keyboard": "Enter potvrdí pole a prejde na ďalšie, ktoré treba skontrolovať; Tab preskočí na ďalšie také pole. Prázdne pole písané rukou Enter vyplní prvým návrhom.",
     "suggestionsFor": "Návrhy pre {{field}}",
     "fromCounter": "z počítadla",
+    "fromUpload": "deň nahratia",
     "reasons": {
       "below_counter": "nižšie ako počítadlo",
       "far_ahead": "ďaleko pred počítadlom",
@@ -1531,14 +1532,22 @@
       "other_year": "iný rok"
     },
     "marks": {
-      "handwritten": "Písané rukou; potvrďte podľa výrezu."
+      "handwritten": "Písané rukou; potvrďte podľa výrezu.",
+      "einvoiceDate": "Navrhnutý je deň nahratia faktúry; potvrďte dátum zaúčtovania."
+    },
+    "einvoice": {
+      "legend": "Zaúčtovanie",
+      "date": "Dátum zaúčtovania",
+      "number": "Poradové číslo dokladu",
+      "numberHint": "Prázdne: číslo pridelí zaúčtovanie podľa dátumu dodania (teraz by to bolo {{number}}). Zadajte ho, len ak ho chcete určiť sami.",
+      "numberHintNone": "Prázdne: číslo pridelí zaúčtovanie podľa dátumu dodania. Zadajte ho, len ak ho chcete určiť sami."
     }
   },
   "intake": {
     "zone": {
       "label": "Nahrávanie faktúr",
       "drop": "Pretiahnite sem súbory faktúr",
-      "limits": "PDF, JPG, PNG alebo TIFF, najviac 20 MB a 5 strán; najviac 20 súborov naraz.",
+      "limits": "PDF, JPG, PNG, TIFF alebo XML (UBL, ISDOC), najviac 20 MB a 5 strán; najviac 20 súborov naraz.",
       "choose": "Vybrať súbory",
       "photo": "Odfotiť faktúru"
     },
@@ -1562,7 +1571,7 @@
     "rejected": {
       "file_empty": "Súbor je prázdny.",
       "file_too_large": "Súbor je väčší ako 20 MB.",
-      "file_type": "Nie je to PDF, JPG, PNG ani TIFF.",
+      "file_type": "Nie je to PDF, JPG, PNG, TIFF ani XML.",
       "too_many_pages": "Súbor má viac ako 5 strán.",
       "duplicate": "Rovnaký súbor už bol nahraný.",
       "unknown": "Súbor nebol prijatý."
@@ -1576,7 +1585,13 @@
       "ocr_failed": "Čítanie zlyhalo.",
       "no_recording": "Pre tento súbor nie je zaznamenané čítanie.",
       "extraction_error": "Pri čítaní nastala chyba.",
-      "unknown": "Súbor sa nepodarilo prečítať."
+      "unknown": "Súbor sa nepodarilo prečítať.",
+      "xml_too_large": "Súbor XML je väčší ako 20 MB.",
+      "xml_dtd": "Súbor XML obsahuje deklaráciu DOCTYPE; z bezpečnostných dôvodov sa nečíta.",
+      "xml_invalid": "Súbor nie je platné XML.",
+      "einvoice_unknown": "Súbor XML nie je faktúra vo formáte UBL ani ISDOC.",
+      "einvoice_no_supplier": "Elektronická faktúra neuvádza dodávateľa.",
+      "einvoice_no_total": "Elektronická faktúra neuvádza sumu na úhradu."
     },
     "continue_one": "Pokračovať na kontrolu ({{count}})",
     "continue_few": "Pokračovať na kontrolu ({{count}})",
@@ -1612,17 +1627,26 @@
     "warningsTitle": "Pri čítaní",
     "warnings": {
       "addressed_to_another_entity": "Faktúra je adresovaná inému odberateľovi ako tomuto klientovi.",
-      "supplier_name_from_memory": "Názov dodávateľa je doplnený z predchádzajúcich faktúr (podľa IČO)."
+      "supplier_name_from_memory": "Názov dodávateľa je doplnený z predchádzajúcich faktúr (podľa IČO).",
+      "einvoice_schema": "Súbor nezodpovedá celkom svojej schéme; podrobnosti sú pri zobrazení faktúry.",
+      "missing_supplier_ico": "Faktúra neuvádza IČO dodávateľa.",
+      "missing_iban": "Faktúra neuvádza číslo účtu (IBAN) dodávateľa.",
+      "missing_variable_symbol": "Faktúra neuvádza variabilný symbol.",
+      "missing_due_date": "Faktúra neuvádza dátum splatnosti."
     },
     "marks": {
       "low": "Prečítané s nízkou istotou; skontrolujte.",
       "supplier_ico_check_digit": "Kontrolná číslica IČO nesedí; skontrolujte.",
       "totals_do_not_add_up": "Suma bez DPH a DPH nedávajú spolu sumu na úhradu; skontrolujte.",
-      "dates_out_of_order": "Dátumy nejdú po sebe; skontrolujte."
+      "dates_out_of_order": "Dátumy nejdú po sebe; skontrolujte.",
+      "iban_check_digits": "Kontrolné číslice IBAN nesedia; skontrolujte.",
+      "tax_ids_do_not_match": "IČ DPH nezodpovedá DIČ; skontrolujte.",
+      "lines_do_not_add_up": "Položky nedávajú spolu sumu faktúry; skontrolujte."
     },
     "next_one": "Ďalšia na kontrolu ({{count}})",
     "next_few": "Ďalšia na kontrolu ({{count}})",
-    "next_other": "Ďalšia na kontrolu ({{count}})"
+    "next_other": "Ďalšia na kontrolu ({{count}})",
+    "fromEinvoice": "Údaje z elektronickej faktúry, ako ich poslal dodávateľ."
   },
   "files": {
     "title": "Úložisko",
@@ -1656,5 +1680,62 @@
       "export_other": "Export: {{count}} faktúr"
     },
     "empty": "Klient zatiaľ nemá žiadne súbory."
+  },
+  "einvoice": {
+    "label": "Elektronická faktúra",
+    "loading": "Faktúra sa načítava…",
+    "unavailable": "Elektronickú faktúru sa nepodarilo zobraziť; súbor si môžete stiahnuť.",
+    "tabs": {
+      "invoice": "Faktúra",
+      "pdf": "PDF",
+      "xml": "XML"
+    },
+    "raw": "Obsah súboru XML",
+    "truncated": "Zobrazený je prvý milión znakov; celý súbor si môžete stiahnuť.",
+    "formats": {
+      "ubl": "UBL {{version}} (Peppol)",
+      "isdoc": "ISDOC {{version}}"
+    },
+    "invoice": "Faktúra",
+    "creditNote": "Dobropis",
+    "attachment": "Príloha PDF: {{name}}",
+    "schemaTitle": "Súbor nezodpovedá schéme {{format}}",
+    "supplier": "Dodávateľ",
+    "customer": "Odberateľ",
+    "ico": "IČO",
+    "dic": "DIČ",
+    "icDph": "IČ DPH",
+    "notVatPayer": "Dodávateľ nie je platiteľ DPH.",
+    "issueDate": "Dátum vystavenia",
+    "deliveryDate": "Dátum dodania",
+    "dueDate": "Dátum splatnosti",
+    "iban": "IBAN",
+    "vs": "Variabilný symbol",
+    "lines": "Položky faktúry",
+    "columns": {
+      "description": "Popis",
+      "quantity": "Množstvo",
+      "unit": "MJ",
+      "unitPrice": "Jedn. cena",
+      "net": "Bez DPH",
+      "rate": "Sadzba",
+      "vat": "DPH",
+      "gross": "S DPH"
+    },
+    "taxes": "Rekapitulácia DPH",
+    "categories": {
+      "S": "Základná/znížená sadzba",
+      "E": "Oslobodené od DPH",
+      "O": "Nie je predmetom DPH",
+      "Z": "Nulová sadzba",
+      "AE": "Prenesenie daňovej povinnosti",
+      "K": "Dodanie v rámci EÚ",
+      "G": "Vývoz"
+    },
+    "net": "Bez DPH",
+    "vat": "DPH",
+    "gross": "Spolu",
+    "payable": "Na úhradu",
+    "notes": "Poznámky"
   }
 }

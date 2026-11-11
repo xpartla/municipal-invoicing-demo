@@ -9,5 +9,6 @@ from riso.intake.application import (
     IntakeUnitOfWork,
     customer_documents,
 )
+from riso.intake.domain.units import code_of, unit_of
 
-__all__ = ["DocumentView", "IntakeUnitOfWork", "customer_documents"]
+__all__ = ["DocumentView", "IntakeUnitOfWork", "code_of", "customer_documents", "unit_of"]

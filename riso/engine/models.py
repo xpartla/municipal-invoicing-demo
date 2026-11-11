@@ -92,7 +92,9 @@ class ResolvedContext(StageResult):
     canteen_food: bool
     zdroj: str  # the source an own-funded line gets
     document_number: str
-    number_source: Literal["handwritten", "counter"]
+    # "booking": an e-invoice's number, given at booking by its date of supply; the number
+    # here is the counter's next, a preview.
+    number_source: Literal["handwritten", "counter", "booking"]
     booking_date: dt.date | None
     used_numbers: frozenset[str]
     issues: tuple[str, ...]

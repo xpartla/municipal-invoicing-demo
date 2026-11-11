@@ -1,8 +1,9 @@
 """The `Document` aggregate (plan §7.3, §8.2, §12, decision 18): one uploaded file of a
 customer, kept content-addressed in its storage.
 
-What a file is comes from its first bytes, never from its name: PDF, JPEG, PNG or TIFF (XML
-joins with the e-invoices in P2-M6). A file is at most 20 MB and 5 pages. The same content
+What a file is comes from its first bytes, never from its name: PDF, JPEG, PNG, TIFF or XML
+(an e-invoice, P2-M6). A file is at most 20 MB and 5 pages; a PDF carrying an e-invoice may
+have more, since its XML is what is read. The same content
 (its SHA-256) is held once per customer: a second upload is refused with the invoice the
 first one became.
 """
@@ -27,6 +28,7 @@ class MediaType(StrEnum):
     JPEG = "image/jpeg"
     PNG = "image/png"
     TIFF = "image/tiff"
+    XML = "application/xml"
 
     @property
     def extension(self) -> str:
@@ -34,7 +36,7 @@ class MediaType(StrEnum):
 
     @property
     def is_image(self) -> bool:
-        return self is not MediaType.PDF
+        return self not in (MediaType.PDF, MediaType.XML)
 
 
 _EXTENSIONS = {
@@ -42,6 +44,7 @@ _EXTENSIONS = {
     MediaType.JPEG: "jpg",
     MediaType.PNG: "png",
     MediaType.TIFF: "tif",
+    MediaType.XML: "xml",
 }
 
 _SIGNATURES = (
@@ -54,14 +57,23 @@ _SIGNATURES = (
 
 def sniff(data: bytes) -> MediaType | None:
     """The file's type from its signature: images at the start, a PDF's `%PDF-` within the
-    first kilobyte (readers accept leading junk, so the check must too). None for anything
-    else, whatever its name says."""
+    first kilobyte (readers accept leading junk, so the check must too), XML by its start
+    (`starts_as_xml`). None for anything else, whatever its name says."""
     for signature, media_type in _SIGNATURES:
         if data.startswith(signature):
             return media_type
     if b"%PDF-" in data[:SNIFF_BYTES]:
         return MediaType.PDF
+    if starts_as_xml(data):
+        return MediaType.XML
     return None
+
+
+def starts_as_xml(data: bytes) -> bool:
+    """Whether the bytes start as an XML document does: a UTF-8 BOM and white space, then
+    `<?xml`, a comment or an element. Parsing (never done here) says whether it is one."""
+    text = data[:256].removeprefix(b"\xef\xbb\xbf").lstrip()
+    return text.startswith((b"<?xml", b"<!--")) or (text[:1] == b"<" and text[1:2].isalpha())
 
 
 def safe_filename(name: str | None) -> str:
@@ -75,10 +87,13 @@ def safe_filename(name: str | None) -> str:
     return text or "dokument"
 
 
-def check_upload(size: int, media_type: MediaType | None, pages: int | None) -> MediaType:
+def check_upload(
+    size: int, media_type: MediaType | None, pages: int | None, *, einvoice: bool = False
+) -> MediaType:
     """Refuses a file the intake does not take, with the reason as the error's code:
     `file_empty`, `file_too_large`, `file_type` or `too_many_pages`. A file whose pages cannot
-    be counted (a damaged PDF) is taken; its extraction says what is wrong with it."""
+    be counted (a damaged PDF) is taken; its extraction says what is wrong with it. A PDF
+    carrying an e-invoice (`einvoice`) is taken whatever its pages: its XML is read."""
     if size == 0:
         raise ValidationFailed.on("file", "the file is empty", "file_empty")
     if size > MAX_BYTES:
@@ -86,8 +101,8 @@ def check_upload(size: int, media_type: MediaType | None, pages: int | None) -> 
             "file", f"larger than {MAX_BYTES // (1024 * 1024)} MB", "file_too_large"
         )
     if media_type is None:
-        raise ValidationFailed.on("file", "not a PDF, JPEG, PNG or TIFF file", "file_type")
-    if pages is not None and pages > MAX_PAGES:
+        raise ValidationFailed.on("file", "not a PDF, JPEG, PNG, TIFF or XML file", "file_type")
+    if pages is not None and pages > MAX_PAGES and not einvoice:
         raise ValidationFailed.on(
             "file", f"{pages} pages; at most {MAX_PAGES} are read", "too_many_pages"
         )
@@ -131,8 +146,10 @@ class Document:
         storage_key: str,
         at: datetime,
         actor_id: str | None,
+        einvoice: bool = False,
     ) -> "Document":
-        check_upload(size, media_type, pages)
+        """`einvoice`: a PDF carrying an e-invoice, taken whatever its pages."""
+        check_upload(size, media_type, pages, einvoice=einvoice)
         if len(sha256) != 64:
             raise ValidationFailed.on("sha256", "not a SHA-256 digest")
         document = cls(

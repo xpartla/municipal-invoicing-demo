@@ -2005,9 +2005,10 @@ export interface paths {
         put?: never;
         /**
          * Documents.Upload
-         * @description Uploads invoices: PDF, JPEG, PNG or TIFF files of at most 20 MB and 5 pages, one
-         *     invoice each, at most 20 per request. Each file is taken or refused on its own; a taken
-         *     file becomes an invoice whose extraction job starts (poll `jobs.get_customer`).
+         * @description Uploads invoices: PDF, JPEG, PNG, TIFF or XML (UBL, ISDOC) files of at most 20 MB and
+         *     5 pages (a PDF carrying an e-invoice may have more), one invoice each, at most 20 per
+         *     request. Each file is taken or refused on its own; a taken file becomes an invoice whose
+         *     extraction job starts (poll `jobs.get_customer`).
          */
         post: operations["documents.upload"];
         delete?: never;
@@ -2068,6 +2069,29 @@ export interface paths {
          *     plan §8.5). 404 before it was read.
          */
         get: operations["documents.extraction"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/customers/{customer_id}/documents/{document_id}/einvoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Documents.Einvoice
+         * @description The e-invoice the document is (XML) or carries (a PDF's attachment), read again from
+         *     its file: the rendered view's model, the XSD's findings and the raw XML (plan §8.4). An
+         *     XML file that could not be read gives its failure and its raw text; 404 for a document
+         *     that is no e-invoice.
+         */
+        get: operations["documents.einvoice"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3052,6 +3076,43 @@ export interface components {
              */
             numbers_used: number;
         };
+        /**
+         * EInvoiceOut
+         * @description An e-invoice as the viewer renders it (plan §8.4, §8.5): the document as its XML says
+         *     (a credit note's amounts negative), the VAT breakdown, the payable amount, what the XSD
+         *     found, and the raw XML (at most a million characters). A file that could not be read has
+         *     no document, the failure's reason and its raw text.
+         */
+        EInvoiceOut: {
+            /** Format */
+            format: ("ubl_invoice" | "ubl_credit_note" | "isdoc") | null;
+            /** Family */
+            family: ("ubl" | "isdoc") | null;
+            /** Version */
+            version: string | null;
+            /** Profile */
+            profile: string | null;
+            /**
+             * Attachment
+             * @description The attachment's name when it came in a PDF
+             */
+            attachment: string | null;
+            document: components["schemas"]["InvoiceDocument"] | null;
+            /** Customer Address */
+            customer_address: string | null;
+            /** Taxes */
+            taxes: components["schemas"]["TaxLineOut"][];
+            /** Payable */
+            payable: number | null;
+            /** Schema Errors */
+            schema_errors: string[];
+            /** Failure */
+            failure: string | null;
+            /** Xml */
+            xml: string;
+            /** Truncated */
+            truncated: boolean;
+        };
         /** EmailChangeIn */
         EmailChangeIn: {
             /** New Email */
@@ -3354,7 +3415,7 @@ export interface components {
              * Source
              * @enum {string}
              */
-            source: "ocr" | "text_layer";
+            source: "ocr" | "text_layer" | "einvoice";
             /**
              * Created At
              * Format: date-time
@@ -3375,6 +3436,16 @@ export interface components {
                 [key: string]: components["schemas"]["BoxOut"];
             };
             note: components["schemas"]["NoteOut"] | null;
+            /**
+             * Note Image
+             * @description Whether the note's crop is stored (`documents.note`)
+             */
+            note_image: boolean;
+            /**
+             * Number Preview
+             * @description An e-invoice's number has no suggestion: booking places it by its date of supply (decision 61); this is the number the default series would give now
+             */
+            number_preview: number | null;
         };
         /**
          * Fact
@@ -4669,7 +4740,7 @@ export interface components {
              * Source
              * @enum {string}
              */
-            source: "ocr" | "counter";
+            source: "ocr" | "counter" | "upload";
             /** Plausible */
             plausible: boolean;
             /** Reasons */
@@ -4720,6 +4791,20 @@ export interface components {
             line: boolean;
             /** Derived */
             derived: boolean;
+        };
+        /** TaxLineOut */
+        TaxLineOut: {
+            /**
+             * Category
+             * @description UNCL 5305 (`S`, `E`, `O`, …)
+             */
+            category: string;
+            /** Rate */
+            rate: number | null;
+            /** Taxable */
+            taxable: number | null;
+            /** Tax */
+            tax: number | null;
         };
         /** TemplateIn */
         TemplateIn: {
@@ -8925,6 +9010,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExtractionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    "documents.einvoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                customer_id: string;
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EInvoiceOut"];
                 };
             };
             /** @description Validation Error */

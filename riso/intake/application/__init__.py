@@ -10,6 +10,7 @@ from riso.intake.application.extraction import (
 )
 from riso.intake.application.ports import (
     DocumentReader,
+    EInvoiceReader,
     PageCounter,
     PageImage,
     PagePreparer,
@@ -27,8 +28,10 @@ from riso.intake.application.upload import (
 from riso.intake.application.views import (
     DocumentFile,
     DocumentView,
+    EInvoiceDetail,
     ExtractionView,
     UploadOutcome,
+    einvoice_detail,
     extraction_image,
     get_extraction,
 )
@@ -40,6 +43,8 @@ __all__ = [
     "DocumentFile",
     "DocumentReader",
     "DocumentView",
+    "EInvoiceDetail",
+    "EInvoiceReader",
     "ExtractDocument",
     "ExtractionJobs",
     "ExtractionView",
@@ -52,6 +57,7 @@ __all__ = [
     "UploadedFile",
     "customer_documents",
     "document_file",
+    "einvoice_detail",
     "extraction_image",
     "get_document",
     "get_extraction",

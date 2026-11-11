@@ -144,7 +144,7 @@ describe('uploading invoices', () => {
       file('rozmazany.jpg'),
     ]);
     const table = await screen.findByRole('table', { name: 'Nahrané súbory' });
-    expect(await within(table).findByText('Nie je to PDF, JPG, PNG ani TIFF.')).toBeVisible();
+    expect(await within(table).findByText('Nie je to PDF, JPG, PNG, TIFF ani XML.')).toBeVisible();
     expect(await within(table).findByText('Súbor sa nedá otvoriť.')).toBeVisible();
     expect(within(table).getByText('Neprečítaný')).toBeVisible();
     expect(within(table).getByRole('link', { name: 'Otvoriť' })).toHaveAttribute(

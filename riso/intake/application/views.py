@@ -5,11 +5,16 @@ from datetime import datetime
 from typing import Literal
 
 from riso.identity import Permission
+from riso.intake.application.ports import EInvoiceReader
 from riso.intake.application.uow import IntakeUnitOfWork
 from riso.intake.domain import Document, MediaType
+from riso.intake.domain.einvoice import EInvoiceReading
 from riso.intake.domain.extract import Evidence
 from riso.intake.domain.extraction import Extraction
+from riso.intake.domain.layout import ReadingFailed
 from riso.intake.domain.note import NoteSuggestions
+from riso.invoicing import counter_hint
+from riso.shared.clock import local_date
 from riso.shared.context import RequestContext
 from riso.shared.errors import NotFound
 from riso.shared.ports import FileStorage
@@ -78,9 +83,11 @@ class ExtractionView:
     confidence: dict[str, float]
     evidence: dict[str, Evidence]
     note: NoteSuggestions | None
+    note_image: bool = False
+    number_preview: int | None = None
 
     @classmethod
-    def of(cls, extraction: Extraction) -> "ExtractionView":
+    def of(cls, extraction: Extraction, number_preview: int | None = None) -> "ExtractionView":
         return cls(
             id=extraction.id,
             document_id=extraction.document_id,
@@ -95,6 +102,8 @@ class ExtractionView:
             confidence=dict(extraction.document.ocr_meta.confidence),
             evidence=dict(extraction.evidence),
             note=extraction.note,
+            note_image=extraction.note_key is not None,
+            number_preview=number_preview,
         )
 
 
@@ -112,7 +121,64 @@ def get_extraction(
     """The document's newest reading: what the check step shows next to its pages."""
     ctx.require(Permission.CUSTOMER_READ, customer_id)
     with uow:
-        return ExtractionView.of(_latest(uow, customer_id, document_id))
+        extraction = _latest(uow, customer_id, document_id)
+        preview = None
+        if extraction.source == "einvoice":
+            # The number booking would give now in the default series, the year being the
+            # suggested booking date's (the upload's); decision 65 shows it, never fills it.
+            dates = extraction.note.date if extraction.note is not None else ()
+            year = int(dates[0].value[:4]) if dates else local_date(extraction.created_at).year
+            preview, _ = counter_hint(uow, customer_id, year)
+        return ExtractionView.of(extraction, preview)
+
+
+MAX_XML_SHOWN = 1_000_000
+"""Characters of the raw XML the viewer gets; the file itself is downloaded whole."""
+
+
+@dataclass(frozen=True, slots=True)
+class EInvoiceDetail:
+    reading: EInvoiceReading | None
+    failure: str | None
+    xml: str
+    truncated: bool
+
+
+def einvoice_detail(
+    ctx: RequestContext,
+    uow: IntakeUnitOfWork,
+    storage: FileStorage,
+    einvoices: EInvoiceReader,
+    customer_id: str,
+    document_id: str,
+) -> EInvoiceDetail:
+    """The e-invoice the document is or carries, read again from its file, for the viewer's
+    rendered view and raw XML (plan §8.4). An XML file that cannot be read gives its raw text
+    and the failure's reason; a document that is no e-invoice is not found."""
+    ctx.require(Permission.CUSTOMER_READ, customer_id)
+    with uow:
+        document = uow.documents.get(customer_id, document_id)
+    if document.media_type not in (MediaType.XML, MediaType.PDF):
+        raise NotFound(f"document {document_id} is not an e-invoice")
+    with storage.open(document.storage_key) as handle:
+        data = handle.read()
+    reading: EInvoiceReading | None = None
+    failure: str | None = None
+    xml = data if document.media_type is MediaType.XML else b""
+    try:
+        if document.media_type is MediaType.XML:
+            reading = einvoices.read_xml(data)
+        else:
+            found = einvoices.read_pdf(data)
+            if found is None:
+                raise NotFound(f"document {document_id} carries no e-invoice")
+            reading, xml = found
+    except ReadingFailed as failed:
+        failure = failed.reason
+    text = xml.decode("utf-8", errors="replace")
+    return EInvoiceDetail(
+        reading, failure, text[:MAX_XML_SHOWN], truncated=len(text) > MAX_XML_SHOWN
+    )
 
 
 def extraction_image(

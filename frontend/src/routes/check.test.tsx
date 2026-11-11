@@ -111,6 +111,8 @@ const EXTRACTION = {
       { value: '223', source: 'counter', plausible: true, reasons: [] },
     ],
   },
+  note_image: true,
+  number_preview: null,
 };
 
 const CHECKED = invoice({

@@ -3,9 +3,11 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
-from riso.intake.application import DocumentView, ExtractionView, UploadOutcome
+from riso.contracts import InvoiceDocument
+from riso.contracts.base import Amount
+from riso.intake.application import DocumentView, EInvoiceDetail, ExtractionView, UploadOutcome
 from riso.intake.domain.note import Suggestion
 
 
@@ -79,7 +81,7 @@ class BoxOut(_Out):
 
 class SuggestionOut(_Out):
     value: str
-    source: Literal["ocr", "counter"]
+    source: Literal["ocr", "counter", "upload"]
     plausible: bool
     reasons: list[str]
 
@@ -108,7 +110,7 @@ class ExtractionOut(_Out):
     invoice_id: str
     engine: str
     engine_version: str
-    source: Literal["ocr", "text_layer"]
+    source: Literal["ocr", "text_layer", "einvoice"]
     created_at: datetime
     duration_ms: int
     pages: int
@@ -116,6 +118,11 @@ class ExtractionOut(_Out):
     confidence: dict[str, float]
     evidence: dict[str, BoxOut]
     note: NoteOut | None
+    note_image: bool = Field(description="Whether the note's crop is stored (`documents.note`)")
+    number_preview: int | None = Field(
+        description="An e-invoice's number has no suggestion: booking places it by its date "
+        "of supply (decision 61); this is the number the default series would give now"
+    )
 
     @classmethod
     def of(cls, view: ExtractionView) -> "ExtractionOut":
@@ -127,7 +134,7 @@ class ExtractionOut(_Out):
             invoice_id=view.invoice_id,
             engine=view.engine,
             engine_version=view.engine_version,
-            source="text_layer" if view.source == "text_layer" else "ocr",
+            source=view.source,
             created_at=view.created_at,
             duration_ms=view.duration_ms,
             pages=view.pages,
@@ -145,6 +152,74 @@ class ExtractionOut(_Out):
                 date=_suggestions(note.date),
                 number=_suggestions(note.number),
             ),
+            note_image=view.note_image,
+            number_preview=view.number_preview,
+        )
+
+
+class TaxLineOut(_Out):
+    category: str = Field(description="UNCL 5305 (`S`, `E`, `O`, …)")
+    rate: Amount | None
+    taxable: Amount | None
+    tax: Amount | None
+
+
+class EInvoiceOut(_Out):
+    """An e-invoice as the viewer renders it (plan §8.4, §8.5): the document as its XML says
+    (a credit note's amounts negative), the VAT breakdown, the payable amount, what the XSD
+    found, and the raw XML (at most a million characters). A file that could not be read has
+    no document, the failure's reason and its raw text."""
+
+    format: Literal["ubl_invoice", "ubl_credit_note", "isdoc"] | None
+    family: Literal["ubl", "isdoc"] | None
+    version: str | None
+    profile: str | None
+    attachment: str | None = Field(description="The attachment's name when it came in a PDF")
+    document: InvoiceDocument | None
+    customer_address: str | None
+    taxes: list[TaxLineOut]
+    payable: Amount | None
+    schema_errors: list[str]
+    failure: str | None
+    xml: str
+    truncated: bool
+
+    @classmethod
+    def of(cls, detail: EInvoiceDetail) -> "EInvoiceOut":
+        reading = detail.reading
+        if reading is None:
+            return cls(
+                format=None,
+                family=None,
+                version=None,
+                profile=None,
+                attachment=None,
+                document=None,
+                customer_address=None,
+                taxes=[],
+                payable=None,
+                schema_errors=[],
+                failure=detail.failure,
+                xml=detail.xml,
+                truncated=detail.truncated,
+            )
+        return cls(
+            format=reading.format.value,
+            family="isdoc" if reading.format.family == "isdoc" else "ubl",
+            version=reading.version,
+            profile=reading.profile,
+            attachment=reading.attachment,
+            document=reading.document,
+            customer_address=reading.customer_address,
+            taxes=[
+                TaxLineOut(category=t.category, rate=t.rate, taxable=t.taxable, tax=t.tax)
+                for t in reading.taxes
+            ],
+            payable=reading.payable,
+            schema_errors=list(reading.schema_errors),
+            failure=None,
+            xml=detail.xml,
+            truncated=detail.truncated,
         )
 
 
