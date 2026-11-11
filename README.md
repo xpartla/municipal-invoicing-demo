@@ -190,6 +190,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso ocr record` | Reads the committed synthetic samples with Tesseract, preparing their pages as the extraction does, and writes their layouts to `testdata/ocr/recorded/` (`--out` elsewhere) for the fast tests and `RISO_OCR_READER=recorded`. Run it after changing the page preparation or the models |
 | `riso ocr-eval` | Measures the OCR (plan §8.6): each scan of `--set synthetic` (the generated set, `--scans` elsewhere) or `--set anchor` (the four real scans in `../data/FA.xlsx`, read in place, the report naming fields, never values) goes the extraction's way with the reader of `RISO_OCR_READER`; it prints per field how often it was right and found and the silent wrongs (wrong at confidence 0.6 or more), the time per page, the invoices right after the check step's automatic fields and the note's crop, then plan §8.6's targets; the report is kept in `var/ocr-eval-<set>.json`. `--json` prints it, `--strict` exits with 1 below a target (the `ocr` CI job) |
 | `riso testdata scans` | Renders the 70 seed and held-out cases as synthetic invoice scans (plan §8.6): each through its supplier's layout in headless Chromium, with a handwritten note, an approval stamp and seeded photo or scanner damage; per case the scan, a digital PDF and its truth (`ScanTruth`), into `testdata/ocr/generated/` (git-ignored; `--out` elsewhere). `--seed` (default 2026), `--case <id>` (repeatable), `--samples` rewrites the committed samples in `testdata/ocr/samples/`. The same seed gives the same bytes with the same Chromium build. Needs the dev group's Python Playwright and its Chromium (`uv run playwright install chromium` where `~/.cache/ms-playwright` lacks build 1254) |
+| `riso testdata einvoices` | Writes the 70 seed and held-out cases as e-invoices (plan §8.4): per case a Peppol BIS Billing 3.0 UBL 2.1 file (`<case>.ubl.xml`, a CreditNote for a credit note), an ISDOC 6.0.2 file (`<case>.isdoc`) and the case's digital PDF with that ISDOC attached (`<case>.isdoc.pdf`), into `testdata/einvoice/generated/` (git-ignored; `--out` elsewhere). `--case <id>` (repeatable), `--samples` rewrites the committed samples in `testdata/einvoice/samples/`, `--blank-pdf` attaches the ISDOC to a blank page instead of rendering the invoice in Chromium. The same input gives the same bytes |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed. `--source db` takes the lists, parameters and conventions from the database of `RISO_DB_URL` (seed it first) instead of the committed files; the memory always comes from `data/initial_state`. `--customer <IČO>` picks the customer |
 
 Run them with `uv run riso …`. `uv run ruff check .` and `uv run ruff format .` keep the code
@@ -303,7 +304,7 @@ riso/
   eval/           scoring proposals against expected outcomes, the metrics, the text report,
                   its files (the initial memory, the reports in var/<IČO>/)
   testdata/       development tooling, never imported by the app: the synthetic scan generator
-                  (layouts, handwriting, capture damage, `ScanTruth`)
+                  (layouts, handwriting, capture damage, `ScanTruth`) and the e-invoice writer
   checks.py       what `riso check` runs
   dataset.py      loading the mock dataset
   text.py         diacritics folding and word matching
@@ -318,6 +319,8 @@ testdata/
   ocr/samples/    ten committed synthetic scans with their digital PDFs and truth
   ocr/generated/  the full synthetic set, generated (git-ignored)
   ocr/recorded/   the samples' layouts as Tesseract read them (riso ocr record)
+  einvoice/samples/   ten committed synthetic e-invoices (UBL, ISDOC, ISDOC in a PDF)
+  einvoice/generated/ the full set, generated (git-ignored)
 knowledge/2026/   EK to SU bridge, AU rules, function map, lexicon, transfer, canteen and style rules
 schemas/          JSON Schemas of the contracts
 migrations/       Alembic migrations of the database
@@ -333,5 +336,5 @@ the checkout, because they contain personal data. Tests that read them are skipp
 are absent. What is committed has no personal data: the one natural person among the anchor
 suppliers has a made-up name, IČO and address. The four anchor invoices were addressed to
 another municipality and are re-addressed to Obec Boldog, whose dictionaries the demo has. The
-synthetic scans in `testdata/ocr/` show only the seed and held-out cases (real companies with
+synthetic scans in `testdata/ocr/` and e-invoices in `testdata/einvoice/` show only the seed and held-out cases (real companies with
 their registry data, made-up natural persons, made-up tax numbers and accounts).

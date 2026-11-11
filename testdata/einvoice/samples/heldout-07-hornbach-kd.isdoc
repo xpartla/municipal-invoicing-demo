@@ -1,0 +1,228 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>1</DocumentType>
+  <ID>2026-418-019944</ID>
+  <UUID>a9afd487-19c7-51d0-8237-7f41c3ddc5cb</UUID>
+  <IssueDate>2026-08-24</IssueDate>
+  <TaxPointDate>2026-08-24</TaxPointDate>
+  <VATApplicable>true</VATApplicable>
+  <ElectronicPossibilityAgreementReference></ElectronicPossibilityAgreementReference>
+  <Note>Profi karta č. 7004 1188 2231
+Text zákazníka: KD Boldog
+Faktúra je zároveň daňovým dokladom.</Note>
+  <LocalCurrencyCode>EUR</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification>
+        <ID>35838949</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>HORNBACH - Baumarkt SK spol. s r.o.</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName>Galvaniho</StreetName>
+        <BuildingNumber>9</BuildingNumber>
+        <CityName>Bratislava</CityName>
+        <PostalZone>821 04</PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+      <PartyTaxScheme>
+        <CompanyID>SK2020224976</CompanyID>
+        <TaxScheme>VAT</TaxScheme>
+      </PartyTaxScheme>
+      <PartyTaxScheme>
+        <CompanyID>2020224976</CompanyID>
+        <TaxScheme>TIN</TaxScheme>
+      </PartyTaxScheme>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification>
+        <ID>00305863</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Obec Boldog</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName></StreetName>
+        <BuildingNumber></BuildingNumber>
+        <CityName>Boldog</CityName>
+        <PostalZone></PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="ks">3</InvoicedQuantity>
+      <LineExtensionAmount>119.70</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>147.23</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>27.53</LineExtensionTaxAmount>
+      <UnitPrice>39.9</UnitPrice>
+      <UnitPriceTaxInclusive>49.077</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Interiérová farba Primalex Plus biela 15 l</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>2</ID>
+      <InvoicedQuantity unitCode="ks">4</InvoicedQuantity>
+      <LineExtensionAmount>53.96</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>66.37</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>12.41</LineExtensionTaxAmount>
+      <UnitPrice>13.49</UnitPrice>
+      <UnitPriceTaxInclusive>16.5927</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Sadrová omietka Knauf Rotband 30 kg</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>3</ID>
+      <InvoicedQuantity unitCode="ks">2</InvoicedQuantity>
+      <LineExtensionAmount>33.98</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>41.80</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>7.82</LineExtensionTaxAmount>
+      <UnitPrice>16.99</UnitPrice>
+      <UnitPriceTaxInclusive>20.8977</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Penetračný náter Ceresit CT 17, 5 l</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>4</ID>
+      <InvoicedQuantity unitCode="bal">6</InvoicedQuantity>
+      <LineExtensionAmount>53.94</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>66.35</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>12.41</LineExtensionTaxAmount>
+      <UnitPrice>8.99</UnitPrice>
+      <UnitPriceTaxInclusive>11.0577</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>LED žiarovka E27 10 W teplá biela, bal. 3 ks</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>5</ID>
+      <InvoicedQuantity unitCode="ks">6</InvoicedQuantity>
+      <LineExtensionAmount>38.94</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>47.90</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>8.96</LineExtensionTaxAmount>
+      <UnitPrice>6.49</UnitPrice>
+      <UnitPriceTaxInclusive>7.9827</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>LED trubica T8 120 cm 18 W</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>6</ID>
+      <InvoicedQuantity unitCode="ks">2</InvoicedQuantity>
+      <LineExtensionAmount>19.98</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>24.58</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>4.60</LineExtensionTaxAmount>
+      <UnitPrice>9.99</UnitPrice>
+      <UnitPriceTaxInclusive>12.2877</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Maliarsky valček 25 cm s mriežkou</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>7</ID>
+      <InvoicedQuantity unitCode="ks">3</InvoicedQuantity>
+      <LineExtensionAmount>7.47</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>9.19</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>1.72</LineExtensionTaxAmount>
+      <UnitPrice>2.49</UnitPrice>
+      <UnitPriceTaxInclusive>3.0627</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Zakrývacia fólia 4 × 5 m</Description>
+      </Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>327.97</TaxableAmount>
+      <TaxAmount>75.45</TaxAmount>
+      <TaxInclusiveAmount>403.42</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0.00</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0.00</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>327.97</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>75.45</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>403.42</DifferenceTaxInclusiveAmount>
+      <TaxCategory>
+        <Percent>23</Percent>
+        <VATApplicable>true</VATApplicable>
+      </TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>75.45</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>327.97</TaxExclusiveAmount>
+    <TaxInclusiveAmount>403.42</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>327.97</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>403.42</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0.00</PaidDepositsAmount>
+    <PayableAmount>403.42</PayableAmount>
+  </LegalMonetaryTotal>
+  <PaymentMeans>
+    <Payment>
+      <PaidAmount>403.42</PaidAmount>
+      <PaymentMeansCode>42</PaymentMeansCode>
+      <Details>
+        <PaymentDueDate>2026-09-07</PaymentDueDate>
+        <ID>6612884003</ID>
+        <BankCode>1111</BankCode>
+        <Name></Name>
+        <IBAN>SK5011110000006612884003</IBAN>
+        <BIC></BIC>
+        <VariableSymbol>6418019944</VariableSymbol>
+      </Details>
+    </Payment>
+  </PaymentMeans>
+</Invoice>

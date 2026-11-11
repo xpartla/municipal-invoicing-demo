@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>1</DocumentType>
+  <ID>2026188214</ID>
+  <UUID>87b44027-6e14-52aa-90a6-503eb997d136</UUID>
+  <IssueDate>2026-08-31</IssueDate>
+  <TaxPointDate>2026-08-28</TaxPointDate>
+  <VATApplicable>true</VATApplicable>
+  <ElectronicPossibilityAgreementReference></ElectronicPossibilityAgreementReference>
+  <Note>Faktúra za vodné a stočné
+Fakturačné obdobie: 29.05.2026 – 28.08.2026 (odpočet vodomeru)
+Odberné miesto: Obecný úrad, Boldog 135, číslo OM 2000412345
+Číslo zmluvy: 0412/2014
+Faktúra je zároveň daňovým dokladom.</Note>
+  <LocalCurrencyCode>EUR</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification>
+        <ID>35850370</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Bratislavská vodárenská spoločnosť, a.s.</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName>Prešovská</StreetName>
+        <BuildingNumber>48</BuildingNumber>
+        <CityName>Bratislava</CityName>
+        <PostalZone>826 46</PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+      <PartyTaxScheme>
+        <CompanyID>SK2020263432</CompanyID>
+        <TaxScheme>VAT</TaxScheme>
+      </PartyTaxScheme>
+      <PartyTaxScheme>
+        <CompanyID>2020263432</CompanyID>
+        <TaxScheme>TIN</TaxScheme>
+      </PartyTaxScheme>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification>
+        <ID>00305863</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Obec Boldog</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName></StreetName>
+        <BuildingNumber></BuildingNumber>
+        <CityName>Boldog</CityName>
+        <PostalZone></PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="m³">31</InvoicedQuantity>
+      <LineExtensionAmount>50.07</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>61.59</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>11.52</LineExtensionTaxAmount>
+      <UnitPrice>1.6152</UnitPrice>
+      <UnitPriceTaxInclusive>1.986696</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Vodné</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>2</ID>
+      <InvoicedQuantity unitCode="m³">31</InvoicedQuantity>
+      <LineExtensionAmount>52.10</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>64.08</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>11.98</LineExtensionTaxAmount>
+      <UnitPrice>1.6807</UnitPrice>
+      <UnitPriceTaxInclusive>2.067261</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Stočné</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>3</ID>
+      <InvoicedQuantity unitCode="obd.">1</InvoicedQuantity>
+      <LineExtensionAmount>18.40</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>22.63</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>4.23</LineExtensionTaxAmount>
+      <UnitPrice>18.4</UnitPrice>
+      <UnitPriceTaxInclusive>22.632</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>Odvádzanie zrážkových vôd z povrchového odtoku</Description>
+      </Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>120.57</TaxableAmount>
+      <TaxAmount>27.73</TaxAmount>
+      <TaxInclusiveAmount>148.30</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0.00</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0.00</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>120.57</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>27.73</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>148.30</DifferenceTaxInclusiveAmount>
+      <TaxCategory>
+        <Percent>23</Percent>
+        <VATApplicable>true</VATApplicable>
+      </TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>27.73</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>120.57</TaxExclusiveAmount>
+    <TaxInclusiveAmount>148.30</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>120.57</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>148.30</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0.00</PaidDepositsAmount>
+    <PayableAmount>148.30</PayableAmount>
+  </LegalMonetaryTotal>
+  <PaymentMeans>
+    <Payment>
+      <PaidAmount>148.30</PaidAmount>
+      <PaymentMeansCode>42</PaymentMeansCode>
+      <Details>
+        <PaymentDueDate>2026-09-14</PaymentDueDate>
+        <ID>100526232</ID>
+        <BankCode>0200</BankCode>
+        <Name></Name>
+        <IBAN>SK7302000000000100526232</IBAN>
+        <BIC></BIC>
+        <VariableSymbol>2026188214</VariableSymbol>
+      </Details>
+    </Payment>
+  </PaymentMeans>
+</Invoice>

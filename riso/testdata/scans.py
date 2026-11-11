@@ -155,9 +155,7 @@ def generate_case(
 ) -> tuple[ScanTruth, dict[str, bytes]]:
     """One case's files (by name) and its truth."""
     document = case.invoice
-    style = layouts.style_for(layouts.supplier_key(document), layout, seed)
-    extras = layouts.extras_for(document, layout, seed)
-    rendered = renderer.render(layouts.page_html(document, style, extras, _FONT_URL))
+    rendered = renderer.render(_page_html(case, layout, seed))
 
     page = Image.open(io.BytesIO(rendered.png)).convert("RGB")
     note = handwriting.draw_note(page, document, layouts.derive(seed, "note", case.id))
@@ -195,6 +193,28 @@ def generate_case(
         f"{case.id}.truth.json": (truth.model_dump_json(indent=2) + "\n").encode(),
     }
     return truth, files
+
+
+def _page_html(case: DatasetCase, layout: LayoutName, seed: int) -> str:
+    document = case.invoice
+    style = layouts.style_for(layouts.supplier_key(document), layout, seed)
+    extras = layouts.extras_for(document, layout, seed)
+    return layouts.page_html(document, style, extras, _FONT_URL)
+
+
+def digital_pdfs(cases: Sequence[DatasetCase], seed: int = DEFAULT_SEED) -> dict[str, bytes]:
+    """Each case's digital PDF by case ID, the same bytes `generate` writes as
+    `<case>.digital.pdf`, without rendering the scans (the e-invoices attach their XML to it)."""
+    assigned = layouts.assign_layouts(
+        (layouts.supplier_key(c.invoice) for c in dataset_cases()), seed
+    )
+    with chromium() as renderer:
+        return {
+            case.id: renderer.render(
+                _page_html(case, assigned[layouts.supplier_key(case.invoice)], seed)
+            ).pdf
+            for case in cases
+        }
 
 
 def generate(

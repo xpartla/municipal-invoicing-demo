@@ -19,6 +19,9 @@ var/
 # The synthetic scan set (riso testdata scans); only the samples are committed
 testdata/ocr/generated/
 
+# The synthetic e-invoices (riso testdata einvoices); only the samples are committed
+testdata/einvoice/generated/
+
 # The built SPA (`pnpm build` in frontend/); `riso serve` serves it
 riso/web/dist/
 

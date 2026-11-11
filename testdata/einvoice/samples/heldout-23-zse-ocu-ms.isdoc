@@ -1,0 +1,350 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<Invoice xmlns="http://isdoc.cz/namespace/2013" version="6.0.2">
+  <DocumentType>1</DocumentType>
+  <ID>7102298870</ID>
+  <UUID>ccf1809b-20cf-5235-aec3-d319d223f302</UUID>
+  <IssueDate>2026-09-18</IssueDate>
+  <TaxPointDate>2026-08-31</TaxPointDate>
+  <VATApplicable>true</VATApplicable>
+  <ElectronicPossibilityAgreementReference></ElectronicPossibilityAgreementReference>
+  <Note>Súhrnná faktúra – vyúčtovanie dodávky elektriny za obdobie 01.08.2026 – 31.08.2026
+Na základe Vašej žiadosti od fakturačného obdobia 08/2026 fakturujeme odberné miesta súhrnnou faktúrou.
+OM Obecný úrad, Boldog 135 – EIC 24ZZS7010048213K
+OM Materská škola, Boldog 120 – EIC 24ZZS7010048230F
+Zákaznícke číslo: 5100388214
+Faktúra je zároveň daňovým dokladom.</Note>
+  <LocalCurrencyCode>EUR</LocalCurrencyCode>
+  <CurrRate>1</CurrRate>
+  <RefCurrRate>1</RefCurrRate>
+  <AccountingSupplierParty>
+    <Party>
+      <PartyIdentification>
+        <ID>35823551</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Západoslovenská energetika, a.s.</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName>Čulenova</StreetName>
+        <BuildingNumber>6</BuildingNumber>
+        <CityName>Bratislava</CityName>
+        <PostalZone>816 47</PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+      <PartyTaxScheme>
+        <CompanyID>SK2020285512</CompanyID>
+        <TaxScheme>VAT</TaxScheme>
+      </PartyTaxScheme>
+      <PartyTaxScheme>
+        <CompanyID>2020285512</CompanyID>
+        <TaxScheme>TIN</TaxScheme>
+      </PartyTaxScheme>
+    </Party>
+  </AccountingSupplierParty>
+  <AccountingCustomerParty>
+    <Party>
+      <PartyIdentification>
+        <ID>00305863</ID>
+      </PartyIdentification>
+      <PartyName>
+        <Name>Obec Boldog</Name>
+      </PartyName>
+      <PostalAddress>
+        <StreetName></StreetName>
+        <BuildingNumber></BuildingNumber>
+        <CityName>Boldog</CityName>
+        <PostalZone></PostalZone>
+        <Country>
+          <IdentificationCode>SK</IdentificationCode>
+          <Name>Slovensko</Name>
+        </Country>
+      </PostalAddress>
+    </Party>
+  </AccountingCustomerParty>
+  <InvoiceLines>
+    <InvoiceLine>
+      <ID>1</ID>
+      <InvoicedQuantity unitCode="kWh">760</InvoicedQuantity>
+      <LineExtensionAmount>105.56</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>129.84</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>24.28</LineExtensionTaxAmount>
+      <UnitPrice>0.1389</UnitPrice>
+      <UnitPriceTaxInclusive>0.170847</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Obecný úrad: Silová elektrina – jednotarif</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>2</ID>
+      <InvoicedQuantity unitCode="mes.">1</InvoicedQuantity>
+      <LineExtensionAmount>11.52</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>14.17</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>2.65</LineExtensionTaxAmount>
+      <UnitPrice>11.52</UnitPrice>
+      <UnitPriceTaxInclusive>14.1696</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Obecný úrad: Distribúcia – mesačná platba za rezervovanú kapacitu</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>3</ID>
+      <InvoicedQuantity unitCode="kWh">760</InvoicedQuantity>
+      <LineExtensionAmount>23.59</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>29.02</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>5.43</LineExtensionTaxAmount>
+      <UnitPrice>0.03104</UnitPrice>
+      <UnitPriceTaxInclusive>0.0381792</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Obecný úrad: Distribúcia – variabilná zložka</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>4</ID>
+      <InvoicedQuantity unitCode="kWh">760</InvoicedQuantity>
+      <LineExtensionAmount>15.34</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>18.87</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>3.53</LineExtensionTaxAmount>
+      <UnitPrice>0.02018</UnitPrice>
+      <UnitPriceTaxInclusive>0.0248214</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Obecný úrad: Tarifa za prevádzkovanie systému</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>5</ID>
+      <InvoicedQuantity unitCode="kWh">760</InvoicedQuantity>
+      <LineExtensionAmount>5.75</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>7.07</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>1.32</LineExtensionTaxAmount>
+      <UnitPrice>0.00756</UnitPrice>
+      <UnitPriceTaxInclusive>0.0092988</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Obecný úrad: Tarifa za systémové služby</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>6</ID>
+      <InvoicedQuantity unitCode="kWh">760</InvoicedQuantity>
+      <LineExtensionAmount>2.49</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>3.06</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>0.57</LineExtensionTaxAmount>
+      <UnitPrice>0.00327</UnitPrice>
+      <UnitPriceTaxInclusive>0.0040221</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Obecný úrad: Odvod do Národného jadrového fondu</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>7</ID>
+      <InvoicedQuantity unitCode="kWh">760</InvoicedQuantity>
+      <LineExtensionAmount>1.00</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>1.23</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>0.23</LineExtensionTaxAmount>
+      <UnitPrice>0.00132</UnitPrice>
+      <UnitPriceTaxInclusive>0.0016236</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Obecný úrad: Spotrebná daň z elektriny</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>8</ID>
+      <InvoicedQuantity unitCode="kWh">540</InvoicedQuantity>
+      <LineExtensionAmount>75.01</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>92.26</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>17.25</LineExtensionTaxAmount>
+      <UnitPrice>0.1389</UnitPrice>
+      <UnitPriceTaxInclusive>0.170847</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Materská škola: Silová elektrina – jednotarif</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>9</ID>
+      <InvoicedQuantity unitCode="mes.">1</InvoicedQuantity>
+      <LineExtensionAmount>14.75</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>18.14</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>3.39</LineExtensionTaxAmount>
+      <UnitPrice>14.75</UnitPrice>
+      <UnitPriceTaxInclusive>18.1425</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Materská škola: Distribúcia – mesačná platba za rezervovanú kapacitu</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>10</ID>
+      <InvoicedQuantity unitCode="kWh">540</InvoicedQuantity>
+      <LineExtensionAmount>16.76</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>20.61</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>3.85</LineExtensionTaxAmount>
+      <UnitPrice>0.03104</UnitPrice>
+      <UnitPriceTaxInclusive>0.0381792</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Materská škola: Distribúcia – variabilná zložka</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>11</ID>
+      <InvoicedQuantity unitCode="kWh">540</InvoicedQuantity>
+      <LineExtensionAmount>10.90</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>13.41</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>2.51</LineExtensionTaxAmount>
+      <UnitPrice>0.02018</UnitPrice>
+      <UnitPriceTaxInclusive>0.0248214</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Materská škola: Tarifa za prevádzkovanie systému</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>12</ID>
+      <InvoicedQuantity unitCode="kWh">540</InvoicedQuantity>
+      <LineExtensionAmount>4.08</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>5.02</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>0.94</LineExtensionTaxAmount>
+      <UnitPrice>0.00756</UnitPrice>
+      <UnitPriceTaxInclusive>0.0092988</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Materská škola: Tarifa za systémové služby</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>13</ID>
+      <InvoicedQuantity unitCode="kWh">540</InvoicedQuantity>
+      <LineExtensionAmount>1.77</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>2.18</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>0.41</LineExtensionTaxAmount>
+      <UnitPrice>0.00327</UnitPrice>
+      <UnitPriceTaxInclusive>0.0040221</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Materská škola: Odvod do Národného jadrového fondu</Description>
+      </Item>
+    </InvoiceLine>
+    <InvoiceLine>
+      <ID>14</ID>
+      <InvoicedQuantity unitCode="kWh">540</InvoicedQuantity>
+      <LineExtensionAmount>0.71</LineExtensionAmount>
+      <LineExtensionAmountTaxInclusive>0.87</LineExtensionAmountTaxInclusive>
+      <LineExtensionTaxAmount>0.16</LineExtensionTaxAmount>
+      <UnitPrice>0.00132</UnitPrice>
+      <UnitPriceTaxInclusive>0.0016236</UnitPriceTaxInclusive>
+      <ClassifiedTaxCategory>
+        <Percent>23</Percent>
+        <VATCalculationMethod>0</VATCalculationMethod>
+        <VATApplicable>true</VATApplicable>
+      </ClassifiedTaxCategory>
+      <Item>
+        <Description>OM Materská škola: Spotrebná daň z elektriny</Description>
+      </Item>
+    </InvoiceLine>
+  </InvoiceLines>
+  <TaxTotal>
+    <TaxSubTotal>
+      <TaxableAmount>289.23</TaxableAmount>
+      <TaxAmount>66.52</TaxAmount>
+      <TaxInclusiveAmount>355.75</TaxInclusiveAmount>
+      <AlreadyClaimedTaxableAmount>0.00</AlreadyClaimedTaxableAmount>
+      <AlreadyClaimedTaxAmount>0.00</AlreadyClaimedTaxAmount>
+      <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+      <DifferenceTaxableAmount>289.23</DifferenceTaxableAmount>
+      <DifferenceTaxAmount>66.52</DifferenceTaxAmount>
+      <DifferenceTaxInclusiveAmount>355.75</DifferenceTaxInclusiveAmount>
+      <TaxCategory>
+        <Percent>23</Percent>
+        <VATApplicable>true</VATApplicable>
+      </TaxCategory>
+    </TaxSubTotal>
+    <TaxAmount>66.52</TaxAmount>
+  </TaxTotal>
+  <LegalMonetaryTotal>
+    <TaxExclusiveAmount>289.23</TaxExclusiveAmount>
+    <TaxInclusiveAmount>355.75</TaxInclusiveAmount>
+    <AlreadyClaimedTaxExclusiveAmount>0.00</AlreadyClaimedTaxExclusiveAmount>
+    <AlreadyClaimedTaxInclusiveAmount>0.00</AlreadyClaimedTaxInclusiveAmount>
+    <DifferenceTaxExclusiveAmount>289.23</DifferenceTaxExclusiveAmount>
+    <DifferenceTaxInclusiveAmount>355.75</DifferenceTaxInclusiveAmount>
+    <PaidDepositsAmount>0.00</PaidDepositsAmount>
+    <PayableAmount>355.75</PayableAmount>
+  </LegalMonetaryTotal>
+  <PaymentMeans>
+    <Payment>
+      <PaidAmount>355.75</PaidAmount>
+      <PaymentMeansCode>42</PaymentMeansCode>
+      <Details>
+        <PaymentDueDate>2026-10-02</PaymentDueDate>
+        <ID>2624105532</ID>
+        <BankCode>1100</BankCode>
+        <Name></Name>
+        <IBAN>SK8011000000002624105532</IBAN>
+        <BIC></BIC>
+        <VariableSymbol>7102298870</VariableSymbol>
+      </Details>
+    </Payment>
+  </PaymentMeans>
+</Invoice>

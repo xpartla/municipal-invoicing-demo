@@ -137,6 +137,25 @@ def main(argv: list[str] | None = None) -> int:
     scans.add_argument(
         "--samples", action="store_true", help="write the committed samples to testdata/ocr/samples"
     )
+    einvoices = testdata_kinds.add_parser(
+        "einvoices",
+        help="write the dataset's cases as UBL, ISDOC and ISDOC-in-PDF e-invoices (plan §8.4)",
+    )
+    einvoices.add_argument("--out", type=Path, help="default testdata/einvoice/generated")
+    einvoices.add_argument("--seed", type=int, help="the scan set's seed, default 2026")
+    einvoices.add_argument(
+        "--case", action="append", metavar="ID", help="only this case (repeatable)"
+    )
+    einvoices.add_argument(
+        "--samples",
+        action="store_true",
+        help="write the committed samples to testdata/einvoice/samples",
+    )
+    einvoices.add_argument(
+        "--blank-pdf",
+        action="store_true",
+        help="attach the ISDOC to a blank page instead of the rendered invoice (no Chromium)",
+    )
 
     args = parser.parse_args(argv)
     handlers: dict[str, Callable[[argparse.Namespace], int]] = {
@@ -467,6 +486,9 @@ def _testdata(args: argparse.Namespace) -> int:
 
     from riso.testdata import scans
 
+    if args.kind == "einvoices":
+        return _testdata_einvoices(args)
+
     seed = args.seed if args.seed is not None else scans.DEFAULT_SEED
     if args.samples:
         if args.case or args.out:
@@ -486,6 +508,42 @@ def _testdata(args: argparse.Namespace) -> int:
     print(
         f"{len(truths)} scans with seed {seed} in {_shown(out)}, {total / 1e6:.1f} MB, "
         f"{elapsed:.0f} s"
+    )
+    return 0
+
+
+def _testdata_einvoices(args: argparse.Namespace) -> int:
+    import time
+
+    from riso.testdata import einvoices, scans
+
+    seed = args.seed if args.seed is not None else scans.DEFAULT_SEED
+    if args.samples:
+        if args.case or args.out or args.blank_pdf:
+            print(
+                "riso testdata einvoices: --samples takes no --case, --out or --blank-pdf",
+                file=sys.stderr,
+            )
+            return 2
+        out, only = einvoices.SAMPLES_DIR, list(einvoices.SAMPLES)
+    else:
+        out, only = args.out or einvoices.GENERATED_DIR, args.case
+    started = time.perf_counter()
+    try:
+        digests = einvoices.generate(
+            out,
+            seed=seed,
+            only=only,
+            base_pdfs=None if args.blank_pdf else lambda cases: scans.digital_pdfs(cases, seed),
+            progress=True,
+        )
+    except (RuntimeError, ValueError) as exc:
+        print(f"riso testdata einvoices: {exc}", file=sys.stderr)
+        return 1
+    elapsed = time.perf_counter() - started
+    print(
+        f"{len(digests)} cases as e-invoices in {_shown(out)}, "
+        f"{scans.sizes(out) / 1e6:.1f} MB, {elapsed:.0f} s"
     )
     return 0
 
