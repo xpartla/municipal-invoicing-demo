@@ -64,6 +64,13 @@ def sniff(data: bytes) -> MediaType | None:
     return None
 
 
+def starts_as_xml(data: bytes) -> bool:
+    """Whether the bytes start as an XML document does: a UTF-8 BOM and white space, then
+    `<?xml`, a comment or an element. Parsing (never done here) says whether it is one."""
+    text = data[:256].removeprefix(b"\xef\xbb\xbf").lstrip()
+    return text.startswith((b"<?xml", b"<!--")) or (text[:1] == b"<" and text[1:2].isalpha())
+
+
 def safe_filename(name: str | None) -> str:
     """The name as uploaded, made harmless for display and for a download header: the last
     path part, without control characters, normalised, at most 200 characters."""
