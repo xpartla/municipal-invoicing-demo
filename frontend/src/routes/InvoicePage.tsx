@@ -4,6 +4,7 @@ import {
   Badge,
   Button,
   Code,
+  Grid,
   Group,
   List,
   Loader,
@@ -16,8 +17,8 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
-import { useParams } from '@tanstack/react-router';
+import { IconArrowLeft, IconArrowRight, IconFileText } from '@tabler/icons-react';
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -27,10 +28,14 @@ import { AnchorLink, ButtonLink } from '../components/RouterLinks';
 import { ScrollTable } from '../components/ScrollTable';
 import { useMe } from '../features/identity/api';
 import { inCustomer } from '../features/identity/capabilities';
+import { useExtraction } from '../features/intake/api';
+import { CheckStep } from '../features/intake/CheckStep';
+import { DocumentViewer, type Highlight } from '../features/intake/DocumentViewer';
 import {
   useBookingPreview,
   useInvoice,
   useInvoiceAction,
+  READING,
   useNextInvoice,
   usePickedLine,
   useSeriesCodes,
@@ -55,8 +60,10 @@ import { CorrectionEditor, type EditorLists } from '../features/invoices/Correct
 import { engineText, formatPercent } from '../features/invoices/engineText';
 import { Evidence } from '../features/invoices/Evidence';
 import { ExportDialog } from '../features/invoices/ExportDialog';
+import type { FieldPath } from '../features/invoices/FieldsForm';
 import { HistoryList } from '../features/invoices/HistoryList';
 import { ProposalCards, type Names } from '../features/invoices/ProposalCards';
+import type { InvoicePageSearch } from '../features/invoices/search';
 import { ApiError } from '../lib/apiError';
 import { formatAmount, formatDate } from '../lib/format';
 import { useNotify } from '../lib/notify';
@@ -110,6 +117,8 @@ export function InvoicePage() {
 function InvoiceView({ customerId, invoice }: { customerId: string; invoice: Invoice }) {
   const { t } = useTranslation();
   const notify = useNotify();
+  const search = useSearch({ from: '/_app/c/$customerId/invoices/$invoiceId' });
+  const navigate = useNavigate({ from: '/c/$customerId/invoices/$invoiceId' });
   const { data: me } = useMe();
   const canProcess = me ? inCustomer(me, customerId, 'invoices.process') : false;
   const proposal = invoice.proposal;
@@ -257,6 +266,50 @@ function InvoiceView({ customerId, invoice }: { customerId: string; invoice: Inv
   const supplier = invoice.fields?.supplier.name ?? t('invoice.unknownSupplier');
   const reasons = [...(proposal?.validation.errors ?? []), ...(proposal?.review_reasons ?? [])];
 
+  // The tab is in the URL; the check step comes first while the fields wait for it.
+  const reading = READING.has(invoice.state);
+  const failedReading = invoice.state === 'extraction_failed';
+  const checkable = canProcess && (reading || failedReading || invoice.actions.includes('check'));
+  const tabs: NonNullable<InvoicePageSearch['tab']>[] = [
+    ...(checkable ? (['check'] as const) : []),
+    'proposal',
+    'fields',
+    'history',
+  ];
+  const fresh = reading || failedReading || invoice.state === 'extracted';
+  const tab =
+    search.tab && tabs.includes(search.tab)
+      ? search.tab
+      : checkable && fresh
+        ? 'check'
+        : 'proposal';
+  const goTab = (value: string | null) => {
+    const next = tabs.find((name) => name === value);
+    if (!next) return;
+    void navigate({ search: (prev) => ({ ...prev, tab: next }), replace: true });
+  };
+  const queue = search.queue ? search.queue.split(',') : [];
+  const customer = me?.customers.find((c) => c.id === customerId);
+
+  // The document as it was read, beside the tabs: open on the check step, by choice elsewhere.
+  const extraction = useExtraction(
+    customerId,
+    invoice.document_id && !reading && !failedReading ? invoice.document_id : null,
+  );
+  const [focused, setFocused] = useState<FieldPath | null>(null);
+  const [documentChoice, setDocumentChoice] = useState<boolean | null>(null);
+  const read = extraction.data;
+  const viewerShown = read !== undefined && (documentChoice ?? tab === 'check');
+  const readNote = read?.note;
+  const highlight: Highlight | null =
+    focused === null || !read
+      ? null
+      : focused.startsWith('handwritten.')
+        ? readNote
+          ? { page: readNote.page, box: readNote.box }
+          : null
+        : (read.evidence[focused] ?? null);
+
   return (
     <Stack gap="md">
       <AnchorLink to="/c/$customerId/invoices" params={{ customerId }} search={{}} size="sm">
@@ -278,356 +331,439 @@ function InvoiceView({ customerId, invoice }: { customerId: string; invoice: Inv
             {gross !== null ? `, ${formatAmount(gross)}` : ''}
           </Text>
         </Stack>
-        <Badge size="lg">{t(`invoices.states.${invoice.state}`)}</Badge>
+        <Group gap="sm">
+          {read && (
+            <Button
+              variant="default"
+              size="xs"
+              leftSection={<IconFileText size={14} aria-hidden />}
+              aria-pressed={viewerShown}
+              onClick={() => {
+                setDocumentChoice(!viewerShown);
+              }}
+            >
+              {viewerShown ? t('viewer.hide') : t('viewer.show')}
+            </Button>
+          )}
+          {queue.length > 0 && (
+            <Button
+              size="xs"
+              rightSection={<IconArrowRight size={14} aria-hidden />}
+              onClick={() => {
+                const [next, ...rest] = queue;
+                if (!next) return;
+                void navigate({
+                  to: '/c/$customerId/invoices/$invoiceId',
+                  params: { customerId, invoiceId: next },
+                  search: { tab: 'check', queue: rest.length ? rest.join(',') : undefined },
+                });
+              }}
+            >
+              {t('check.next', { count: queue.length })}
+            </Button>
+          )}
+          <Badge size="lg">{t(`invoices.states.${invoice.state}`)}</Badge>
+        </Group>
       </Group>
 
-      <Tabs defaultValue="proposal" keepMounted={false}>
-        <Tabs.List>
-          <Tabs.Tab value="proposal">{t('invoice.tabs.proposal')}</Tabs.Tab>
-          <Tabs.Tab value="fields">{t('invoice.tabs.fields')}</Tabs.Tab>
-          <Tabs.Tab value="history">{t('invoice.tabs.history')}</Tabs.Tab>
-        </Tabs.List>
+      <Grid gap="md">
+        {viewerShown && invoice.document_id && (
+          <Grid.Col span={{ base: 12, lg: 5 }}>
+            <div
+              style={{
+                position: 'sticky',
+                top: 'calc(var(--app-shell-header-height, 0px) + 1rem)',
+              }}
+            >
+              <DocumentViewer
+                customerId={customerId}
+                documentId={invoice.document_id}
+                pages={read.pages}
+                highlight={highlight}
+              />
+            </div>
+          </Grid.Col>
+        )}
+        <Grid.Col span={{ base: 12, lg: viewerShown ? 7 : 12 }}>
+          <Tabs value={tab} onChange={goTab} keepMounted={false}>
+            <Tabs.List>
+              {checkable && <Tabs.Tab value="check">{t('invoice.tabs.check')}</Tabs.Tab>}
+              <Tabs.Tab value="proposal">{t('invoice.tabs.proposal')}</Tabs.Tab>
+              <Tabs.Tab value="fields">{t('invoice.tabs.fields')}</Tabs.Tab>
+              <Tabs.Tab value="history">{t('invoice.tabs.history')}</Tabs.Tab>
+            </Tabs.List>
 
-        <Tabs.Panel value="proposal" pt="md">
-          <Stack gap="md">
-            {invoice.coding_error && <Alert color="red">{t('invoice.codingError')}</Alert>}
-            {source && (
-              <Paper withBorder p="md" radius="md">
-                <Group justify="space-between" align="flex-start" gap="md">
-                  <Group gap="xl" align="flex-end">
-                    {mode === 'correct' ? (
-                      <>
-                        <Select
-                          label={t('invoice.doc.series')}
-                          data={[...new Set([...(series.data ?? []), doc.series])]}
-                          value={doc.series}
-                          allowDeselect={false}
-                          onChange={(value) => {
-                            setDoc({ ...doc, series: value ?? doc.series });
-                          }}
-                          w={110}
-                        />
-                        <TextInput
-                          label={t('invoice.doc.number')}
-                          value={doc.number}
-                          placeholder="FD/NNN/RR"
-                          onChange={(event) => {
-                            setDoc({ ...doc, number: event.currentTarget.value.trim() });
-                          }}
-                          w={150}
-                        />
-                        <TextInput
-                          type="date"
-                          label={t('invoice.doc.bookingDate')}
-                          value={doc.booking_date}
-                          onChange={(event) => {
-                            setDoc({ ...doc, booking_date: event.currentTarget.value });
-                          }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <Stack gap={0}>
-                          <Text size="xs" c="dimmed">
-                            {t('invoice.doc.series')}
-                          </Text>
-                          <Text ff="monospace" fw={700}>
-                            {doc.series}
-                          </Text>
-                        </Stack>
-                        <Stack gap={0}>
-                          <Text size="xs" c="dimmed">
-                            {t('invoice.doc.number')}
-                          </Text>
-                          <Group gap={4}>
-                            <Text ff="monospace" fw={700}>
-                              {doc.number || '—'}
-                            </Text>
-                            <CopyValue
+            {checkable && customer && (
+              <Tabs.Panel value="check" pt="md">
+                <CheckStep
+                  customerId={customerId}
+                  invoice={invoice}
+                  extraction={read}
+                  customer={{ name: customer.name, ico: customer.ico }}
+                  onFieldFocus={setFocused}
+                  onDone={async () => {
+                    await navigate({
+                      search: (prev) => ({ ...prev, tab: 'proposal' }),
+                      replace: true,
+                    });
+                  }}
+                />
+              </Tabs.Panel>
+            )}
+
+            <Tabs.Panel value="proposal" pt="md">
+              <Stack gap="md">
+                {invoice.coding_error && <Alert color="red">{t('invoice.codingError')}</Alert>}
+                {!source && !invoice.coding_error && (
+                  <Text c="dimmed">{t('invoice.proposalAfterCheck')}</Text>
+                )}
+                {source && (
+                  <Paper withBorder p="md" radius="md">
+                    <Group justify="space-between" align="flex-start" gap="md">
+                      <Group gap="xl" align="flex-end">
+                        {mode === 'correct' ? (
+                          <>
+                            <Select
+                              label={t('invoice.doc.series')}
+                              data={[...new Set([...(series.data ?? []), doc.series])]}
+                              value={doc.series}
+                              allowDeselect={false}
+                              onChange={(value) => {
+                                setDoc({ ...doc, series: value ?? doc.series });
+                              }}
+                              w={110}
+                            />
+                            <TextInput
+                              label={t('invoice.doc.number')}
                               value={doc.number}
-                              label={t('invoice.copy.what', { what: t('invoice.doc.number') })}
+                              placeholder="FD/NNN/RR"
+                              onChange={(event) => {
+                                setDoc({ ...doc, number: event.currentTarget.value.trim() });
+                              }}
+                              w={150}
                             />
-                          </Group>
-                        </Stack>
-                        <Stack gap={0}>
-                          <Text size="xs" c="dimmed">
-                            {t('invoice.doc.bookingDate')}
+                            <TextInput
+                              type="date"
+                              label={t('invoice.doc.bookingDate')}
+                              value={doc.booking_date}
+                              onChange={(event) => {
+                                setDoc({ ...doc, booking_date: event.currentTarget.value });
+                              }}
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <Stack gap={0}>
+                              <Text size="xs" c="dimmed">
+                                {t('invoice.doc.series')}
+                              </Text>
+                              <Text ff="monospace" fw={700}>
+                                {doc.series}
+                              </Text>
+                            </Stack>
+                            <Stack gap={0}>
+                              <Text size="xs" c="dimmed">
+                                {t('invoice.doc.number')}
+                              </Text>
+                              <Group gap={4}>
+                                <Text ff="monospace" fw={700}>
+                                  {doc.number || '—'}
+                                </Text>
+                                <CopyValue
+                                  value={doc.number}
+                                  label={t('invoice.copy.what', { what: t('invoice.doc.number') })}
+                                />
+                              </Group>
+                            </Stack>
+                            <Stack gap={0}>
+                              <Text size="xs" c="dimmed">
+                                {t('invoice.doc.bookingDate')}
+                              </Text>
+                              <Group gap={4}>
+                                <Text fw={700}>{formatDate(doc.booking_date)}</Text>
+                                <CopyValue
+                                  value={formatDate(doc.booking_date).replace(/\u00a0/g, ' ')}
+                                  label={t('invoice.copy.what', {
+                                    what: t('invoice.doc.bookingDate'),
+                                  })}
+                                />
+                              </Group>
+                            </Stack>
+                          </>
+                        )}
+                      </Group>
+                      {proposal && !booked && (
+                        <Group gap="xs">
+                          <Badge
+                            color={
+                              confidence >= 0.85 ? 'green' : confidence >= 0.75 ? 'yellow' : 'red'
+                            }
+                          >
+                            {t('invoice.badges.confidence', { value: formatPercent(confidence) })}
+                          </Badge>
+                          <Badge color={proposal.validation.ok ? 'green' : 'red'}>
+                            {proposal.validation.ok
+                              ? t('invoice.badges.codesOk')
+                              : t('invoice.badges.codesBad')}
+                          </Badge>
+                          <Badge color={proposal.needs_review ? 'yellow' : 'green'}>
+                            {proposal.needs_review
+                              ? t('invoice.badges.review')
+                              : t('invoice.badges.noReview')}
+                          </Badge>
+                          <Badge color="gray">
+                            {proposal.supplier.known
+                              ? t('invoice.badges.known')
+                              : t('invoice.badges.newSupplier')}
+                          </Badge>
+                        </Group>
+                      )}
+                      {invoice.booking && (
+                        <Group gap="xs">
+                          <Badge color="teal">
+                            {t(`invoice.booking.${invoice.booking.action}`)}
+                          </Badge>
+                          <Text size="sm" c="dimmed">
+                            {t('invoice.booking.bookedAs', {
+                              date: formatDate(invoice.booked_at?.slice(0, 10)),
+                            })}
                           </Text>
-                          <Group gap={4}>
-                            <Text fw={700}>{formatDate(doc.booking_date)}</Text>
-                            <CopyValue
-                              value={formatDate(doc.booking_date).replace(/\u00a0/g, ' ')}
-                              label={t('invoice.copy.what', { what: t('invoice.doc.bookingDate') })}
-                            />
-                          </Group>
-                        </Stack>
-                      </>
-                    )}
-                  </Group>
-                  {proposal && !booked && (
-                    <Group gap="xs">
-                      <Badge
-                        color={confidence >= 0.85 ? 'green' : confidence >= 0.75 ? 'yellow' : 'red'}
+                        </Group>
+                      )}
+                    </Group>
+                    {!booked && reasons.length > 0 && (
+                      <Alert
+                        color={proposal?.validation.errors?.length ? 'red' : 'yellow'}
+                        mt="md"
+                        title={t('invoice.reasons')}
                       >
-                        {t('invoice.badges.confidence', { value: formatPercent(confidence) })}
-                      </Badge>
-                      <Badge color={proposal.validation.ok ? 'green' : 'red'}>
-                        {proposal.validation.ok
-                          ? t('invoice.badges.codesOk')
-                          : t('invoice.badges.codesBad')}
-                      </Badge>
-                      <Badge color={proposal.needs_review ? 'yellow' : 'green'}>
-                        {proposal.needs_review
-                          ? t('invoice.badges.review')
-                          : t('invoice.badges.noReview')}
-                      </Badge>
-                      <Badge color="gray">
-                        {proposal.supplier.known
-                          ? t('invoice.badges.known')
-                          : t('invoice.badges.newSupplier')}
-                      </Badge>
-                    </Group>
-                  )}
-                  {invoice.booking && (
-                    <Group gap="xs">
-                      <Badge color="teal">{t(`invoice.booking.${invoice.booking.action}`)}</Badge>
-                      <Text size="sm" c="dimmed">
-                        {t('invoice.booking.bookedAs', {
-                          date: formatDate(invoice.booked_at?.slice(0, 10)),
-                        })}
-                      </Text>
-                    </Group>
-                  )}
-                </Group>
-                {!booked && reasons.length > 0 && (
-                  <Alert
-                    color={proposal?.validation.errors?.length ? 'red' : 'yellow'}
-                    mt="md"
-                    title={t('invoice.reasons')}
-                  >
+                        <List size="sm">
+                          {reasons.map((reason) => (
+                            <List.Item key={reason}>{engineText(reason)}</List.Item>
+                          ))}
+                        </List>
+                      </Alert>
+                    )}
+                  </Paper>
+                )}
+
+                {manual && mode === 'view' && !booked && (
+                  <Paper withBorder p="md" radius="md">
+                    <Title order={2} size="h4">
+                      {t('invoice.manual.title')}
+                    </Title>
+                    <Text size="sm" my="xs">
+                      {t('invoice.manual.text')}
+                    </Text>
+                    {bookable && (
+                      <Button
+                        onClick={() => {
+                          setLines([
+                            {
+                              key: '',
+                              md: '',
+                              dal: doc.series === 'FDŠJ' ? '321 080' : '321 000',
+                              amount: gross === null ? '' : String(gross).replace('.', ','),
+                              budgetText: '',
+                              postingText: '',
+                              transfer: '',
+                              choice: '',
+                            },
+                          ]);
+                          setMode('correct');
+                        }}
+                      >
+                        {t('invoice.manual.button')}
+                      </Button>
+                    )}
+                  </Paper>
+                )}
+
+                {mode === 'view' && lines.length > 0 && (
+                  <ProposalCards
+                    lines={lines}
+                    names={names}
+                    alternatives={bookable && !booked ? (proposal.alternatives ?? []) : null}
+                    onSwap={(index, choice) => {
+                      const proposed = proposedLines[index];
+                      const line = lines[index];
+                      if (!proposed || !line) return;
+                      const alternative =
+                        choice === '' ? null : (proposal?.alternatives?.[Number(choice)] ?? null);
+                      setLines(
+                        lines.map((l, i) =>
+                          i === index ? swapped(line, alternative, proposed, choice) : l,
+                        ),
+                      );
+                    }}
+                  />
+                )}
+
+                {mode === 'correct' && (
+                  <CorrectionEditor
+                    lines={lines}
+                    onLines={setLines}
+                    onPicked={(index, key) => {
+                      picked.mutate(key, {
+                        onSuccess: (derived) => {
+                          setLines((current) =>
+                            current.map((line, i) =>
+                              i === index && line.key === key
+                                ? {
+                                    ...line,
+                                    md: derived.md ?? line.md,
+                                    dal: derived.dal ?? line.dal,
+                                    transfer: derived.transfer ?? '',
+                                    budgetText: derived.budget_text ?? line.budgetText,
+                                    postingText: derived.posting_text ?? line.postingText,
+                                  }
+                                : line,
+                            ),
+                          );
+                        },
+                        onError: notify.failure,
+                      });
+                    }}
+                    lists={lists}
+                    gross={gross}
+                    problems={problems}
+                    note={note}
+                    onNote={setNote}
+                  />
+                )}
+
+                {saveProblems.length > 0 && (
+                  <Alert color="red">
                     <List size="sm">
-                      {reasons.map((reason) => (
-                        <List.Item key={reason}>{engineText(reason)}</List.Item>
+                      {saveProblems.map((problem, i) => (
+                        <List.Item key={i}>{problem}</List.Item>
                       ))}
                     </List>
                   </Alert>
                 )}
-              </Paper>
-            )}
 
-            {manual && mode === 'view' && !booked && (
-              <Paper withBorder p="md" radius="md">
-                <Title order={2} size="h4">
-                  {t('invoice.manual.title')}
-                </Title>
-                <Text size="sm" my="xs">
-                  {t('invoice.manual.text')}
-                </Text>
-                {bookable && (
-                  <Button
-                    onClick={() => {
-                      setLines([
-                        {
-                          key: '',
-                          md: '',
-                          dal: doc.series === 'FDŠJ' ? '321 080' : '321 000',
-                          amount: gross === null ? '' : String(gross).replace('.', ','),
-                          budgetText: '',
-                          postingText: '',
-                          transfer: '',
-                          choice: '',
-                        },
-                      ]);
-                      setMode('correct');
-                    }}
-                  >
-                    {t('invoice.manual.button')}
-                  </Button>
-                )}
-              </Paper>
-            )}
-
-            {mode === 'view' && lines.length > 0 && (
-              <ProposalCards
-                lines={lines}
-                names={names}
-                alternatives={bookable && !booked ? (proposal.alternatives ?? []) : null}
-                onSwap={(index, choice) => {
-                  const proposed = proposedLines[index];
-                  const line = lines[index];
-                  if (!proposed || !line) return;
-                  const alternative =
-                    choice === '' ? null : (proposal?.alternatives?.[Number(choice)] ?? null);
-                  setLines(
-                    lines.map((l, i) =>
-                      i === index ? swapped(line, alternative, proposed, choice) : l,
-                    ),
-                  );
-                }}
-              />
-            )}
-
-            {mode === 'correct' && (
-              <CorrectionEditor
-                lines={lines}
-                onLines={setLines}
-                onPicked={(index, key) => {
-                  picked.mutate(key, {
-                    onSuccess: (derived) => {
-                      setLines((current) =>
-                        current.map((line, i) =>
-                          i === index && line.key === key
-                            ? {
-                                ...line,
-                                md: derived.md ?? line.md,
-                                dal: derived.dal ?? line.dal,
-                                transfer: derived.transfer ?? '',
-                                budgetText: derived.budget_text ?? line.budgetText,
-                                postingText: derived.posting_text ?? line.postingText,
-                              }
-                            : line,
-                        ),
-                      );
-                    },
-                    onError: notify.failure,
-                  });
-                }}
-                lists={lists}
-                gross={gross}
-                problems={problems}
-                note={note}
-                onNote={setNote}
-              />
-            )}
-
-            {saveProblems.length > 0 && (
-              <Alert color="red">
-                <List size="sm">
-                  {saveProblems.map((problem, i) => (
-                    <List.Item key={i}>{problem}</List.Item>
-                  ))}
-                </List>
-              </Alert>
-            )}
-
-            {canProcess && (
-              <Group gap="xs">
-                {bookable && mode === 'view' && !manual && (
-                  <>
-                    <Button
-                      loading={preview.isPending || action.isPending}
-                      onClick={() => void save()}
-                    >
-                      {changed ? t('invoice.actions.acceptChanged') : t('invoice.actions.accept')}
-                    </Button>
-                    <Button
-                      variant="default"
-                      onClick={() => {
-                        setMode('correct');
-                      }}
-                    >
-                      {t('invoice.actions.correct')}
-                    </Button>
-                    {changed && (
-                      <Button variant="subtle" onClick={reset}>
-                        {t('invoice.actions.original')}
+                {canProcess && (
+                  <Group gap="xs">
+                    {bookable && mode === 'view' && !manual && (
+                      <>
+                        <Button
+                          loading={preview.isPending || action.isPending}
+                          onClick={() => void save()}
+                        >
+                          {changed
+                            ? t('invoice.actions.acceptChanged')
+                            : t('invoice.actions.accept')}
+                        </Button>
+                        <Button
+                          variant="default"
+                          onClick={() => {
+                            setMode('correct');
+                          }}
+                        >
+                          {t('invoice.actions.correct')}
+                        </Button>
+                        {changed && (
+                          <Button variant="subtle" onClick={reset}>
+                            {t('invoice.actions.original')}
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    {mode === 'correct' && (
+                      <>
+                        <Button
+                          disabled={problems.errors.length > 0}
+                          loading={preview.isPending || action.isPending}
+                          onClick={() => void save()}
+                        >
+                          {t('invoice.correct.save')}
+                        </Button>
+                        <Button variant="default" onClick={reset}>
+                          {t('common.cancel')}
+                        </Button>
+                      </>
+                    )}
+                    {mode === 'view' && invoice.actions.includes('recode') && (
+                      <Button
+                        variant="default"
+                        loading={action.isPending}
+                        onClick={() => void step({ action: 'recode' }, t('invoice.recoded'))}
+                      >
+                        {t('invoice.actions.recode')}
                       </Button>
                     )}
-                  </>
+                    {invoice.actions.includes('pay') && (
+                      <Button
+                        variant="default"
+                        onClick={() => {
+                          setPaidOn(today());
+                          setDialog('pay');
+                        }}
+                      >
+                        {t('invoice.actions.pay')}
+                      </Button>
+                    )}
+                    {booked && (
+                      <Button
+                        variant="default"
+                        onClick={() => {
+                          setExporting({ invoiceIds: [invoice.id] });
+                        }}
+                      >
+                        {t('invoice.actions.export')}
+                      </Button>
+                    )}
+                    {invoice.actions.includes('unbook') && (
+                      <Button
+                        variant="default"
+                        color="red"
+                        onClick={() => {
+                          setReason('');
+                          setDialog('unbook');
+                        }}
+                      >
+                        {t('invoice.actions.unbook')}
+                      </Button>
+                    )}
+                    {invoice.actions.includes('discard') && mode === 'view' && (
+                      <Button
+                        variant="subtle"
+                        color="red"
+                        onClick={() => {
+                          setReason('');
+                          setDialog('discard');
+                        }}
+                      >
+                        {t('invoice.actions.discard')}
+                      </Button>
+                    )}
+                    {next.data && (
+                      <ButtonLink
+                        variant="light"
+                        to="/c/$customerId/invoices/$invoiceId"
+                        params={{ customerId, invoiceId: next.data }}
+                        rightSection={<IconArrowRight size={16} aria-hidden />}
+                      >
+                        {t('invoice.actions.next')}
+                      </ButtonLink>
+                    )}
+                  </Group>
                 )}
-                {mode === 'correct' && (
-                  <>
-                    <Button
-                      disabled={problems.errors.length > 0}
-                      loading={preview.isPending || action.isPending}
-                      onClick={() => void save()}
-                    >
-                      {t('invoice.correct.save')}
-                    </Button>
-                    <Button variant="default" onClick={reset}>
-                      {t('common.cancel')}
-                    </Button>
-                  </>
-                )}
-                {mode === 'view' && invoice.actions.includes('recode') && (
-                  <Button
-                    variant="default"
-                    loading={action.isPending}
-                    onClick={() => void step({ action: 'recode' }, t('invoice.recoded'))}
-                  >
-                    {t('invoice.actions.recode')}
-                  </Button>
-                )}
-                {invoice.actions.includes('pay') && (
-                  <Button
-                    variant="default"
-                    onClick={() => {
-                      setPaidOn(today());
-                      setDialog('pay');
-                    }}
-                  >
-                    {t('invoice.actions.pay')}
-                  </Button>
-                )}
-                {booked && (
-                  <Button
-                    variant="default"
-                    onClick={() => {
-                      setExporting({ invoiceIds: [invoice.id] });
-                    }}
-                  >
-                    {t('invoice.actions.export')}
-                  </Button>
-                )}
-                {invoice.actions.includes('unbook') && (
-                  <Button
-                    variant="default"
-                    color="red"
-                    onClick={() => {
-                      setReason('');
-                      setDialog('unbook');
-                    }}
-                  >
-                    {t('invoice.actions.unbook')}
-                  </Button>
-                )}
-                {invoice.actions.includes('discard') && mode === 'view' && (
-                  <Button
-                    variant="subtle"
-                    color="red"
-                    onClick={() => {
-                      setReason('');
-                      setDialog('discard');
-                    }}
-                  >
-                    {t('invoice.actions.discard')}
-                  </Button>
-                )}
-                {next.data && (
-                  <ButtonLink
-                    variant="light"
-                    to="/c/$customerId/invoices/$invoiceId"
-                    params={{ customerId, invoiceId: next.data }}
-                    rightSection={<IconArrowRight size={16} aria-hidden />}
-                  >
-                    {t('invoice.actions.next')}
-                  </ButtonLink>
-                )}
-              </Group>
-            )}
 
-            {proposal && !booked && <Evidence proposal={proposal} />}
-          </Stack>
-        </Tabs.Panel>
+                {proposal && !booked && <Evidence proposal={proposal} />}
+              </Stack>
+            </Tabs.Panel>
 
-        <Tabs.Panel value="fields" pt="md">
-          <InvoiceFields invoice={invoice} />
-        </Tabs.Panel>
+            <Tabs.Panel value="fields" pt="md">
+              <InvoiceFields invoice={invoice} />
+            </Tabs.Panel>
 
-        <Tabs.Panel value="history" pt="md">
-          <HistoryList customerId={customerId} invoiceId={invoice.id} />
-        </Tabs.Panel>
-      </Tabs>
+            <Tabs.Panel value="history" pt="md">
+              <HistoryList customerId={customerId} invoiceId={invoice.id} />
+            </Tabs.Panel>
+          </Tabs>
+        </Grid.Col>
+      </Grid>
 
       <Dialog
         opened={confirm !== null}

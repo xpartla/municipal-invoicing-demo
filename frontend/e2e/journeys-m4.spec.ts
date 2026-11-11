@@ -31,11 +31,12 @@ function caseJson(split: string, id: string): string {
   return JSON.stringify(found.invoice);
 }
 
-/** Nová faktúra → Vložiť JSON → Uložiť a navrhnúť: the invoice's detail opens. */
+/** Nová faktúra → Zadať ručne → Vložiť JSON → Uložiť a navrhnúť: the invoice's detail opens. */
 async function paste(page: Page, json: string) {
   await openNav(page);
   await page.getByRole('link', { name: 'Nová faktúra' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Nová faktúra' })).toBeVisible();
+  await page.getByRole('tab', { name: 'Zadať ručne' }).click();
   await page.getByRole('button', { name: 'Vložiť JSON' }).click();
   const dialog = page.getByRole('dialog', { name: 'Vložiť faktúru ako JSON' });
   await dialog.getByLabel('JSON faktúry').fill(json);
@@ -162,11 +163,14 @@ test('the click-through on invoices in a customer of its own', async ({
   const table = page.getByRole('region', { name: 'Tabuľka faktúr' });
   await expect(table.getByText('Zaúčtovaná', { exact: true })).toHaveCount(3);
 
-  // A pasted text that is not JSON is refused. The form and the dialog pass axe.
+  // A pasted text that is not JSON is refused. The upload, the form and the dialog pass axe.
   await openNav(page);
   await page.getByRole('link', { name: 'Nová faktúra' }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'Nová faktúra' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Nahrávanie faktúr' })).toBeVisible();
   await toastsClosed(page);
+  await checkA11y();
+  await page.getByRole('tab', { name: 'Zadať ručne' }).click();
   await checkA11y();
   await page.getByRole('button', { name: 'Vložiť JSON' }).click();
   const dialog = page.getByRole('dialog', { name: 'Vložiť faktúru ako JSON' });

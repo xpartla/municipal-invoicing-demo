@@ -50,6 +50,7 @@ from riso.shared.errors import (
     PermissionDenied,
     ValidationFailed,
 )
+from riso.shared.ids import uuid7_time
 
 
 @dataclass(frozen=True, slots=True)
@@ -117,8 +118,18 @@ def _request(uow: InvoicingUnitOfWork, invoice: Invoice, coding: Coding) -> _Req
                 f"{typed} is not a number of {series.pattern} in {year}",
                 "number_pattern",
             )
-    newcomer = Newcomer(invoice.id, supplied, invoice.uploaded_at, sequence)
+    newcomer = Newcomer(invoice.id, supplied, arrival(invoice), sequence)
     return _Request(document.series, year, newcomer, typed if asked else None)
+
+
+def arrival(invoice: Invoice) -> datetime:
+    """When the invoice came in, for decision 61's order: the time in its UUIDv7 ID, which
+    the ID generator never lets go back, even when the wall clock is set back between two
+    uploads (P2-M5-T15); its upload time for an ID that is not a UUIDv7."""
+    try:
+        return uuid7_time(invoice.id)
+    except ValueError:
+        return invoice.uploaded_at
 
 
 def _check_codes(

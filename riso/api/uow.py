@@ -16,6 +16,7 @@ from riso.exchange.infrastructure.repository import (
     SqlTemplateRepository,
 )
 from riso.identity.infrastructure.uow import SqlIdentityUnitOfWork
+from riso.intake.infrastructure.repository import SqlDocumentRepository, SqlExtractionRepository
 from riso.invoicing.infrastructure.queries import SqlInvoiceQueries
 from riso.invoicing.infrastructure.uow import SqlInvoicingUnitOfWork
 from riso.jobs import JobRegistry, register_builtin
@@ -45,6 +46,8 @@ class AppUnitOfWork(
     imports: SqlImportRunRepository
     templates: SqlTemplateRepository
     exports: SqlExportRunRepository
+    documents: SqlDocumentRepository
+    extractions: SqlExtractionRepository
     queue: RepositoryJobQueue
     """Jobs queued here are committed with the change that needs them."""
     series_patterns: CodelistSeriesPatterns
@@ -73,6 +76,8 @@ class AppUnitOfWork(
         self.imports = SqlImportRunRepository(self.session, self)
         self.templates = SqlTemplateRepository(self.session, self)
         self.exports = SqlExportRunRepository(self.session, self)
+        self.documents = SqlDocumentRepository(self.session, self)
+        self.extractions = SqlExtractionRepository(self.session, self)
         self.queue = RepositoryJobQueue(
             SqlJobRepository(self.session), self._registry, self.clock, self.ids
         )

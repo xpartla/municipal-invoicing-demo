@@ -40,6 +40,7 @@ from riso.eval import evaluate
 from riso.eval.files import initial_counters, initial_memory, load_report, save_report
 from riso.exchange.api.routes import router as exchange_router
 from riso.identity.api.routes import router as identity_router
+from riso.intake.api.routes import router as intake_router
 from riso.invoicing.api.routes import router as invoicing_router
 from riso.jobs.api.routes import router as jobs_router
 from riso.knowledge import UnknownKnowledge, knowledge_for
@@ -50,6 +51,7 @@ from riso.reference import (
     LocalReferenceSource,
     UnknownEntity,
 )
+from riso.reporting.api.routes import router as reporting_router
 from riso.tenancy.api.routes import router as tenancy_router
 
 log = logging.getLogger(__name__)
@@ -60,6 +62,8 @@ ROUTERS = [
     codelists_router,
     exchange_router,
     invoicing_router,
+    intake_router,
+    reporting_router,
     audit_router,
     jobs_router,
     admin_router,

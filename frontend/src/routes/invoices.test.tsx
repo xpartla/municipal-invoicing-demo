@@ -70,10 +70,13 @@ afterEach(() => {
 });
 
 describe('the invoice table', () => {
-  it('keeps the filters and the sort in the URL, and reads them back from it', async () => {
+  // The view's link, as the filters and the sort below write it (the state list as JSON).
+  const LINK = `/c/${BOLDOG.id}/invoices?q=telekom&state=%5B%22ready%22%5D&sort=-gross`;
+
+  it('keeps the filters and the sort in the URL', async () => {
     const user = userEvent.setup();
     const { calls } = invoicesApi();
-    const { router, unmount } = await renderApp(`/c/${BOLDOG.id}/invoices`);
+    const { router } = await renderApp(`/c/${BOLDOG.id}/invoices`);
     await screen.findByText('FD/144/26');
     expect(lastList(calls).get('sort')).toBe('-uploaded_at');
 
@@ -98,16 +101,16 @@ describe('the invoice table', () => {
     expect(query.get('q')).toBe('telekom');
     expect(query.getAll('state')).toEqual(['ready']);
     expect(query.get('sort')).toBe('-gross');
-    const link = router.state.location.href;
-    unmount();
+    expect(router.state.location.href).toBe(LINK);
+  });
 
-    // The link opens the same view.
-    const again = invoicesApi();
-    await renderApp(link);
+  it('opens the same view from its link', async () => {
+    const { calls } = invoicesApi();
+    await renderApp(LINK);
     await screen.findByText('FD/144/26');
     expect(screen.getByRole('textbox', { name: 'Hľadať' })).toHaveValue('telekom');
     expect(screen.getByText('Aktívne filtre: 2')).toBeInTheDocument();
-    const read = lastList(again.calls);
+    const read = lastList(calls);
     expect(read.get('q')).toBe('telekom');
     expect(read.getAll('state')).toEqual(['ready']);
     expect(read.get('sort')).toBe('-gross');

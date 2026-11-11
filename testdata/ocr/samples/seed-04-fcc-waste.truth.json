@@ -1,0 +1,160 @@
+{
+  "case_id": "seed-04-fcc-waste",
+  "split": "seed",
+  "seed": 2026,
+  "layout": "bill",
+  "files": {
+    "scan": "seed-04-fcc-waste.scan.pdf",
+    "digital_pdf": "seed-04-fcc-waste.digital.pdf"
+  },
+  "capture": {
+    "mode": "scanner",
+    "format": "pdf",
+    "dpi": 112,
+    "width": 944,
+    "height": 1341,
+    "grayscale": true,
+    "rotation": -0.188,
+    "perspective": 0.0,
+    "blur": 0.166,
+    "noise": 1.942,
+    "jpeg_quality": 77,
+    "page": [
+      [
+        13.77,
+        13.83
+      ],
+      [
+        939.77,
+        16.86
+      ],
+      [
+        935.48,
+        1326.85
+      ],
+      [
+        9.48,
+        1323.82
+      ]
+    ]
+  },
+  "handwriting": {
+    "font": "kalam/Kalam-Regular.ttf",
+    "placement": "inline",
+    "date": {
+      "text": "16.1.26",
+      "box": {
+        "x0": 239,
+        "y0": 35,
+        "x1": 348,
+        "y1": 78
+      }
+    },
+    "number": {
+      "text": "011",
+      "box": {
+        "x0": 405,
+        "y0": 36,
+        "x1": 447,
+        "y1": 68
+      }
+    }
+  },
+  "stamp": {
+    "x0": 314,
+    "y0": 867,
+    "x1": 488,
+    "y1": 935
+  },
+  "document": {
+    "id": "seed-04-fcc-waste",
+    "supplier": {
+      "name": "FCC Slovensko, s.r.o.",
+      "ico": "31318762",
+      "dic": "2020318492",
+      "ic_dph": "SK2020318492",
+      "iban": "SK73 1100 0000 0026 2203 4417",
+      "address": "Bratislavská 18, 900 51 Zohor",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2601000417",
+      "issue_date": "2026-01-12",
+      "delivery_date": "2025-12-31",
+      "due_date": "2026-01-26",
+      "variable_symbol": "2601000417",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-01-16",
+      "number": "011"
+    },
+    "totals": {
+      "net": 1593.12,
+      "vat": 366.41,
+      "gross": 1959.53,
+      "vat_rates": [
+        23.0
+      ]
+    },
+    "lines": [
+      {
+        "description": "Zber a preprava zmesového komunálneho odpadu 20 03 01 – nádoby 110/120 l",
+        "quantity": 520.0,
+        "unit": "výsyp",
+        "unit_price": 0.64,
+        "net": 332.8,
+        "vat_rate": 23.0,
+        "vat": 76.54,
+        "gross": 409.34
+      },
+      {
+        "description": "Zber a preprava zmesového komunálneho odpadu 20 03 01 – kontajnery 1 100 l",
+        "quantity": 12.0,
+        "unit": "výsyp",
+        "unit_price": 6.9,
+        "net": 82.8,
+        "vat_rate": 23.0,
+        "vat": 19.04,
+        "gross": 101.84
+      },
+      {
+        "description": "Zneškodnenie odpadu 20 03 01 skládkovaním",
+        "quantity": 14.36,
+        "unit": "t",
+        "unit_price": 52.0,
+        "net": 746.72,
+        "vat_rate": 23.0,
+        "vat": 171.75,
+        "gross": 918.47
+      },
+      {
+        "description": "Poplatok za uloženie odpadov na skládku podľa zákona č. 329/2018 Z. z.",
+        "quantity": 14.36,
+        "unit": "t",
+        "unit_price": 30.0,
+        "net": 430.8,
+        "vat_rate": 23.0,
+        "vat": 99.08,
+        "gross": 529.88
+      }
+    ],
+    "free_text": [
+      "Fakturujeme Vám zber, prepravu a zneškodnenie zmesového komunálneho odpadu v obci Boldog za obdobie 12/2025 podľa Zmluvy o poskytovaní služieb č. 0412/2019 v znení dodatkov.",
+      "Prílohy: vážne lístky, súpis výsypov",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "source_file": null,
+      "page_count": 1,
+      "synthetic": true,
+      "confidence": {}
+    },
+    "intake": null
+  }
+}

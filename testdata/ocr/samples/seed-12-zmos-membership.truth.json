@@ -1,0 +1,123 @@
+{
+  "case_id": "seed-12-zmos-membership",
+  "split": "seed",
+  "seed": 2026,
+  "layout": "modern",
+  "files": {
+    "scan": "seed-12-zmos-membership.scan.jpg",
+    "digital_pdf": "seed-12-zmos-membership.digital.pdf"
+  },
+  "capture": {
+    "mode": "photo",
+    "format": "jpeg",
+    "dpi": 102,
+    "width": 886,
+    "height": 1259,
+    "grayscale": false,
+    "rotation": -2.292,
+    "perspective": 8.2,
+    "blur": 0.572,
+    "noise": 7.114,
+    "jpeg_quality": 71,
+    "page": [
+      [
+        38.53,
+        24.17
+      ],
+      [
+        885.69,
+        54.8
+      ],
+      [
+        835.42,
+        1250.31
+      ],
+      [
+        2.03,
+        1217.82
+      ]
+    ]
+  },
+  "handwriting": {
+    "font": "shadowsintolight/ShadowsIntoLight.ttf",
+    "placement": "margin",
+    "date": {
+      "text": "12.2.26",
+      "box": {
+        "x0": 483,
+        "y0": 63,
+        "x1": 545,
+        "y1": 90
+      }
+    },
+    "number": {
+      "text": "031",
+      "box": {
+        "x0": 805,
+        "y0": 175,
+        "x1": 831,
+        "y1": 195
+      }
+    }
+  },
+  "stamp": null,
+  "document": {
+    "id": "seed-12-zmos-membership",
+    "supplier": {
+      "name": "Združenie miest a obcí Slovenska",
+      "ico": "00584614",
+      "dic": null,
+      "ic_dph": null,
+      "iban": "SK71 0200 0000 0000 1023 4012",
+      "address": "Bezručova 9, 811 09 Bratislava",
+      "vat_payer": null
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "2026/0612",
+      "issue_date": "2026-02-02",
+      "delivery_date": null,
+      "due_date": "2026-03-31",
+      "variable_symbol": "00305863",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-02-12",
+      "number": "031"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 61.2,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Členský príspevok ZMOS na rok 2026 – 612 obyvateľov × 0,10 €",
+        "quantity": 612.0,
+        "unit": "obyv.",
+        "unit_price": 0.1,
+        "net": null,
+        "vat_rate": null,
+        "vat": null,
+        "gross": 61.2
+      }
+    ],
+    "free_text": [
+      "Členský príspevok podľa uznesenia Snemu ZMOS.",
+      "Členský príspevok nie je predmetom DPH.",
+      "Variabilný symbol: IČO obce"
+    ],
+    "ocr_meta": {
+      "source_file": null,
+      "page_count": 1,
+      "synthetic": true,
+      "confidence": {}
+    },
+    "intake": null
+  }
+}

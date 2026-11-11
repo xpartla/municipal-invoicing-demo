@@ -247,3 +247,29 @@ protected_modules =
 allowed_importers =
     riso.jobs
     riso.api
+
+[importlinter:contract:testdata-is-tooling]
+name = The synthetic test data generators are development tooling: the application never imports them
+type = forbidden
+source_modules =
+    riso.api
+    riso.shared
+    riso.platform
+    riso.engine
+    riso.knowledge
+    riso.contracts
+    riso.reference
+    riso.eval
+    riso.identity
+    riso.tenancy
+    riso.codelists
+    riso.intake
+    riso.invoicing
+    riso.exchange
+    riso.reporting
+    riso.audit
+    riso.jobs
+forbidden_modules =
+    riso.testdata
+    playwright
+

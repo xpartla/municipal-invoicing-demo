@@ -7,7 +7,14 @@ import os
 import socket
 from dataclasses import dataclass, field
 
-from riso.api.adapters import DbReferenceData, DbSupplierState, SpaLinks, SqlTenancyDirectory
+from riso.api.adapters import (
+    DbReferenceData,
+    DbSupplierState,
+    DirectoryCustomers,
+    MemorySupplierNames,
+    SpaLinks,
+    SqlTenancyDirectory,
+)
 from riso.api.uow import AppUnitOfWork
 from riso.exchange.application.copy import COPY_JOB, CopyJobs
 from riso.exchange.application.exports import EXPORT_JOB, ExportJobs
@@ -19,6 +26,13 @@ from riso.identity.application.ports import CustomerRef
 from riso.identity.domain import PasswordHasher, PasswordPolicy
 from riso.identity.infrastructure.hashing import Argon2Hasher, default_policy
 from riso.identity.infrastructure.sessions import SecretsTokenGenerator
+from riso.intake.application import EXTRACT_JOB, DocumentReader, ExtractionJobs
+from riso.intake.infrastructure.handwriting import InkLocator
+from riso.intake.infrastructure.imaging import Pages
+from riso.intake.infrastructure.pages import FilePages
+from riso.intake.infrastructure.pdftext import PdfTextLayer
+from riso.intake.infrastructure.recorded import RecordedReader
+from riso.intake.infrastructure.tesseract import TesseractReader
 from riso.jobs import JobRegistry, Worker, register_builtin
 from riso.jobs.domain import Job
 from riso.jobs.infrastructure.thread import WorkerThread
@@ -71,6 +85,9 @@ class Services:
     directory: SqlTenancyDirectory
     links: SpaLinks
     reader: FileTableReader = field(default_factory=FileTableReader)
+    pages: FilePages = field(default_factory=FilePages)
+    document_reader: DocumentReader | None = None
+    """The OCR engine (`RISO_OCR_READER`); made when first needed."""
     _threads: list[WorkerThread] = field(default_factory=list)
 
     def uow(self, immediate: bool = True) -> AppUnitOfWork:
@@ -124,6 +141,27 @@ class Services:
     def export_jobs(self) -> ExportJobs:
         return ExportJobs(self.uow, self.storage, TableWriter())
 
+    def ocr_reader(self) -> DocumentReader:
+        if self.document_reader is None:
+            if self.settings.ocr_reader == "recorded":
+                self.document_reader = RecordedReader(self.settings.ocr_recordings)
+            else:
+                assert self.settings.tessdata is not None
+                self.document_reader = TesseractReader(self.settings.tessdata)
+        return self.document_reader
+
+    def extraction_jobs(self) -> ExtractionJobs:
+        return ExtractionJobs(
+            self.uow,
+            self.storage,
+            self.ocr_reader,
+            Pages(),
+            PdfTextLayer(),
+            InkLocator(),
+            DirectoryCustomers(self.directory),
+            MemorySupplierNames(lambda: self.uow(immediate=False), self.directory),
+        )
+
     def jobs_uow(self, immediate: bool = True) -> SqlJobsUnitOfWork:
         return SqlJobsUnitOfWork(
             self.db, self.registry, clock=self.clock, ids=self.ids, immediate=immediate
@@ -145,6 +183,8 @@ class Services:
     def close(self) -> None:
         for thread in self._threads:
             thread.stop()
+        if isinstance(self.document_reader, TesseractReader):
+            self.document_reader.close()
         self.db.dispose()
 
 
@@ -178,4 +218,6 @@ def build_services(
         services.copy_jobs().register(services.registry)
     if EXPORT_JOB not in services.registry.names():
         services.export_jobs().register(services.registry)
+    if EXTRACT_JOB not in services.registry.names():
+        services.extraction_jobs().register(services.registry)
     return services

@@ -1,5 +1,5 @@
 """Command line: riso ingest | check | export-schemas | export-openapi | serve | code |
-eval | migrate | worker."""
+eval | migrate | seed | worker | ocr | ocr-eval | testdata."""
 
 import argparse
 import sys
@@ -102,6 +102,42 @@ def main(argv: list[str] | None = None) -> int:
         "--poll", type=float, default=1.0, help="seconds between looks for new jobs"
     )
 
+    ocr = commands.add_parser("ocr", help="the OCR models and the recorded layouts")
+    ocr_steps = ocr.add_subparsers(dest="step", required=True)
+    ocr_steps.add_parser(
+        "setup", help="download the pinned Tesseract models into RISO_TESSDATA and check them"
+    )
+    record = ocr_steps.add_parser(
+        "record",
+        help="read the committed synthetic samples with Tesseract and store their layouts "
+        "for the fast tests and the E2E journeys (testdata/ocr/recorded)",
+    )
+    record.add_argument("--out", type=Path, help="default testdata/ocr/recorded")
+
+    ocr_eval = commands.add_parser(
+        "ocr-eval", help="measure the OCR on the synthetic scans or the four anchors (plan §8.6)"
+    )
+    ocr_eval.add_argument("--set", choices=("synthetic", "anchor"), default="synthetic")
+    ocr_eval.add_argument(
+        "--scans", type=Path, help="the synthetic set (default testdata/ocr/generated)"
+    )
+    ocr_eval.add_argument("--json", action="store_true", help="print the full report")
+    ocr_eval.add_argument(
+        "--strict", action="store_true", help="exit with 1 when a target of plan §8.6 is missed"
+    )
+
+    testdata = commands.add_parser("testdata", help="generate synthetic test data (development)")
+    testdata_kinds = testdata.add_subparsers(dest="kind", required=True)
+    scans = testdata_kinds.add_parser(
+        "scans", help="render the dataset's cases as synthetic invoice scans (plan §8.6)"
+    )
+    scans.add_argument("--out", type=Path, help="default testdata/ocr/generated")
+    scans.add_argument("--seed", type=int, help="default 2026")
+    scans.add_argument("--case", action="append", metavar="ID", help="only this case (repeatable)")
+    scans.add_argument(
+        "--samples", action="store_true", help="write the committed samples to testdata/ocr/samples"
+    )
+
     args = parser.parse_args(argv)
     handlers: dict[str, Callable[[argparse.Namespace], int]] = {
         "ingest": _ingest,
@@ -114,6 +150,9 @@ def main(argv: list[str] | None = None) -> int:
         "migrate": _migrate,
         "seed": _seed,
         "worker": _worker,
+        "testdata": _testdata,
+        "ocr": _ocr,
+        "ocr-eval": _ocr_eval,
     }
     return handlers[args.command](args)
 
@@ -421,3 +460,112 @@ def _shown(path: Path) -> str:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def _testdata(args: argparse.Namespace) -> int:
+    import time
+
+    from riso.testdata import scans
+
+    seed = args.seed if args.seed is not None else scans.DEFAULT_SEED
+    if args.samples:
+        if args.case or args.out:
+            print("riso testdata scans: --samples takes neither --case nor --out", file=sys.stderr)
+            return 2
+        out, only = scans.SAMPLES_DIR, list(scans.SAMPLE_CASES)
+    else:
+        out, only = args.out or scans.GENERATED_DIR, args.case
+    started = time.perf_counter()
+    try:
+        truths = scans.generate(out, seed=seed, only=only, progress=True)
+    except (RuntimeError, ValueError) as exc:
+        print(f"riso testdata scans: {exc}", file=sys.stderr)
+        return 1
+    elapsed = time.perf_counter() - started
+    total = scans.sizes(out)
+    print(
+        f"{len(truths)} scans with seed {seed} in {_shown(out)}, {total / 1e6:.1f} MB, "
+        f"{elapsed:.0f} s"
+    )
+    return 0
+
+
+def _ocr(args: argparse.Namespace) -> int:
+    from riso.platform.settings import Settings
+
+    settings = Settings()
+    assert settings.tessdata is not None
+    if args.step == "setup":
+        from riso.api.ocr import setup_ocr_models
+
+        try:
+            done = setup_ocr_models(settings.tessdata)
+        except (OSError, RuntimeError) as exc:
+            print(f"riso ocr setup: {exc}", file=sys.stderr)
+            return 1
+        for language, status in done:
+            print(f"  {language}: {status}")
+        print(f"the OCR models are in {_shown(settings.tessdata)}")
+        return 0
+    from riso.api.ocr import record_layouts
+    from riso.testdata.scans import SAMPLES_DIR, load_truths
+
+    scans = [SAMPLES_DIR / truth.files["scan"] for truth in load_truths(SAMPLES_DIR)]
+    try:
+        written = record_layouts(scans, settings.tessdata, args.out)
+    except RuntimeError as exc:
+        print(f"riso ocr record: {exc}", file=sys.stderr)
+        return 1
+    print(f"recorded {written} page layouts")
+    return 0
+
+
+def _ocr_eval(args: argparse.Namespace) -> int:
+    from riso.api.ocr_eval import anchor_cases, format_report, run, synthetic_case
+    from riso.platform.settings import Settings
+    from riso.shared.clock import SystemClock
+
+    if args.set == "anchor":
+        workbook = paths.raw_dir() / "FA.xlsx"
+        if not workbook.is_file():
+            print(
+                f"riso ocr-eval: no {workbook} (the anchors stay outside the repository)",
+                file=sys.stderr,
+            )
+            return 1
+        cases = anchor_cases(workbook, paths.INVOICES_DIR)
+    else:
+        from riso.testdata.scans import GENERATED_DIR, load_truths
+
+        scans = args.scans or GENERATED_DIR
+        truths = load_truths(scans) if scans.is_dir() else []
+        if not truths:
+            print(
+                f"riso ocr-eval: no scans in {_shown(scans)}: run riso testdata scans",
+                file=sys.stderr,
+            )
+            return 1
+        cases = [
+            synthetic_case(
+                truth.case_id,
+                (scans / truth.files["scan"]).read_bytes(),
+                truth.document,
+                group=truth.layout,
+                note_boxes=[
+                    (n.box.x0, n.box.y0, n.box.x1, n.box.y1)
+                    for n in (truth.handwriting.date, truth.handwriting.number)
+                    if n is not None
+                ],
+                scan_size=(truth.capture.width, truth.capture.height),
+                scan_dpi=truth.capture.dpi,
+            )
+            for truth in truths
+        ]
+    report = run(cases, Settings(), args.set, SystemClock().now())
+    out = paths.var_dir() / f"ocr-eval-{args.set}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(report.model_dump_json(indent=2) + "\n")
+    print(report.model_dump_json(indent=2) if args.json else format_report(report))
+    if not args.json:
+        print(f"\nthe report is in {_shown(out)}")
+    return 1 if args.strict and not report.met else 0

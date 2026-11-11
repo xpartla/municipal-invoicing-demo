@@ -10,8 +10,8 @@ import { SEED_PASSWORD } from './seed';
 /**
  * Starts the backend for the E2E run: a temporary RISO_VAR_DIR, `riso seed` (which migrates,
  * then creates Boldog, the demo provider and a user per role, see `seed.ts`), then
- * `riso serve` on a free port serving the built SPA. The URL goes to the tests through
- * RISO_E2E_URL. The returned function tears it all down.
+ * `riso serve` on a free port serving the built SPA and reading uploads with RecordedReader.
+ * The URL goes to the tests through RISO_E2E_URL. The returned function tears it all down.
  */
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -66,6 +66,9 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
     RISO_VAR_DIR: varDir,
     RISO_ENV: 'test',
     RISO_SEED_PASSWORD: SEED_PASSWORD,
+    // Uploads are read from the recorded layouts of the committed samples (plan §2 decision
+    // 63): the same fields as Tesseract, without its models, in a fraction of the time.
+    RISO_OCR_READER: 'recorded',
   };
   delete env.RISO_DB_URL;
   riso(['seed'], env);

@@ -19,6 +19,8 @@ export interface FieldValues {
     variable_symbol: string;
     issue_date: string;
     delivery_date: string;
+    /** The invoice prints no date of supply: the issue date stands in (decision 61). */
+    delivery_as_issue: boolean;
     due_date: string;
     document_type: 'invoice' | 'credit_note';
   };
@@ -36,6 +38,7 @@ export function emptyValues(): FieldValues {
       variable_symbol: '',
       issue_date: '',
       delivery_date: '',
+      delivery_as_issue: false,
       due_date: '',
       document_type: 'invoice',
     },
@@ -52,8 +55,12 @@ const amount = (value: unknown): string =>
     ? formatAmountForCopy(parseAmount(String(value)))
     : '';
 
-/** An InvoiceDocument (or anything shaped like one) as the form's values. */
-export function valuesOf(source: object): FieldValues {
+/**
+ * An InvoiceDocument (or anything shaped like one) as the form's values. Without a date of
+ * supply the issue date stands in for it, unless `deliveryAsIssue` is off (a fresh reading:
+ * the user says whether the invoice prints one).
+ */
+export function valuesOf(source: object, { deliveryAsIssue = true } = {}): FieldValues {
   const document = source as Record<string, unknown>;
   const part = (name: string) => (document[name] ?? {}) as Record<string, unknown>;
   const supplier = part('supplier');
@@ -77,6 +84,7 @@ export function valuesOf(source: object): FieldValues {
       variable_symbol: text(invoice.variable_symbol),
       issue_date: text(invoice.issue_date),
       delivery_date: text(invoice.delivery_date),
+      delivery_as_issue: deliveryAsIssue && !text(invoice.delivery_date),
       due_date: text(invoice.due_date),
       document_type: invoice.document_type === 'credit_note' ? 'credit_note' : 'invoice',
     },
@@ -112,7 +120,7 @@ export function documentOf(
       number: orNull(values.invoice.number),
       variable_symbol: orNull(values.invoice.variable_symbol),
       issue_date: orNull(values.invoice.issue_date),
-      delivery_date: orNull(values.invoice.delivery_date),
+      delivery_date: values.invoice.delivery_as_issue ? null : orNull(values.invoice.delivery_date),
       due_date: orNull(values.invoice.due_date),
       currency: 'EUR',
       document_type: values.invoice.document_type,

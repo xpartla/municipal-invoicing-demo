@@ -186,3 +186,18 @@ export function nextSort(current: string | undefined, key: SortKey): string {
   const now = current ?? DEFAULT_SORT;
   return now === key ? `-${key}` : key;
 }
+
+/** The invoice page's tab and, from Nová faktúra, the uploads still to check after it. */
+export interface InvoicePageSearch {
+  tab?: 'check' | 'proposal' | 'fields' | 'history';
+  queue?: string;
+}
+
+const TABS = new Set(['check', 'proposal', 'fields', 'history']);
+
+export function invoicePageSearch(raw: Record<string, unknown>): InvoicePageSearch {
+  const tab = typeof raw.tab === 'string' && TABS.has(raw.tab) ? raw.tab : undefined;
+  const queue =
+    typeof raw.queue === 'string' && /^[\w-]+(,[\w-]+)*$/.test(raw.queue) ? raw.queue : undefined;
+  return { tab: tab as InvoicePageSearch['tab'], queue };
+}

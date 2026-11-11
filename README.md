@@ -40,7 +40,13 @@ XLSX; the invoice page with the proposal laid out like the accounting software's
 copy button on every value and line, the evidence, alternatives, the correction editor and the
 booking; manual entry (Nová faktúra, also from a pasted JSON); and the number series under
 Systém. The demo's Alpine pages and their routes are gone; `POST /api/code` and `GET /api/eval`
-remain. OCR and e-invoices follow.
+remain. P2-M5 adds scans and OCR: Nová faktúra uploads scans, photos and PDFs, several at once
+(a file uploaded before is refused with a link to its invoice); a job reads each one
+(Tesseract with the Slovak models, or a digital PDF's text layer), extracts the fields with
+their confidences and finds the handwritten note; the check step (Kontrola údajov) shows the
+document beside the fields, the doubtful ones marked and the note's date and number suggested,
+and "Potvrdiť" codes the invoice; Úložisko lists the customer's files; `riso ocr-eval`
+measures the reading on a synthetic scan set. E-invoices follow.
 
 M2 measured the engine on 40 held-out synthetic invoices: every code valid, the full budget
 key right for 61.5% and the economic code for 76.9%, short of the demo targets of 85% and 90%.
@@ -49,6 +55,7 @@ The plan lives outside this repository.
 ```sh
 RISO_ENV=dev RISO_SEED_PASSWORD='Ukážkové-heslo-2026' uv run riso seed --reset
 (cd frontend && pnpm install && pnpm build)
+uv run riso ocr setup               # the OCR models (27 MB) for reading uploads
 uv run riso serve --port 8001       # then open http://127.0.0.1:8001 and log in
 uv run riso eval
 ```
@@ -62,6 +69,13 @@ uv sync                    # the project and its dev tools (mypy, import-linter,
 scripts/check.sh fast
 uv run riso migrate        # create or upgrade var/riso.db
 uv run riso serve          # http://127.0.0.1:8000
+```
+
+Reading uploaded scans needs Tesseract's models (`slk` and `eng` from `tessdata_best` 4.1.0,
+27 MB, checked by SHA-256; the `tesserocr` wheel brings Tesseract itself, no system package):
+
+```sh
+uv run riso ocr setup      # into var/tessdata (RISO_TESSDATA)
 ```
 
 For a database to log in to, seed it (development only):
@@ -124,7 +138,9 @@ pnpm build && pnpm e2e
 ```
 
 The specs include the click-through of the demo's invoice pages, ported to the new UI
-(`e2e/journeys-m4.spec.ts`). `RISO_E2E_SERVER_LOG=<file>` keeps the server's output, with the
+(`e2e/journeys-m4.spec.ts`), and the scans' journeys from upload to booking
+(`e2e/journeys-m5.spec.ts`): the global setup has the server read uploads with
+`RISO_OCR_READER=recorded`, replaying the committed samples' layouts, so E2E needs no models. `RISO_E2E_SERVER_LOG=<file>` keeps the server's output, with the
 traceback of a 500, in that file. The typed API client is
 generated from the backend's OpenAPI document; after changing a route or its models, run
 `uv run riso export-openapi` and `pnpm gen:api`, and commit both `frontend/openapi.json` and
@@ -140,8 +156,16 @@ scripts/check.sh fast    # ruff check and format, mypy, lint-imports, pytest wit
                          # and e2e markers, riso check, schema drift, migrations, and the
                          # frontend's lint, typecheck and unit tests when frontend/ changed
 scripts/check.sh full    # fast with coverage (at least 85% overall and 90% for the domain
-                         # packages), plus pytest -m ocr, the frontend build, the API
+                         # packages), plus pytest -m ocr (needs riso ocr setup and Python
+                         # Playwright's Chromium), the frontend build, the API
                          # client drift check and the Playwright E2E specs
+```
+
+The `ocr` CI job also downloads the models, renders the synthetic set (cached by the generator's
+and the dataset's hashes) and runs `riso ocr-eval --set synthetic --strict`; locally:
+
+```sh
+uv run riso ocr setup && uv run riso testdata scans && uv run riso ocr-eval
 ```
 
 Every step runs and the summary names the ones that failed; the exit code is non-zero if any
@@ -162,6 +186,10 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
 | `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
+| `riso ocr setup` | Downloads the pinned Tesseract models (`slk`, `eng` from `tessdata_best` 4.1.0) into `RISO_TESSDATA` and checks their SHA-256; a file already there with the right hash is kept |
+| `riso ocr record` | Reads the committed synthetic samples with Tesseract, preparing their pages as the extraction does, and writes their layouts to `testdata/ocr/recorded/` (`--out` elsewhere) for the fast tests and `RISO_OCR_READER=recorded`. Run it after changing the page preparation or the models |
+| `riso ocr-eval` | Measures the OCR (plan §8.6): each scan of `--set synthetic` (the generated set, `--scans` elsewhere) or `--set anchor` (the four real scans in `../data/FA.xlsx`, read in place, the report naming fields, never values) goes the extraction's way with the reader of `RISO_OCR_READER`; it prints per field how often it was right and found and the silent wrongs (wrong at confidence 0.6 or more), the time per page, the invoices right after the check step's automatic fields and the note's crop, then plan §8.6's targets; the report is kept in `var/ocr-eval-<set>.json`. `--json` prints it, `--strict` exits with 1 below a target (the `ocr` CI job) |
+| `riso testdata scans` | Renders the 70 seed and held-out cases as synthetic invoice scans (plan §8.6): each through its supplier's layout in headless Chromium, with a handwritten note, an approval stamp and seeded photo or scanner damage; per case the scan, a digital PDF and its truth (`ScanTruth`), into `testdata/ocr/generated/` (git-ignored; `--out` elsewhere). `--seed` (default 2026), `--case <id>` (repeatable), `--samples` rewrites the committed samples in `testdata/ocr/samples/`. The same seed gives the same bytes with the same Chromium build. Needs the dev group's Python Playwright and its Chromium (`uv run playwright install chromium` where `~/.cache/ms-playwright` lacks build 1254) |
 | `riso eval` | Codes the held-out set against the memory of the anchor and seed cases, prints the metrics of plan section 9 and the misses, and stores the report in `var/<IČO>/eval-heldout.json`. `--split seed` or `anchor` codes those cases online, in booking-date order; `--all` lists every case, `--json` prints the EvalReport, `--strict` exits with 1 when a target is missed. `--source db` takes the lists, parameters and conventions from the database of `RISO_DB_URL` (seed it first) instead of the committed files; the memory always comes from `data/initial_state`. `--customer <IČO>` picks the customer |
 
 Run them with `uv run riso …`. `uv run ruff check .` and `uv run ruff format .` keep the code
@@ -180,6 +208,8 @@ Environment variables, all optional:
 | `RISO_VAR_DIR` | `var/` | runtime state: the database, uploaded files, OCR models, reports |
 | `RISO_DB_URL` | `sqlite:///<var>/riso.db` | the SQLAlchemy database URL |
 | `RISO_TESSDATA` | `<var>/tessdata` | the Tesseract models |
+| `RISO_OCR_READER` | `tesseract` | how uploads are read: `tesseract`, or `recorded` to replay the layouts in `RISO_OCR_RECORDINGS` (the E2E journeys) |
+| `RISO_OCR_RECORDINGS` | `testdata/ocr/recorded` | the recorded layouts (`riso ocr record`) |
 | `RISO_SMTP_HOST`, `RISO_SMTP_PORT`, `RISO_SMTP_USER`, `RISO_SMTP_PASSWORD`, `RISO_SMTP_FROM` | unset | optional mail sending; without them mail stays in the outbox |
 | `RISO_RAW_DIR` | `../data` | the raw exports from the accounting software, for `riso ingest` and the tests that need them |
 
@@ -272,6 +302,8 @@ riso/
   web/dist/       where `pnpm build` puts the SPA (git-ignored)
   eval/           scoring proposals against expected outcomes, the metrics, the text report,
                   its files (the initial memory, the reports in var/<IČO>/)
+  testdata/       development tooling, never imported by the app: the synthetic scan generator
+                  (layouts, handwriting, capture damage, `ScanTruth`)
   checks.py       what `riso check` runs
   dataset.py      loading the mock dataset
   text.py         diacritics folding and word matching
@@ -281,6 +313,11 @@ data/
   invoices/       dataset cases: anchor/ (the four scans), seed/ (feeds supplier memory),
                   heldout/ (never does)
   initial_state/  supplier memory and counters that the seed and the evaluation start from
+testdata/
+  fonts/          the vendored OFL fonts of the synthetic scans (README.md has their sources)
+  ocr/samples/    ten committed synthetic scans with their digital PDFs and truth
+  ocr/generated/  the full synthetic set, generated (git-ignored)
+  ocr/recorded/   the samples' layouts as Tesseract read them (riso ocr record)
 knowledge/2026/   EK to SU bridge, AU rules, function map, lexicon, transfer, canteen and style rules
 schemas/          JSON Schemas of the contracts
 migrations/       Alembic migrations of the database
@@ -295,4 +332,6 @@ The raw exports and the scanned invoices stay outside this repository, in `../da
 the checkout, because they contain personal data. Tests that read them are skipped when they
 are absent. What is committed has no personal data: the one natural person among the anchor
 suppliers has a made-up name, IČO and address. The four anchor invoices were addressed to
-another municipality and are re-addressed to Obec Boldog, whose dictionaries the demo has.
+another municipality and are re-addressed to Obec Boldog, whose dictionaries the demo has. The
+synthetic scans in `testdata/ocr/` show only the seed and held-out cases (real companies with
+their registry data, made-up natural persons, made-up tax numbers and accounts).

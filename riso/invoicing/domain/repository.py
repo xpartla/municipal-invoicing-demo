@@ -24,6 +24,10 @@ class InvoiceRepository(Protocol):
         """The invoice's history, oldest first."""
         ...
 
+    def for_document(self, customer_id: str, document_id: str) -> Invoice | None:
+        """The invoice the customer's uploaded document became, if any."""
+        ...
+
 
 class NumberSeriesRepository(Protocol):
     def find(self, customer_id: str, series: str, year: int) -> NumberSeries | None: ...

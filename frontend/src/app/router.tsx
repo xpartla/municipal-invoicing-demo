@@ -27,7 +27,8 @@ import { LoginPage } from '../routes/auth/LoginPage';
 import { ResetPasswordPage } from '../routes/auth/ResetPasswordPage';
 import { codelistsSearch } from '../features/codelists/kinds';
 import { customerImportSearch, globalImportSearch } from '../features/exchange/search';
-import { invoicesSearch } from '../features/invoices/search';
+import { invoicePageSearch, invoicesSearch } from '../features/invoices/search';
+import { filesSearch } from '../features/reporting/api';
 import { CodelistsPage } from '../routes/CodelistsPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
@@ -45,6 +46,7 @@ import { ProvidersPage } from '../routes/admin/ProvidersPage';
 import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
 import { NewCustomerPage } from '../routes/NewCustomerPage';
+import { FilesPage } from '../routes/FilesPage';
 import { NewInvoicePage } from '../routes/NewInvoicePage';
 import { NotFoundPage } from '../routes/NotFoundPage';
 import { ProfilePage } from '../routes/ProfilePage';
@@ -222,8 +224,14 @@ const customerRoutes = [
     getParentRoute: () => customerRoute,
     path: 'invoices/$invoiceId',
     component: InvoicePage,
+    validateSearch: invoicePageSearch,
   }),
-  createRoute({ getParentRoute: () => customerRoute, path: 'files', component: soon('files') }),
+  createRoute({
+    getParentRoute: () => customerRoute,
+    path: 'files',
+    component: FilesPage,
+    validateSearch: filesSearch,
+  }),
 ];
 
 function page<TPath extends string>(path: TPath, component: RouteComponent) {

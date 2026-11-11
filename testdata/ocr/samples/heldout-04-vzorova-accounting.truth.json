@@ -1,0 +1,127 @@
+{
+  "case_id": "heldout-04-vzorova-accounting",
+  "split": "heldout",
+  "seed": 2026,
+  "layout": "classic",
+  "files": {
+    "scan": "heldout-04-vzorova-accounting.scan.png",
+    "digital_pdf": "heldout-04-vzorova-accounting.digital.pdf"
+  },
+  "capture": {
+    "mode": "scanner",
+    "format": "png",
+    "dpi": 100,
+    "width": 847,
+    "height": 1193,
+    "grayscale": true,
+    "rotation": 0.884,
+    "perspective": 0.0,
+    "blur": 0.165,
+    "noise": 2.201,
+    "jpeg_quality": null,
+    "page": [
+      [
+        1.62,
+        18.77
+      ],
+      [
+        828.52,
+        6.01
+      ],
+      [
+        846.58,
+        1175.87
+      ],
+      [
+        19.68,
+        1188.63
+      ]
+    ]
+  },
+  "handwriting": {
+    "font": "shadowsintolight/ShadowsIntoLight.ttf",
+    "placement": "split",
+    "date": {
+      "text": "20.8.26",
+      "box": {
+        "x0": 384,
+        "y0": 37,
+        "x1": 466,
+        "y1": 71
+      }
+    },
+    "number": {
+      "text": "228",
+      "box": {
+        "x0": 688,
+        "y0": 44,
+        "x1": 739,
+        "y1": 74
+      }
+    }
+  },
+  "stamp": {
+    "x0": 320,
+    "y0": 612,
+    "x1": 470,
+    "y1": 673
+  },
+  "document": {
+    "id": "heldout-04-vzorova-accounting",
+    "supplier": {
+      "name": "Mária Vzorová",
+      "ico": "12345679",
+      "dic": null,
+      "ic_dph": null,
+      "iban": null,
+      "address": "Hlavná 1, 900 01 Modra",
+      "vat_payer": false
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "21/2026",
+      "issue_date": "2026-08-18",
+      "delivery_date": "2026-07-31",
+      "due_date": "2026-08-25",
+      "variable_symbol": null,
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-08-20",
+      "number": "228"
+    },
+    "totals": {
+      "net": null,
+      "vat": null,
+      "gross": 700.0,
+      "vat_rates": []
+    },
+    "lines": [
+      {
+        "description": "Fakturujem Vám v zmysle uzatvorenej Zmluvy o vedení účtovníctva - spracovanie účtovnej a rozpočtovej agendy za mesiac júl 2026",
+        "quantity": null,
+        "unit": null,
+        "unit_price": null,
+        "net": null,
+        "vat_rate": null,
+        "vat": null,
+        "gross": 700.0
+      }
+    ],
+    "free_text": [
+      "Nie som platca DPH.",
+      "Forma úhrady: PP"
+    ],
+    "ocr_meta": {
+      "source_file": null,
+      "page_count": 1,
+      "synthetic": true,
+      "confidence": {}
+    },
+    "intake": null
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "cases": {
+    "heldout-04-vzorova-accounting": {
+      "heldout-04-vzorova-accounting.digital.pdf": "6ac7a2fd13d0b70c0b2aceef95261fdcbff6bf4f2bfc1a4e8757e6d9feb0968f",
+      "heldout-04-vzorova-accounting.scan.png": "3b11217263f6f04db09c309bc5812ed4323633c561d19109838b84ff7a9a72de",
+      "heldout-04-vzorova-accounting.truth.json": "b7e7640b09627336a726f5660f88f9a906e285c32cb854a8c8b39c8e761cd7a4"
+    },
+    "heldout-07-hornbach-kd": {
+      "heldout-07-hornbach-kd.digital.pdf": "8e7c9c2b2ff4185bea60d9a2d570f1eaad20b7f75784b4f413ae94d2ab68fffd",
+      "heldout-07-hornbach-kd.scan.jpg": "4fa33e6a5e020dde7ef34246adb455cc9dfe15b44cf09d99b313fbca73f111ab",
+      "heldout-07-hornbach-kd.truth.json": "aefd9e709210305fdf85bb8db2fc795129e97e50f6681478027057a4a44c3312"
+    },
+    "heldout-10-bvs-water-ocu-noise": {
+      "heldout-10-bvs-water-ocu-noise.digital.pdf": "a320e1da366afb7966e8d1e215ec8a7d0d3da5e540467e1c832cf85db0bab6b3",
+      "heldout-10-bvs-water-ocu-noise.scan.jpg": "46624b511866b0ab0e84518cda0a9bb1f1fa12da6dd3927b580ecd090f624fb9",
+      "heldout-10-bvs-water-ocu-noise.truth.json": "57dfcaa21d1ef60c391f2e2cd302eda14045686e54ca965480f435a40325bb29"
+    },
+    "heldout-12-orange-mobile-ocu": {
+      "heldout-12-orange-mobile-ocu.digital.pdf": "2a58ad02cc09794a3e68ad86525a132c40c1d570fbcb0b6216d8cc62f1336987",
+      "heldout-12-orange-mobile-ocu.scan.jpg": "04631af1e6ef9f20d1bf6ecb2b7fa36b1edc844dd4886b9988291db8c8ccf870",
+      "heldout-12-orange-mobile-ocu.truth.json": "eb1d3b76961aa14e10330036079e8a8474535be9791bb96bb7d0a35cd5a66863"
+    },
+    "heldout-16-ozpomoc-noise": {
+      "heldout-16-ozpomoc-noise.digital.pdf": "629e0e0cb2ca8456cc4e5c6ff537f3632033bdc5e0f9c975aa846cf4cefce467",
+      "heldout-16-ozpomoc-noise.scan.pdf": "a0d24b14de303e72a9073513bffa633142d7fbbaf8d2f1f7c8e0479dded125bf",
+      "heldout-16-ozpomoc-noise.truth.json": "476f96bf25b9b286041799484297ca06683c00e6a78290fed99c8ea89bbb4d56"
+    },
+    "heldout-19-telekom-phone": {
+      "heldout-19-telekom-phone.digital.pdf": "6748298df0ad75704ce743efbcb936cdb83e436f53ea053d5d1ef68b8cb69e34",
+      "heldout-19-telekom-phone.scan.jpg": "bb03422e3deaaf001469be8f0fa1a57186b414baa6552ba2b2a029e973ed1ef3",
+      "heldout-19-telekom-phone.truth.json": "0a0c6f0a74031d176479ae91c4aa02b14bcc5363a71a67d5a8f8c072f0db7b1a"
+    },
+    "heldout-23-zse-ocu-ms": {
+      "heldout-23-zse-ocu-ms.digital.pdf": "c655d522445fcdeff7d972c46ca4f00e4a4272d0d8f4476e00e0ee688b357eff",
+      "heldout-23-zse-ocu-ms.scan.jpg": "c82dd94113e9f72a0de178509444c65abd0c9927b9da47749e80e351ba094e50",
+      "heldout-23-zse-ocu-ms.truth.json": "46992920db2370095531aeea74ae8a56227990cdd8c459763bf2120d9aeb7128"
+    },
+    "heldout-35-metro-credit-note": {
+      "heldout-35-metro-credit-note.digital.pdf": "062b8177b786d387af0aa68c1d491ba423c166864db46a478e78670e71cfaf66",
+      "heldout-35-metro-credit-note.scan.pdf": "ca6f0234628de2fd4f377868421979e60758ccf0023b40b69fba665b6e969729",
+      "heldout-35-metro-credit-note.truth.json": "e2b380521bdb6af14abc0527c346dce5b6c5e9704abd1dcabc194623bae90ff3"
+    },
+    "seed-04-fcc-waste": {
+      "seed-04-fcc-waste.digital.pdf": "da9424e3cacecb7757f1c7cdd3cbc80774299f06745d4f3c1728e5bee6285d9c",
+      "seed-04-fcc-waste.scan.pdf": "28aeb51e42895d0eda7d61eda64a85fa4663e4130ac567dbc3744992dc8d3e41",
+      "seed-04-fcc-waste.truth.json": "56e1eb190860cc576de3e352dc1b5505b75bd80c36f3e0b28a4f9490914a67db"
+    },
+    "seed-12-zmos-membership": {
+      "seed-12-zmos-membership.digital.pdf": "55de8cbd742ee0bd5dd0128f0534cd0fe82ead60cbeb88d3f5d8eaa7b3c04b48",
+      "seed-12-zmos-membership.scan.jpg": "afd832d6e7d662db1aaf58cbae70d33d9e7156a0d6c4a2685bcc9999f0963475",
+      "seed-12-zmos-membership.truth.json": "07ea3566f9f5d569a3588934eb858b2e85bc1095288b9634dd98bce5d7335b3e"
+    }
+  },
+  "seed": 2026
+}

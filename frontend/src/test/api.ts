@@ -44,16 +44,20 @@ export function mockApi(routes: Record<string, Handler>) {
   return { calls, fetch };
 }
 
-/** A multipart body's fields: text values as they are, a file as its name. */
-function multipartFields(text: string, type: string): Record<string, string> {
+/** A multipart body's fields: text values as they are, a file as its name; a name sent more
+ * than once (several files) as the list of them. */
+function multipartFields(text: string, type: string): Record<string, string | string[]> {
   const boundary = /boundary=(.+)$/.exec(type)?.[1] ?? '';
-  const fields: Record<string, string> = {};
+  const fields: Record<string, string | string[]> = {};
   for (const part of text.split(`--${boundary}`)) {
     const name = /name="([^"]+)"/.exec(part)?.[1];
     if (!name) continue;
     const filename = /filename="([^"]*)"/.exec(part)?.[1];
     const value = part.split('\r\n\r\n').slice(1).join('\r\n\r\n').replace(/\r\n$/, '');
-    fields[name] = filename ?? value;
+    const found = filename ?? value;
+    const before = fields[name];
+    fields[name] =
+      before === undefined ? found : [...(Array.isArray(before) ? before : [before]), found];
   }
   return fields;
 }

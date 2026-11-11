@@ -1,0 +1,135 @@
+{
+  "case_id": "heldout-19-telekom-phone",
+  "split": "heldout",
+  "seed": 2026,
+  "layout": "modern",
+  "files": {
+    "scan": "heldout-19-telekom-phone.scan.jpg",
+    "digital_pdf": "heldout-19-telekom-phone.digital.pdf"
+  },
+  "capture": {
+    "mode": "scanner",
+    "format": "jpeg",
+    "dpi": 124,
+    "width": 1042,
+    "height": 1477,
+    "grayscale": true,
+    "rotation": -0.952,
+    "perspective": 0.0,
+    "blur": 0.029,
+    "noise": 2.993,
+    "jpeg_quality": 61,
+    "page": [
+      [
+        19.36,
+        0.34
+      ],
+      [
+        1044.22,
+        17.37
+      ],
+      [
+        1020.13,
+        1467.17
+      ],
+      [
+        -4.73,
+        1450.14
+      ]
+    ]
+  },
+  "handwriting": {
+    "font": "reeniebeanie/ReenieBeanie.ttf",
+    "placement": "inline",
+    "date": {
+      "text": "17.9.26",
+      "box": {
+        "x0": 141,
+        "y0": 26,
+        "x1": 239,
+        "y1": 56
+      }
+    },
+    "number": {
+      "text": "252",
+      "box": {
+        "x0": 324,
+        "y0": 29,
+        "x1": 374,
+        "y1": 54
+      }
+    }
+  },
+  "stamp": null,
+  "document": {
+    "id": "heldout-19-telekom-phone",
+    "supplier": {
+      "name": "Slovak Telekom, a.s.",
+      "ico": "35763469",
+      "dic": "2020273893",
+      "ic_dph": "SK2020273893",
+      "iban": "SK20 0200 0000 0023 1409 3958",
+      "address": "Bajkalská 28, 817 62 Bratislava",
+      "vat_payer": true
+    },
+    "customer": {
+      "name": "Obec Boldog",
+      "ico": "00305863"
+    },
+    "invoice": {
+      "number": "8390070414",
+      "issue_date": "2026-09-14",
+      "delivery_date": "2026-09-12",
+      "due_date": "2026-09-28",
+      "variable_symbol": "8390070414",
+      "currency": "EUR",
+      "document_type": "invoice"
+    },
+    "handwritten": {
+      "date": "2026-09-17",
+      "number": "252"
+    },
+    "totals": {
+      "net": 677.8,
+      "vat": 155.89,
+      "gross": 833.69,
+      "vat_rates": [
+        23.0
+      ]
+    },
+    "lines": [
+      {
+        "description": "Samsung Galaxy A56 5G 8/256 GB, čierny – predaj bez viazanosti",
+        "quantity": 2.0,
+        "unit": "ks",
+        "unit_price": 329.0,
+        "net": 658.0,
+        "vat_rate": 23.0,
+        "vat": 151.34,
+        "gross": 809.34
+      },
+      {
+        "description": "Ochranné sklo na displej Samsung Galaxy A56",
+        "quantity": 2.0,
+        "unit": "ks",
+        "unit_price": 9.9,
+        "net": 19.8,
+        "vat_rate": 23.0,
+        "vat": 4.55,
+        "gross": 24.35
+      }
+    ],
+    "free_text": [
+      "Objednávka č. 1-2914477120",
+      "Adresát 1010461504",
+      "Faktúra je zároveň daňovým dokladom."
+    ],
+    "ocr_meta": {
+      "source_file": null,
+      "page_count": 1,
+      "synthetic": true,
+      "confidence": {}
+    },
+    "intake": null
+  }
+}

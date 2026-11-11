@@ -1,6 +1,6 @@
 # CI (plan §13.3): the same checks as scripts/check.sh, split into jobs. The raw exports in
 # ../data are absent here, so the tests that need them skip, as on a fresh clone. The ocr job
-# joins in P2-M5.
+# reads the synthetic scans with Tesseract and fails below plan §8.6's targets.
 name: CI
 
 on:
@@ -131,4 +131,47 @@ jobs:
             frontend/test-results/
             frontend/playwright-report/
           retention-days: 14
+          if-no-files-found: ignore
+
+  ocr:
+    name: ocr
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.3 # Astral publishes no moving major tag
+        with:
+          cache-dependency-glob: uv.lock
+      - run: uv sync --locked
+      # The pinned tessdata_best models (27 MB; riso ocr setup checks their SHA-256).
+      - name: cache the OCR models
+        uses: actions/cache@v6
+        with:
+          path: var/tessdata
+          key: tessdata-${{ hashFiles('riso/intake/infrastructure/tesseract.py') }}
+      - run: uv run riso ocr setup
+      # The scan generator renders in Python Playwright's Chromium.
+      - name: install Chromium for the scan generator
+        run: uv run playwright install --with-deps chromium
+      - name: cache the synthetic scans
+        id: scans
+        uses: actions/cache@v6
+        with:
+          path: testdata/ocr/generated
+          key: >-
+            scans-${{ hashFiles('riso/testdata/**', 'testdata/fonts/**', 'data/invoices/**',
+            'uv.lock') }}
+      - name: generate the synthetic scans
+        if: steps.scans.outputs.cache-hit != 'true'
+        run: uv run riso testdata scans
+      - run: uv run pytest -m ocr
+      - name: measure the OCR against plan §8.6 (fails below the targets)
+        run: uv run riso ocr-eval --set synthetic --json --strict > ocr-eval.json
+      - name: upload the OCR report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ocr-eval-${{ github.run_attempt }}
+          path: ocr-eval.json
+          retention-days: 30
           if-no-files-found: ignore

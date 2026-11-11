@@ -146,7 +146,8 @@
       "end": "Ukončiť"
     },
     "newInvoice": "Nová faktúra",
-    "newInvoiceSoon": "Nahrávanie faktúr pribudne v jednej z ďalších etáp.",
+    "newInvoiceNotAllowed": "Faktúry tohto klienta môžete len prezerať.",
+    "newInvoiceNoCustomer": "Najprv vyberte klienta.",
     "toggleNavigation": "Zobraziť alebo skryť menu",
     "collapse": "Zbaliť menu",
     "expand": "Rozbaliť menu",
@@ -1250,9 +1251,12 @@
     },
     "new": {
       "title": "Nová faktúra",
-      "intro": "Nahrávanie skenov a e-faktúr pribudne v ďalšej etape. Faktúru zatiaľ zadajte ručne; po uložení ju program navrhne zaúčtovať.",
+      "intro": "Zadajte údaje faktúry; po uložení ju program navrhne zaúčtovať.",
       "save": "Uložiť a navrhnúť",
-      "saved": "Faktúra je zadaná."
+      "saved": "Faktúra je zadaná.",
+      "upload": "Nahrať súbory",
+      "manual": "Zadať ručne",
+      "uploadIntro": "Nahrajte sken, fotografiu alebo PDF faktúry, aj viac naraz (jedna faktúra v súbore). Program ich prečíta a pripraví na kontrolu údajov."
     }
   },
   "invoice": {
@@ -1261,6 +1265,7 @@
     "titleNone": "Faktúra",
     "unknownSupplier": "Neznámy dodávateľ",
     "tabs": {
+      "check": "Kontrola údajov",
       "proposal": "Návrh a zaúčtovanie",
       "fields": "Údaje faktúry",
       "history": "História"
@@ -1469,7 +1474,8 @@
       "reason": "dôvod: {{reason}}",
       "accepted": "návrh prijatý",
       "corrected": "opravené"
-    }
+    },
+    "proposalAfterCheck": "Návrh zaúčtovania vznikne po potvrdení údajov na karte Kontrola údajov."
   },
   "fieldsForm": {
     "handwritten": "Rukou na doklade",
@@ -1488,7 +1494,7 @@
     "vs": "Variabilný symbol",
     "issueDate": "Dátum vystavenia",
     "deliveryDate": "Dátum dodania",
-    "deliveryHint": "prázdny znamená dátum vystavenia",
+    "deliveryHint": "dátum zdaniteľného plnenia",
     "dueDate": "Dátum splatnosti",
     "documentType": "Druh dokladu",
     "invoice": "Faktúra",
@@ -1510,6 +1516,145 @@
     "pasteText": "Vložte údaje faktúry vo formáte InvoiceDocument (napríklad výstup OCR). Formulár sa nimi vyplní; pred uložením ich môžete upraviť.",
     "pasteLabel": "JSON faktúry",
     "pasteFill": "Vyplniť formulár",
-    "pasteInvalid": "Text nie je platný JSON faktúry."
+    "pasteInvalid": "Text nie je platný JSON faktúry.",
+    "deliveryAsIssue": "Na faktúre nie je, platí dátum vystavenia",
+    "deliveryRequired": "Zadajte dátum dodania alebo označte, že na faktúre nie je.",
+    "keyboard": "Enter potvrdí pole a prejde na ďalšie, ktoré treba skontrolovať; Tab preskočí na ďalšie také pole. Prázdne pole písané rukou Enter vyplní prvým návrhom.",
+    "suggestionsFor": "Návrhy pre {{field}}",
+    "fromCounter": "z počítadla",
+    "reasons": {
+      "below_counter": "nižšie ako počítadlo",
+      "far_ahead": "ďaleko pred počítadlom",
+      "already_used": "už použité",
+      "before_issue": "pred dátumom vystavenia",
+      "in_future": "v budúcnosti",
+      "other_year": "iný rok"
+    },
+    "marks": {
+      "handwritten": "Písané rukou; potvrďte podľa výrezu."
+    }
+  },
+  "intake": {
+    "zone": {
+      "label": "Nahrávanie faktúr",
+      "drop": "Pretiahnite sem súbory faktúr",
+      "limits": "PDF, JPG, PNG alebo TIFF, najviac 20 MB a 5 strán; najviac 20 súborov naraz.",
+      "choose": "Vybrať súbory",
+      "photo": "Odfotiť faktúru"
+    },
+    "list": {
+      "label": "Nahrané súbory",
+      "file": "Súbor",
+      "status": "Stav",
+      "detail": "Podrobnosti",
+      "duplicate": "Otvoriť faktúru z rovnakého súboru",
+      "check": "Skontrolovať",
+      "open": "Otvoriť"
+    },
+    "status": {
+      "uploading": "Nahráva sa",
+      "rejected": "Odmietnutý",
+      "reading": "Číta sa",
+      "ready": "Na kontrolu",
+      "failed": "Neprečítaný",
+      "done": "Spracovaný"
+    },
+    "rejected": {
+      "file_empty": "Súbor je prázdny.",
+      "file_too_large": "Súbor je väčší ako 20 MB.",
+      "file_type": "Nie je to PDF, JPG, PNG ani TIFF.",
+      "too_many_pages": "Súbor má viac ako 5 strán.",
+      "duplicate": "Rovnaký súbor už bol nahraný.",
+      "unknown": "Súbor nebol prijatý."
+    },
+    "failed": {
+      "unreadable": "Súbor sa nedá otvoriť.",
+      "too_many_pages": "Súbor má viac ako 5 strán.",
+      "too_many_pixels": "Obrázok je príliš veľký na prečítanie.",
+      "no_models": "Na serveri chýbajú modely OCR (riso ocr setup).",
+      "ocr_timeout": "Čítanie trvalo príliš dlho.",
+      "ocr_failed": "Čítanie zlyhalo.",
+      "no_recording": "Pre tento súbor nie je zaznamenané čítanie.",
+      "extraction_error": "Pri čítaní nastala chyba.",
+      "unknown": "Súbor sa nepodarilo prečítať."
+    },
+    "continue_one": "Pokračovať na kontrolu ({{count}})",
+    "continue_few": "Pokračovať na kontrolu ({{count}})",
+    "continue_other": "Pokračovať na kontrolu ({{count}})"
+  },
+  "viewer": {
+    "label": "Doklad",
+    "pages": "Strany dokladu",
+    "pageShort": "Str. {{n}}",
+    "single": "Jedna strana",
+    "page": "Strana {{n}}, posúvanie ťahaním alebo šípkami",
+    "image": "Strana {{n}} dokladu",
+    "zoomIn": "Priblížiť",
+    "zoomOut": "Oddialiť",
+    "fit": "Prispôsobiť šírke",
+    "help": "Pole vo formulári sa na doklade zvýrazní. Priblíženie aj klávesmi + a −.",
+    "show": "Zobraziť doklad",
+    "hide": "Skryť doklad"
+  },
+  "check": {
+    "reading": "Súbor sa číta…",
+    "fromOcr": "Údaje prečítané zo skenu (OCR).",
+    "fromText": "Údaje prečítané z textu PDF.",
+    "download": "Stiahnuť súbor",
+    "noteAlt": "Rukou písaná poznámka na doklade, zväčšená",
+    "noteFound": "Výrez s rukou písaným dátumom a číslom.",
+    "noteBand": "Rukou písaný text sa nenašiel; výrez ukazuje vrch strany.",
+    "confirm": "Potvrdiť",
+    "done": "Údaje sú potvrdené, faktúra je navrhnutá na zaúčtovanie.",
+    "failedTitle": "Súbor sa nepodarilo prečítať",
+    "failedText": "Môžete ho skúsiť prečítať znova alebo údaje zadať ručne; faktúra si súbor ponechá.",
+    "retry": "Prečítať znova",
+    "warningsTitle": "Pri čítaní",
+    "warnings": {
+      "addressed_to_another_entity": "Faktúra je adresovaná inému odberateľovi ako tomuto klientovi.",
+      "supplier_name_from_memory": "Názov dodávateľa je doplnený z predchádzajúcich faktúr (podľa IČO)."
+    },
+    "marks": {
+      "low": "Prečítané s nízkou istotou; skontrolujte.",
+      "supplier_ico_check_digit": "Kontrolná číslica IČO nesedí; skontrolujte.",
+      "totals_do_not_add_up": "Suma bez DPH a DPH nedávajú spolu sumu na úhradu; skontrolujte.",
+      "dates_out_of_order": "Dátumy nejdú po sebe; skontrolujte."
+    },
+    "next_one": "Ďalšia na kontrolu ({{count}})",
+    "next_few": "Ďalšia na kontrolu ({{count}})",
+    "next_other": "Ďalšia na kontrolu ({{count}})"
+  },
+  "files": {
+    "title": "Úložisko",
+    "intro": "Súbory klienta: nahrané doklady faktúr, importované a exportované súbory. Každý sa dá stiahnuť; pri doklade je faktúra, ktorá z neho vznikla.",
+    "totals": "Súčty podľa druhu",
+    "all": "Všetko",
+    "count_one": "{{count}} súbor",
+    "count_few": "{{count}} súbory",
+    "count_other": "{{count}} súborov",
+    "filter": "Druh súborov",
+    "kinds": {
+      "document": "Doklady",
+      "import": "Importy",
+      "export": "Exporty"
+    },
+    "table": "Súbory",
+    "columns": {
+      "name": "Súbor",
+      "kind": "Druh",
+      "size": "Veľkosť",
+      "created": "Vytvorený",
+      "uses": "Použitie"
+    },
+    "download": "Stiahnuť {{name}}",
+    "uses": {
+      "invoice": "Faktúra",
+      "none": "Nepoužíva sa",
+      "import": "Import: {{type}}",
+      "export_one": "Export: {{count}} faktúra",
+      "export_few": "Export: {{count}} faktúry",
+      "export_other": "Export: {{count}} faktúr"
+    },
+    "empty": "Klient zatiaľ nemá žiadne súbory."
   }
 }

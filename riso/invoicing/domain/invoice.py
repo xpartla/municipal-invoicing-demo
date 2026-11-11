@@ -256,8 +256,10 @@ class Invoice:
         *,
         at: datetime,
         actor: Actor,
+        source_ref: str | None = None,
     ) -> "Invoice":
-        """An invoice whose fields a job reads from the uploaded file."""
+        """An invoice whose fields a job reads from the uploaded file (`source_ref`: the
+        file's name)."""
         if not channel.has_file:
             raise InvalidState(f"a {channel} invoice has no file to read")
         invoice = cls(
@@ -269,6 +271,7 @@ class Invoice:
             uploaded_by=actor.id,
             updated_at=at,
             document_id=document_id,
+            source_ref=source_ref,
         )
         invoice._record(EventKind.CREATED, None, at, actor, {"channel": channel.value})
         return invoice
@@ -335,9 +338,22 @@ class Invoice:
         self._go(EventKind.EXTRACTION_STARTED, at, actor, {"job_id": job_id})
         self.job_id, self.extraction_error = job_id, None
 
-    def extraction_succeeded(self, fields: InvoiceDocument, at: datetime, actor: Actor) -> None:
+    def extraction_succeeded(
+        self,
+        fields: InvoiceDocument,
+        at: datetime,
+        actor: Actor,
+        *,
+        channel: Channel | None = None,
+    ) -> None:
+        """The fields as read; `channel` when the reading found what the file is (a PDF with
+        a text layer is a digital PDF, not a scan)."""
+        if channel is not None and not channel.has_file:
+            raise InvalidState(f"an extracted invoice cannot become {channel}")
         self._go(EventKind.EXTRACTED, at, actor)
         self.fields, self.job_id = fields, None
+        if channel is not None:
+            self.channel = channel
 
     def extraction_failed(self, reason: str, at: datetime, actor: Actor) -> None:
         self._go(EventKind.EXTRACTION_FAILED, at, actor, {"reason": reason})

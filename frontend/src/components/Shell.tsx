@@ -155,7 +155,11 @@ function ShellFor({ me }: { me: Me }) {
               </ButtonLink>
             )
           ) : (
-            <Tooltip label={t('shell.newInvoiceSoon')} withArrow position="right">
+            <Tooltip
+              label={customerId ? t('shell.newInvoiceNotAllowed') : t('shell.newInvoiceNoCustomer')}
+              withArrow
+              position="right"
+            >
               {/* The wrapper keeps the tooltip working on the disabled button. */}
               <div>
                 {collapsed ? (

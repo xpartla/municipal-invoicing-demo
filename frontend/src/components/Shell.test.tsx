@@ -42,7 +42,12 @@ describe('the navbar per role', () => {
     mockApi({ 'GET /api/me': { body: meAs('viewer') } });
     await renderApp(`/c/${BOLDOG.id}`);
     expect(menuLinks()).toEqual([...CUSTOMER_ITEMS, 'Správy', ...BOTTOM]);
-    expect(screen.getByRole('button', { name: 'Nová faktúra' })).toBeDisabled();
+    const button = screen.getByRole('button', { name: 'Nová faktúra' });
+    expect(button).toBeDisabled();
+    await userEvent.hover(button.parentElement ?? button);
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Faktúry tohto klienta môžete len prezerať.',
+    );
   });
 
   it('staff land on Používatelia and get the customer items once a customer is chosen', async () => {

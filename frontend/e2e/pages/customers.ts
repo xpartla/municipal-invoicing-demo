@@ -23,8 +23,9 @@ export async function copyBoldog(page: Page, name: string, ico: string, { memory
   if (memory) await page.getByRole('checkbox', { name: 'Pamäť dodávateľov' }).check();
   await page.getByRole('button', { name: 'Ďalej' }).click();
   await page.getByRole('button', { name: 'Vytvoriť kópiu' }).click();
+  // The copy is a job: it may wait in the worker's queue behind other widths' uploads.
   await expect(page.getByText(/^Hotovo: skopírovaných číselníkov [1-9]/)).toBeVisible({
-    timeout: 15_000,
+    timeout: 30_000,
   });
   await page.getByRole('link', { name: 'Otvoriť klienta' }).click();
   await expect(page.getByText(`Prehľad klienta ${name}`)).toBeVisible();
