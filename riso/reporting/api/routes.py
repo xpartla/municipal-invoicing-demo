@@ -350,7 +350,7 @@ class OverviewTotalsOut(_Out):
     open_imports: int
 
 
-class ProviderOverviewOut(_Out):
+class OverviewOut(_Out):
     """Prehľad klientov (plan §10.8): the totals, then one row per active customer."""
 
     provider_id: str
@@ -360,7 +360,7 @@ class ProviderOverviewOut(_Out):
     rows: list[OverviewRowOut]
 
     @classmethod
-    def of(cls, view: ProviderOverviewView) -> "ProviderOverviewOut":
+    def of(cls, view: ProviderOverviewView) -> "OverviewOut":
         return cls(
             provider_id=view.provider_id,
             provider_name=view.provider_name,
@@ -410,12 +410,12 @@ def overview(
     services: ServicesDep,
     provider_id: str,
     month: MonthQuery = None,
-) -> ProviderOverviewOut:
+) -> OverviewOut:
     """Prehľad klientov: the provider's customers with their month's numbers."""
     view = provider_overview(
         caller.ctx, lambda: services.uow(immediate=False), provider_id, _month(services, month)
     )
-    return ProviderOverviewOut.of(view)
+    return OverviewOut.of(view)
 
 
 @router.get("/admin/overview", name="admin.overview")

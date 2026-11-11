@@ -50,11 +50,11 @@ describe('the navbar per role', () => {
     );
   });
 
-  it('staff land on Používatelia and get the customer items once a customer is chosen', async () => {
+  it('staff land on Prehľad klientov and get the customer items once a customer is chosen', async () => {
     mockApi({ 'GET /api/me': { body: meAs('staff') } });
     const { router } = await renderApp('/');
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/users');
+      expect(router.state.location.pathname).toBe('/provider');
     });
     expect(menuLinks()).toEqual(['Správy', 'Prehľad klientov', 'Používatelia', ...BOTTOM]);
     await router.navigate({ to: '/c/$customerId', params: { customerId: BOLDOG.id } });

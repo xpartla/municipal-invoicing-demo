@@ -14,9 +14,10 @@ for (const path of ['/login', '/forgot-password', '/invitation#not-a-token']) {
   });
 }
 
+// Admins land on Platforma and staff on Prehľad klientov (plan §2 decision 67).
 const LANDING: Record<SeededRole, RegExp> = {
-  admin: /\/users$/,
-  staff: /\/users$/,
+  admin: /\/admin$/,
+  staff: /\/provider$/,
   user: /\/c\/[0-9a-f-]+$/,
   viewer: /\/c\/[0-9a-f-]+$/,
 };

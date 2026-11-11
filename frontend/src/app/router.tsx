@@ -17,7 +17,7 @@ import {
   createsCustomers,
   onPlatform,
   seesProviderScreens,
-  worksAcrossCustomers,
+  landingPath,
   type Permission,
 } from '../features/identity/capabilities';
 import { ConfirmEmailPage } from '../routes/auth/ConfirmEmailPage';
@@ -30,6 +30,7 @@ import { customerImportSearch, globalImportSearch } from '../features/exchange/s
 import { invoicePageSearch, invoicesSearch } from '../features/invoices/search';
 import { filesSearch } from '../features/reporting/api';
 import { homeSearch } from '../features/reporting/dashboard';
+import { overviewSearch, platformSearch } from '../features/reporting/overview';
 import { systemSearch } from '../features/system/search';
 import { CodelistsPage } from '../routes/CodelistsPage';
 import { ComingSoonPage } from '../routes/ComingSoonPage';
@@ -44,6 +45,7 @@ import { InvoicesPage } from '../routes/InvoicesPage';
 import { GlobalCodelistsPage } from '../routes/admin/GlobalCodelistsPage';
 import { GlobalImportPage } from '../routes/admin/GlobalImportPage';
 import { OutboxPage } from '../routes/admin/OutboxPage';
+import { PlatformPage } from '../routes/admin/PlatformPage';
 import { ProvidersPage } from '../routes/admin/ProvidersPage';
 import { MessagesPage } from '../routes/MessagesPage';
 import { NoAccessPage } from '../routes/NoAccessPage';
@@ -52,6 +54,7 @@ import { FilesPage } from '../routes/FilesPage';
 import { NewInvoicePage } from '../routes/NewInvoicePage';
 import { NotFoundPage } from '../routes/NotFoundPage';
 import { ProfilePage } from '../routes/ProfilePage';
+import { ProviderOverviewPage } from '../routes/ProviderOverviewPage';
 import { SystemPage } from '../routes/SystemPage';
 import { UsersPage } from '../routes/UsersPage';
 
@@ -77,9 +80,12 @@ async function currentMe(context: RouterContext): Promise<Me | null> {
   return context.queryClient.query({ ...meQuery, staleTime: 'static' });
 }
 
-/** Sends a login to where it lands (plan §2 decision 53); returns when it has nowhere. */
+/** Sends a login to where it lands (plan §2 decision 67); returns when it has nowhere. */
 function goToLanding(me: Me): void {
-  if (worksAcrossCustomers(me)) throw redirect({ to: '/users' });
+  const path = landingPath(me);
+  if (path === '/admin') throw redirect({ to: '/admin' });
+  if (path === '/provider') throw redirect({ to: '/provider' });
+  if (path === '/users') throw redirect({ to: '/users' });
   const first = me.customers[0];
   if (first) throw redirect({ to: '/c/$customerId', params: { customerId: first.id } });
 }
@@ -256,10 +262,20 @@ const appRoutes = [
   page('/messages', MessagesPage),
   page('/help', soon('help')),
   page('/profile', ProfilePage),
-  page('/provider', guarded(seesProviderScreens, soon('providerOverview'))),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: '/provider',
+    component: guarded(seesProviderScreens, ProviderOverviewPage),
+    validateSearch: overviewSearch,
+  }),
   page('/users', guarded(seesProviderScreens, UsersPage)),
   page('/users/new', guarded(createsCustomers, NewCustomerPage)),
-  page('/admin', guarded(admin('providers.manage'), soon('platform'))),
+  createRoute({
+    getParentRoute: () => appRoute,
+    path: '/admin',
+    component: guarded(admin('platform.overview'), PlatformPage),
+    validateSearch: platformSearch,
+  }),
   page('/admin/providers', guarded(admin('providers.manage'), ProvidersPage)),
   page('/admin/codelists', guarded(admin('codelists.global'), GlobalCodelistsPage)),
   createRoute({

@@ -124,7 +124,7 @@ export const MENU: readonly MenuItem[] = [
     section: 'admin',
     icon: IconServer,
     path: () => '/admin',
-    visible: admin('providers.manage'),
+    visible: admin('platform.overview'),
   },
   {
     key: 'providers',

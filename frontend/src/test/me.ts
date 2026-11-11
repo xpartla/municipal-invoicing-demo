@@ -34,6 +34,7 @@ const ADMIN = [
   'evaluation.read',
   'jobs.manage',
   'outbox.read',
+  'platform.overview',
   'providers.manage',
   'templates.create_customer',
   'templates.create_global',

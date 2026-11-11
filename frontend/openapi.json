@@ -1275,7 +1275,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/riso__tenancy__api__models__ProviderOverviewOut"
+                  "$ref": "#/components/schemas/ProviderOverviewOut"
                 }
               }
             }
@@ -7310,7 +7310,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/riso__reporting__api__routes__ProviderOverviewOut"
+                  "$ref": "#/components/schemas/OverviewOut"
                 }
               }
             }
@@ -14482,6 +14482,43 @@
         ],
         "title": "OutboxPageOut"
       },
+      "OverviewOut": {
+        "properties": {
+          "provider_id": {
+            "type": "string",
+            "title": "Provider Id"
+          },
+          "provider_name": {
+            "type": "string",
+            "title": "Provider Name"
+          },
+          "month": {
+            "type": "string",
+            "title": "Month"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/OverviewTotalsOut"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/OverviewRowOut"
+            },
+            "type": "array",
+            "title": "Rows"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "provider_id",
+          "provider_name",
+          "month",
+          "totals",
+          "rows"
+        ],
+        "title": "OverviewOut",
+        "description": "Prehľad klientov (plan §10.8): the totals, then one row per active customer."
+      },
       "OverviewRowOut": {
         "properties": {
           "customer_id": {
@@ -15030,6 +15067,26 @@
           "removed_at"
         ],
         "title": "ProviderOut"
+      },
+      "ProviderOverviewOut": {
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/ProviderOut"
+          },
+          "customers": {
+            "items": {
+              "$ref": "#/components/schemas/CustomerOut"
+            },
+            "type": "array",
+            "title": "Customers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "customers"
+        ],
+        "title": "ProviderOverviewOut"
       },
       "ProviderStatus": {
         "type": "string",
@@ -16812,63 +16869,6 @@
           "year"
         ],
         "title": "Body_imports.upload"
-      },
-      "riso__reporting__api__routes__ProviderOverviewOut": {
-        "properties": {
-          "provider_id": {
-            "type": "string",
-            "title": "Provider Id"
-          },
-          "provider_name": {
-            "type": "string",
-            "title": "Provider Name"
-          },
-          "month": {
-            "type": "string",
-            "title": "Month"
-          },
-          "totals": {
-            "$ref": "#/components/schemas/OverviewTotalsOut"
-          },
-          "rows": {
-            "items": {
-              "$ref": "#/components/schemas/OverviewRowOut"
-            },
-            "type": "array",
-            "title": "Rows"
-          }
-        },
-        "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "provider_id",
-          "provider_name",
-          "month",
-          "totals",
-          "rows"
-        ],
-        "title": "ProviderOverviewOut",
-        "description": "Prehľad klientov (plan §10.8): the totals, then one row per active customer."
-      },
-      "riso__tenancy__api__models__ProviderOverviewOut": {
-        "properties": {
-          "provider": {
-            "$ref": "#/components/schemas/ProviderOut"
-          },
-          "customers": {
-            "items": {
-              "$ref": "#/components/schemas/CustomerOut"
-            },
-            "type": "array",
-            "title": "Customers"
-          }
-        },
-        "type": "object",
-        "required": [
-          "provider",
-          "customers"
-        ],
-        "title": "ProviderOverviewOut"
       }
     }
   }

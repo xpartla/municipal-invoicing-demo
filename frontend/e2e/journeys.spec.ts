@@ -56,7 +56,8 @@ test.describe('1. each role sees exactly its navbar', () => {
         // A customer user lands in the customer, where invoices can be entered (P2-M4-T09).
         await expect(page.getByRole('link', { name: 'Nová faktúra' })).toBeVisible();
       } else {
-        // Staff and admins land on Používatelia, with no customer chosen; viewers only read.
+        // Staff land on Prehľad klientov and admins on Platforma (decision 67), with no
+        // customer chosen.
         await expect(page.getByRole('button', { name: 'Nová faktúra' })).toBeDisabled();
       }
     });
@@ -110,7 +111,7 @@ test('2. an admin invites a user, who sets a password from the outbox link and l
 
 test('3. staff switch between two customers', async ({ page }) => {
   await loginAs(page, 'staff');
-  await expect(page).toHaveURL(/\/users$/);
+  await expect(page).toHaveURL(/\/provider$/);
   await openNav(page);
   const switcher = page.getByRole('navigation').getByLabel('Klient', { exact: true });
   await switcher.click();

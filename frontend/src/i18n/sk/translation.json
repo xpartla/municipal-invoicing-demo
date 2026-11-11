@@ -1859,5 +1859,54 @@
     "gross": "Spolu",
     "payable": "Na úhradu",
     "notes": "Poznámky"
+  },
+  "overview": {
+    "title": "Prehľad klientov",
+    "provider": "Servisný účet",
+    "totals": "Súčty za všetkých klientov",
+    "table": "Klienti",
+    "empty": "Servisný účet zatiaľ nemá klientov.",
+    "noProviders": "Zatiaľ nie je žiadny servisný účet.",
+    "ico": "IČO {{ico}}",
+    "never": "zatiaľ nič",
+    "listsReady": "Pripravené",
+    "listsMissing": "Chýbajú",
+    "columns": {
+      "customers": "Klienti",
+      "customer": "Klient",
+      "uploaded": "Nahrané",
+      "waiting": "Čakajú na kontrolu",
+      "review": "Na kontrolu",
+      "failed": "Neúspešné",
+      "booked": "Zaúčtované",
+      "last_activity": "Posledná činnosť",
+      "codelists": "Číselníky na rok",
+      "missing_lists": "Bez číselníkov",
+      "open_imports": "Otvorené importy"
+    },
+    "openImports_one": "{{count}} otvorený import klienta {{name}}",
+    "openImports_few": "{{count}} otvorené importy klienta {{name}}",
+    "openImports_many": "{{count}} otvorených importov klienta {{name}}",
+    "openImports_other": "{{count}} otvorených importov klienta {{name}}"
+  },
+  "platform": {
+    "title": "Platforma",
+    "counts": "Počty",
+    "tiles": {
+      "providers": "Servisné účty",
+      "customers": "Klienti",
+      "users": "Používatelia",
+      "invoices": "Faktúry nahrané v mesiaci",
+      "ocr_pages": "Strany prečítané OCR",
+      "failed_jobs": "Neúspešné úlohy",
+      "logins": "Prihlásenia za 7 dní",
+      "unsent_mail": "Neodoslané e-maily"
+    },
+    "hints": {
+      "logins_one": "{{count}} používateľ",
+      "logins_few": "{{count}} používatelia",
+      "logins_many": "{{count}} používateľov",
+      "logins_other": "{{count}} používateľov"
+    }
   }
 }

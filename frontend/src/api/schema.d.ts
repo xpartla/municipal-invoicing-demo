@@ -4597,6 +4597,21 @@ export interface components {
             /** Total */
             total: number;
         };
+        /**
+         * OverviewOut
+         * @description Prehľad klientov (plan §10.8): the totals, then one row per active customer.
+         */
+        OverviewOut: {
+            /** Provider Id */
+            provider_id: string;
+            /** Provider Name */
+            provider_name: string;
+            /** Month */
+            month: string;
+            totals: components["schemas"]["OverviewTotalsOut"];
+            /** Rows */
+            rows: components["schemas"]["OverviewRowOut"][];
+        };
         /** OverviewRowOut */
         OverviewRowOut: {
             /** Customer Id */
@@ -4841,6 +4856,12 @@ export interface components {
             created_at: string;
             /** Removed At */
             removed_at: string | null;
+        };
+        /** ProviderOverviewOut */
+        ProviderOverviewOut: {
+            provider: components["schemas"]["ProviderOut"];
+            /** Customers */
+            customers: components["schemas"]["CustomerOut"][];
         };
         /**
          * ProviderStatus
@@ -5526,27 +5547,6 @@ export interface components {
             import_type: components["schemas"]["ImportType"];
             /** Year */
             year: number;
-        };
-        /**
-         * ProviderOverviewOut
-         * @description Prehľad klientov (plan §10.8): the totals, then one row per active customer.
-         */
-        riso__reporting__api__routes__ProviderOverviewOut: {
-            /** Provider Id */
-            provider_id: string;
-            /** Provider Name */
-            provider_name: string;
-            /** Month */
-            month: string;
-            totals: components["schemas"]["OverviewTotalsOut"];
-            /** Rows */
-            rows: components["schemas"]["OverviewRowOut"][];
-        };
-        /** ProviderOverviewOut */
-        riso__tenancy__api__models__ProviderOverviewOut: {
-            provider: components["schemas"]["ProviderOut"];
-            /** Customers */
-            customers: components["schemas"]["CustomerOut"][];
         };
     };
     responses: never;
@@ -6501,7 +6501,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["riso__tenancy__api__models__ProviderOverviewOut"];
+                    "application/json": components["schemas"]["ProviderOverviewOut"];
                 };
             };
             /** @description Validation Error */
@@ -9706,7 +9706,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["riso__reporting__api__routes__ProviderOverviewOut"];
+                    "application/json": components["schemas"]["OverviewOut"];
                 };
             };
             /** @description Validation Error */
