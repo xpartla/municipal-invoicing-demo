@@ -18,15 +18,18 @@ export default defineConfig({
     locale: 'sk-SK',
     timezoneId: 'Europe/Bratislava',
   },
-  // The three widths of plan §10.1: phone, tablet, desktop.
+  // The three widths of plan §10.1: phone, tablet, desktop. The phase 2 acceptance journey
+  // runs at desktop width only (plan §2 decision 68).
   projects: [
     {
       name: 'phone',
       use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 } },
+      testIgnore: /acceptance\.spec\.ts/,
     },
     {
       name: 'tablet',
       use: { ...devices['Desktop Chrome'], viewport: { width: 820, height: 1180 } },
+      testIgnore: /acceptance\.spec\.ts/,
     },
     {
       name: 'desktop',

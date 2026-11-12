@@ -152,8 +152,13 @@ The specs include the click-through of the demo's invoice pages, ported to the n
 (`e2e/journeys-m4.spec.ts`), and the scans' journeys from upload to booking
 (`e2e/journeys-m5.spec.ts`), and the e-invoices' (`e2e/journeys-m6.spec.ts`, a UBL file and
 an ISDOC PDF from `testdata/einvoice/samples`, read from their XML), M7's (`e2e/journeys-m7.spec.ts`:
-Domov after a booking, a provider's overview, the admin's audit search) and `e2e/routes.spec.ts`,
-which opens every route per role through axe: the global setup has the server read uploads with
+Domov after a booking, a provider's overview, the admin's audit search), `e2e/routes.spec.ts`,
+which opens every route per role through axe and its "?" (P2-M8), `e2e/help.spec.ts` and the
+phase 2 acceptance journey (`e2e/acceptance.spec.ts`, desktop width only: a provider copies
+Boldog, imports a chart of accounts with a new mapping and saves the template, invites a user
+who sets a password from the outbox link; the user uploads three scans and a UBL invoice,
+books one outright, corrects one, enters a credit note by hand, exports to CSV and marks them
+paid; Domov counts them; the admin finds them in the audit and impersonates the user): the global setup has the server read uploads with
 `RISO_OCR_READER=recorded`, replaying the committed samples' layouts, so E2E needs no models. `RISO_E2E_SERVER_LOG=<file>` keeps the server's output, with the
 traceback of a 500, in that file. The typed API client is
 generated from the backend's OpenAPI document; after changing a route or its models, run
