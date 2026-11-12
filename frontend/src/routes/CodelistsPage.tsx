@@ -1,6 +1,6 @@
 import { Alert, Button, Group, Select, Stack, Tabs, Text, TextInput, Title } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
-import { IconHistory, IconPlus, IconSearch, IconUpload } from '@tabler/icons-react';
+import { IconCopy, IconHistory, IconPlus, IconSearch, IconUpload } from '@tabler/icons-react';
 import { useParams, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { Pager } from '../components/Pager';
 import { ButtonLink } from '../components/RouterLinks';
 import {
+  useCarryYearOver,
   useEditRow,
   useEntries,
   useListsOverview,
@@ -60,7 +61,26 @@ export function CodelistsPage() {
   const canEdit = me ? inCustomer(me, customerId, 'codelists.edit') : false;
   const viewing = entries.data?.version;
   const onActive = viewing === undefined || viewing.id === active?.id;
-  const years = [...new Set([...(overview.data?.years ?? []), thisYear])].sort((a, b) => b - a);
+  // The next year too: a new year is prepared before it starts (plan §6.6).
+  const years = [...new Set([...(overview.data?.years ?? []), thisYear, thisYear + 1])].sort(
+    (a, b) => b - a,
+  );
+  const carry = useCarryYearOver(customerId);
+  const previousHasLists = overview.data?.years.includes(year - 1) ?? false;
+  const carryOver = async () => {
+    try {
+      const done = await carry.mutateAsync(year);
+      notify.success(
+        t('codelists.carriedOver', {
+          year: done.year,
+          from: done.from_year,
+          count: done.code_lists.length,
+        }),
+      );
+    } catch (error) {
+      notify.failure(error);
+    }
+  };
 
   const choose = (next: CustomerKind) => {
     setKind(next);
@@ -131,8 +151,23 @@ export function CodelistsPage() {
       ) : active === null ? (
         <Stack gap="sm" align="flex-start">
           <Text>{t('codelists.noList', { year })}</Text>
+          {canEdit && previousHasLists && (
+            <>
+              <Text size="sm" c="dimmed">
+                {t('codelists.carryOverHint', { year, from: year - 1 })}
+              </Text>
+              <Button
+                leftSection={<IconCopy size={16} aria-hidden />}
+                loading={carry.isPending}
+                onClick={() => void carryOver()}
+              >
+                {t('codelists.carryOver', { from: year - 1 })}
+              </Button>
+            </>
+          )}
           {canEdit && (
             <Button
+              variant={previousHasLists ? 'default' : 'filled'}
               leftSection={<IconPlus size={16} aria-hidden />}
               onClick={() => {
                 setDialog({});

@@ -154,3 +154,25 @@ export function useEditRow(customerId: string, kind: ListKind, year: number) {
     },
   });
 }
+
+export type YearCarriedOver = Schemas['YearCarriedOverOut'];
+
+/** Starts `year` from the previous one (plan §6.6): the lists, parameters and conventions it
+ * lacks. Číselníky and Systém read them again. */
+export function useCarryYearOver(customerId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (year: number) =>
+      unwrap(
+        api.POST('/api/customers/{customer_id}/years/{year}/carry-over', {
+          params: { path: { customer_id: customerId, year } },
+        }),
+      ),
+    onSuccess: async () => {
+      await Promise.all([
+        client.invalidateQueries({ queryKey: codelistsKey({ customerId }) }),
+        client.invalidateQueries({ queryKey: ['system', customerId] }),
+      ]);
+    },
+  });
+}

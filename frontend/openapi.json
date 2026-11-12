@@ -3764,6 +3764,60 @@
         }
       }
     },
+    "/api/customers/{customer_id}/years/{year}/carry-over": {
+      "post": {
+        "tags": [
+          "exchange"
+        ],
+        "summary": "Years.Carry Over",
+        "description": "Starts `year` from the previous one (plan §6.6): the code lists, parameters and\nconventions it lacks, copied from `year - 1`; the number series start at 0. 409 when\nthere is nothing to take.",
+        "operationId": "years.carry_over",
+        "parameters": [
+          {
+            "name": "customer_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Customer Id"
+            }
+          },
+          {
+            "name": "year",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "maximum": 2100,
+              "minimum": 2001,
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YearCarriedOverOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/customers/{customer_id}/imports/{run_id}/cancel": {
       "post": {
         "tags": [
@@ -17225,6 +17279,43 @@
           "kind"
         ],
         "title": "WarningOut"
+      },
+      "YearCarriedOverOut": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "from_year": {
+            "type": "integer",
+            "title": "From Year"
+          },
+          "code_lists": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Code Lists"
+          },
+          "parameters": {
+            "type": "boolean",
+            "title": "Parameters"
+          },
+          "conventions": {
+            "type": "boolean",
+            "title": "Conventions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "from_year",
+          "code_lists",
+          "parameters",
+          "conventions"
+        ],
+        "title": "YearCarriedOverOut",
+        "description": "What a year took from the previous one (plan §6.6)."
       },
       "ZeroPad": {
         "properties": {

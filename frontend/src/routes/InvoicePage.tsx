@@ -422,7 +422,24 @@ function InvoiceView({ customerId, invoice }: { customerId: string; invoice: Inv
 
             <Tabs.Panel value="proposal" pt="md">
               <Stack gap="md">
-                {invoice.coding_error && <Alert color="red">{t('invoice.codingError')}</Alert>}
+                {invoice.coding_error && (
+                  <Alert color="red">
+                    {t('invoice.codingError')}
+                    {year !== undefined && (
+                      <>
+                        {' '}
+                        <AnchorLink
+                          to="/c/$customerId/codelists"
+                          params={{ customerId }}
+                          search={{ year }}
+                          underline="always"
+                        >
+                          {t('invoice.codingErrorLink', { year })}
+                        </AnchorLink>
+                      </>
+                    )}
+                  </Alert>
+                )}
                 {!source && !invoice.coding_error && (
                   <Text c="dimmed">{t('invoice.proposalAfterCheck')}</Text>
                 )}

@@ -97,6 +97,7 @@ MATRIX: dict[str, RouteAccess] = {
     "audit.list": platform(Permission.AUDIT_READ),
     # exchange: imports and templates
     "imports.upload": customer(Permission.CODELISTS_EDIT),
+    "years.carry_over": customer(Permission.CODELISTS_EDIT),
     "imports.list": customer(Permission.CUSTOMER_READ),
     "imports.get": customer(Permission.CUSTOMER_READ),
     "imports.file": customer(Permission.CUSTOMER_READ),

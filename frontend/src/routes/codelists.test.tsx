@@ -267,6 +267,64 @@ describe('Číselníky', () => {
   });
 });
 
+describe('a new year', () => {
+  it('takes what it lacks from the previous year (plan §6.6)', async () => {
+    const user = userEvent.setup();
+    let carried = false;
+    const empty = {
+      year: 2027,
+      years: [2026],
+      lists: KINDS.map((kind) => ({ kind, fields: [], version: null })),
+    };
+    const { calls } = codelistsApi('user', {
+      [`GET ${base}`]: (call) =>
+        call.path.includes('year=2027') && !carried
+          ? { body: empty }
+          : { body: { ...overview, year: 2027, years: [2026, 2027] } },
+      [`POST /api/customers/${BOLDOG.id}/years/2027/carry-over`]: () => {
+        carried = true;
+        return {
+          body: {
+            year: 2027,
+            from_year: 2026,
+            code_lists: KINDS.filter((kind) => kind !== 'cost_centres'),
+            parameters: true,
+            conventions: true,
+          },
+        };
+      },
+    });
+    await renderApp(`/c/${BOLDOG.id}/codelists?year=2027`);
+    expect(await screen.findByText(/Pre rok 2027 tento číselník ešte nie je/)).toBeInTheDocument();
+    expect(screen.getByText(/Počítadlá číselných radov začnú od nuly/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Prevziať z roku 2026' }));
+    expect(
+      await screen.findByText(
+        'Rok 2027 prevzal z roku 2026 5 číselníkov a chýbajúce parametre a zvyklosti.',
+      ),
+    ).toBeInTheDocument();
+    expect(
+      calls.some((c) => c.method === 'POST' && c.path.endsWith('/years/2027/carry-over')),
+    ).toBe(true);
+    expect(await screen.findByRole('region', { name: 'Výdavkový rozpočet' })).toBeInTheDocument();
+  });
+
+  it('is not offered to a reader, nor without a previous year', async () => {
+    codelistsApi('viewer', {
+      [`GET ${base}`]: {
+        body: {
+          year: 2026,
+          years: [],
+          lists: KINDS.map((kind) => ({ kind, fields: [], version: null })),
+        },
+      },
+    });
+    await renderApp(`/c/${BOLDOG.id}/codelists`);
+    expect(await screen.findByText(/tento číselník ešte nie je/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Prevziať z roku/ })).not.toBeInTheDocument();
+  });
+});
+
 describe('Globálne číselníky', () => {
   it('shows which global lists each year has, and a list to read', async () => {
     const lists = (year: number, present: boolean) =>

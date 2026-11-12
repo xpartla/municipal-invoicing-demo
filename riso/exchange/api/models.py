@@ -344,3 +344,13 @@ class ExportRunOut(BaseModel):
 class ExportRunPageOut(BaseModel):
     items: list[ExportRunOut]
     total: int
+
+
+class YearCarriedOverOut(BaseModel):
+    """What a year took from the previous one (plan §6.6)."""
+
+    year: int
+    from_year: int
+    code_lists: list[str]
+    parameters: bool
+    conventions: bool

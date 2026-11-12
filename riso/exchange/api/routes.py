@@ -40,6 +40,7 @@ from riso.exchange.api.models import (
     RunTemplateIn,
     TemplateIn,
     TemplateOut,
+    YearCarriedOverOut,
 )
 from riso.exchange.application.data_export import start_data_export
 from riso.exchange.application.exports import (
@@ -71,6 +72,7 @@ from riso.exchange.application.templates import (
     save_template,
     usable_templates,
 )
+from riso.exchange.application.year import carry_year_over
 from riso.exchange.domain.export import ExportFormat
 from riso.exchange.domain.mapping import ImportType
 from riso.exchange.domain.templates import TemplateScope
@@ -331,6 +333,26 @@ def customer_apply(
         caller.ctx, services.uow(), customer_id, run_id, confirm_errors=body.confirm_errors
     )
     return ImportRunOut.of(run)
+
+
+@router.post("/customers/{customer_id}/years/{year}/carry-over", name="years.carry_over")
+def carry_over(
+    caller: Editor,
+    services: ServicesDep,
+    customer_id: str,
+    year: Annotated[int, Path(ge=2001, le=2100)],
+) -> YearCarriedOverOut:
+    """Starts `year` from the previous one (plan §6.6): the code lists, parameters and
+    conventions it lacks, copied from `year - 1`; the number series start at 0. 409 when
+    there is nothing to take."""
+    done = carry_year_over(caller.ctx, services.uow(), customer_id, year)
+    return YearCarriedOverOut(
+        year=done.year,
+        from_year=done.from_year,
+        code_lists=done.code_lists,
+        parameters=done.parameters,
+        conventions=done.conventions,
+    )
 
 
 @router.post("/customers/{customer_id}/imports/{run_id}/cancel", name="imports.cancel")
