@@ -39,21 +39,53 @@ export const test = base.extend<Fixtures>({
 
   checkA11y: async ({ page }, use) => {
     await use(async (target = page) => {
+      // After `emulateMedia`, Mantine applies the scheme in an effect: wait until the page
+      // shows the emulated one (up to a second; a scheme chosen with the toggle wins), then two
+      // frames, so the colour transitions it starts are running before they are awaited below
+      // (CI caught a segmented control's labels half-way to the dark colours).
+      await target.evaluate(async () => {
+        const wanted = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const until = performance.now() + 1000;
+        while (
+          document.documentElement.getAttribute('data-mantine-color-scheme') !== wanted &&
+          performance.now() < until
+        ) {
+          await new Promise((resolve) => setTimeout(resolve, 20));
+        }
+        await new Promise((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+      });
       // A dialog or menu that is still fading in has blended colours; axe would measure
       // the contrast of a half-transparent button. Let running transitions finish first
       // (not the endless ones, such as a loader's spin). One cancelled meanwhile (a menu
       // closing as a dialog opens) has ended too: its `finished` rejects with an AbortError.
-      await target.evaluate(() =>
-        Promise.all(
-          document
-            .getAnimations()
-            .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
-            .map((animation) => animation.finished.catch(() => undefined)),
-        ),
-      );
-      const results = await new AxeBuilder({ page: target })
-        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-        .analyze();
+      const settle = () =>
+        target.evaluate(() =>
+          Promise.all(
+            document
+              .getAnimations()
+              .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
+              .map((animation) => animation.finished.catch(() => undefined)),
+          ),
+        );
+      const analyze = () =>
+        new AxeBuilder({ page: target })
+          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
+          .analyze();
+      await settle();
+      let results = await analyze();
+      // A fade that began after the wait above (a toast closing on its timer) shows blended
+      // colours for a moment. Contrast is a property of the settled page: when it is the only
+      // finding, let the running transitions end and look once more. A real one stays.
+      if (
+        results.violations.length > 0 &&
+        results.violations.every((v) => v.id === 'color-contrast')
+      ) {
+        await settle();
+        await target.waitForTimeout(250);
+        results = await analyze();
+      }
       const found = results.violations.map((v) => {
         const where = v.nodes
           .slice(0, 5)
