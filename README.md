@@ -17,8 +17,8 @@ The demo entity is Obec Boldog (IČO 00305863), with reference data for 08/2026.
 
 ## Status
 
-Phase 2 has started: a light version of the real application, built milestone by milestone on
-top of the demo. P2-M0 laid the foundation: the database and migrations, the background jobs
+Phase 2 is complete (P2-M8 in review): a light version of the real application, built
+milestone by milestone on top of the demo. P2-M0 laid the foundation: the database and migrations, the background jobs
 worker, the app's security headers and error mapping, the React SPA shell served by
 `riso serve`, the gate script, the E2E harness and CI. P2-M1 adds logins and access: users,
 customers and service providers, sessions with CSRF and throttling, invitations and password
@@ -57,7 +57,11 @@ the synthetic e-invoices. P2-M7 adds the dashboards and tools: Domov (a month's 
 the filtered invoices, bookings per day and over 12 months, by type, supplier and unit, review
 rate and time, the budget drawdown, what needs attention, the number series and the onboarding
 checklist), Prehľad klientov for staff and Platforma for admins (where they now land), and the
-admin's Audit, Úlohy (retry, cancel and the per-customer data export) and Vyhodnotenie.
+admin's Audit, Úlohy (retry, cancel and the per-customer data export) and Vyhodnotenie. P2-M8
+adds Pomocník (Slovak help articles and a "?" on every screen), consistent loading and error
+states, a request size limit and other fixes from a security review, the invoice table measured
+on 10,000 invoices (`riso seed --bulk`), starting a year from the previous one, and the phase 2
+acceptance journey.
 
 M2 measured the engine on 40 held-out synthetic invoices: every code valid, the full budget
 key right for 61.5% and the economic code for 76.9%, short of the demo targets of 85% and 90%.
