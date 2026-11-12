@@ -150,11 +150,36 @@ describe('guards', () => {
     ).toBeInTheDocument();
   });
 
-  it('a later screen opens a Pripravujeme page', async () => {
+  it('marks only the current item as the current page, not Domov too', async () => {
+    const none = { count: 0, size: 0 };
+    mockApi({
+      'GET /api/me': { body: meAs('user') },
+      [`GET /api/customers/${BOLDOG.id}/files`]: {
+        body: {
+          items: [],
+          total: 0,
+          size: 0,
+          kinds: { document: none, import: none, export: none },
+        },
+      },
+    });
+    await renderApp(`/c/${BOLDOG.id}/files`);
+    expect(within(nav()).getByRole('link', { name: 'Úložisko' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(within(nav()).getByRole('link', { name: 'Domov' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('Pomocník in the navbar opens the help centre', async () => {
     mockApi({ 'GET /api/me': { body: meAs('admin') } });
-    await renderApp('/help');
-    expect(screen.getByRole('heading', { level: 1, name: 'Pomocník' })).toBeInTheDocument();
-    expect(screen.getByText('Pripravujeme')).toBeInTheDocument();
+    const { router } = await renderApp('/admin/outbox');
+    await userEvent.click(within(nav()).getByRole('link', { name: 'Pomocník' }));
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/help');
+    });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Pomocník' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Pre administrátorov' })).toBeVisible();
   });
 
   it('Správy is a placeholder for everyone', async () => {

@@ -2,11 +2,12 @@ import { notifications } from '@mantine/notifications';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { ApiError } from './apiError';
+import { errorMessage } from './errorMessage';
 
 /**
- * Toasts for the outcome of an action. A failure says what the API's error code means. The
- * close button is named, which Mantine's is not by default (axe's button-name).
+ * Toasts for the outcome of an action. A failure says what the API's error code means, or
+ * that the server failed or could not be reached (`errorMessage`). The close button is
+ * named, which Mantine's is not by default (axe's button-name).
  */
 export function useNotify() {
   const { t } = useTranslation();
@@ -23,14 +24,8 @@ export function useNotify() {
   );
   const failure = useCallback(
     (error: unknown) => {
-      let message = t('common.error');
-      if (error instanceof ApiError) {
-        const problem = error.problems[0];
-        const code = problem?.type ?? error.code;
-        if (code) message = t(`errors.${code}` as 'errors.invalid', { defaultValue: message });
-      }
       notifications.show({
-        message,
+        message: errorMessage(error, t),
         color: 'red',
         autoClose: 8000,
         closeButtonProps: { 'aria-label': t('common.close') },

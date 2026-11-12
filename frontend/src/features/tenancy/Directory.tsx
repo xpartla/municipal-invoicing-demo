@@ -1,9 +1,9 @@
 import {
+  ActionIcon,
   Anchor,
   Badge,
   Button,
   Group,
-  Loader,
   Menu,
   Paper,
   Stack,
@@ -25,6 +25,7 @@ import { inCustomer, onPlatform } from '../identity/capabilities';
 import { ImpersonateDialog } from '../identity/ImpersonateDialog';
 import { useDirectory, type Customer, type CustomerWithLogins, type Login } from './api';
 import { InviteLoginDialog, VariableNumberDialog } from './LoginDialogs';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 /**
  * Používatelia, the customers with their logins nested (plan §10.8): invite a login,
@@ -38,8 +39,8 @@ export function Directory({ me, scope }: { me: Me; scope: { providerId: string }
   const [vsFor, setVsFor] = useState<Customer | null>(null);
   const [impersonate, setImpersonate] = useState<{ id: string; name: string } | null>(null);
 
-  if (directory.isPending) return <Loader aria-label={t('common.loading')} />;
-  if (directory.isError) return <Text>{t('common.error')}</Text>;
+  if (directory.isPending) return <Loading />;
+  if (directory.isError) return <LoadFailed error={directory.error} onRetry={directory.refetch} />;
   if (directory.data.length === 0) return <Text>{t('users.noCustomers')}</Text>;
   return (
     <Stack gap="md">
@@ -245,14 +246,14 @@ function LoginRow({
         <Table.Td>
           <Menu position="bottom-end" withinPortal>
             <Menu.Target>
-              <Button
-                size="xs"
+              {/* An icon: the word did not fit the column at tablet width. */}
+              <ActionIcon
                 variant="subtle"
                 aria-label={`${t('users.actions')}: ${login.name}`}
-                leftSection={<IconDots size={16} aria-hidden />}
+                title={t('users.actions')}
               >
-                {t('users.actions')}
-              </Button>
+                <IconDots size={16} aria-hidden />
+              </ActionIcon>
             </Menu.Target>
             <Menu.Dropdown>
               {login.active ? (

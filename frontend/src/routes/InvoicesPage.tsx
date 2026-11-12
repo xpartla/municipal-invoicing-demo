@@ -1,4 +1,4 @@
-import { Alert, Button, Checkbox, Group, Loader, Popover, Stack, Text, Title } from '@mantine/core';
+import { Button, Checkbox, Group, Loader, Popover, Stack, Text, Title } from '@mantine/core';
 import { IconColumns, IconDownload } from '@tabler/icons-react';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { useState } from 'react';
@@ -21,6 +21,7 @@ import {
   exportFilter,
   type InvoiceSearch,
 } from '../features/invoices/search';
+import { LoadFailed } from '../components/QueryStates';
 
 const SIZE = 50;
 
@@ -138,7 +139,7 @@ export function InvoicesPage() {
         {invoices.isFetching && <Loader size="xs" aria-label={t('common.loading')} />}
       </Group>
 
-      {invoices.isError && <Alert color="red">{t('common.error')}</Alert>}
+      {invoices.isError && <LoadFailed error={invoices.error} onRetry={invoices.refetch} />}
       {invoices.isSuccess && rows.length === 0 ? (
         <Text c="dimmed">
           {activeFilters(search) > 0 ? t('invoices.emptyFiltered') : t('invoices.empty')}

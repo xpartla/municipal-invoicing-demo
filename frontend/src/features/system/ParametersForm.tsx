@@ -1,15 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Alert,
-  Button,
-  Checkbox,
-  Group,
-  Loader,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { Alert, Button, Checkbox, Group, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
 import { useEffect, useMemo } from 'react';
 import { useForm, type Path } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +9,7 @@ import { ApiError, fieldOf } from '../../lib/apiError';
 import { useNotify } from '../../lib/notify';
 import { useErrorText } from '../../lib/useErrorText';
 import { useParameters, useSaveParameters } from './api';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 const TEXT_FIELDS = [
   'default_zdroj',
@@ -104,7 +95,9 @@ export function ParametersForm({
     }
   });
 
-  if (parameters.isPending) return <Loader aria-label={t('common.loading')} />;
+  if (parameters.isPending) return <Loading />;
+  if (parameters.isError)
+    return <LoadFailed error={parameters.error} onRetry={parameters.refetch} />;
   return (
     <form onSubmit={(event) => void submit(event)} noValidate>
       <Stack gap="md" maw={720}>

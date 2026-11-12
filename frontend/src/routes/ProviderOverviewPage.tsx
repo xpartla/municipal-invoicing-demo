@@ -1,5 +1,4 @@
 import {
-  Alert,
   Badge,
   Group,
   Loader,
@@ -23,6 +22,7 @@ import { currentMonth } from '../features/reporting/dashboard';
 import { useProviderOverview, type ProviderOverview } from '../features/reporting/overview';
 import { useProviders } from '../features/tenancy/api';
 import { formatDateTime } from '../lib/format';
+import { LoadFailed } from '../components/QueryStates';
 
 const TOTALS = [
   'customers',
@@ -94,7 +94,7 @@ export function ProviderOverviewPage() {
       {((admin && providers.isPending) || (providerId !== undefined && found.isPending)) && (
         <Loader aria-label={t('common.loading')} />
       )}
-      {found.isError && <Alert color="red">{t('common.error')}</Alert>}
+      {found.isError && <LoadFailed error={found.error} onRetry={found.refetch} />}
       {admin && providers.isSuccess && choices.length === 0 && (
         <Text c="dimmed">{t('overview.noProviders')}</Text>
       )}

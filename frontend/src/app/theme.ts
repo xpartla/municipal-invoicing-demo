@@ -1,6 +1,8 @@
 import {
+  ActionIcon,
   Alert,
   Badge,
+  Button,
   createTheme,
   localStorageColorSchemeManager,
   type CSSVariablesResolver,
@@ -53,8 +55,26 @@ export const theme = createTheme({
     Alert: Alert.extend({
       styles: { title: { color: 'var(--mantine-color-text)' } },
     }),
+    // A red action that is not filled (Vyradiť, the trash icons, "Odstrániť SÚ …") showed
+    // white in the dark scheme, losing the cue that it destroys. It takes the error colour,
+    // which meets AA in both schemes (below).
+    Button: Button.extend({
+      vars: (_theme, props) =>
+        props.color === 'red' && ['subtle', 'transparent'].includes(props.variant ?? '')
+          ? { root: { '--button-color': 'var(--mantine-color-error)' } }
+          : { root: {} },
+    }),
+    ActionIcon: ActionIcon.extend({
+      vars: (_theme, props) =>
+        props.color === 'red' && ['subtle', 'transparent'].includes(props.variant ?? '')
+          ? { root: { '--ai-color': 'var(--mantine-color-error)' } }
+          : { root: {} },
+    }),
     Badge: Badge.extend({
       defaultProps: { variant: 'filled' },
+      // A badge never shrinks into an ellipsis: in a table the column would otherwise be
+      // squeezed to "NA K…" (the invoice table's state). Badges hold a word or two.
+      styles: { root: { minWidth: 'max-content' } },
       // A filled gray badge is gray.7 in light and gray.5 in dark, either side of the
       // threshold, but autoContrast picks one text colour for both: white, 2:1 on gray.5.
       // The text colour follows the scheme instead (--riso-on-gray).

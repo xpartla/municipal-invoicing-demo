@@ -1,8 +1,6 @@
 import {
-  Alert,
   Anchor,
   Group,
-  Loader,
   Paper,
   SegmentedControl,
   SimpleGrid,
@@ -26,6 +24,7 @@ import {
   type StoredFile,
 } from '../features/reporting/api';
 import { formatDateTime, formatSize } from '../lib/format';
+import { Loading, LoadFailed } from '../components/QueryStates';
 
 /**
  * Úložisko (plan §10.7): the customer's files, the uploaded documents, the imported and the
@@ -75,8 +74,8 @@ export function FilesPage() {
     <Stack gap="md">
       <Title order={1}>{t('files.title')}</Title>
       <Text size="sm">{t('files.intro')}</Text>
-      {found.isPending && <Loader aria-label={t('common.loading')} />}
-      {found.isError && <Alert color="red">{t('common.error')}</Alert>}
+      {found.isPending && <Loading />}
+      {found.isError && <LoadFailed error={found.error} onRetry={found.refetch} />}
       {listing && (
         <>
           <SimpleGrid

@@ -17,8 +17,8 @@ The demo entity is Obec Boldog (IČO 00305863), with reference data for 08/2026.
 
 ## Status
 
-Phase 2 has started: a light version of the real application, built milestone by milestone on
-top of the demo. P2-M0 laid the foundation: the database and migrations, the background jobs
+Phase 2 is complete (P2-M8 in review): a light version of the real application, built
+milestone by milestone on top of the demo. P2-M0 laid the foundation: the database and migrations, the background jobs
 worker, the app's security headers and error mapping, the React SPA shell served by
 `riso serve`, the gate script, the E2E harness and CI. P2-M1 adds logins and access: users,
 customers and service providers, sessions with CSRF and throttling, invitations and password
@@ -57,7 +57,11 @@ the synthetic e-invoices. P2-M7 adds the dashboards and tools: Domov (a month's 
 the filtered invoices, bookings per day and over 12 months, by type, supplier and unit, review
 rate and time, the budget drawdown, what needs attention, the number series and the onboarding
 checklist), Prehľad klientov for staff and Platforma for admins (where they now land), and the
-admin's Audit, Úlohy (retry, cancel and the per-customer data export) and Vyhodnotenie.
+admin's Audit, Úlohy (retry, cancel and the per-customer data export) and Vyhodnotenie. P2-M8
+adds Pomocník (Slovak help articles and a "?" on every screen), consistent loading and error
+states, a request size limit and other fixes from a security review, the invoice table measured
+on 10,000 invoices (`riso seed --bulk`), starting a year from the previous one, and the phase 2
+acceptance journey.
 
 M2 measured the engine on 40 held-out synthetic invoices: every code valid, the full budget
 key right for 61.5% and the economic code for 76.9%, short of the demo targets of 85% and 90%.
@@ -152,8 +156,13 @@ The specs include the click-through of the demo's invoice pages, ported to the n
 (`e2e/journeys-m4.spec.ts`), and the scans' journeys from upload to booking
 (`e2e/journeys-m5.spec.ts`), and the e-invoices' (`e2e/journeys-m6.spec.ts`, a UBL file and
 an ISDOC PDF from `testdata/einvoice/samples`, read from their XML), M7's (`e2e/journeys-m7.spec.ts`:
-Domov after a booking, a provider's overview, the admin's audit search) and `e2e/routes.spec.ts`,
-which opens every route per role through axe: the global setup has the server read uploads with
+Domov after a booking, a provider's overview, the admin's audit search), `e2e/routes.spec.ts`,
+which opens every route per role through axe and its "?" (P2-M8), `e2e/help.spec.ts` and the
+phase 2 acceptance journey (`e2e/acceptance.spec.ts`, desktop width only: a provider copies
+Boldog, imports a chart of accounts with a new mapping and saves the template, invites a user
+who sets a password from the outbox link; the user uploads three scans and a UBL invoice,
+books one outright, corrects one, enters a credit note by hand, exports to CSV and marks them
+paid; Domov counts them; the admin finds them in the audit and impersonates the user): the global setup has the server read uploads with
 `RISO_OCR_READER=recorded`, replaying the committed samples' layouts, so E2E needs no models. `RISO_E2E_SERVER_LOG=<file>` keeps the server's output, with the
 traceback of a 500, in that file. The typed API client is
 generated from the backend's OpenAPI document; after changing a route or its models, run
@@ -198,7 +207,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso serve` | Runs the API, the built SPA and the jobs worker; needs `riso migrate` first |
 | `riso code <file>…` | Codes InvoiceDocuments or dataset cases with the committed bundle and the supplier memory and counters of `data/initial_state`, and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
-| `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated |
+| `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated. `--bulk N` adds N synthetic invoices to Boldog for measuring (variations of the dataset's cases over 2024 to 2026, mostly booked, exported or paid; supplier memory untouched); on an empty database, or with `--reset`, it seeds first. 10,000 take about 30 s |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
 | `riso ocr setup` | Downloads the pinned Tesseract models (`slk`, `eng` from `tessdata_best` 4.1.0) into `RISO_TESSDATA` and checks their SHA-256; a file already there with the right hash is kept |
 | `riso ocr record` | Reads the committed synthetic samples with Tesseract, preparing their pages as the extraction does, and writes their layouts to `testdata/ocr/recorded/` (`--out` elsewhere) for the fast tests and `RISO_OCR_READER=recorded`. Run it after changing the page preparation or the models |
@@ -220,6 +229,7 @@ Environment variables, all optional:
 | `RISO_SEED_PASSWORD` | unset | the password `riso seed` gives every seeded login; generated when unset |
 | `RISO_PUBLIC_URL` | `http://localhost:8001` | the app's address, for the links in mail |
 | `RISO_COOKIE_SECURE` | `false` | mark the session and CSRF cookies `Secure` (behind HTTPS, phase 2.5) |
+| `RISO_REQUEST_THREADS` | `4` | threads serving the synchronous routes at once; SQLite in one process serves many clients faster with few threads than with many |
 | `RISO_VAR_DIR` | `var/` | runtime state: the database, uploaded files, OCR models, reports |
 | `RISO_DB_URL` | `sqlite:///<var>/riso.db` | the SQLAlchemy database URL |
 | `RISO_TESSDATA` | `<var>/tessdata` | the Tesseract models |
@@ -294,6 +304,11 @@ FastAPI's own validation errors, 429 with `retry_after`, and an unknown `/api` p
 404. Every API route is named and listed in `riso/api/permissions_matrix.py` with the
 permission it needs; a generated test calls every route as every role and fails for a route
 without an entry or with a dependency that disagrees with it.
+
+Pomocník's articles are Markdown files in `frontend/src/help/sk/`, one per article, rendered
+with react-markdown (no raw HTML). `frontend/src/help/topics.ts` lists them with their role
+group and maps each route to the article its "?" opens; the unit tests fail when a route has
+no article, a file is not listed, or an article links to one that does not exist.
 
 ## Layout
 

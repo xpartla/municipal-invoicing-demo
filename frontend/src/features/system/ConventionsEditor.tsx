@@ -3,7 +3,6 @@ import {
   Alert,
   Button,
   Group,
-  Loader,
   Paper,
   Stack,
   Switch,
@@ -31,6 +30,7 @@ import {
   type Side,
 } from './document';
 import { RuleDialog } from './RuleDialog';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 const SIDES: Side[] = ['debit', 'credit'];
 const NEW_CANTEEN: Canteen = {
@@ -58,11 +58,11 @@ export function ConventionsEditor({
   year: number;
   canEdit: boolean;
 }) {
-  const { t } = useTranslation();
   const conventions = useConventions(customerId, year);
-  if (conventions.isPending || !conventions.data) {
-    return <Loader aria-label={t('common.loading')} />;
+  if (conventions.isError) {
+    return <LoadFailed error={conventions.error} onRetry={conventions.refetch} />;
   }
+  if (conventions.isPending) return <Loading />;
   const { revision, document } = conventions.data;
   return (
     <ConventionsForm

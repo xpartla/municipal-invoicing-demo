@@ -1,15 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Alert,
-  Button,
-  Group,
-  Loader,
-  Select,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { Alert, Button, Group, Select, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +18,7 @@ import {
   useUpdateIdentity,
   type Customer,
 } from './api';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 /**
  * The customer's fields on Profil (plan §5.5, decision 50): the user edits the address and
@@ -53,7 +44,8 @@ export function CustomerProfile({ me, initial }: { me: Me; initial: string | und
           }}
         />
       )}
-      {customer.isPending && <Loader size="sm" aria-label={t('common.loading')} />}
+      {customer.isPending && <Loading />}
+      {customer.isError && <LoadFailed error={customer.error} onRetry={customer.refetch} />}
       {customer.data && <CustomerForms me={me} customer={customer.data} key={customer.data.id} />}
     </Section>
   );

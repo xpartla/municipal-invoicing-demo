@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Group,
-  Loader,
   Paper,
   Select,
   SimpleGrid,
@@ -35,6 +34,7 @@ import {
 import { applyFieldErrors } from '../../lib/apiError';
 import { useNotify } from '../../lib/notify';
 import { useErrorText } from '../../lib/useErrorText';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 /**
  * Servisné účty (plan §10.9, admins): providers with their staff and customers; create and
@@ -62,8 +62,10 @@ export function ProvidersPage() {
         </Button>
       </Group>
       {providers.isPending ? (
-        <Loader aria-label={t('common.loading')} />
-      ) : providers.data?.length ? (
+        <Loading />
+      ) : providers.isError ? (
+        <LoadFailed error={providers.error} onRetry={providers.refetch} />
+      ) : providers.data.length ? (
         providers.data.map((detail) => (
           <ProviderCard
             key={detail.provider.id}

@@ -83,3 +83,9 @@ def test_the_demo_routes_are_gone(admin):
     assert admin.post("/api/code", json={}).status_code == 404
     for path in ("/api/entities", "/api/invoices", "/api/counters/00305863", "/api/feedback"):
         assert admin.get(path).status_code == 404, path
+
+
+def test_the_entity_is_an_ico_not_a_path(admin):
+    # It names the report's folder under var/; anything but eight digits is refused.
+    for bad in ("../../etc", "0030586", "00305863/x"):
+        assert admin.get("/api/admin/eval", params={"entity": bad}).status_code == 422

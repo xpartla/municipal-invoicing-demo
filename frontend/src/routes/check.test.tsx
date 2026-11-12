@@ -380,3 +380,38 @@ describe('the check step', () => {
     });
   });
 });
+
+describe('the help of the invoice page', () => {
+  it("opens the check step's article while the fields wait, the proposal's after", async () => {
+    let current = invoice();
+    checkApi(() => current);
+    const { router } = await renderApp(`/c/${BOLDOG.id}/invoices/${ID}`);
+    await screen.findByRole('tab', { name: 'Kontrola údajov', selected: true });
+    const help = screen.getByRole('button', { name: 'Pomocník k tejto obrazovke' });
+    await userEvent.click(help);
+    let panel = await screen.findByRole('dialog', { name: 'Pomocník' });
+    expect(
+      await within(panel).findByRole('heading', { level: 3, name: 'Kontrola údajov' }),
+    ).toBeVisible();
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Pomocník' })).not.toBeInTheDocument();
+    });
+
+    current = CHECKED;
+    await router.navigate({
+      to: '/c/$customerId/invoices/$invoiceId',
+      params: { customerId: BOLDOG.id, invoiceId: ID },
+      search: { tab: 'proposal' },
+    });
+    await screen.findByRole('tab', { name: 'Návrh a zaúčtovanie', selected: true });
+    await userEvent.click(help);
+    panel = await screen.findByRole('dialog', { name: 'Pomocník' });
+    expect(
+      await within(panel).findByRole('heading', {
+        level: 3,
+        name: 'Ako čítať návrh zaúčtovania',
+      }),
+    ).toBeVisible();
+  });
+});

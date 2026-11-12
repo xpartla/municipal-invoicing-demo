@@ -1,4 +1,4 @@
-import { Alert, Group, Loader, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Group, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useNavigate, useParams, useSearch } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -17,6 +17,7 @@ import { useMe } from '../features/identity/api';
 import { MonthsChart, PerDayChart } from '../features/reporting/DashboardCharts';
 import { MonthPicker } from '../features/reporting/MonthPicker';
 import { currentMonth, useDashboard } from '../features/reporting/dashboard';
+import { Loading, LoadFailed } from '../components/QueryStates';
 
 /**
  * Domov (plan §10.2, decision 67): a customer's month. The tiles open the invoice table
@@ -50,8 +51,8 @@ export function HomePage() {
           }}
         />
       </Group>
-      {found.isPending && <Loader aria-label={t('common.loading')} />}
-      {found.isError && <Alert color="red">{t('common.error')}</Alert>}
+      {found.isPending && <Loading />}
+      {found.isError && <LoadFailed error={found.error} onRetry={found.refetch} />}
       {data && (
         <>
           {!data.onboarding.done && (

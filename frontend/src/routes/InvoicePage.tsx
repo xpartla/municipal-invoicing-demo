@@ -7,7 +7,6 @@ import {
   Grid,
   Group,
   List,
-  Loader,
   Paper,
   Select,
   Stack,
@@ -65,9 +64,11 @@ import type { FieldPath } from '../features/invoices/FieldsForm';
 import { HistoryList } from '../features/invoices/HistoryList';
 import { ProposalCards, type Names } from '../features/invoices/ProposalCards';
 import type { InvoicePageSearch } from '../features/invoices/search';
+import { useHelpTopic } from '../help/context';
 import { ApiError } from '../lib/apiError';
 import { formatAmount, formatDate } from '../lib/format';
 import { useNotify } from '../lib/notify';
+import { Loading, LoadFailed } from '../components/QueryStates';
 
 const BOOKED = new Set(['booked', 'exported', 'paid']);
 
@@ -100,15 +101,12 @@ export function InvoicePage() {
   });
   const found = useInvoice(customerId, invoiceId);
   const invoice = found.data;
-  if (found.isPending) return <Loader aria-label={t('common.loading')} />;
+  if (found.isPending) return <Loading />;
   if (!invoice) {
-    return (
-      <Alert color="red">
-        {found.error instanceof ApiError && found.error.status === 404
-          ? t('notFound.title')
-          : t('common.error')}
-      </Alert>
-    );
+    if (found.error instanceof ApiError && found.error.status === 404) {
+      return <Alert color="red">{t('notFound.title')}</Alert>;
+    }
+    return <LoadFailed error={found.error} onRetry={found.refetch} />;
   }
   // A new proposal or booking starts the page's working copy afresh.
   const version = [invoice.id, invoice.state, invoice.coded_at, invoice.booked_at, invoice.number];
@@ -284,6 +282,7 @@ function InvoiceView({ customerId, invoice }: { customerId: string; invoice: Inv
       : checkable && fresh
         ? 'check'
         : 'proposal';
+  useHelpTopic(tab === 'check' || tab === 'fields' ? 'kontrola-udajov' : 'navrh');
   const goTab = (value: string | null) => {
     const next = tabs.find((name) => name === value);
     if (!next) return;
@@ -423,7 +422,24 @@ function InvoiceView({ customerId, invoice }: { customerId: string; invoice: Inv
 
             <Tabs.Panel value="proposal" pt="md">
               <Stack gap="md">
-                {invoice.coding_error && <Alert color="red">{t('invoice.codingError')}</Alert>}
+                {invoice.coding_error && (
+                  <Alert color="red">
+                    {t('invoice.codingError')}
+                    {year !== undefined && (
+                      <>
+                        {' '}
+                        <AnchorLink
+                          to="/c/$customerId/codelists"
+                          params={{ customerId }}
+                          search={{ year }}
+                          underline="always"
+                        >
+                          {t('invoice.codingErrorLink', { year })}
+                        </AnchorLink>
+                      </>
+                    )}
+                  </Alert>
+                )}
                 {!source && !invoice.coding_error && (
                   <Text c="dimmed">{t('invoice.proposalAfterCheck')}</Text>
                 )}

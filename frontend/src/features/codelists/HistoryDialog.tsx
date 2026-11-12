@@ -1,4 +1,4 @@
-import { Badge, Button, Loader, Stack, Table, Text, Title } from '@mantine/core';
+import { Badge, Button, Stack, Table, Text, Title } from '@mantine/core';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -7,6 +7,7 @@ import { ScrollTable } from '../../components/ScrollTable';
 import { formatDateTime } from '../../lib/format';
 import { useDiff, useVersions, type Diff, type Entry, type Version } from './api';
 import { valueText, type CustomerKind } from './kinds';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 /** Verzie a zmeny (plan §6.2, §10.6): every version of the list for the year, and what each
  * changed against the one before. */
@@ -40,7 +41,9 @@ export function HistoryDialog({
     >
       <Stack gap="md">
         {versions.isPending ? (
-          <Loader aria-label={t('common.loading')} />
+          <Loading />
+        ) : versions.isError ? (
+          <LoadFailed error={versions.error} onRetry={versions.refetch} />
         ) : (
           <ScrollTable label={t('codelists.history.versions')} minWidth={560}>
             <Table striped>
@@ -104,10 +107,12 @@ export function HistoryDialog({
               })}
             </Title>
             {diff.isPending ? (
-              <Loader aria-label={t('common.loading')} />
-            ) : diff.data ? (
+              <Loading />
+            ) : diff.isError ? (
+              <LoadFailed error={diff.error} onRetry={diff.refetch} />
+            ) : (
               <DiffList diff={diff.data} />
-            ) : null}
+            )}
           </section>
         )}
       </Stack>

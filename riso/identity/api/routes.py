@@ -290,7 +290,7 @@ def invite_login_route(
         services.links,
         Invite(body.email, body.name, ScopeKind.CUSTOMER, customer_id, body.role),
     )
-    return InvitedOut(user=UserOut.of(done.user), new_account=done.new_account)
+    return InvitedOut(user=UserOut.within(done.user, customer_id), new_account=done.new_account)
 
 
 @router.post("/customers/{customer_id}/logins/{user_id}/deactivate", name="logins.deactivate")
@@ -298,14 +298,16 @@ def deactivate_login_route(
     caller: LoginManager, services: ServicesDep, customer_id: str, user_id: str
 ) -> UserOut:
     """Removes the login's access to this customer; the account stays."""
-    return UserOut.of(deactivate_login(caller.ctx, services.uow(), customer_id, user_id))
+    done = deactivate_login(caller.ctx, services.uow(), customer_id, user_id)
+    return UserOut.within(done, customer_id)
 
 
 @router.post("/customers/{customer_id}/logins/{user_id}/reactivate", name="logins.reactivate")
 def reactivate_login_route(
     caller: LoginManager, services: ServicesDep, customer_id: str, user_id: str
 ) -> UserOut:
-    return UserOut.of(reactivate_login(caller.ctx, services.uow(), customer_id, user_id))
+    done = reactivate_login(caller.ctx, services.uow(), customer_id, user_id)
+    return UserOut.within(done, customer_id)
 
 
 @router.post("/customers/{customer_id}/logins/{user_id}/reset-link", name="logins.send_link")

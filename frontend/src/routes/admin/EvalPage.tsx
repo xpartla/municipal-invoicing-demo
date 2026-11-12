@@ -1,9 +1,7 @@
 import {
-  Alert,
   Badge,
   Button,
   Group,
-  Loader,
   Paper,
   SegmentedControl,
   Select,
@@ -28,6 +26,7 @@ import {
   type Split,
 } from '../../features/admin/evaluation';
 import { formatDateTime, formatPercent } from '../../lib/format';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 function percent(value: number | null | undefined): string {
   return value === null || value === undefined ? '—' : formatPercent(value);
@@ -76,8 +75,8 @@ export function EvalPage() {
           </Button>
         </Group>
       </Group>
-      {found.isPending && <Loader aria-label={t('evaluation.computing')} />}
-      {found.isError && <Alert color="red">{t('common.error')}</Alert>}
+      {found.isPending && <Loading label={t('evaluation.computing')} />}
+      {found.isError && <LoadFailed error={found.error} onRetry={found.refetch} />}
       {report && <Report report={report} filter={filter} onFilter={setFilter} />}
     </Stack>
   );

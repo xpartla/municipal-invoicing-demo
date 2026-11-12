@@ -10,6 +10,8 @@ test('the invoice table, its filters, the bulk bar and the export dialog pass ax
   page,
   checkA11y,
 }) => {
+  // Six axe passes over a page of 50 rows take 20–28 s alone; more under a full parallel run.
+  test.setTimeout(60_000);
   await loginAs(page, 'user');
   await openNav(page);
   await page.getByRole('navigation').getByRole('link', { name: 'Faktúry' }).click();

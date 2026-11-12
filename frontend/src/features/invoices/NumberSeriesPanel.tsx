@@ -1,15 +1,4 @@
-import {
-  Alert,
-  Badge,
-  Button,
-  Group,
-  List,
-  Loader,
-  NumberInput,
-  Stack,
-  Table,
-  Text,
-} from '@mantine/core';
+import { Badge, Button, Group, List, NumberInput, Stack, Table, Text } from '@mantine/core';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -18,6 +7,7 @@ import { ScrollTable } from '../../components/ScrollTable';
 import { ApiError } from '../../lib/apiError';
 import { useNotify } from '../../lib/notify';
 import { useNumberSeries, useSetLastUsed, type NumberSeries } from './api';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 const GAPS_SHOWN = 10;
 
@@ -44,8 +34,9 @@ export function NumberSeriesPanel({
   const [error, setError] = useState<string | null>(null);
   const [showing, setShowing] = useState<NumberSeries | null>(null);
 
-  if (series.isPending) return <Loader size="sm" aria-label={t('common.loading')} />;
-  const items = series.data?.items ?? [];
+  if (series.isPending) return <Loading />;
+  if (series.isError) return <LoadFailed error={series.error} onRetry={series.refetch} />;
+  const items = series.data.items;
 
   const submit = async () => {
     if (!editing) return;
@@ -210,7 +201,6 @@ export function NumberSeriesPanel({
           ))}
         </List>
       </Dialog>
-      {series.isError && <Alert color="red">{t('common.error')}</Alert>}
     </Stack>
   );
 }

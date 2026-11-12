@@ -312,17 +312,25 @@ def set_parameters(
 
 
 def copy_parameters(
-    ctx: RequestContext, uow: TenancyUnitOfWork, source_id: str, target_id: str, year: int
+    ctx: RequestContext,
+    uow: TenancyUnitOfWork,
+    source_id: str,
+    target_id: str,
+    year: int,
+    *,
+    into_year: int | None = None,
 ) -> bool:
-    """Gives the target the source's parameters of the year, inside the caller's unit of
-    work (a customer copy, plan §9.3). False when the source has none or the target already
-    has some (a copy job run again changes nothing)."""
+    """Gives the target the source's parameters of `year` for `into_year` (default the same
+    year), inside the caller's unit of work (a customer copy, plan §9.3; a year's carry-over,
+    §6.6). False when the source has none or the target already has some (a copy job run
+    again changes nothing)."""
     ctx.require(Permission.CUSTOMER_READ, source_id)
     ctx.require(Permission.CODELISTS_EDIT, target_id)
+    target_year = year if into_year is None else into_year
     source = uow.parameters.get(source_id, year)
-    if source is None or uow.parameters.get(target_id, year) is not None:
+    if source is None or uow.parameters.get(target_id, target_year) is not None:
         return False
-    uow.parameters.save(CustomerParameters.parse(target_id, year, source.values()))
+    uow.parameters.save(CustomerParameters.parse(target_id, target_year, source.values()))
     return True
 
 

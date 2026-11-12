@@ -258,3 +258,19 @@ def test_the_lifespan_runs_the_worker_and_stops_it(tmp_path):
             assert time.monotonic() < deadline
             time.sleep(0.02)
     assert not thread.running
+
+
+def test_the_app_serves_the_synchronous_routes_with_few_threads(services, tmp_path):
+    # SQLite in one process serves many clients faster with a few threads (P2-M8-T04).
+    from anyio import to_thread
+
+    def tokens() -> float:
+        return to_thread.current_default_thread_limiter().total_tokens
+
+    app = create_app(
+        Settings(var_dir=tmp_path / "var", platform=services.settings, run_worker=False),
+        services=services,
+    )
+    with TestClient(app) as running:
+        assert running.portal is not None
+        assert running.portal.call(tokens) == services.settings.request_threads == 4

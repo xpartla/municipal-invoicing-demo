@@ -231,6 +231,39 @@ def test_staff_invite_a_login_who_then_logs_in(staff, admin, new_client, ids):
     assert twice.status_code == 409
 
 
+def test_staff_see_only_their_customer_of_an_existing_account(staff, admin, client, services, ids):
+    # Jana works for Boldog (staff's provider) and for a customer of nobody's; she has a
+    # notification address. Staff inviting her into another customer of theirs must not
+    # learn the foreign customer or the address (P2-M8-T03).
+    foreign = make_customer(services, name="Obec Cudzia", ico="99900033")
+    lehota = make_customer(services, name="Obec Vzorová Lehota", ico="99900017")
+    with services.uow() as uow:
+        customer = uow.customers.get(lehota)
+        customer.assign_to(uow.providers.get(ids["provider"]))
+        uow.customers.save(customer)
+        uow.commit()
+    client.login(JANA)
+    client.patch("/api/me", json={"notification_email": "jana@domov.sk"})
+    admin.post(f"/api/customers/{foreign}/logins", json={"email": JANA, "name": "Jana"})
+
+    invited = staff.post(f"/api/customers/{lehota}/logins", json={"email": JANA, "name": "Jana"})
+    assert invited.status_code == 201
+    body = invited.json()
+    assert body["new_account"] is False
+    assert body["user"]["notification_email"] is None
+    assert [(m["scope_id"], m["role"]) for m in body["user"]["memberships"]] == [
+        (lehota, "customer_user")
+    ]
+    base = f"/api/customers/{lehota}/logins/{ids['jana']}"
+    for action in ("deactivate", "reactivate"):
+        shown = staff.post(f"{base}/{action}").json()
+        assert shown["notification_email"] is None
+        assert {m["scope_id"] for m in shown["memberships"]} == {lehota}
+    # Admins still see the whole account.
+    [whole] = [u for u in admin.get("/api/admin/users").json()["items"] if u["id"] == ids["jana"]]
+    assert {m["scope_id"] for m in whole["memberships"]} >= {ids["boldog"], foreign, lehota}
+
+
 def test_deactivating_and_reactivating_a_login(staff, client, ids):
     client.login(JANA)
     base = f"/api/customers/{ids['boldog']}/logins/{ids['jana']}"

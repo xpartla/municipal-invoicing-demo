@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     ocr_recordings: Path = Field(default_factory=lambda: paths.TESTDATA_DIR / "ocr" / "recorded")
     public_url: str = "http://localhost:8001"
     cookie_secure: bool = False
+    request_threads: int = Field(default=4, ge=1, le=64)
+    """Threads serving the synchronous routes at once. SQLite in one process slows down
+    steeply with many threads: 12 clients got 6 requests a second with anyio's default 40
+    threads and 17 with 4 (P2-M8-T04)."""
     smtp_host: str | None = None
     smtp_port: int = 587
     smtp_user: str | None = None

@@ -1,10 +1,11 @@
-import { Loader, Table, Text } from '@mantine/core';
+import { Table, Text } from '@mantine/core';
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 import { ScrollTable } from '../../components/ScrollTable';
 import { formatDate, formatDateTime } from '../../lib/format';
 import { useHistory, type History } from './api';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 type Entry = History['items'][number];
 
@@ -29,10 +30,11 @@ function details(entry: Entry, t: TFunction): string {
 export function HistoryList({ customerId, invoiceId }: { customerId: string; invoiceId: string }) {
   const { t } = useTranslation();
   const history = useHistory(customerId, invoiceId, true);
-  if (history.isPending) return <Loader size="sm" aria-label={t('common.loading')} />;
-  const items = history.data?.items ?? [];
+  if (history.isPending) return <Loading />;
+  if (history.isError) return <LoadFailed error={history.error} onRetry={history.refetch} />;
+  const items = history.data.items;
   if (items.length === 0) return <Text c="dimmed">{t('invoice.history.empty')}</Text>;
-  const names = history.data?.names ?? {};
+  const names = history.data.names;
   const who = (entry: Entry) => {
     const user = entry.actor_id
       ? (names[entry.actor_id] ?? entry.actor_id)

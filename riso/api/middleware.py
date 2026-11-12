@@ -4,6 +4,7 @@ Both are plain ASGI, not `BaseHTTPMiddleware`, so the request ID's context varia
 the endpoints, including the sync ones that run in the thread pool.
 """
 
+import json
 import re
 from collections.abc import Callable
 
@@ -154,3 +155,85 @@ def _has_cookie(scope: Scope, name: str) -> bool:
                 if part.strip().startswith(f"{name}="):
                     return True
     return False
+
+
+class _BodyTooLarge(Exception):
+    """Raised from `receive` once a request's body passes its limit."""
+
+
+BodyLimit = Callable[[str, str], int]
+"""The largest body, in bytes, a request of this method and path may send."""
+
+
+class BodySizeLimitMiddleware:
+    """Refuses a request whose body is larger than its route takes, with 413, before the
+    body is read (plan §12).
+
+    FastAPI reads a whole form or JSON body before the route's dependencies run, so without
+    this an anonymous client could make the server spool any amount of "upload" to disk or
+    hold any JSON in memory before the login check refused it. A declared `Content-Length`
+    over the limit is refused at once; a body without one is counted as it streams and cut
+    at the limit. FastAPI turns a failure while parsing into a 400 of its own, so once the
+    limit is passed, whatever response the app starts is replaced by the 413.
+    """
+
+    def __init__(self, app: ASGIApp, *, limit_for: BodyLimit) -> None:
+        self.app = app
+        self._limit_for = limit_for
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        limit = self._limit_for(scope["method"], scope["path"])
+        declared = _header(scope, b"content-length")
+        if declared is not None and declared.isdigit() and int(declared) > limit:
+            await _send_too_large(send, limit)
+            return
+
+        received = 0
+        exceeded = False
+        answered = False
+
+        async def counted() -> Message:
+            nonlocal received, exceeded
+            message = await receive()
+            if message["type"] == "http.request":
+                received += len(message.get("body", b""))
+                if received > limit:
+                    exceeded = True
+                    raise _BodyTooLarge
+            return message
+
+        async def guarded(message: Message) -> None:
+            nonlocal answered
+            if exceeded:
+                if message["type"] == "http.response.start" and not answered:
+                    answered = True
+                    await _send_too_large(send, limit)
+                return
+            await send(message)
+
+        try:
+            await self.app(scope, counted, guarded)
+        except _BodyTooLarge:
+            if not answered:
+                await _send_too_large(send, limit)
+
+
+async def _send_too_large(send: Send, limit: int) -> None:
+    body = json.dumps(
+        {"detail": f"the request body is larger than {limit} bytes", "code": "too_large"}
+    ).encode()
+    await send(
+        {
+            "type": "http.response.start",
+            "status": 413,
+            "headers": [
+                (b"content-type", b"application/json"),
+                (b"content-length", str(len(body)).encode()),
+                (b"connection", b"close"),
+            ],
+        }
+    )
+    await send({"type": "http.response.body", "body": body})

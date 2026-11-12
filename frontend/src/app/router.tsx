@@ -4,14 +4,15 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
   redirect,
   type RouteComponent,
   type RouterHistory,
 } from '@tanstack/react-router';
-import { useTranslation } from 'react-i18next';
 
 import { Shell } from '../components/Shell';
+import { sessionExpiredKey } from './queryClient';
 import { meQuery, useMe, type Me } from '../features/identity/api';
 import {
   createsCustomers,
@@ -35,7 +36,6 @@ import { homeSearch } from '../features/reporting/dashboard';
 import { overviewSearch, platformSearch } from '../features/reporting/overview';
 import { systemSearch } from '../features/system/search';
 import { CodelistsPage } from '../routes/CodelistsPage';
-import { ComingSoonPage } from '../routes/ComingSoonPage';
 import { CustomerLayout } from '../routes/CustomerLayout';
 import { ErrorPage } from '../routes/ErrorPage';
 import { ExchangePage } from '../routes/ExchangePage';
@@ -99,10 +99,10 @@ function goToLanding(me: Me): void {
 
 interface LoginSearch {
   next?: string;
-  notice?: 'password-set' | 'email-changed' | 'logged-out';
+  notice?: 'password-set' | 'email-changed' | 'logged-out' | 'session-expired';
 }
 
-const NOTICES = new Set(['password-set', 'email-changed', 'logged-out']);
+const NOTICES = new Set(['password-set', 'email-changed', 'logged-out', 'session-expired']);
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -148,7 +148,13 @@ const appRoute = createRoute({
   id: '_app',
   beforeLoad: async ({ context, location }) => {
     const me = await currentMe(context);
-    if (!me) throw redirect({ to: '/login', search: { next: location.href } });
+    if (!me) {
+      const ended = context.queryClient.getQueryData<boolean>(sessionExpiredKey) === true;
+      throw redirect({
+        to: '/login',
+        search: { next: location.href, notice: ended ? 'session-expired' : undefined },
+      });
+    }
   },
   component: Shell,
   notFoundComponent: NotFoundPage,
@@ -169,32 +175,6 @@ const customerRoute = createRoute({
   path: '/c/$customerId',
   component: CustomerLayout,
 });
-
-type TitleKey =
-  | 'invoices'
-  | 'codelists'
-  | 'exchange'
-  | 'files'
-  | 'system'
-  | 'help'
-  | 'profile'
-  | 'providerOverview'
-  | 'users'
-  | 'platform'
-  | 'providers'
-  | 'globalCodelists'
-  | 'audit'
-  | 'jobs'
-  | 'outbox'
-  | 'evaluation';
-
-/** A "Pripravujeme" page titled like its menu item. */
-function soon(key: TitleKey) {
-  return function Soon() {
-    const { t } = useTranslation();
-    return <ComingSoonPage title={t(`shell.nav.${key}`)} />;
-  };
-}
 
 /** Renders `Page` when the caller may see it, the 403 page otherwise. */
 function guarded(allowed: (me: Me) => boolean, Page: RouteComponent) {
@@ -265,7 +245,14 @@ const appRoutes = [
   indexRoute,
   customerRoute.addChildren(customerRoutes),
   page('/messages', MessagesPage),
-  page('/help', soon('help')),
+  page(
+    '/help',
+    lazyRouteComponent(() => import('../routes/HelpPage'), 'HelpPage'),
+  ),
+  page(
+    '/help/$articleId',
+    lazyRouteComponent(() => import('../routes/HelpArticlePage'), 'HelpArticlePage'),
+  ),
   page('/profile', ProfilePage),
   createRoute({
     getParentRoute: () => appRoute,
@@ -303,6 +290,8 @@ const appRoutes = [
   }),
   page('/admin/outbox', guarded(admin('outbox.read'), OutboxPage)),
   page('/admin/eval', guarded(admin('evaluation.read'), EvalPage)),
+  // Any other address, inside the shell (after the login), rather than a bare page.
+  page('$', NotFoundPage),
 ];
 
 const routeTree = rootRoute.addChildren([...publicRoutes, appRoute.addChildren(appRoutes)]);
@@ -317,6 +306,8 @@ export function createAppRouter(
     context: { queryClient },
     defaultPreload: 'intent',
     defaultNotFoundComponent: NotFoundPage,
+    // A screen's crash shows in its place, inside the shell; the root's catches the rest.
+    defaultErrorComponent: ErrorPage,
   });
 }
 

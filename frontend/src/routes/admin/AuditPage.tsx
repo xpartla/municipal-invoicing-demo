@@ -1,9 +1,7 @@
 import {
-  Alert,
   Button,
   Code,
   Group,
-  Loader,
   Select,
   SimpleGrid,
   Stack,
@@ -21,6 +19,7 @@ import { AUDIT_PAGE, useAudit, type AuditSearch } from '../../features/admin/aud
 import { useUsers } from '../../features/identity/api';
 import { useDirectory } from '../../features/tenancy/api';
 import { formatDateTime } from '../../lib/format';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 /**
  * Audit (plan §10.9): the log, newest first, filtered by actor (the actor or the real actor
@@ -117,8 +116,8 @@ export function AuditPage() {
           </Button>
         </Group>
       </form>
-      {found.isPending && <Loader aria-label={t('common.loading')} />}
-      {found.isError && <Alert color="red">{t('common.error')}</Alert>}
+      {found.isPending && <Loading />}
+      {found.isError && <LoadFailed error={found.error} onRetry={found.refetch} />}
       {found.data && (
         <>
           <Text size="sm">{t('audit.count', { count: found.data.total })}</Text>

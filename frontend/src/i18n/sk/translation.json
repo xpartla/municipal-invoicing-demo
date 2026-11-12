@@ -17,6 +17,10 @@
     "next": "Ďalšie",
     "page": "Strana {{page}} z {{pages}}"
   },
+  "states": {
+    "loadFailed": "Údaje sa nepodarilo načítať",
+    "retry": "Skúsiť znova"
+  },
   "errors": {
     "password_too_short": "Heslo musí mať aspoň 12 znakov.",
     "password_too_long": "Heslo môže mať najviac 256 znakov.",
@@ -53,7 +57,10 @@
     "extra_forbidden": "Toto pole sa tu nepoužíva.",
     "conventions": "Zvyklosti sa nedajú použiť s globálnymi pravidlami roka.",
     "number_frozen": "Zaúčtovanie by posunulo číslo exportovanej, uhradenej alebo importovanej faktúry. Číslo dokladu zadajte ručne (Opraviť a prijať).",
-    "below_used": "Počítadlo nemôže byť nižšie ako najvyššie použité číslo radu."
+    "below_used": "Počítadlo nemôže byť nižšie ako najvyššie použité číslo radu.",
+    "server": "Na serveri nastala chyba. Skúste to znova; ak sa chyba opakuje, oznámte ju administrátorovi.",
+    "network": "Server je nedostupný. Skontrolujte pripojenie a skúste to znova.",
+    "too_large": "Požiadavka je príliš veľká. Nahrajte menej súborov naraz alebo menší súbor."
   },
   "auth": {
     "login": {
@@ -66,7 +73,8 @@
       "throttled": "Príliš veľa neúspešných pokusov. Skúste to znova o {{minutes}} min.",
       "passwordSet": "Heslo je nastavené. Teraz sa prihláste.",
       "emailChanged": "Prihlasovacia adresa je zmenená. Prihláste sa novou adresou.",
-      "loggedOut": "Odhlásenie prebehlo."
+      "loggedOut": "Odhlásenie prebehlo.",
+      "sessionExpired": "Prihlásenie vypršalo. Prihláste sa znova."
     },
     "password": {
       "new": "Nové heslo",
@@ -126,8 +134,7 @@
       "evaluation": "Vyhodnotenie",
       "help": "Pomocník",
       "profile": "Profil",
-      "logout": "Odhlásiť",
-      "soon": "Pripravujeme"
+      "logout": "Odhlásiť"
     },
     "section": {
       "customer": "Klient",
@@ -283,11 +290,25 @@
     },
     "tableOf": "Tabuľka: {{title}}"
   },
-  "comingSoon": {
-    "text": "Táto obrazovka pribudne v jednej z ďalších etáp."
-  },
   "messages": {
     "text": "Pripravujeme: správy a upozornenia od servisného účtu a administrátora."
+  },
+  "help": {
+    "title": "Pomocník",
+    "intro": "Návody k práci v programe. Návod k obrazovke, na ktorej práve ste, otvorí aj otáznik vpravo hore.",
+    "groups": {
+      "customer": "Spracovanie faktúr",
+      "staff": "Pre servisné účty",
+      "admin": "Pre administrátorov"
+    },
+    "button": "Pomocník k tejto obrazovke",
+    "panelTitle": "Pomocník",
+    "openPage": "Otvoriť ako stránku",
+    "all": "Všetky návody",
+    "back": "Pomocník",
+    "table": "Tabuľka v návode",
+    "notFound": "Návod sa nenašiel",
+    "notFoundText": "Taký návod v Pomocníkovi nie je. Vyberte si zo zoznamu."
   },
   "forbidden": {
     "title": "Prístup zamietnutý",
@@ -511,7 +532,8 @@
   "errorPage": {
     "title": "Niečo sa pokazilo",
     "text": "Stránku sa nepodarilo zobraziť. Skúste ju načítať znova.",
-    "home": "Späť na úvod"
+    "home": "Späť na úvod",
+    "reload": "Načítať znova"
   },
   "codelists": {
     "title": "Číselníky",
@@ -621,7 +643,13 @@
       "added": "pridaný",
       "removed": "odstránený",
       "changed": "zmenený"
-    }
+    },
+    "carryOver": "Prevziať z roku {{from}}",
+    "carryOverHint": "Rok {{year}} zatiaľ nemá všetko. Program skopíruje číselníky, parametre a účtovacie zvyklosti roku {{from}}, ktoré rok {{year}} ešte nemá; čo už má, ostane. Počítadlá číselných radov začnú od nuly.",
+    "carriedOver_one": "Rok {{year}} prevzal z roku {{from}} {{count}} číselník a chýbajúce parametre a zvyklosti.",
+    "carriedOver_few": "Rok {{year}} prevzal z roku {{from}} {{count}} číselníky a chýbajúce parametre a zvyklosti.",
+    "carriedOver_many": "Rok {{year}} prevzal z roku {{from}} {{count}} číselníkov a chýbajúce parametre a zvyklosti.",
+    "carriedOver_other": "Rok {{year}} prevzal z roku {{from}} {{count}} číselníkov a chýbajúce parametre a zvyklosti."
   },
   "globalCodelists": {
     "title": "Globálne číselníky",
@@ -1208,8 +1236,8 @@
     "name": "Názov",
     "ico": "IČO",
     "dic": "DIČ",
-    "variableNumber": "Variabilné číslo",
-    "variableNumberHint": "Nepovinné; najviac desať číslic.",
+    "variableNumber": "Variabilný symbol",
+    "variableNumberHint": "Nepovinné; jedna až desať číslic.",
     "street": "Ulica a číslo",
     "city": "Obec",
     "postalCode": "PSČ",
@@ -1242,7 +1270,7 @@
     "copying": "Kopíruje sa…",
     "copyDone": "Hotovo: skopírovaných číselníkov {{lists}}, šablón {{templates}}.",
     "copyFailed": "Kopírovanie zlyhalo. Klient je vytvorený; číselníky doplňte importom alebo kópiu zopakujte.",
-    "variableNumberFailed": "Variabilné číslo sa nepriradilo; priraďte ho na stránke Používatelia.",
+    "variableNumberFailed": "Variabilný symbol sa nepriradil; priraďte ho na stránke Používatelia.",
     "inviteFailed": "Pozvánka sa neodoslala; pozvite prihlásenie na stránke Používatelia.",
     "open": "Otvoriť klienta",
     "toUsers": "Späť na Používateľov"
@@ -1598,7 +1626,8 @@
       "accepted": "návrh prijatý",
       "corrected": "opravené"
     },
-    "proposalAfterCheck": "Návrh zaúčtovania vznikne po potvrdení údajov na karte Kontrola údajov."
+    "proposalAfterCheck": "Návrh zaúčtovania vznikne po potvrdení údajov na karte Kontrola údajov.",
+    "codingErrorLink": "Pripraviť rok {{year}} v Číselníkoch"
   },
   "fieldsForm": {
     "handwritten": "Rukou na doklade",

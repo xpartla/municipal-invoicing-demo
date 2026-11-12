@@ -1,4 +1,4 @@
-import { Loader, Stack, Text } from '@mantine/core';
+import { Stack, Text } from '@mantine/core';
 import { useRouter } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -8,6 +8,7 @@ import { NewPasswordForm } from '../../features/identity/NewPasswordForm';
 import { formatDateTime } from '../../lib/format';
 import { InvalidLink } from './InvalidLink';
 import { useLinkToken } from './useLinkToken';
+import { Loading } from '../../components/QueryStates';
 
 /** An invited login sets its password (plan §5.3). */
 export function InvitationPage() {
@@ -17,7 +18,7 @@ export function InvitationPage() {
   const info = useTokenInfo(token);
   const accept = useAcceptInvitation();
 
-  if (token && info.isPending) return <Loader aria-label={t('common.loading')} />;
+  if (token && info.isPending) return <Loading />;
   if (!token || info.isError || info.data?.kind !== 'invitation') return <InvalidLink />;
   const { name, email, expires_at } = info.data;
   return (

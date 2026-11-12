@@ -49,7 +49,8 @@ export function ProposalCards({
   const { t } = useTranslation();
   const copy = (what: string) => t('invoice.copy.what', { what });
   return (
-    <SimpleGrid cols={{ base: 1, lg: 2 }} spacing="md">
+    // Side by side only where both tables fit without scrolling (from 1408 px).
+    <SimpleGrid cols={{ base: 1, xl: 2 }} spacing="md">
       <Paper withBorder p="md" radius="md">
         <Title order={2} size="h4" mb="sm">
           {t('invoice.posting.title')}
@@ -75,7 +76,7 @@ export function ProposalCards({
                   {(['md', 'dal'] as const).map((side) => (
                     <Table.Td key={side}>
                       <Group gap={4} wrap="nowrap">
-                        <Text ff="monospace" size="sm">
+                        <Text ff="monospace" size="sm" style={{ whiteSpace: 'nowrap' }}>
                           {line[side]}
                         </Text>
                         <CopyValue value={line[side]} label={copy(t(`invoice.posting.${side}`))} />

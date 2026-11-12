@@ -1,15 +1,4 @@
-import {
-  Badge,
-  Button,
-  Group,
-  Loader,
-  Menu,
-  Stack,
-  Switch,
-  Table,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { Badge, Button, Group, Menu, Stack, Switch, Table, Text, TextInput } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { IconDots, IconSearch } from '@tabler/icons-react';
 import { useState } from 'react';
@@ -21,6 +10,7 @@ import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { useNotify } from '../../lib/notify';
 import { useUserAction, useUsers, type Me, type UserAction, type UserInfo } from './api';
 import { ImpersonateDialog } from './ImpersonateDialog';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 /**
  * Všetky účty (plan §10.9, admins): every user with lock and unlock, a forced logout, delete,
@@ -56,8 +46,10 @@ export function AllAccounts({ me }: { me: Me }) {
         />
       </Group>
       {users.isPending ? (
-        <Loader aria-label={t('common.loading')} />
-      ) : users.data?.items.length ? (
+        <Loading />
+      ) : users.isError ? (
+        <LoadFailed error={users.error} onRetry={users.refetch} />
+      ) : users.data.items.length ? (
         <ScrollTable label={t('users.tabs.accounts')} minWidth={640}>
           <Table striped>
             <Table.Thead>

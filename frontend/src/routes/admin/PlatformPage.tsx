@@ -1,4 +1,4 @@
-import { Alert, Group, Loader, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Group, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useTranslation } from 'react-i18next';
 
@@ -6,6 +6,7 @@ import { AnchorLink } from '../../components/RouterLinks';
 import { MonthPicker } from '../../features/reporting/MonthPicker';
 import { currentMonth, monthLabel } from '../../features/reporting/dashboard';
 import { usePlatformCounts, type PlatformCounts } from '../../features/reporting/overview';
+import { Loading, LoadFailed } from '../../components/QueryStates';
 
 type Count = Exclude<keyof PlatformCounts, 'month' | 'login_users'>;
 
@@ -48,8 +49,8 @@ export function PlatformPage() {
           }}
         />
       </Group>
-      {found.isPending && <Loader aria-label={t('common.loading')} />}
-      {found.isError && <Alert color="red">{t('common.error')}</Alert>}
+      {found.isPending && <Loading />}
+      {found.isError && <LoadFailed error={found.error} onRetry={found.refetch} />}
       {found.data && <Counts counts={found.data} />}
     </Stack>
   );
