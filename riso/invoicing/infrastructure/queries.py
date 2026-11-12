@@ -108,10 +108,14 @@ def _conditions(customer_id: str, f: InvoiceFilter) -> list[ColumnElement[bool]]
 
 def _ordered(statement: Select[Any], sort: Sort) -> Select[Any]:
     column = _SORT_COLUMNS[sort.key]
-    # Empty values last in either direction, then the ID for a stable order.
+    # Empty values last in either direction, then the ID for a stable order. A column that is
+    # never empty needs no such term, and without it the (customer_id, column) index gives
+    # the order (P2-M8-T04: the default sort by upload time no longer sorts every invoice).
     order = column.desc() if sort.descending else column.asc()
     tie = InvoiceRow.id.desc() if sort.descending else InvoiceRow.id.asc()
-    return statement.order_by(column.is_(None), order, tie)
+    if getattr(column.expression, "nullable", True):
+        return statement.order_by(column.is_(None), order, tie)
+    return statement.order_by(order, tie)
 
 
 def _amount(value: int | None) -> Decimal | None:
@@ -133,11 +137,23 @@ class SqlInvoiceQueries:
     ) -> InvoicePage:
         where = _conditions(customer_id, criteria)
         total = self._session.scalar(select(func.count()).select_from(InvoiceRow).where(*where))
-        rows = list(
+        # The page's IDs first, then their rows: sorting whole rows (their JSON columns among
+        # them) made SQLite carry every matching invoice through the sort (P2-M8-T04: 166 ms
+        # of 194 on 10,000 invoices); sorting the IDs carries only the key and the ID.
+        page_ids = list(
             self._session.scalars(
-                _ordered(select(InvoiceRow).where(*where), sort).offset(offset).limit(limit)
+                _ordered(select(InvoiceRow.id).where(*where), sort).offset(offset).limit(limit)
             )
         )
+        found = {
+            row.id: row
+            for row in self._session.scalars(
+                select(InvoiceRow).where(
+                    InvoiceRow.customer_id == customer_id, InvoiceRow.id.in_(page_ids)
+                )
+            )
+        }
+        rows = [found[invoice_id] for invoice_id in page_ids if invoice_id in found]
         lines: defaultdict[str, list[InvoiceLineRow]] = defaultdict(list)
         if rows:
             for line in self._session.scalars(

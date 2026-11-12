@@ -13,6 +13,7 @@ from riso.shared.errors import DomainError
 if TYPE_CHECKING:
     from riso.contracts import CodingProposal, EvalReport
     from riso.contracts.eval import Split
+    from riso.platform import Settings as PlatformSettings
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -95,6 +96,13 @@ def main(argv: list[str] | None = None) -> int:
         "seed", help="create the demo database: Boldog, a provider, a user per role (dev only)"
     )
     seed.add_argument("--reset", action="store_true", help="drop the database and the files first")
+    seed.add_argument(
+        "--bulk",
+        type=int,
+        metavar="N",
+        help="add N synthetic invoices to Obec Boldog, for measuring (seeds first if the "
+        "database is empty or with --reset)",
+    )
 
     worker = commands.add_parser("worker", help="run the background jobs worker")
     worker.add_argument("--once", action="store_true", help="run the jobs that are due, then exit")
@@ -424,12 +432,18 @@ def _seed(args: argparse.Namespace) -> int:
     once. Refuses unless RISO_ENV is dev or test."""
     import os
 
-    from riso.api.seed import SeedRefused, seed
+    from riso.api.seed import SeedRefused, seed, seeded_already
     from riso.platform import Settings
 
+    settings = Settings()
+    if args.bulk is not None and args.bulk < 1:
+        print("riso seed: --bulk takes a positive number", file=sys.stderr)
+        return 2
+    if args.bulk is not None and not args.reset and seeded_already(settings):
+        return _bulk(settings, args.bulk)
     try:
         done = seed(
-            Settings(), reset=args.reset, password=os.environ.get("RISO_SEED_PASSWORD") or None
+            settings, reset=args.reset, password=os.environ.get("RISO_SEED_PASSWORD") or None
         )
     except SeedRefused as exc:
         print(f"riso seed: {exc}", file=sys.stderr)
@@ -441,6 +455,22 @@ def _seed(args: argparse.Namespace) -> int:
         print(f"  {key:<7} {email:<{width}}  {shown}")
     if done.generated_passwords:
         print("The passwords are shown only now; `riso seed --reset` makes new ones.")
+    if args.bulk is not None:
+        return _bulk(settings, args.bulk)
+    return 0
+
+
+def _bulk(settings: "PlatformSettings", count: int) -> int:
+    """`riso seed --bulk N`: N synthetic invoices for Boldog (P2-M8-T04)."""
+    from riso.api.bulk_seed import BulkSeedRefused, seed_bulk
+
+    try:
+        done = seed_bulk(settings, count)
+    except BulkSeedRefused as exc:
+        print(f"riso seed: {exc}", file=sys.stderr)
+        return 2
+    states = ", ".join(f"{state} {n}" for state, n in done.by_state.items())
+    print(f"added {done.invoices} synthetic invoices to Obec Boldog ({states})")
     return 0
 
 

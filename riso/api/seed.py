@@ -37,6 +37,7 @@ from pathlib import Path
 
 from sqlalchemy import func, select
 from sqlalchemy.engine.url import make_url
+from sqlalchemy.exc import OperationalError
 
 from riso import paths
 from riso.api.composition import build_services
@@ -151,6 +152,22 @@ def seed(
             initial_dir,
             invoices_dir,
         )
+    finally:
+        db.dispose()
+
+
+def seeded_already(settings: Settings) -> bool:
+    """Whether the database of `settings` exists, is migrated and has users."""
+    url = make_url(settings.db_url)
+    on_disk = url.get_backend_name() == "sqlite" and url.database not in (None, "", ":memory:")
+    if on_disk and not Path(str(url.database)).exists():
+        return False
+    db = Database(settings.db_url)
+    try:
+        with db.session() as session:
+            return bool(session.scalar(select(func.count()).select_from(UserRow)))
+    except OperationalError:
+        return False
     finally:
         db.dispose()
 

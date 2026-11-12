@@ -129,6 +129,7 @@ class InvoiceRow(Base):
         Index(None, "customer_id", "issue_date"),
         Index(None, "customer_id", "due_date"),
         Index(None, "customer_id", "exported_at"),
+        Index(None, "customer_id", "booked_at"),
         Index(None, "customer_id", "paid_on"),
         Index(None, "customer_id", "gross_cents"),
         Index(None, "customer_id", "document_id"),

@@ -198,7 +198,7 @@ did. A step whose tool is not set up yet is skipped with a message. The pytest m
 | `riso serve` | Runs the API, the built SPA and the jobs worker; needs `riso migrate` first |
 | `riso code <file>…` | Codes InvoiceDocuments or dataset cases with the committed bundle and the supplier memory and counters of `data/initial_state`, and prints them as the accountant would type them in; for a dataset case it says whether the codes match the expected ones. `--json` prints the full CodingProposal |
 | `riso migrate` | Upgrades the database (`RISO_DB_URL`, default `var/riso.db`) to the newest schema; `--revision` picks another |
-| `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated |
+| `riso seed` | Migrates and seeds the demo database (Boldog, a provider, a login per role); `--reset` drops it first. Only with `RISO_ENV=dev` or `test`; passwords from `RISO_SEED_PASSWORD` or generated. `--bulk N` adds N synthetic invoices to Boldog for measuring (variations of the dataset's cases over 2024 to 2026, mostly booked, exported or paid; supplier memory untouched); on an empty database, or with `--reset`, it seeds first. 10,000 take about 30 s |
 | `riso worker` | Runs the background jobs (imports, OCR, exports, …) of the database in the foreground until Ctrl-C; `--once` runs the due jobs and exits. The app runs the same worker in a thread |
 | `riso ocr setup` | Downloads the pinned Tesseract models (`slk`, `eng` from `tessdata_best` 4.1.0) into `RISO_TESSDATA` and checks their SHA-256; a file already there with the right hash is kept |
 | `riso ocr record` | Reads the committed synthetic samples with Tesseract, preparing their pages as the extraction does, and writes their layouts to `testdata/ocr/recorded/` (`--out` elsewhere) for the fast tests and `RISO_OCR_READER=recorded`. Run it after changing the page preparation or the models |
@@ -220,6 +220,7 @@ Environment variables, all optional:
 | `RISO_SEED_PASSWORD` | unset | the password `riso seed` gives every seeded login; generated when unset |
 | `RISO_PUBLIC_URL` | `http://localhost:8001` | the app's address, for the links in mail |
 | `RISO_COOKIE_SECURE` | `false` | mark the session and CSRF cookies `Secure` (behind HTTPS, phase 2.5) |
+| `RISO_REQUEST_THREADS` | `4` | threads serving the synchronous routes at once; SQLite in one process serves many clients faster with few threads than with many |
 | `RISO_VAR_DIR` | `var/` | runtime state: the database, uploaded files, OCR models, reports |
 | `RISO_DB_URL` | `sqlite:///<var>/riso.db` | the SQLAlchemy database URL |
 | `RISO_TESSDATA` | `<var>/tessdata` | the Tesseract models |

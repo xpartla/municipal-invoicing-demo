@@ -16,6 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Annotated
 
+from anyio import to_thread
 from fastapi import Depends, FastAPI, HTTPException, Query
 
 from riso import __version__, paths
@@ -107,6 +108,10 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         if services is not None:
+            # The synchronous routes run in anyio's thread pool, which is per event loop.
+            to_thread.current_default_thread_limiter().total_tokens = (
+                services.settings.request_threads
+            )
             _require_migrated(services.settings.db_url)
             if settings.run_worker:
                 services.worker_thread().start()
